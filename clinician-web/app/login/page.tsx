@@ -20,7 +20,7 @@ export default function LoginPage() {
       if (authError) { setError(authError.message); return; }
       if (!data.user) { setError('Sign in failed. Please try again.'); return; }
       const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
-      if (profile && profile.role !== 'clinician') {
+      if (profile && profile.role !== 'clinician' && profile.role !== 'admin') {
         await supabase.auth.signOut();
         setError('This portal is for clinicians only. Please use the patient app.');
         return;
@@ -36,52 +36,42 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-[#070D1A] flex">
-      {/* Left panel — brand/illustration, hidden on mobile */}
+      {/* Left panel — brand/illustration */}
       <div className="hidden lg:flex lg:w-[45%] bg-[#040A16] border-r border-[#1A3265] flex-col items-center justify-center px-12 py-16 relative overflow-hidden">
-        {/* Subtle radial glow */}
+        {/* Radial glow */}
         <div className="absolute inset-0 pointer-events-none" style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,191,166,0.07) 0%, transparent 70%)' }} />
 
-        <div className="relative z-10 flex flex-col items-center text-center max-w-sm">
+        <div className="relative z-10 flex flex-col items-center text-center max-w-sm w-full">
           {/* Logo */}
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-20 h-20" aria-hidden="true">
-            <circle cx="48" cy="48" r="10" fill="#00BFA6"/>
-            <circle cx="48" cy="48" r="26" fill="none" stroke="#00BFA6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)"/>
-            <circle cx="48" cy="48" r="42" fill="none" stroke="#00BFA6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)"/>
-          </svg>
+          <div className="relative mb-2">
+            <div className="w-14 h-14 rounded-full border-2 border-[#00BFA6] opacity-20 absolute inset-0" />
+            <div className="absolute rounded-full border-2 border-[#00BFA6] opacity-50" style={{ inset: 10 }} />
+            <div className="absolute rounded-full bg-[#00BFA6]" style={{ inset: 20 }} />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-14 h-14 relative" aria-hidden="true">
+              <circle cx="48" cy="48" r="10" fill="#00BFA6"/>
+              <circle cx="48" cy="48" r="26" fill="none" stroke="#00BFA6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)"/>
+              <circle cx="48" cy="48" r="42" fill="none" stroke="#00BFA6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)"/>
+            </svg>
+          </div>
 
-          <h1 className="text-[#EAF4FF] font-extrabold mt-5 leading-none" style={{ fontSize: '42px' }}>Duara</h1>
+          <h1 className="text-[#EAF4FF] font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>Duara</h1>
           <p className="text-[#00BFA6] text-sm mt-2 tracking-wide font-medium">Clinician Portal</p>
 
-          {/* Patient illustration */}
-          <svg viewBox="0 0 360 260" className="w-full max-w-xs mt-8 opacity-90" aria-hidden="true">
-            <circle cx="60" cy="220" r="80" fill="#00BFA6" fillOpacity=".08"/>
-            <circle cx="310" cy="40" r="60" fill="#3B82F6" fillOpacity=".07"/>
-            <circle cx="180" cy="140" r="90" fill="none" stroke="#00BFA6" strokeWidth="3" strokeLinecap="round" strokeDasharray="450 100" transform="rotate(80 180 140)" strokeOpacity=".5"/>
-            <circle cx="180" cy="140" r="52" fill="#0D1B35"/>
-            <circle cx="180" cy="125" r="16" fill="#00BFA6" fillOpacity=".7"/>
-            <path d="M152,165 C152,145 208,145 208,165 Z" fill="#00BFA6" fillOpacity=".5"/>
-            <circle cx="115" cy="95" r="22" fill="#0F2040"/>
-            <circle cx="115" cy="88" r="7" fill="#7AAAC8" fillOpacity=".6"/>
-            <circle cx="245" cy="95" r="22" fill="#0F2040"/>
-            <circle cx="245" cy="88" r="7" fill="#F4B860" fillOpacity=".6"/>
-            <circle cx="180" cy="63" r="22" fill="#0F2040"/>
-            <circle cx="180" cy="56" r="7" fill="#22C87A" fillOpacity=".6"/>
-            <circle cx="130" cy="200" r="22" fill="#0F2040"/>
-            <circle cx="130" cy="193" r="7" fill="#3B82F6" fillOpacity=".6"/>
-            <circle cx="230" cy="200" r="22" fill="#0F2040"/>
-            <circle cx="230" cy="193" r="7" fill="#00BFA6" fillOpacity=".5"/>
-            <rect x="260" y="185" width="48" height="68" rx="8" fill="#0D1B35" stroke="#1A3265" strokeWidth="1"/>
-            <rect x="266" y="193" width="36" height="46" rx="4" fill="#122245"/>
-            <circle cx="284" cy="214" r="10" fill="#22C87A" fillOpacity=".8"/>
-            <path d="M278,214 l4,4 l7,-8" fill="none" stroke="#070D1A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          {/* Hero clinician illustration */}
+          <div className="mt-8 w-full max-w-xs mx-auto">
+            <img
+              src="/illustrations/hero-clinician.svg"
+              alt="Clinician illustration"
+              className="w-full h-auto opacity-90"
+            />
+          </div>
 
           {/* Trust bullets */}
           <ul className="mt-8 space-y-3 text-left w-full">
             {[
               { icon: '🔒', text: 'HIPAA-aligned data handling' },
               { icon: '🛡', text: 'Patient-controlled consent' },
-              { icon: '⚡', text: 'Real-time alerts' },
+              { icon: '⚡', text: 'Real-time SOS alerts' },
             ].map((b) => (
               <li key={b.text} className="flex items-center gap-3 text-[#7AAAC8] text-sm">
                 <span className="text-base">{b.icon}</span>
@@ -110,7 +100,6 @@ export default function LoginPage() {
           <p className="text-[#7AAAC8] text-sm mb-8">Sign in to your patient dashboard.</p>
 
           <form onSubmit={handleSignIn} className="space-y-5">
-            {/* Email */}
             <div className="relative">
               <label className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
                 Email address
@@ -126,7 +115,6 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Password */}
             <div className="relative">
               <label className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
                 Password
@@ -142,14 +130,12 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Error */}
             {error && (
               <div className="bg-[rgba(239,68,68,0.10)] border border-[#EF4444]/40 rounded-xl px-4 py-3">
                 <p className="text-[#EF4444] text-sm">{error}</p>
               </div>
             )}
 
-            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
@@ -168,7 +154,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-center text-[#3D5C80] text-xs mt-8">
-            Not registered?{' '}
+            {"Not registered? "}
             <span className="text-[#7AAAC8] font-medium">Contact your administrator.</span>
           </p>
         </div>

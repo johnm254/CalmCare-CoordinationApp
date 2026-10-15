@@ -27,37 +27,204 @@ function StatusPill({ status }: { status: string }) {
   return <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${s.bg} ${s.text}`}>{s.label}</span>;
 }
 
+interface Patient {
+  id: string;
+  full_name: string;
+}
+
+interface CreateModalProps {
+  patients: Patient[];
+  onClose: () => void;
+  onCreated: () => void;
+}
+
+function CreateFollowUpModal({ patients, onClose, onCreated }: CreateModalProps) {
+  const [patientId, setPatientId] = useState(patients[0]?.id ?? '');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!patientId || !title || !dueDate) return;
+    setSubmitting(true);
+    setError('');
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+      const { error: insertError } = await supabase.from('followups').insert({
+        clinician_id: user.id,
+        patient_id: patientId,
+        title,
+        description: description || null,
+        due_at: new Date(dueDate).toISOString(),
+        status: 'open',
+      });
+      if (insertError) throw insertError;
+      onCreated();
+      onClose();
+    } catch (err: any) {
+      setError(err.message ?? 'Failed to create follow-up.');
+      setSubmitting(false);
+    }
+  }
+
+  const inputClass = "w-full bg-[#070D1A] border border-[#1A3265] rounded-xl px-4 py-3 text-[#EAF4FF] placeholder:text-[#3D5C80] focus:border-[#00BFA6] focus:outline-none focus:ring-2 focus:ring-[#00BFA6]/20 text-sm transition-colors";
+  const labelClass = "block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-lg bg-[#0D1B35] border border-[#1A3265] rounded-2xl p-6 shadow-2xl">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-[#EAF4FF] font-bold text-lg">Create follow-up</h2>
+            <p className="text-[#7AAAC8] text-sm mt-0.5">Schedule a task for a linked patient.</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-lg bg-[#0F2040] flex items-center justify-center text-[#7AAAC8] hover:text-[#EAF4FF] transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className={labelClass}>Patient</label>
+            <select
+              value={patientId}
+              onChange={(e) => setPatientId(e.target.value)}
+              required
+              className={inputClass + ' appearance-none'}
+            >
+              {patients.length === 0
+                ? <option value="">No linked patients</option>
+                : patients.map((p) => (
+                    <option key={p.id} value={p.id}>{p.full_name}</option>
+                  ))
+              }
+            </select>
+          </div>
+
+          <div>
+            <label className={labelClass}>Title</label>
+            <input
+              type="text"
+              placeholder="e.g. Review seizure diary"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className={inputClass}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Description <span className="normal-case font-normal text-[#3D5C80]">(optional)</span></label>
+            <textarea
+              placeholder="Add notes or instructions…"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              className={inputClass + ' resize-none'}
+            />
+          </div>
+
+          <div>
+            <label className={labelClass}>Due date</label>
+            <input
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              required
+              min={new Date().toISOString().slice(0, 10)}
+              className={inputClass}
+            />
+          </div>
+
+          {error && (
+            <div className="bg-[rgba(239,68,68,0.10)] border border-[#EF4444]/30 rounded-xl px-4 py-3">
+              <p className="text-[#EF4444] text-sm">{error}</p>
+            </div>
+          )}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-3 rounded-xl border border-[#1A3265] text-[#7AAAC8] text-sm font-semibold hover:bg-[#0F2040] hover:text-[#EAF4FF] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting || !patientId}
+              className="flex-1 py-3 rounded-xl bg-[#00BFA6] text-[#070D1A] text-sm font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50"
+            >
+              {submitting ? 'Creating…' : 'Create follow-up'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 const FILTERS = ['All', 'Open', 'In Progress', 'Completed', 'Overdue'] as const;
 type Filter = typeof FILTERS[number];
 
 export default function FollowUpsPage() {
   const [items, setItems] = useState<any[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>('Open');
+  const [showCreate, setShowCreate] = useState(false);
 
-  useEffect(() => {
-    async function load() {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+  async function load() {
+    const supabase = createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
 
-      const { data } = await supabase
-        .from('followups')
-        .select('*, profiles!followups_patient_id_fkey(id, full_name)')
-        .eq('clinician_id', user.id)
-        .eq('status', 'open')
-        .order('due_at', { ascending: true });
+    // Load all follow-ups (all statuses for filter tabs)
+    const { data } = await supabase
+      .from('followups')
+      .select('*, profiles!followups_patient_id_fkey(id, full_name)')
+      .eq('clinician_id', user.id)
+      .order('due_at', { ascending: true });
 
-      setItems(data ?? []);
-      setLoading(false);
-    }
-    load();
-  }, []);
+    setItems(data ?? []);
+
+    // Load linked patients for the create modal
+    const { data: links } = await supabase
+      .from('clinician_links')
+      .select('patient_id, profiles!clinician_links_patient_id_fkey(id, full_name)')
+      .eq('clinician_id', user.id)
+      .not('verified_at', 'is', null);
+
+    setPatients(
+      (links ?? []).map((l: any) => ({
+        id: l.patient_id,
+        full_name: l.profiles?.full_name ?? 'Unknown',
+      }))
+    );
+
+    setLoading(false);
+  }
+
+  useEffect(() => { load(); }, []);
 
   async function markComplete(id: string) {
     const supabase = createClient();
-    await supabase.from('followups').update({ status: 'completed', completed_at: new Date().toISOString() }).eq('id', id);
-    setItems((prev) => prev.filter((f) => f.id !== id));
+    await supabase
+      .from('followups')
+      .update({ status: 'completed', completed_at: new Date().toISOString() })
+      .eq('id', id);
+    setItems((prev) => prev.map((f) => f.id === id ? { ...f, status: 'completed', completed_at: new Date().toISOString() } : f));
   }
 
   const filtered = items.filter((fu) => {
@@ -65,7 +232,7 @@ export default function FollowUpsPage() {
     if (filter === 'Open') return fu.status === 'open';
     if (filter === 'In Progress') return fu.status === 'in_progress';
     if (filter === 'Completed') return fu.status === 'completed';
-    if (filter === 'Overdue') return daysUntil(fu.due_at) < 0;
+    if (filter === 'Overdue') return fu.status !== 'completed' && daysUntil(fu.due_at) < 0;
     return true;
   });
 
@@ -83,11 +250,14 @@ export default function FollowUpsPage() {
             </span>
           )}
         </div>
-        <button className="bg-[#00BFA6] text-[#070D1A] text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#00A896] transition-colors flex items-center gap-2 min-h-[40px]">
+        <button
+          onClick={() => setShowCreate(true)}
+          className="bg-[#00BFA6] text-[#070D1A] text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#00A896] transition-colors flex items-center gap-2 min-h-[40px]"
+        >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-          New follow-up
+          Create follow-up
         </button>
       </div>
 
@@ -120,23 +290,25 @@ export default function FollowUpsPage() {
         <div className="space-y-3">
           {filtered.map((fu) => {
             const days = daysUntil(fu.due_at);
-            const isOverdue = days < 0;
-            const isDueToday = days === 0;
+            const isOverdue = fu.status !== 'completed' && days < 0;
             return (
               <div
                 key={fu.id}
                 className={`bg-[#0D1B35] border rounded-xl p-4 transition-colors hover:bg-[#0F2040] ${
-                  isOverdue ? 'border-[#EF4444]/20' : 'border-[#1A3265]'
+                  isOverdue ? 'border-[#EF4444]/25' : 'border-[#1A3265]'
                 }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className="text-[#7AAAC8] text-xs mb-1">
+                    <p className={`text-xs mb-1 ${isOverdue ? 'text-[#EF4444]' : 'text-[#7AAAC8]'}`}>
                       <Link href={`/dashboard/patients/${fu.patient_id}`} className="hover:text-[#00BFA6] transition-colors">
                         {fu.profiles?.full_name ?? '—'}
                       </Link>
                     </p>
-                    <p className="text-[#EAF4FF] font-semibold text-sm leading-snug mb-2">{fu.title}</p>
+                    <p className={`font-semibold text-sm leading-snug mb-2 ${isOverdue ? 'text-[#EF4444]' : 'text-[#EAF4FF]'}`}>{fu.title}</p>
+                    {fu.description && (
+                      <p className="text-[#3D5C80] text-xs mb-2 line-clamp-2">{fu.description}</p>
+                    )}
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1.5 text-[#3D5C80] text-xs">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -144,26 +316,36 @@ export default function FollowUpsPage() {
                         </svg>
                         {new Date(fu.due_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </div>
-                      <DueDateLabel dateStr={fu.due_at} />
+                      {fu.status !== 'completed' && <DueDateLabel dateStr={fu.due_at} />}
                     </div>
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <StatusPill status={fu.status} />
-                    <button
-                      onClick={() => markComplete(fu.id)}
-                      className="text-[#00BFA6] border border-[#1A3265] rounded-lg px-3 py-1.5 text-xs font-semibold hover:bg-[#00BFA6]/10 transition-colors min-h-[36px] flex items-center gap-1.5"
-                    >
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      Complete
-                    </button>
+                    {fu.status !== 'completed' && (
+                      <button
+                        onClick={() => markComplete(fu.id)}
+                        className="text-[#00BFA6] border border-[#1A3265] rounded-lg px-3 py-1.5 text-xs font-semibold hover:bg-[#00BFA6]/10 transition-colors min-h-[36px] flex items-center gap-1.5"
+                      >
+                        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Mark complete
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
             );
           })}
         </div>
+      )}
+
+      {showCreate && (
+        <CreateFollowUpModal
+          patients={patients}
+          onClose={() => setShowCreate(false)}
+          onCreated={load}
+        />
       )}
     </div>
   );

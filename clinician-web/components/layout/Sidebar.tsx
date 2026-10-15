@@ -23,6 +23,21 @@ const NAV_ITEMS = [
   },
 ];
 
+const ADMIN_NAV_ITEMS = [
+  {
+    label: 'Clinicians', href: '/admin/clinicians',
+    icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+  },
+  {
+    label: 'Admin Activity', href: '/admin/activity',
+    icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
+  },
+  {
+    label: 'Settings', href: '/admin/settings',
+    icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
+  },
+];
+
 interface Props {
   profile: { id: string; full_name: string | null; role: string };
 }
@@ -47,33 +62,40 @@ export default function Sidebar({ profile }: Props) {
     ? profile.full_name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
     : 'DR';
 
+  const isAdmin = profile.role === 'admin';
+
+  const roleBadge = isAdmin
+    ? { label: 'Admin', bg: 'bg-[rgba(244,184,96,0.15)]', text: 'text-[#F4B860]', border: 'border-[#F4B860]/30' }
+    : { label: 'Clinician', bg: 'bg-[rgba(0,191,166,0.12)]', text: 'text-[#00BFA6]', border: 'border-[#00BFA6]/30' };
+
   return (
     <aside className="w-60 min-h-screen bg-[#040A16] border-r border-[#1A3265] flex flex-col fixed top-0 left-0 z-20">
-      {/* Brand */}
+      {/* Brand with Duara logomark */}
       <div className="px-5 py-5 border-b border-[#1A3265]">
         <div className="flex items-center gap-3">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-9 h-9" aria-hidden="true">
-            <circle cx="48" cy="48" r="10" fill="#00BFA6"/>
-            <circle cx="48" cy="48" r="26" fill="none" stroke="#00BFA6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)"/>
-            <circle cx="48" cy="48" r="42" fill="none" stroke="#00BFA6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)"/>
-          </svg>
+          {/* Duara logomark: 28px circle with 3 concentric rings */}
+          <div className="relative flex-shrink-0" style={{ width: 28, height: 28 }}>
+            <div className="absolute inset-0 rounded-full border-2 border-[#00BFA6] opacity-20" />
+            <div className="absolute rounded-full border-2 border-[#00BFA6] opacity-50" style={{ inset: 5 }} />
+            <div className="absolute rounded-full bg-[#00BFA6]" style={{ inset: 10 }} />
+          </div>
           <div>
             <p className="text-[#EAF4FF] font-bold text-base leading-none">Duara</p>
-            <p className="text-[#3D5C80] text-xs mt-0.5">Clinician</p>
+            <p className="text-[#3D5C80] text-xs mt-0.5">Clinician Portal</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 py-5 px-3">
+      <nav className="flex-1 py-5 px-3 overflow-y-auto">
         <p className="text-[#3D5C80] text-xs font-semibold uppercase tracking-widest px-3 mb-3">Navigation</p>
         <div className="space-y-0.5">
           {NAV_ITEMS.map((item) => (
             <Link key={item.href} href={item.href}>
-              <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all cursor-pointer ${
+              <div className={`flex items-center gap-3 py-2.5 rounded-xl transition-all cursor-pointer border-l-2 pl-[10px] pr-3 ${
                 isActive(item.href)
-                  ? 'bg-[#00BFA6]/10 text-[#00BFA6] border-l-2 border-[#00BFA6] pl-[10px]'
-                  : 'text-[#7AAAC8] hover:bg-[#0D1B35] hover:text-[#EAF4FF] border-l-2 border-transparent pl-[10px]'
+                  ? 'bg-[#00BFA6]/10 text-[#00BFA6] border-[#00BFA6]'
+                  : 'text-[#7AAAC8] hover:bg-[#0D1B35] hover:text-[#EAF4FF] border-transparent'
               }`}>
                 {item.icon}
                 <span className="font-medium text-sm">{item.label}</span>
@@ -81,6 +103,27 @@ export default function Sidebar({ profile }: Props) {
             </Link>
           ))}
         </div>
+
+        {/* Admin section — only visible for admin role */}
+        {isAdmin && (
+          <div className="mt-6">
+            <p className="text-[#3D5C80] text-xs font-semibold uppercase tracking-widest px-3 mb-3">Admin</p>
+            <div className="space-y-0.5">
+              {ADMIN_NAV_ITEMS.map((item) => (
+                <Link key={item.href} href={item.href}>
+                  <div className={`flex items-center gap-3 py-2.5 rounded-xl transition-all cursor-pointer border-l-2 pl-[10px] pr-3 ${
+                    isActive(item.href)
+                      ? 'bg-[#F4B860]/10 text-[#F4B860] border-[#F4B860]'
+                      : 'text-[#7AAAC8] hover:bg-[#0D1B35] hover:text-[#EAF4FF] border-transparent'
+                  }`}>
+                    {item.icon}
+                    <span className="font-medium text-sm">{item.label}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Profile section */}
@@ -91,12 +134,9 @@ export default function Sidebar({ profile }: Props) {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[#EAF4FF] font-semibold text-sm truncate">{profile.full_name ?? 'Clinician'}</p>
-            <div className="flex items-center gap-1 mt-0.5">
-              <svg className="w-3 h-3 text-[#22C87A] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-              </svg>
-              <span className="text-[#22C87A] text-xs font-medium">Verified Clinician</span>
-            </div>
+            <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full border ${roleBadge.bg} ${roleBadge.text} ${roleBadge.border} mt-0.5`}>
+              {roleBadge.label}
+            </span>
           </div>
         </div>
         <button

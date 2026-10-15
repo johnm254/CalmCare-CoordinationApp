@@ -22,11 +22,47 @@ export async function GET() {
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
-  const { data: clinicians } = await admin
+  // Fetch clinicians and admins
+  const { data: clinicianProfiles } = await admin
     .from('profiles')
-    .select('id, full_name, email, created_at')
-    .eq('role', 'clinician')
+    .select('id, full_name, email, created_at, role')
+    .in('role', ['clinician', 'admin', 'suspended'])
     .order('created_at', { ascending: false });
 
-  return NextResponse.json({ clinicians: clinicians ?? [] });
+  // Get patient counts per clinician
+  const { data: links } = await admin
+    .from('clinician_links')
+    .select('clinician_id, patient_id')
+    .not('verified_at', 'is', null);
+
+  const patientCountMap: Record<string, number> = {};
+  (links ?? []).forEach((l: any) => {
+    patientCountMap[l.clinician_id] = (patientCountMap[l.clinician_id] ?? 0) + 1;
+  });
+
+  // Total unique patients
+  const uniquePatients = new Set((links ?? []).map((l: any) => l.patient_id)).size;
+
+  // SOS events this week
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { count: sosThisWeek } = await admin
+    .from('sos_events')
+    .select('id', { count: 'exact', head: true })
+    .gte('created_at', weekAgo);
+
+  const clinicians = (clinicianProfiles ?? []).map((c: any) => ({
+    id: c.id,
+    full_name: c.full_name,
+    email: c.email,
+    created_at: c.created_at,
+    role: c.role,
+    patient_count: patientCountMap[c.id] ?? 0,
+    verified: !!(c.email),
+  }));
+
+  return NextResponse.json({
+    clinicians,
+    totalPatients: uniquePatients,
+    sosThisWeek: sosThisWeek ?? 0,
+  });
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createClient } from '../../lib/supabase-server';
+import SeizureChart from './SeizureChart';
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, { bg: string; text: string; label: string }> = {
@@ -33,9 +34,9 @@ export default async function DashboardPage() {
 
   const patientIds = (links ?? []).map((l: any) => l.patient_id);
 
-  // Events this week per patient
+  // Events this week per patient (with date for chart)
   const { data: recentEvents } = patientIds.length
-    ? await supabase.from('events').select('patient_id').in('patient_id', patientIds).gte('occurred_at', weekAgo)
+    ? await supabase.from('events').select('patient_id, occurred_at').in('patient_id', patientIds).gte('occurred_at', weekAgo)
     : { data: [] };
 
   // Open follow-ups
@@ -49,6 +50,17 @@ export default async function DashboardPage() {
   const eventsByPatient: Record<string, number> = {};
   (recentEvents ?? []).forEach((e: any) => {
     eventsByPatient[e.patient_id] = (eventsByPatient[e.patient_id] ?? 0) + 1;
+  });
+
+  // Build chart data: events per day for the last 7 days
+  const chartData = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000);
+    const dayStr = d.toISOString().slice(0, 10);
+    const label = d.toLocaleDateString('en-GB', { weekday: 'short' });
+    const count = (recentEvents ?? []).filter((e: any) =>
+      (e.occurred_at ?? '').startsWith(dayStr)
+    ).length;
+    return { day: label, count };
   });
 
   const patients = (links ?? []).map((l: any) => ({
@@ -154,6 +166,12 @@ export default async function DashboardPage() {
             <p className="text-[#7AAAC8] text-sm">{s.label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Seizure frequency chart — full width below KPI row */}
+      <div className="col-span-3 bg-[#0D1B35] border border-[#1A3265] rounded-2xl p-6 mb-8">
+        <h2 className="text-lg font-bold text-[#EAF4FF] mb-4">Events this week</h2>
+        <SeizureChart data={chartData} />
       </div>
 
       <div className="grid grid-cols-3 gap-6">
