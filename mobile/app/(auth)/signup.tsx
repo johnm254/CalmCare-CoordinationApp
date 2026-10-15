@@ -8,6 +8,49 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, radius, spacing } from '../../lib/theme';
 import { signUp } from '../../lib/supabase';
 
+// ─── Inline icon components (no emoji) ───────────────────────────────────────
+
+function PersonIcon() {
+  return (
+    <View style={{ width: 16, height: 18, alignItems: 'center' }}>
+      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.textMuted, marginBottom: 2 }} />
+      <View style={{
+        width: 16, height: 8, borderTopLeftRadius: 8, borderTopRightRadius: 8,
+        backgroundColor: colors.textMuted,
+      }} />
+    </View>
+  );
+}
+
+function EnvelopeIcon() {
+  return (
+    <View style={{ width: 18, height: 14, borderWidth: 1.5, borderColor: colors.textMuted, borderRadius: 2 }}>
+      <View style={{
+        position: 'absolute', left: 0, top: 0,
+        width: 0, height: 0,
+        borderLeftWidth: 9, borderRightWidth: 9, borderTopWidth: 7,
+        borderLeftColor: 'transparent', borderRightColor: 'transparent',
+        borderTopColor: colors.textMuted,
+      }} />
+    </View>
+  );
+}
+
+function LockIcon() {
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <View style={{
+        width: 10, height: 7, borderWidth: 1.5, borderColor: colors.textMuted,
+        borderBottomWidth: 0, borderRadius: 5, borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
+        marginBottom: -1,
+      }} />
+      <View style={{ width: 14, height: 10, backgroundColor: colors.textMuted, borderRadius: 2, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: colors.inputBg }} />
+      </View>
+    </View>
+  );
+}
+
 type Role = 'patient' | 'caregiver';
 
 export default function SignupScreen() {
@@ -46,22 +89,21 @@ export default function SignupScreen() {
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 
-          {/* Hero section */}
+          {/* Hero section — slightly smaller for signup */}
           <View style={styles.hero}>
             <View style={styles.logoMark}>
               <View style={styles.logoRingOuter} />
               <View style={styles.logoRingMid} />
               <View style={styles.logoCore} />
             </View>
-            <Text style={styles.brandName}>duara</Text>
-            <Text style={styles.tagline}>You are in control of your data.</Text>
+            <Text style={styles.heroHeading}>Create account</Text>
+            <Text style={styles.tagline}>Join Duara to manage your epilepsy care</Text>
           </View>
 
           {/* Form card */}
           <View style={styles.card}>
-            <Text style={styles.heading}>Create account</Text>
 
-            {/* Role selector */}
+            {/* Role picker */}
             <View style={styles.roleRow}>
               {(['patient', 'caregiver'] as Role[]).map((r) => (
                 <TouchableOpacity
@@ -72,17 +114,17 @@ export default function SignupScreen() {
                   activeOpacity={0.8}
                 >
                   <Text style={[styles.roleBtnText, role === r && styles.roleBtnTextActive]}>
-                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                    {r === 'patient' ? 'Patient' : 'Caregiver'}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputIcon}>👤</Text>
+              <View style={styles.inputIconWrap}><PersonIcon /></View>
               <TextInput
                 style={styles.input}
-                placeholder="Full name"
+                placeholder="Your name"
                 placeholderTextColor={colors.textMuted}
                 value={name}
                 onChangeText={setName}
@@ -91,7 +133,7 @@ export default function SignupScreen() {
             </View>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputIcon}>✉</Text>
+              <View style={styles.inputIconWrap}><EnvelopeIcon /></View>
               <TextInput
                 style={styles.input}
                 placeholder="Email address"
@@ -106,7 +148,7 @@ export default function SignupScreen() {
             </View>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputIcon}>🔒</Text>
+              <View style={styles.inputIconWrap}><LockIcon /></View>
               <TextInput
                 style={styles.input}
                 placeholder="Password (min. 8 characters)"
@@ -142,53 +184,53 @@ export default function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
+  safe: { flex: 1, backgroundColor: '#070D1A' },
   flex: { flex: 1 },
   container: { flexGrow: 1 },
 
-  // Hero
   hero: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: spacing.xxxl,
     paddingBottom: spacing.xxl,
-    minHeight: 200,
+    minHeight: 220,
   },
-  logoMark: { width: 56, height: 56, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md },
+  logoMark: {
+    width: 60, height: 60,
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: spacing.md,
+  },
   logoRingOuter: {
     position: 'absolute',
-    width: 56, height: 56, borderRadius: 28,
-    borderWidth: 3, borderColor: 'rgba(0,191,166,0.3)',
+    width: 60, height: 60, borderRadius: 30,
+    borderWidth: 2, borderColor: 'rgba(0,191,166,0.2)',
   },
   logoRingMid: {
     position: 'absolute',
-    width: 36, height: 36, borderRadius: 18,
-    borderWidth: 3, borderColor: 'rgba(0,191,166,0.6)',
+    width: 40, height: 40, borderRadius: 20,
+    borderWidth: 2, borderColor: 'rgba(0,191,166,0.5)',
   },
-  logoCore: { width: 16, height: 16, borderRadius: 8, backgroundColor: colors.teal },
-  brandName: {
-    fontSize: 32, fontWeight: '800', color: colors.teal,
-    letterSpacing: 6, marginBottom: spacing.xs,
+  logoCore: { width: 18, height: 18, borderRadius: 9, backgroundColor: colors.teal },
+  heroHeading: {
+    fontSize: 28, fontWeight: '800', color: colors.text,
+    marginBottom: spacing.xs,
   },
-  tagline: { fontSize: fonts.base, color: colors.textSecondary },
+  tagline: { fontSize: fonts.sm, color: colors.textSecondary, textAlign: 'center', paddingHorizontal: spacing.xxl },
 
-  // Card
   card: {
-    backgroundColor: colors.bgCard,
+    backgroundColor: '#0D1B35',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: colors.border,
+    borderColor: '#1A3265',
     padding: 28,
     paddingBottom: 48,
     flex: 1,
   },
-  heading: { fontSize: fonts.xl, fontWeight: '700', color: colors.text, marginBottom: spacing.lg },
 
-  // Role selector
-  roleRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
+  roleRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.xl },
   roleBtn: {
     flex: 1,
     paddingVertical: spacing.md,
@@ -198,9 +240,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.bgCardAlt,
   },
-  roleBtnActive: { borderColor: colors.teal, backgroundColor: colors.tealDim },
+  roleBtnActive: { borderColor: colors.teal, backgroundColor: colors.teal },
   roleBtnText: { color: colors.textSecondary, fontWeight: '600', fontSize: fonts.base },
-  roleBtnTextActive: { color: colors.teal },
+  roleBtnTextActive: { color: '#000', fontWeight: '700' },
 
   inputWrapper: {
     flexDirection: 'row',
@@ -212,7 +254,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     paddingLeft: spacing.md,
   },
-  inputIcon: { fontSize: 16, marginRight: spacing.sm, opacity: 0.6 },
+  inputIconWrap: { width: 24, alignItems: 'center', marginRight: spacing.sm },
   input: {
     flex: 1,
     paddingHorizontal: spacing.sm,

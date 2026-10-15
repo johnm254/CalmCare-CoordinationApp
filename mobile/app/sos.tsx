@@ -6,9 +6,14 @@ import { colors, fonts, radius, spacing } from '../lib/theme';
 import { useAuth } from './_layout';
 import { getEmergencyContacts, sendSos } from '../lib/supabase';
 
-const CIRCLE_SIZE = 200;
-const STROKE = 8;
+const CIRCLE_SIZE = 220;
 const TOTAL_SECONDS = 5;
+
+// ─── Geometric status badge icon ─────────────────────────────────────────────
+
+function ReadyDot() {
+  return <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success, marginRight: 6 }} />;
+}
 
 export default function SOSScreen() {
   const { session } = useAuth();
@@ -16,7 +21,12 @@ export default function SOSScreen() {
   const [sent, setSent] = useState(false);
   const [emergencyCount, setEmergencyCount] = useState(0);
   const [contactIds, setContactIds] = useState<string[]>([]);
-  const progress = useRef(new Animated.Value(1)).current;
+
+  // Shrinking border animation (fake progress ring via scale)
+  const borderAnim = useRef(new Animated.Value(1)).current;
+  // Pulse ring animation
+  const pulseScale = useRef(new Animated.Value(1)).current;
+  const pulseOpacity = useRef(new Animated.Value(0.6)).current;
   const sentRef = useRef(false);
 
   useEffect(() => {
@@ -28,11 +38,26 @@ export default function SOSScreen() {
   }, [session]);
 
   useEffect(() => {
-    Animated.timing(progress, {
+    // Border color animation (red -> shrinks as time progresses)
+    Animated.timing(borderAnim, {
       toValue: 0,
       duration: TOTAL_SECONDS * 1000,
       useNativeDriver: false,
     }).start();
+
+    // Pulsing outer ring
+    Animated.loop(
+      Animated.sequence([
+        Animated.parallel([
+          Animated.timing(pulseScale, { toValue: 1.18, duration: 700, useNativeDriver: true }),
+          Animated.timing(pulseOpacity, { toValue: 0, duration: 700, useNativeDriver: true }),
+        ]),
+        Animated.parallel([
+          Animated.timing(pulseScale, { toValue: 1, duration: 0, useNativeDriver: true }),
+          Animated.timing(pulseOpacity, { toValue: 0.6, duration: 0, useNativeDriver: true }),
+        ]),
+      ])
+    ).start();
 
     const interval = setInterval(() => {
       setSeconds((s) => {
@@ -65,6 +90,11 @@ export default function SOSScreen() {
     }
   }
 
+  const borderColor = borderAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [colors.emergency, colors.emergency],
+  });
+
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
@@ -78,28 +108,58 @@ export default function SOSScreen() {
           </View>
         </View>
 
-        {/* Countdown circle */}
+        {/* Countdown circle with pulsing outer ring */}
         <View style={styles.circleWrapper}>
-          <View style={styles.circleBg} />
-          <Animated.View
-            style={[
-              styles.circleArc,
-              { borderColor: sent ? colors.teal : colors.emergency },
-            ]}
-          />
-          <View style={styles.circleCenter}>
-            <Text style={styles.countdownNum}>{sent ? '✓' : seconds}</Text>
-            {!sent && <Text style={styles.countdownLabel}>seconds</Text>}
+          {/* Pulsing outer ring — only when counting down */}
+          {!sent && (
+            <Animated.View
+              style={[
+                styles.pulseRing,
+                { transform: [{ scale: pulseScale }], opacity: pulseOpacity },
+              ]}
+            />
+          )}
+
+          {/* Main dark circle */}
+          <View style={[styles.circleBg, sent && styles.circleBgSent]}>
+            {/* Animated colored border */}
+            <Animated.View
+              style={[
+                styles.circleRing,
+                { borderColor: sent ? colors.teal : colors.emergency },
+              ]}
+            />
+            {/* Center number / checkmark */}
+            <View style={styles.circleCenter}>
+              {sent ? (
+                <>
+                  <Text style={[styles.countdownNum, { color: colors.teal, fontSize: 64 }]}>✓</Text>
+                  <Text style={styles.sentLabel}>SOS Sent</Text>
+                </>
+              ) : (
+                <>
+                  <Text style={[styles.countdownNum, { color: colors.emergency }]}>{seconds}</Text>
+                  <Text style={styles.countdownLabel}>seconds</Text>
+                </>
+              )}
+            </View>
           </View>
         </View>
 
         {/* Heading */}
-        <Text style={styles.heading}>{sent ? 'SOS Sent' : 'Sending SOS...'}</Text>
-        <Text style={styles.subtext}>
-          {sent
-            ? 'Your emergency contacts have been alerted.'
-            : 'Your emergency contacts will be alerted with your live location.'}
-        </Text>
+        {!sent && (
+          <>
+            <Text style={styles.heading}>Sending SOS...</Text>
+            <Text style={styles.subtext}>
+              Your emergency contacts will be alerted with your live location.
+            </Text>
+          </>
+        )}
+        {sent && (
+          <Text style={styles.subtext}>
+            Your emergency contacts have been alerted.
+          </Text>
+        )}
 
         {/* Status card */}
         <View style={styles.statusCard}>
@@ -109,6 +169,7 @@ export default function SOSScreen() {
               <Text style={styles.statusSub}>Used when you are online</Text>
             </View>
             <View style={styles.readyBadge}>
+              <ReadyDot />
               <Text style={styles.readyBadgeText}>Ready</Text>
             </View>
           </View>
@@ -119,6 +180,7 @@ export default function SOSScreen() {
               <Text style={styles.statusSub}>Used when you have no internet</Text>
             </View>
             <View style={styles.readyBadge}>
+              <ReadyDot />
               <Text style={styles.readyBadgeText}>Ready</Text>
             </View>
           </View>
@@ -128,8 +190,8 @@ export default function SOSScreen() {
               <Text style={styles.statusTitle}>Emergency contacts</Text>
               <Text style={styles.statusSub}>First to respond is shown to everyone</Text>
             </View>
-            <View style={styles.readyBadge}>
-              <Text style={styles.readyBadgeText}>{emergencyCount}</Text>
+            <View style={[styles.readyBadge, { backgroundColor: colors.tealBadge }]}>
+              <Text style={[styles.readyBadgeText, { color: colors.teal }]}>{emergencyCount}</Text>
             </View>
           </View>
         </View>
@@ -159,48 +221,51 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
   },
 
-  // Top row
   topRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.xl },
   duaraLabel: { fontSize: fonts.sm, fontWeight: '800', color: colors.text, letterSpacing: 3 },
   sosLabelRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   redDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.emergency },
   sosLabelText: { fontSize: fonts.sm, fontWeight: '700', color: colors.emergency, letterSpacing: 2 },
 
-  // Countdown circle
   circleWrapper: {
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.xl,
-    position: 'relative',
+  },
+  pulseRing: {
+    position: 'absolute',
+    width: CIRCLE_SIZE + 30,
+    height: CIRCLE_SIZE + 30,
+    borderRadius: (CIRCLE_SIZE + 30) / 2,
+    borderWidth: 2,
+    borderColor: colors.emergency,
   },
   circleBg: {
-    position: 'absolute',
-    width: CIRCLE_SIZE - STROKE,
-    height: CIRCLE_SIZE - STROKE,
-    borderRadius: (CIRCLE_SIZE - STROKE) / 2,
-    borderWidth: STROKE,
-    borderColor: colors.bgCard,
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
+    borderRadius: CIRCLE_SIZE / 2,
+    backgroundColor: '#180505',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  circleArc: {
+  circleBgSent: { backgroundColor: '#051810' },
+  circleRing: {
     position: 'absolute',
-    width: CIRCLE_SIZE - STROKE,
-    height: CIRCLE_SIZE - STROKE,
-    borderRadius: (CIRCLE_SIZE - STROKE) / 2,
-    borderWidth: STROKE,
-    borderLeftColor: 'transparent',
-    borderBottomColor: 'transparent',
-    transform: [{ rotate: '-45deg' }],
+    width: CIRCLE_SIZE,
+    height: CIRCLE_SIZE,
+    borderRadius: CIRCLE_SIZE / 2,
+    borderWidth: 5,
   },
   circleCenter: { alignItems: 'center' },
-  countdownNum: { fontSize: 64, fontWeight: '800', color: colors.text },
+  countdownNum: { fontSize: 80, fontWeight: '800', lineHeight: 88 },
   countdownLabel: { fontSize: fonts.base, color: colors.textSecondary },
+  sentLabel: { fontSize: fonts.lg, fontWeight: '700', color: colors.teal, marginTop: 4 },
 
   heading: { fontSize: fonts.xxl, fontWeight: '800', color: colors.text, marginBottom: spacing.sm, textAlign: 'center' },
   subtext: { fontSize: fonts.base, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: spacing.xl },
 
-  // Status card
   statusCard: {
     width: '100%',
     backgroundColor: colors.bgCard,
@@ -219,11 +284,12 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   readyBadgeText: { fontSize: fonts.sm, color: colors.success, fontWeight: '700' },
   divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.xs },
 
-  // Buttons
   sendNowBtn: {
     width: '100%',
     backgroundColor: colors.emergency,

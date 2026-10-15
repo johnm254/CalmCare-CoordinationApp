@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Animated } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, radius, spacing } from '../lib/theme';
@@ -12,6 +12,94 @@ type Insights = {
   suggestion: string;
   med_checkins: number;
 };
+
+// ─── Microphone View-based icon ───────────────────────────────────────────────
+
+function MicrophoneIcon() {
+  return (
+    <View style={{ width: 24, height: 30, alignItems: 'center' }}>
+      {/* Mic capsule */}
+      <View style={{
+        width: 14, height: 18, borderRadius: 7,
+        backgroundColor: colors.teal,
+      }} />
+      {/* Mic base arm */}
+      <View style={{
+        width: 20, height: 2, backgroundColor: colors.teal,
+        borderRadius: 1, marginTop: 2,
+      }} />
+      {/* Stem */}
+      <View style={{ width: 2, height: 6, backgroundColor: colors.teal, borderRadius: 1, marginTop: 0 }} />
+      {/* Base */}
+      <View style={{ width: 12, height: 2, backgroundColor: colors.teal, borderRadius: 1 }} />
+    </View>
+  );
+}
+
+// ─── Sound wave visualization ─────────────────────────────────────────────────
+
+const WAVE_HEIGHTS = [4, 10, 18, 14, 22, 10, 16, 8, 20, 6, 14];
+
+function WaveformIcon() {
+  const anims = useRef(WAVE_HEIGHTS.map(() => new Animated.Value(1))).current;
+
+  useEffect(() => {
+    const loops = anims.map((anim, i) =>
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(anim, { toValue: 0.4, duration: 400 + i * 60, useNativeDriver: true }),
+          Animated.timing(anim, { toValue: 1, duration: 400 + i * 60, useNativeDriver: true }),
+        ])
+      )
+    );
+    loops.forEach((l) => l.start());
+    return () => loops.forEach((l) => l.stop());
+  }, []);
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3, height: 28 }}>
+      {WAVE_HEIGHTS.map((h, i) => (
+        <Animated.View
+          key={i}
+          style={{
+            width: 3,
+            height: h,
+            backgroundColor: colors.teal,
+            borderRadius: 2,
+            opacity: anims[i],
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
+// ─── Back chevron icon ────────────────────────────────────────────────────────
+
+function BackIcon() {
+  return (
+    <View style={{ width: 10, height: 16, justifyContent: 'center' }}>
+      <View style={{
+        width: 10, height: 10,
+        borderLeftWidth: 2.5, borderBottomWidth: 2.5,
+        borderColor: colors.text,
+        transform: [{ rotate: '45deg' }],
+      }} />
+    </View>
+  );
+}
+
+// ─── Brain/insight icon ───────────────────────────────────────────────────────
+
+function InsightEmptyIcon() {
+  return (
+    <View style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>
+      {/* Simple brain-like shape: two overlapping circles */}
+      <View style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: colors.textMuted, position: 'absolute', left: 0 }} />
+      <View style={{ width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: colors.textMuted, position: 'absolute', right: 0 }} />
+    </View>
+  );
+}
 
 export default function InsightsScreen() {
   const { session } = useAuth();
@@ -33,10 +121,11 @@ export default function InsightsScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Text style={styles.backIcon}>←</Text>
+            <BackIcon />
           </TouchableOpacity>
           <Text style={styles.title}>AI Insights</Text>
           <View style={styles.liveBadge}>
+            <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.teal, marginRight: 5 }} />
             <Text style={styles.liveBadgeText}>Live data</Text>
           </View>
         </View>
@@ -50,13 +139,13 @@ export default function InsightsScreen() {
           /* Empty state */
           <View style={styles.emptyCard}>
             <View style={styles.emptyIconWrap}>
-              <Text style={styles.emptyIcon}>🧠</Text>
+              <InsightEmptyIcon />
             </View>
             <Text style={styles.emptyText}>No insights yet.</Text>
             <Text style={styles.emptySub}>Log a few events to see patterns here.</Text>
           </View>
         ) : (
-          /* Insights card with thick teal left border */
+          /* THIS WEEK insights card */
           <View style={styles.insightCard}>
             <View style={styles.insightLeftBar} />
             <View style={styles.insightContent}>
@@ -81,7 +170,7 @@ export default function InsightsScreen() {
           </View>
         )}
 
-        {/* Voice log card */}
+        {/* Log by voice card */}
         <View style={styles.card}>
           <View style={styles.cardTopRow}>
             <Text style={styles.cardTitle}>Log by voice</Text>
@@ -91,16 +180,12 @@ export default function InsightsScreen() {
           </View>
           <View style={styles.micRow}>
             <View style={styles.micBtn}>
-              <Text style={styles.micIcon}>🎙</Text>
+              <MicrophoneIcon />
             </View>
-            <View style={styles.waveform}>
-              {[4, 8, 16, 12, 20, 8, 14, 10, 18, 6].map((h, i) => (
-                <View key={i} style={[styles.waveBar, { height: h }]} />
-              ))}
-            </View>
+            <WaveformIcon />
           </View>
           <Text style={styles.cardBody}>
-            Say what happened and Duara turns it into a log you can edit. It is saved on this device first and syncs later.
+            Say what happened and Duara turns it into a log you can edit. Saved on this device first, syncs later.
           </Text>
         </View>
 
@@ -132,23 +217,21 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   container: { padding: spacing.lg, paddingBottom: 40 },
 
-  // Header
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xl },
-  backBtn: { marginRight: spacing.md, padding: spacing.xs },
-  backIcon: { fontSize: fonts.xl, color: colors.text },
+  backBtn: { marginRight: spacing.md, padding: spacing.xs, justifyContent: 'center' },
   title: { fontSize: fonts.xl, fontWeight: '700', color: colors.text, flex: 1 },
   liveBadge: {
     backgroundColor: colors.tealBadge,
     borderRadius: radius.full,
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   liveBadgeText: { fontSize: fonts.xs, color: colors.teal, fontWeight: '700', letterSpacing: 0.5 },
 
-  // Loading
   loadingWrap: { alignItems: 'center', paddingVertical: spacing.xxxl },
 
-  // Empty state
   emptyCard: {
     backgroundColor: colors.bgCard, borderRadius: radius.lg,
     borderWidth: 1, borderColor: colors.border,
@@ -160,11 +243,9 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
     marginBottom: spacing.md,
   },
-  emptyIcon: { fontSize: 32 },
   emptyText: { color: colors.text, fontSize: fonts.md, fontWeight: '600', marginBottom: 4 },
   emptySub: { color: colors.textSecondary, fontSize: fonts.sm, textAlign: 'center' },
 
-  // Insights card with left border
   insightCard: {
     backgroundColor: colors.bgCard,
     borderRadius: radius.lg,
@@ -203,7 +284,6 @@ const styles = StyleSheet.create({
   },
   btnOutlinedText: { color: colors.teal, fontWeight: '700', fontSize: fonts.sm },
 
-  // Generic card
   card: {
     backgroundColor: colors.bgCard,
     borderRadius: radius.lg,
@@ -226,13 +306,10 @@ const styles = StyleSheet.create({
 
   micRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, marginBottom: spacing.md },
   micBtn: {
-    width: 48, height: 48, borderRadius: 24,
+    width: 52, height: 52, borderRadius: 26,
     backgroundColor: colors.tealDim,
     alignItems: 'center', justifyContent: 'center',
   },
-  micIcon: { fontSize: 22 },
-  waveform: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  waveBar: { width: 3, backgroundColor: colors.teal, borderRadius: 2, opacity: 0.7 },
 
   visitBriefRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   visitBriefInfo: { flex: 1 },

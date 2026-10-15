@@ -8,6 +8,37 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, radius, spacing } from '../../lib/theme';
 import { signIn } from '../../lib/supabase';
 
+// ─── Inline icon components (no emoji) ───────────────────────────────────────
+
+function EnvelopeIcon() {
+  return (
+    <View style={{ width: 18, height: 14, borderWidth: 1.5, borderColor: colors.textMuted, borderRadius: 2 }}>
+      <View style={{
+        position: 'absolute', left: 0, top: 0,
+        width: 0, height: 0,
+        borderLeftWidth: 9, borderRightWidth: 9, borderTopWidth: 7,
+        borderLeftColor: 'transparent', borderRightColor: 'transparent',
+        borderTopColor: colors.textMuted,
+      }} />
+    </View>
+  );
+}
+
+function LockIcon() {
+  return (
+    <View style={{ alignItems: 'center' }}>
+      <View style={{
+        width: 10, height: 7, borderWidth: 1.5, borderColor: colors.textMuted,
+        borderBottomWidth: 0, borderRadius: 5, borderBottomLeftRadius: 0, borderBottomRightRadius: 0,
+        marginBottom: -1,
+      }} />
+      <View style={{ width: 14, height: 10, backgroundColor: colors.textMuted, borderRadius: 2, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{ width: 4, height: 4, borderRadius: 2, backgroundColor: colors.inputBg }} />
+      </View>
+    </View>
+  );
+}
+
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,7 +49,6 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await signIn(email.trim().toLowerCase(), password);
-      // Navigation handled by onAuthStateChange in _layout.tsx
     } catch (err: any) {
       Alert.alert('Sign in failed', err.message ?? 'Please check your email and password.');
     } finally {
@@ -31,9 +61,9 @@ export default function LoginScreen() {
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 
-          {/* Hero section — top 40% */}
+          {/* Hero section */}
           <View style={styles.hero}>
-            {/* Duara concentric circle logo */}
+            {/* Concentric rings logo — 80/54/24px */}
             <View style={styles.logoMark}>
               <View style={styles.logoRingOuter} />
               <View style={styles.logoRingMid} />
@@ -43,12 +73,12 @@ export default function LoginScreen() {
             <Text style={styles.tagline}>Your care, your control</Text>
           </View>
 
-          {/* Form card — bottom 60% */}
+          {/* Form card */}
           <View style={styles.card}>
             <Text style={styles.heading}>Sign in</Text>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputIcon}>✉</Text>
+              <View style={styles.inputIconWrap}><EnvelopeIcon /></View>
               <TextInput
                 style={styles.input}
                 placeholder="Email address"
@@ -63,7 +93,7 @@ export default function LoginScreen() {
             </View>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.inputIcon}>🔒</Text>
+              <View style={styles.inputIconWrap}><LockIcon /></View>
               <TextInput
                 style={styles.input}
                 placeholder="Password"
@@ -99,52 +129,52 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
+  safe: { flex: 1, backgroundColor: '#070D1A' },
   flex: { flex: 1 },
   container: { flexGrow: 1 },
 
-  // Hero
   hero: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: spacing.xxxl + spacing.xl,
     paddingBottom: spacing.xxxl,
-    minHeight: 260,
+    minHeight: 280,
   },
-  logoMark: { width: 56, height: 56, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.lg },
+  logoMark: {
+    width: 80, height: 80,
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: spacing.lg,
+  },
   logoRingOuter: {
     position: 'absolute',
-    width: 56, height: 56, borderRadius: 28,
-    borderWidth: 3, borderColor: 'rgba(0,191,166,0.3)',
+    width: 80, height: 80, borderRadius: 40,
+    borderWidth: 2.5, borderColor: 'rgba(0,191,166,0.2)',
   },
   logoRingMid: {
     position: 'absolute',
-    width: 36, height: 36, borderRadius: 18,
-    borderWidth: 3, borderColor: 'rgba(0,191,166,0.6)',
+    width: 54, height: 54, borderRadius: 27,
+    borderWidth: 2.5, borderColor: 'rgba(0,191,166,0.5)',
   },
-  logoCore: { width: 16, height: 16, borderRadius: 8, backgroundColor: colors.teal },
+  logoCore: { width: 24, height: 24, borderRadius: 12, backgroundColor: colors.teal },
   brandName: {
-    fontSize: 32, fontWeight: '800', color: colors.teal,
-    letterSpacing: 6, marginBottom: spacing.sm,
+    fontSize: 36, fontWeight: '800', color: colors.teal,
+    letterSpacing: 8, marginBottom: spacing.sm,
   },
   tagline: { fontSize: fonts.base, color: colors.textSecondary },
 
-  // Card
   card: {
-    backgroundColor: colors.bgCard,
+    backgroundColor: '#0D1B35',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: colors.border,
+    borderColor: '#1A3265',
     padding: 28,
-    paddingBottom: 40,
+    paddingBottom: 48,
     flex: 1,
   },
-  heading: { fontSize: fonts.xl, fontWeight: '700', color: colors.text, marginBottom: spacing.xl },
+  heading: { fontSize: 22, fontWeight: '700', color: colors.text, marginBottom: spacing.xl },
 
   inputWrapper: {
     flexDirection: 'row',
@@ -156,7 +186,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     paddingLeft: spacing.md,
   },
-  inputIcon: { fontSize: 16, marginRight: spacing.sm, opacity: 0.6 },
+  inputIconWrap: { width: 24, alignItems: 'center', marginRight: spacing.sm },
   input: {
     flex: 1,
     paddingHorizontal: spacing.sm,

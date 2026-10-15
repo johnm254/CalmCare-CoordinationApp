@@ -18,6 +18,20 @@ const GRANT_LABELS: { key: GrantKey; label: string; sub: string }[] = [
 
 type ContactWithGrants = CareCircleMember & { grants: Record<GrantKey, boolean> };
 
+// ─── Chevron icon (no emoji) ──────────────────────────────────────────────────
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <View style={{
+      width: 10, height: 10,
+      borderRightWidth: 2, borderBottomWidth: 2,
+      borderColor: colors.textMuted,
+      transform: [{ rotate: open ? '225deg' : '45deg' }],
+      marginTop: open ? 4 : 0,
+    }} />
+  );
+}
+
 export default function CircleScreen() {
   const { session } = useAuth();
   const [contacts, setContacts] = useState<ContactWithGrants[]>([]);
@@ -58,13 +72,20 @@ export default function CircleScreen() {
 
         <Text style={styles.title}>Care Circle</Text>
         <Text style={styles.description}>
-          You decide who sees what. Changes take effect immediately, and you can remove access at any time.
+          You decide who sees what. Changes take effect immediately.
         </Text>
 
         {loading ? (
           <ActivityIndicator color={colors.teal} style={{ marginTop: spacing.xl }} />
         ) : contacts.length === 0 ? (
           <View style={styles.emptyCard}>
+            <View style={styles.emptyIconWrap}>
+              {/* Two overlapping circles icon */}
+              <View style={{ width: 40, height: 28, position: 'relative' }}>
+                <View style={{ position: 'absolute', left: 0, top: 0, width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: colors.textMuted }} />
+                <View style={{ position: 'absolute', left: 14, top: 0, width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: colors.textMuted, opacity: 0.5 }} />
+              </View>
+            </View>
             <Text style={styles.emptyText}>No one in your Circle yet.</Text>
             <Text style={styles.emptySub}>Invite a trusted contact to get started.</Text>
           </View>
@@ -72,6 +93,7 @@ export default function CircleScreen() {
           contacts.map((contact) => {
             const isOpen = expanded === contact.id;
             const grantCount = Object.values(contact.grants).filter(Boolean).length;
+            const initials = contact.full_name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
             return (
               <View key={contact.id} style={styles.contactCard}>
                 <TouchableOpacity
@@ -81,7 +103,7 @@ export default function CircleScreen() {
                 >
                   <View style={styles.contactLeft}>
                     <View style={styles.avatar}>
-                      <Text style={styles.avatarText}>{contact.full_name[0]}</Text>
+                      <Text style={styles.avatarText}>{initials}</Text>
                     </View>
                     <View style={styles.contactInfo}>
                       <Text style={styles.contactName}>{contact.full_name}</Text>
@@ -94,7 +116,7 @@ export default function CircleScreen() {
                     <View style={styles.grantBadge}>
                       <Text style={styles.grantBadgeText}>{grantCount} of 5</Text>
                     </View>
-                    <Text style={styles.expandArrow}>{isOpen ? '▲' : '▼'}</Text>
+                    <ChevronIcon open={isOpen} />
                   </View>
                 </TouchableOpacity>
 
@@ -129,6 +151,11 @@ export default function CircleScreen() {
           })
         )}
 
+        {/* "See who viewed what" outline button */}
+        <TouchableOpacity style={styles.viewedBtn} activeOpacity={0.85}>
+          <Text style={styles.viewedBtnText}>See who viewed what</Text>
+        </TouchableOpacity>
+
         {/* Invite button */}
         <TouchableOpacity style={styles.inviteBtn} activeOpacity={0.85}>
           <Text style={styles.inviteBtnText}>Invite someone to your Circle</Text>
@@ -156,7 +183,12 @@ const styles = StyleSheet.create({
   emptyCard: {
     backgroundColor: colors.bgCard, borderRadius: radius.lg,
     borderWidth: 1, borderColor: colors.border,
-    padding: spacing.xl, alignItems: 'center', marginBottom: spacing.md,
+    padding: spacing.xxl, alignItems: 'center', marginBottom: spacing.md,
+  },
+  emptyIconWrap: {
+    width: 64, height: 48,
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: spacing.md,
   },
   emptyText: { color: colors.text, fontSize: fonts.md, fontWeight: '600', marginBottom: 4 },
   emptySub: { color: colors.textSecondary, fontSize: fonts.sm },
@@ -184,7 +216,7 @@ const styles = StyleSheet.create({
   contactInfo: { flex: 1 },
   contactName: { fontSize: fonts.md, fontWeight: '700', color: colors.text },
   contactRole: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   grantBadge: {
     backgroundColor: colors.tealBadge,
     borderRadius: radius.full,
@@ -192,7 +224,6 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   grantBadgeText: { fontSize: fonts.sm, color: colors.teal, fontWeight: '600' },
-  expandArrow: { fontSize: fonts.xs, color: colors.textMuted },
 
   grantList: {
     borderTopWidth: 1, borderTopColor: colors.border,
@@ -207,12 +238,22 @@ const styles = StyleSheet.create({
   grantLabel: { fontSize: fonts.base, fontWeight: '600', color: colors.text },
   grantSub: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
 
+  viewedBtn: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.xl,
+    paddingVertical: spacing.md,
+    alignItems: 'center',
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  viewedBtnText: { color: colors.textSecondary, fontWeight: '600', fontSize: fonts.base },
+
   inviteBtn: {
     backgroundColor: colors.teal,
     borderRadius: radius.xl,
     paddingVertical: spacing.lg,
     alignItems: 'center',
-    marginTop: spacing.sm,
   },
   inviteBtnText: { color: '#000', fontWeight: '700', fontSize: fonts.md },
 });

@@ -1,17 +1,113 @@
-import { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Animated } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, radius, spacing } from '../../lib/theme';
 import { useAuth } from '../_layout';
 import { getMedications, logMedicationTaken, getCareCircle, type Medication } from '../../lib/supabase';
 
+// ─── View-based grid icons (no emoji) ────────────────────────────────────────
+
+function LightningIcon() {
+  // Amber angled rectangle — lightning bolt approximation
+  return (
+    <View style={{ width: 22, height: 28, alignItems: 'center', justifyContent: 'center' }}>
+      {/* Upper part of bolt */}
+      <View style={{
+        width: 14, height: 14,
+        backgroundColor: colors.amber,
+        borderRadius: 2,
+        transform: [{ skewX: '-15deg' }, { rotate: '-8deg' }],
+        position: 'absolute', top: 0, left: 4,
+      }} />
+      {/* Lower part of bolt */}
+      <View style={{
+        width: 14, height: 14,
+        backgroundColor: colors.amber,
+        borderRadius: 2,
+        transform: [{ skewX: '-15deg' }, { rotate: '-8deg' }],
+        position: 'absolute', bottom: 0, right: 4,
+      }} />
+      {/* Center white cut */}
+      <View style={{
+        width: 18, height: 5,
+        backgroundColor: colors.bgCard,
+        transform: [{ rotate: '-35deg' }],
+        position: 'absolute',
+      }} />
+    </View>
+  );
+}
+
+function CircleOverlapIcon() {
+  return (
+    <View style={{ width: 28, height: 20 }}>
+      <View style={{
+        position: 'absolute', left: 0, top: 0,
+        width: 18, height: 18, borderRadius: 9,
+        backgroundColor: colors.tealMuted,
+        borderWidth: 2, borderColor: colors.teal,
+      }} />
+      <View style={{
+        position: 'absolute', left: 10, top: 0,
+        width: 18, height: 18, borderRadius: 9,
+        backgroundColor: colors.tealMuted,
+        borderWidth: 2, borderColor: colors.teal,
+        opacity: 0.7,
+      }} />
+    </View>
+  );
+}
+
+function CrossIcon() {
+  return (
+    <View style={{ width: 22, height: 22, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ position: 'absolute', width: 22, height: 6, backgroundColor: colors.teal, borderRadius: 3 }} />
+      <View style={{ position: 'absolute', width: 6, height: 22, backgroundColor: colors.teal, borderRadius: 3 }} />
+    </View>
+  );
+}
+
+function DocumentIcon() {
+  return (
+    <View style={{ width: 18, height: 22 }}>
+      <View style={{
+        width: 18, height: 22, borderRadius: 3,
+        borderWidth: 2, borderColor: colors.textSecondary,
+      }}>
+        <View style={{ width: 10, height: 2, backgroundColor: colors.textSecondary, borderRadius: 1, position: 'absolute', top: 5, left: 3 }} />
+        <View style={{ width: 12, height: 2, backgroundColor: colors.textSecondary, borderRadius: 1, position: 'absolute', top: 9, left: 2 }} />
+        <View style={{ width: 10, height: 2, backgroundColor: colors.textSecondary, borderRadius: 1, position: 'absolute', top: 13, left: 3 }} />
+      </View>
+    </View>
+  );
+}
+
+// ─── Bell icon ────────────────────────────────────────────────────────────────
+
+function BellIcon() {
+  return (
+    <View style={{ width: 18, height: 20, alignItems: 'center' }}>
+      <View style={{ width: 14, height: 13, borderRadius: 7, borderTopLeftRadius: 7, borderTopRightRadius: 7, borderWidth: 2, borderColor: colors.textSecondary, borderBottomWidth: 0, marginTop: 2 }} />
+      <View style={{ width: 18, height: 4, backgroundColor: colors.textSecondary, borderRadius: 1 }} />
+      <View style={{ width: 6, height: 3, borderBottomLeftRadius: 3, borderBottomRightRadius: 3, borderWidth: 2, borderColor: colors.textSecondary, borderTopWidth: 0, marginTop: -1 }} />
+    </View>
+  );
+}
+
 const GRID_ITEMS = [
-  { icon: '⚡', title: 'Conditions', subtitle: 'Types and triggers', route: '/records' },
-  { icon: '◎', title: 'Care Circle', subtitle: 'You decide who sees what', route: '/circle' },
-  { icon: '🏥', title: 'My Doctor', subtitle: 'Verified clinician link', route: '/records' },
-  { icon: '📄', title: 'Records', subtitle: 'Events, notes, reports', route: '/records' },
+  { icon: 'lightning', title: 'Conditions', subtitle: 'Types and triggers', route: '/records' },
+  { icon: 'circles', title: 'Care Circle', subtitle: 'You decide who sees what', route: '/circle' },
+  { icon: 'cross', title: 'My Doctor', subtitle: 'Verified clinician link', route: '/records' },
+  { icon: 'doc', title: 'Records', subtitle: 'Events, notes, reports', route: '/records' },
 ];
+
+function GridIcon({ type }: { type: string }) {
+  if (type === 'lightning') return <LightningIcon />;
+  if (type === 'circles') return <CircleOverlapIcon />;
+  if (type === 'cross') return <CrossIcon />;
+  return <DocumentIcon />;
+}
 
 export default function HomeScreen() {
   const { profile, session } = useAuth();
@@ -19,6 +115,18 @@ export default function HomeScreen() {
   const [circleCount, setCircleCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [takenId, setTakenId] = useState<string | null>(null);
+
+  // Pulsing dot animation for PROTECTED badge
+  const pulseAnim = useRef(new Animated.Value(0.5)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1, duration: 900, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 0.5, duration: 900, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
@@ -58,13 +166,12 @@ export default function HomeScreen() {
             </View>
           </View>
           <TouchableOpacity style={styles.bellBtn}>
-            <Text style={styles.bellIcon}>🔔</Text>
+            <BellIcon />
           </TouchableOpacity>
         </View>
 
         {/* Circle protection card */}
         <View style={styles.circleCard}>
-          {/* Concentric circles visual */}
           <View style={styles.concentricWrap}>
             <View style={styles.ringOuter} />
             <View style={styles.ringMid} />
@@ -72,7 +179,11 @@ export default function HomeScreen() {
             <View style={styles.ringCore} />
           </View>
           <View style={styles.circleText}>
-            <Text style={styles.protectedLabel}>PROTECTED</Text>
+            {/* PROTECTED badge with animated pulse dot */}
+            <View style={styles.protectedRow}>
+              <Animated.View style={[styles.pulseDot, { opacity: pulseAnim }]} />
+              <Text style={styles.protectedLabel}>PROTECTED</Text>
+            </View>
             <Text style={styles.circleTitle}>Your Circle is active</Text>
             <Text style={styles.circleSubtitle}>
               {circleCount > 0
@@ -108,7 +219,11 @@ export default function HomeScreen() {
         ) : nextMed ? (
           <View style={styles.medCard}>
             <View style={styles.medLeft}>
-              <View style={styles.medIcon}><Text style={styles.medIconText}>💊</Text></View>
+              {/* Pill icon: two stacked rounded rectangles */}
+              <View style={styles.medIcon}>
+                <View style={{ width: 18, height: 9, borderRadius: 9, backgroundColor: colors.teal, marginBottom: 2 }} />
+                <View style={{ width: 18, height: 9, borderRadius: 9, backgroundColor: colors.tealMuted }} />
+              </View>
               <View>
                 <Text style={styles.medTime}>Next medication</Text>
                 <Text style={styles.medName}>{nextMed.name}</Text>
@@ -139,7 +254,9 @@ export default function HomeScreen() {
               onPress={() => router.push(item.route as any)}
               activeOpacity={0.8}
             >
-              <Text style={styles.gridIcon}>{item.icon}</Text>
+              <View style={styles.gridIconWrap}>
+                <GridIcon type={item.icon} />
+              </View>
               <Text style={styles.gridTitle}>{item.title}</Text>
               <Text style={styles.gridSubtitle}>{item.subtitle}</Text>
             </TouchableOpacity>
@@ -156,7 +273,6 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
   container: { padding: spacing.xl, paddingBottom: spacing.xxl },
 
-  // Header
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     marginBottom: spacing.xl,
@@ -175,7 +291,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgCard, borderWidth: 1, borderColor: colors.border,
     alignItems: 'center', justifyContent: 'center',
   },
-  bellIcon: { fontSize: 18 },
 
   // Circle card
   circleCard: {
@@ -210,9 +325,10 @@ const styles = StyleSheet.create({
   },
   ringCore: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.teal },
   circleText: { flex: 1 },
+  protectedRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
+  pulseDot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.teal },
   protectedLabel: {
-    fontSize: fonts.xs, fontWeight: '700', color: colors.teal,
-    letterSpacing: 1.5, marginBottom: 4,
+    fontSize: fonts.xs, fontWeight: '700', color: colors.teal, letterSpacing: 1.5,
   },
   circleTitle: { fontSize: fonts.md, fontWeight: '700', color: colors.text, marginBottom: 4 },
   circleSubtitle: { fontSize: fonts.sm, color: colors.textSecondary, lineHeight: 18 },
@@ -233,7 +349,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.35)',
     alignItems: 'center', justifyContent: 'center',
   },
-  sosPowerIcon: { fontSize: 22, color: '#fff' },
+  sosPowerIcon: { fontSize: 26, color: '#fff' },
 
   // Loading
   loadingCard: {
@@ -259,7 +375,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.tealDim,
     alignItems: 'center', justifyContent: 'center',
   },
-  medIconText: { fontSize: 18 },
   medTime: { fontSize: fonts.xs, color: colors.textSecondary, marginBottom: 2 },
   medName: { fontSize: fonts.md, fontWeight: '700', color: colors.text },
   medDose: { fontSize: fonts.sm, color: colors.textSecondary },
@@ -290,8 +405,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.lg,
+    paddingVertical: spacing.xl,
   },
-  gridIcon: { fontSize: 24, marginBottom: spacing.sm },
+  gridIconWrap: { marginBottom: spacing.md },
   gridTitle: { fontSize: fonts.md, fontWeight: '700', color: colors.text, marginBottom: 4 },
   gridSubtitle: { fontSize: fonts.sm, color: colors.textSecondary, lineHeight: 18 },
 });
