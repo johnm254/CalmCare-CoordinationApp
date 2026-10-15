@@ -23,6 +23,15 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.duara.app"
     },
+    "updates": {
+      "url": "https://u.expo.dev/9246ff32-9bc9-4291-bdbc-d601a5b86145",
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "extra": {
       "router": { "origin": false },
       "eas": { "projectId": "9246ff32-9bc9-4291-bdbc-d601a5b86145" }

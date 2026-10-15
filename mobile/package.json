@@ -5,7 +5,10 @@
   "main": "expo-router/entry",
   "scripts": {
     "start": "expo start",
-    "build:preview": "eas build --platform android --profile preview"
+    "build:preview": "eas build --platform android --profile preview",
+    "build:production": "eas build --platform android --profile production",
+    "update:preview": "eas update --channel preview --message",
+    "update:production": "eas update --channel production --message"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.23.1",
@@ -16,6 +19,7 @@
     "expo-linking": "~6.3.1",
     "expo-router": "~3.5.23",
     "expo-status-bar": "~1.12.1",
+    "expo-updates": "~0.25.28",
     "react": "18.2.0",
     "react-native": "0.74.5",
     "react-native-gesture-handler": "~2.16.2",
