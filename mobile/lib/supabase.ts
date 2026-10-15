@@ -239,6 +239,21 @@ export async function sendSos(patientId: string, emergencyContactIds: string[]) 
     recipients: emergencyContactIds,
     status: 'sent',
   });
+
+  // Fire-and-forget: notify emergency contacts via email
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+  if (apiUrl) {
+    try {
+      await fetch(`${apiUrl}/api/sos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ patient_id: patientId, recipient_ids: emergencyContactIds }),
+      });
+    } catch (err) {
+      // Notification failure is non-fatal — DB insert is the source of truth
+      console.warn('SOS notification request failed:', err);
+    }
+  }
 }
 
 // ─── Insights ─────────────────────────────────────────────────────────────────
