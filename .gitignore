@@ -3,6 +3,8 @@ dist/
 build/
 .cache/
 .env*
+.next/
+.expo/
 .vite/
 vite.config.*.timestamp-*
 *.tsbuildinfo

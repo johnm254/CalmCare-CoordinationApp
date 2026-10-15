@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: #0B1620;
+  color: #EAF2F6;
+  font-family: 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+* { box-sizing: border-box; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0B1620; }
+::-webkit-scrollbar-thumb { background: #1E3A52; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #4F6D84; }
+
+@media print {
+  body { background: white; color: #0F1E29; }
+  .no-print { display: none !important; }
+}

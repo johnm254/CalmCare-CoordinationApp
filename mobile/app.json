@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Duara",
+    "slug": "duara",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D1C1C"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0D1C1C"
+      },
+      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"],
+      "package": "com.duara.app"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.duara.app"
+    },
+    "extra": {
+      "router": { "origin": false },
+      "eas": { "projectId": "9246ff32-9bc9-4291-bdbc-d601a5b86145" }
+    },
+    "scheme": "duara",
+    "owner": "jocularjohny"
+  }
+}
