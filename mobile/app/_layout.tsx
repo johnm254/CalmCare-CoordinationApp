@@ -1,20 +1,23 @@
-import { useEffect, createContext, useContext, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as Updates from 'expo-updates';
-import { MOCK_USER } from '../lib/mock-data';
+import type { Session } from '@supabase/supabase-js';
+import { supabase, getProfile, type Profile } from '../lib/supabase';
 import { colors } from '../lib/theme';
 
 interface AuthContextType {
-  user: typeof MOCK_USER | null;
+  session: Session | null;
+  profile: Profile | null;
   isLoading: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
-  user: MOCK_USER,
-  isLoading: false,
+  session: null,
+  profile: null,
+  isLoading: true,
 });
 
 export function useAuth() {
@@ -23,49 +26,71 @@ export function useAuth() {
 
 async function checkForOTAUpdate() {
   try {
-    if (__DEV__) return; // skip in development
+    if (__DEV__) return;
     const update = await Updates.checkForUpdateAsync();
     if (update.isAvailable) {
       await Updates.fetchUpdateAsync();
-      // Apply on next launch — current session is uninterrupted
       await Updates.reloadAsync();
     }
   } catch {
-    // Network unavailable or update server unreachable — silently ignore
+    // Silently ignore — network unavailable or update server unreachable
   }
 }
 
 export default function RootLayout() {
-  const [isReady, setIsReady] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
-    async function prepare() {
-      try {
-        const { initializeDB } = await import('../db/offline');
-        await initializeDB();
-      } catch {
-        // SQLite not available in Expo Go without native build — ignore
-      } finally {
-        setIsReady(true);
+    // Bootstrap: check existing session
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        const p = await getProfile(session.user.id);
+        setProfile(p);
       }
-    }
-    prepare();
+      setInitialized(true);
+    });
 
-    // Check for OTA update on launch
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      if (session?.user) {
+        const p = await getProfile(session.user.id);
+        setProfile(p);
+      } else {
+        setProfile(null);
+      }
+      if (event === 'SIGNED_IN') router.replace('/(tabs)');
+      if (event === 'SIGNED_OUT') router.replace('/(auth)/login');
+    });
+
+    // OTA update check on launch
     checkForOTAUpdate();
 
-    // Re-check whenever the app comes back to the foreground
-    const sub = AppState.addEventListener('change', (state: AppStateStatus) => {
+    // Re-check OTA when app foregrounded
+    const appStateSub = AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'active') checkForOTAUpdate();
     });
-    return () => sub.remove();
+
+    return () => {
+      subscription.unsubscribe();
+      appStateSub.remove();
+    };
   }, []);
 
-  if (!isReady) return null;
+  // Redirect after auth is resolved
+  useEffect(() => {
+    if (!initialized) return;
+    if (!session) router.replace('/(auth)/login');
+  }, [initialized, session]);
+
+  if (!initialized) return null;
 
   return (
     <SafeAreaProvider>
-      <AuthContext.Provider value={{ user: MOCK_USER, isLoading: false }}>
+      <AuthContext.Provider value={{ session, profile, isLoading: !initialized }}>
         <StatusBar style="light" backgroundColor={colors.bg} />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />

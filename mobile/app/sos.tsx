@@ -1,22 +1,31 @@
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, radius, spacing } from '../lib/theme';
-import { MOCK_CARE_CIRCLE } from '../lib/mock-data';
+import { useAuth } from './_layout';
+import { getEmergencyContacts, sendSos } from '../lib/supabase';
 
-const { width } = Dimensions.get('window');
 const CIRCLE_SIZE = 200;
 const STROKE = 8;
-const R = (CIRCLE_SIZE - STROKE) / 2;
-const CIRCUMFERENCE = 2 * Math.PI * R;
 const TOTAL_SECONDS = 5;
-const emergencyCount = MOCK_CARE_CIRCLE.filter((c) => c.is_emergency).length;
 
 export default function SOSScreen() {
+  const { session } = useAuth();
   const [seconds, setSeconds] = useState(TOTAL_SECONDS);
   const [sent, setSent] = useState(false);
+  const [emergencyCount, setEmergencyCount] = useState(0);
+  const [contactIds, setContactIds] = useState<string[]>([]);
   const progress = useRef(new Animated.Value(1)).current;
+  const sentRef = useRef(false);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    getEmergencyContacts(session.user.id).then((contacts) => {
+      setEmergencyCount(contacts.length);
+      setContactIds(contacts.map((c) => c.member_id));
+    });
+  }, [session]);
 
   useEffect(() => {
     Animated.timing(progress, {
@@ -29,7 +38,10 @@ export default function SOSScreen() {
       setSeconds((s) => {
         if (s <= 1) {
           clearInterval(interval);
-          setSent(true);
+          if (!sentRef.current) {
+            sentRef.current = true;
+            doSend();
+          }
           return 0;
         }
         return s - 1;
@@ -39,38 +51,35 @@ export default function SOSScreen() {
     return () => clearInterval(interval);
   }, []);
 
-  const strokeDashoffset = progress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [CIRCUMFERENCE, 0],
-  });
-
-  function handleCancel() {
-    router.back();
+  async function doSend() {
+    if (session?.user && contactIds.length > 0) {
+      await sendSos(session.user.id, contactIds);
+    }
+    setSent(true);
   }
 
   function handleSendNow() {
-    setSent(true);
+    if (!sentRef.current) {
+      sentRef.current = true;
+      doSend();
+    }
   }
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
 
-        {/* SOS label */}
         <View style={styles.sosLabel}>
           <View style={styles.redDot} />
           <Text style={styles.sosLabelText}>SOS</Text>
         </View>
 
-        {/* Countdown circle */}
         <View style={styles.circleWrapper}>
           <View style={styles.circleBg} />
           <Animated.View
             style={[
               styles.circleArc,
-              {
-                borderColor: sent ? colors.teal : colors.coral,
-              },
+              { borderColor: sent ? colors.teal : colors.coral },
             ]}
           />
           <View style={styles.circleCenter}>
@@ -79,7 +88,6 @@ export default function SOSScreen() {
           </View>
         </View>
 
-        {/* Status text */}
         <Text style={styles.heading}>{sent ? 'SOS Sent' : 'Sending your SOS'}</Text>
         <Text style={styles.subtext}>
           {sent
@@ -87,7 +95,6 @@ export default function SOSScreen() {
             : 'Your emergency contacts will be alerted with your live location.'}
         </Text>
 
-        {/* Status card */}
         <View style={styles.statusCard}>
           <View style={styles.statusRow}>
             <View style={styles.statusInfo}>
@@ -118,13 +125,12 @@ export default function SOSScreen() {
           </View>
         </View>
 
-        {/* Actions */}
         {!sent && (
           <TouchableOpacity style={styles.sendNowBtn} onPress={handleSendNow} activeOpacity={0.85}>
             <Text style={styles.sendNowBtnText}>Send now</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={styles.cancelBtn} onPress={handleCancel} activeOpacity={0.85}>
+        <TouchableOpacity style={styles.cancelBtn} onPress={() => router.back()} activeOpacity={0.85}>
           <Text style={styles.cancelBtnText}>Cancel, I am okay</Text>
         </TouchableOpacity>
 
@@ -142,11 +148,9 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
   },
-
   sosLabel: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xl },
   redDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.coral },
   sosLabelText: { fontSize: fonts.sm, fontWeight: '700', color: colors.text, letterSpacing: 2 },
-
   circleWrapper: {
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,
@@ -174,12 +178,10 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '-45deg' }],
   },
   circleCenter: { alignItems: 'center' },
-  countdownNum: { fontSize: fonts.xxxl + 20, fontWeight: '800', color: colors.text },
+  countdownNum: { fontSize: 64, fontWeight: '800', color: colors.text },
   countdownLabel: { fontSize: fonts.base, color: colors.textSecondary },
-
   heading: { fontSize: fonts.xxl, fontWeight: '800', color: colors.text, marginBottom: spacing.sm, textAlign: 'center' },
   subtext: { fontSize: fonts.base, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: spacing.xl },
-
   statusCard: {
     width: '100%',
     backgroundColor: colors.bgCard,
@@ -193,16 +195,10 @@ const styles = StyleSheet.create({
   statusInfo: { flex: 1 },
   statusTitle: { fontSize: fonts.base, fontWeight: '700', color: colors.text },
   statusSub: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
-  readyBadge: {
-    backgroundColor: colors.tealDim,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
-  },
+  readyBadge: { backgroundColor: colors.tealDim, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: 4 },
   readyBadgeText: { fontSize: fonts.sm, color: colors.teal, fontWeight: '700' },
   contactCount: { fontSize: fonts.lg, fontWeight: '700', color: colors.text },
   divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.xs },
-
   sendNowBtn: {
     width: '100%',
     backgroundColor: colors.coral,

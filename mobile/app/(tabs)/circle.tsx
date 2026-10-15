@@ -1,10 +1,12 @@
-import { useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, radius, spacing } from '../../lib/theme';
-import { MOCK_CARE_CIRCLE } from '../../lib/mock-data';
-
-type GrantKey = 'emergency_alerts' | 'medication_schedule' | 'appointments' | 'event_summaries' | 'records';
+import { useAuth } from '../_layout';
+import {
+  getCareCircle, getGrantsForMember, setGrant,
+  type CareCircleMember, type GrantKey,
+} from '../../lib/supabase';
 
 const GRANT_LABELS: { key: GrantKey; label: string; sub: string }[] = [
   { key: 'emergency_alerts', label: 'Emergency alerts', sub: 'Receive your SOS with location' },
@@ -14,24 +16,40 @@ const GRANT_LABELS: { key: GrantKey; label: string; sub: string }[] = [
   { key: 'records', label: 'Records', sub: 'Reports and documents' },
 ];
 
-function countGrants(grants: Record<GrantKey, boolean>) {
-  return Object.values(grants).filter(Boolean).length;
-}
+type ContactWithGrants = CareCircleMember & { grants: Record<GrantKey, boolean> };
 
 export default function CircleScreen() {
-  const [expanded, setExpanded] = useState<string | null>('cc-001');
-  const [contacts, setContacts] = useState(
-    MOCK_CARE_CIRCLE.map((c) => ({ ...c, grants: { ...c.grants } }))
-  );
+  const { session } = useAuth();
+  const [contacts, setContacts] = useState<ContactWithGrants[]>([]);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState<string | null>(null);
 
-  function toggleGrant(contactId: string, key: GrantKey) {
+  useEffect(() => {
+    if (!session?.user) return;
+    const uid = session.user.id;
+    getCareCircle(uid).then(async (circle) => {
+      const withGrants = await Promise.all(
+        circle.map(async (c) => ({
+          ...c,
+          grants: await getGrantsForMember(uid, c.member_id),
+        }))
+      );
+      setContacts(withGrants);
+      if (withGrants.length > 0) setExpanded(withGrants[0].id);
+      setLoading(false);
+    });
+  }, [session]);
+
+  async function toggleGrant(contact: ContactWithGrants, key: GrantKey) {
+    if (!session?.user || saving) return;
+    const newVal = !contact.grants[key];
+    setSaving(`${contact.id}-${key}`);
     setContacts((prev) =>
-      prev.map((c) =>
-        c.id === contactId
-          ? { ...c, grants: { ...c.grants, [key]: !c.grants[key] } }
-          : c
-      )
+      prev.map((c) => c.id === contact.id ? { ...c, grants: { ...c.grants, [key]: newVal } } : c)
     );
+    await setGrant(session.user.id, contact.member_id, key, newVal);
+    setSaving(null);
   }
 
   return (
@@ -40,63 +58,73 @@ export default function CircleScreen() {
 
         <Text style={styles.title}>Care Circle</Text>
         <Text style={styles.description}>
-          You decide who sees what. Changes apply the next time their phone syncs, and you can remove access at any time.
+          You decide who sees what. Changes take effect immediately, and you can remove access at any time.
         </Text>
 
-        {contacts.map((contact) => {
-          const isOpen = expanded === contact.id;
-          const grantCount = countGrants(contact.grants as Record<GrantKey, boolean>);
-
-          return (
-            <View key={contact.id} style={styles.contactCard}>
-              <TouchableOpacity
-                style={styles.contactHeader}
-                onPress={() => setExpanded(isOpen ? null : contact.id)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.contactLeft}>
-                  <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>{contact.full_name[0]}</Text>
-                  </View>
-                  <View>
-                    <Text style={styles.contactName}>{contact.full_name}</Text>
-                    <Text style={styles.contactRole}>
-                      {contact.relationship}
-                      {contact.is_emergency ? " · emergency contact" : ""}
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.grantBadge}>
-                  <Text style={styles.grantBadgeText}>{grantCount} of 5</Text>
-                </View>
-              </TouchableOpacity>
-
-              {isOpen && (
-                <View style={styles.grantList}>
-                  {GRANT_LABELS.map(({ key, label, sub }) => (
-                    <View key={key} style={styles.grantRow}>
-                      <View style={styles.grantInfo}>
-                        <Text style={styles.grantLabel}>{label}</Text>
-                        <Text style={styles.grantSub}>{sub}</Text>
-                      </View>
-                      <Switch
-                        value={contact.grants[key]}
-                        onValueChange={() => toggleGrant(contact.id, key)}
-                        trackColor={{ false: colors.toggleInactive, true: colors.toggleActive }}
-                        thumbColor="#fff"
-                        ios_backgroundColor={colors.toggleInactive}
-                      />
+        {loading ? (
+          <ActivityIndicator color={colors.teal} style={{ marginTop: spacing.xl }} />
+        ) : contacts.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyText}>No one in your Circle yet.</Text>
+            <Text style={styles.emptySub}>Invite a trusted contact to get started.</Text>
+          </View>
+        ) : (
+          contacts.map((contact) => {
+            const isOpen = expanded === contact.id;
+            const grantCount = Object.values(contact.grants).filter(Boolean).length;
+            return (
+              <View key={contact.id} style={styles.contactCard}>
+                <TouchableOpacity
+                  style={styles.contactHeader}
+                  onPress={() => setExpanded(isOpen ? null : contact.id)}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.contactLeft}>
+                    <View style={styles.avatar}>
+                      <Text style={styles.avatarText}>{contact.full_name[0]}</Text>
                     </View>
-                  ))}
-                </View>
-              )}
-            </View>
-          );
-        })}
+                    <View>
+                      <Text style={styles.contactName}>{contact.full_name}</Text>
+                      <Text style={styles.contactRole}>
+                        {contact.relationship}{contact.is_emergency ? ' · emergency contact' : ''}
+                      </Text>
+                    </View>
+                  </View>
+                  <View style={styles.grantBadge}>
+                    <Text style={styles.grantBadgeText}>{grantCount} of 5</Text>
+                  </View>
+                </TouchableOpacity>
 
-        <TouchableOpacity style={styles.activityBtn}>
-          <Text style={styles.activityBtnText}>⏱ See who viewed what</Text>
-        </TouchableOpacity>
+                {isOpen && (
+                  <View style={styles.grantList}>
+                    {GRANT_LABELS.map(({ key, label, sub }) => {
+                      const savingThis = saving === `${contact.id}-${key}`;
+                      return (
+                        <View key={key} style={styles.grantRow}>
+                          <View style={styles.grantInfo}>
+                            <Text style={styles.grantLabel}>{label}</Text>
+                            <Text style={styles.grantSub}>{sub}</Text>
+                          </View>
+                          {savingThis
+                            ? <ActivityIndicator size="small" color={colors.teal} />
+                            : (
+                              <Switch
+                                value={contact.grants[key]}
+                                onValueChange={() => toggleGrant(contact, key)}
+                                trackColor={{ false: colors.toggleInactive, true: colors.toggleActive }}
+                                thumbColor="#fff"
+                                ios_backgroundColor={colors.toggleInactive}
+                              />
+                            )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                )}
+              </View>
+            );
+          })
+        )}
 
         <TouchableOpacity style={styles.inviteBtn}>
           <Text style={styles.inviteBtnText}>Invite someone</Text>
@@ -111,77 +139,25 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { flex: 1 },
   container: { padding: spacing.lg, paddingBottom: 40 },
-
   title: { fontSize: fonts.xxl, fontWeight: '800', color: colors.text, marginBottom: spacing.md },
   description: { fontSize: fonts.base, color: colors.textSecondary, lineHeight: 22, marginBottom: spacing.xl },
-
-  contactCard: {
-    backgroundColor: colors.bgCard,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.border,
-    marginBottom: spacing.md,
-    overflow: 'hidden',
-  },
-  contactHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: spacing.lg,
-  },
+  emptyCard: { backgroundColor: colors.bgCard, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.xl, alignItems: 'center', marginBottom: spacing.md },
+  emptyText: { color: colors.text, fontSize: fonts.md, fontWeight: '600', marginBottom: 4 },
+  emptySub: { color: colors.textSecondary, fontSize: fonts.sm },
+  contactCard: { backgroundColor: colors.bgCard, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, marginBottom: spacing.md, overflow: 'hidden' },
+  contactHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: spacing.lg },
   contactLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.tealMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.tealMuted, alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: colors.teal, fontWeight: '700', fontSize: fonts.lg },
   contactName: { fontSize: fonts.md, fontWeight: '700', color: colors.text },
   contactRole: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
-  grantBadge: {
-    backgroundColor: colors.tealDim,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
-  },
+  grantBadge: { backgroundColor: colors.tealDim, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: 4 },
   grantBadgeText: { fontSize: fonts.sm, color: colors.teal, fontWeight: '600' },
-
-  grantList: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.md,
-  },
-  grantRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
+  grantList: { borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
+  grantRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
   grantInfo: { flex: 1, marginRight: spacing.md },
   grantLabel: { fontSize: fonts.base, fontWeight: '600', color: colors.text },
   grantSub: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
-
-  activityBtn: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.lg,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  activityBtnText: { color: colors.textSecondary, fontWeight: '600', fontSize: fonts.base },
-
-  inviteBtn: {
-    backgroundColor: colors.teal,
-    borderRadius: radius.xl,
-    paddingVertical: spacing.lg,
-    alignItems: 'center',
-  },
+  inviteBtn: { backgroundColor: colors.teal, borderRadius: radius.xl, paddingVertical: spacing.lg, alignItems: 'center', marginTop: spacing.sm },
   inviteBtnText: { color: '#000', fontWeight: '700', fontSize: fonts.md },
 });

@@ -1,45 +1,69 @@
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
+import { useEffect, useState } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, radius, spacing } from '../lib/theme';
-import { MOCK_INSIGHTS } from '../lib/mock-data';
+import { useAuth } from './_layout';
+import { getInsightsSummary } from '../lib/supabase';
+
+type Insights = {
+  this_week_events: number;
+  pattern: string;
+  suggestion: string;
+  med_checkins: number;
+};
 
 export default function InsightsScreen() {
+  const { session } = useAuth();
+  const [insights, setInsights] = useState<Insights | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!session?.user) return;
+    getInsightsSummary(session.user.id).then((data) => {
+      setInsights(data);
+      setLoading(false);
+    });
+  }, [session]);
+
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
 
-        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
             <Text style={styles.backIcon}>←</Text>
           </TouchableOpacity>
           <Text style={styles.title}>Insights</Text>
-          <View style={styles.sampleBadge}>
-            <Text style={styles.sampleBadgeText}>Sample content</Text>
-          </View>
         </View>
 
-        {/* Main insight card */}
-        <View style={styles.insightCard}>
-          <Text style={styles.weekLabel}>THIS WEEK</Text>
-          <Text style={styles.insightHeading}>
-            You logged {MOCK_INSIGHTS.this_week_events} events. {MOCK_INSIGHTS.pattern}
-          </Text>
-          <Text style={styles.insightBody}>
-            Built from {MOCK_INSIGHTS.this_week_events} event logs and 12 medication check-ins. This is a pattern, not a diagnosis. Talk to your clinician before changing anything.
-          </Text>
-          <View style={styles.actionRow}>
-            <TouchableOpacity style={styles.btnPrimary}>
-              <Text style={styles.btnPrimaryText}>{MOCK_INSIGHTS.suggestion}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.btnOutlined}>
-              <Text style={styles.btnOutlinedText}>See the logs</Text>
-            </TouchableOpacity>
+        {loading ? (
+          <ActivityIndicator color={colors.teal} style={{ marginTop: spacing.xl }} />
+        ) : !insights ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyText}>No insights yet.</Text>
+            <Text style={styles.emptySub}>Log a few events to see patterns here.</Text>
           </View>
-        </View>
+        ) : (
+          <View style={styles.insightCard}>
+            <Text style={styles.weekLabel}>THIS WEEK</Text>
+            <Text style={styles.insightHeading}>
+              You logged {insights.this_week_events} event{insights.this_week_events !== 1 ? 's' : ''}. {insights.pattern}
+            </Text>
+            <Text style={styles.insightBody}>
+              Built from {insights.this_week_events} event log{insights.this_week_events !== 1 ? 's' : ''} and {insights.med_checkins} medication check-in{insights.med_checkins !== 1 ? 's' : ''}. This is a pattern, not a diagnosis. Talk to your clinician before changing anything.
+            </Text>
+            <View style={styles.actionRow}>
+              <TouchableOpacity style={styles.btnPrimary}>
+                <Text style={styles.btnPrimaryText}>{insights.suggestion}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.btnOutlined} onPress={() => router.back()}>
+                <Text style={styles.btnOutlinedText}>See the logs</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
-        {/* Voice log card */}
         <View style={styles.card}>
           <View style={styles.cardHeader}>
             <View>
@@ -65,7 +89,6 @@ export default function InsightsScreen() {
           </Text>
         </View>
 
-        {/* Visit brief card */}
         <View style={styles.card}>
           <View style={styles.visitBriefRow}>
             <View>
@@ -78,7 +101,6 @@ export default function InsightsScreen() {
           </View>
         </View>
 
-        {/* Footer disclaimer */}
         <Text style={styles.disclaimer}>
           Epi never diagnoses or changes your medication. Summaries are drafts built from what you and your Circle logged.
         </Text>
@@ -92,21 +114,21 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { flex: 1 },
   container: { padding: spacing.lg, paddingBottom: 40 },
-
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.xl },
   backBtn: { marginRight: spacing.md },
   backIcon: { fontSize: fonts.xl, color: colors.text },
   title: { fontSize: fonts.xl, fontWeight: '700', color: colors.text, flex: 1 },
-  sampleBadge: {
+  emptyCard: {
     backgroundColor: colors.bgCard,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
+    borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
+    padding: spacing.xl,
+    alignItems: 'center',
+    marginBottom: spacing.md,
   },
-  sampleBadgeText: { fontSize: fonts.xs, color: colors.textSecondary },
-
+  emptyText: { color: colors.text, fontSize: fonts.md, fontWeight: '600', marginBottom: 4 },
+  emptySub: { color: colors.textSecondary, fontSize: fonts.sm },
   insightCard: {
     backgroundColor: colors.bgCard,
     borderRadius: radius.lg,
@@ -119,22 +141,10 @@ const styles = StyleSheet.create({
   insightHeading: { fontSize: fonts.xl, fontWeight: '700', color: colors.text, lineHeight: 30, marginBottom: spacing.sm },
   insightBody: { fontSize: fonts.base, color: colors.textSecondary, lineHeight: 22, marginBottom: spacing.lg },
   actionRow: { flexDirection: 'row', gap: spacing.md },
-  btnPrimary: {
-    backgroundColor: colors.teal,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
+  btnPrimary: { backgroundColor: colors.teal, borderRadius: radius.full, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
   btnPrimaryText: { color: '#000', fontWeight: '700', fontSize: fonts.sm },
-  btnOutlined: {
-    borderWidth: 1,
-    borderColor: colors.teal,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
+  btnOutlined: { borderWidth: 1, borderColor: colors.teal, borderRadius: radius.full, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
   btnOutlinedText: { color: colors.teal, fontWeight: '700', fontSize: fonts.sm },
-
   card: {
     backgroundColor: colors.bgCard,
     borderRadius: radius.lg,
@@ -147,42 +157,15 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: fonts.md, fontWeight: '700', color: colors.text },
   cardSub: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
   cardBody: { fontSize: fonts.base, color: colors.textSecondary, lineHeight: 22 },
-  offlineBadge: {
-    backgroundColor: colors.tealDim,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 4,
-  },
+  offlineBadge: { backgroundColor: colors.tealDim, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: 4 },
   offlineBadgeText: { fontSize: fonts.xs, color: colors.teal, fontWeight: '600' },
-
   micRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg, marginBottom: spacing.md },
-  micBtn: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.tealDim,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  micBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.tealDim, alignItems: 'center', justifyContent: 'center' },
   micIcon: { fontSize: 22 },
   waveform: { flexDirection: 'row', alignItems: 'center', gap: 3 },
   waveBar: { width: 3, backgroundColor: colors.teal, borderRadius: 2, opacity: 0.7 },
-
   visitBriefRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  reviewBtn: {
-    backgroundColor: colors.teal,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-  },
+  reviewBtn: { backgroundColor: colors.teal, borderRadius: radius.full, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
   reviewBtnText: { color: '#000', fontWeight: '700', fontSize: fonts.sm },
-
-  disclaimer: {
-    fontSize: fonts.sm,
-    color: colors.textMuted,
-    textAlign: 'center',
-    lineHeight: 20,
-    marginTop: spacing.md,
-    paddingHorizontal: spacing.md,
-  },
+  disclaimer: { fontSize: fonts.sm, color: colors.textMuted, textAlign: 'center', lineHeight: 20, marginTop: spacing.md, paddingHorizontal: spacing.md },
 });

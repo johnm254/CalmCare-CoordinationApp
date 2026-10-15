@@ -29,6 +29,7 @@ CREATE TABLE conditions (
   type TEXT NOT NULL,
   notes TEXT,
   triggered_by TEXT,
+  active BOOLEAN DEFAULT true,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -96,10 +97,11 @@ CREATE TABLE grants (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   grantee_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-  category TEXT NOT NULL CHECK (category IN ('medications', 'events', 'observations', 'records', 'all')),
+  category TEXT NOT NULL CHECK (category IN ('emergency_alerts', 'medication_schedule', 'appointments', 'event_summaries', 'records')),
   granted_at TIMESTAMP DEFAULT NOW(),
   revoked_at TIMESTAMP,
-  created_at TIMESTAMP DEFAULT NOW()
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE (patient_id, grantee_id, category)
 );
 
 -- Clinician Links: Patient-clinician relationship
@@ -232,26 +234,19 @@ CREATE POLICY "conditions_patient_access" ON conditions
 
 CREATE POLICY "conditions_grant_access" ON conditions
   FOR SELECT USING (
-    -- Active grant for this category
     EXISTS (
       SELECT 1 FROM grants
       WHERE patient_id = conditions.patient_id
         AND grantee_id = auth.uid()
-        AND (category = 'all' OR category = 'medications')
+        AND category = 'records'
         AND revoked_at IS NULL
     ) OR
-    -- Clinician with verified link and grant
-    (EXISTS (
+    EXISTS (
       SELECT 1 FROM clinician_links
       WHERE patient_id = conditions.patient_id
         AND clinician_id = auth.uid()
         AND verified_at IS NOT NULL
-    ) AND EXISTS (
-      SELECT 1 FROM grants
-      WHERE patient_id = conditions.patient_id
-        AND grantee_id = auth.uid()
-        AND revoked_at IS NULL
-    ))
+    )
   );
 
 -- Medications: Same pattern
@@ -264,7 +259,7 @@ CREATE POLICY "medications_grant_access" ON medications
       SELECT 1 FROM grants
       WHERE patient_id = medications.patient_id
         AND grantee_id = auth.uid()
-        AND (category = 'all' OR category = 'medications')
+        AND category = 'medication_schedule'
         AND revoked_at IS NULL
     )
   );
@@ -279,7 +274,7 @@ CREATE POLICY "medication_logs_grant_access" ON medication_logs
       SELECT 1 FROM grants
       WHERE patient_id = medication_logs.patient_id
         AND grantee_id = auth.uid()
-        AND (category = 'all' OR category = 'medications')
+        AND category = 'medication_schedule'
         AND revoked_at IS NULL
     )
   );
@@ -294,7 +289,7 @@ CREATE POLICY "events_grant_access" ON events
       SELECT 1 FROM grants
       WHERE patient_id = events.patient_id
         AND grantee_id = auth.uid()
-        AND (category = 'all' OR category = 'events')
+        AND category = 'event_summaries'
         AND revoked_at IS NULL
     )
   );
@@ -309,7 +304,7 @@ CREATE POLICY "observations_caregiver_write" ON observations
       SELECT 1 FROM grants
       WHERE patient_id = observations.patient_id
         AND grantee_id = auth.uid()
-        AND (category = 'all' OR category = 'observations')
+        AND category = 'event_summaries'
         AND revoked_at IS NULL
     ) AND author_id = auth.uid()
   );
@@ -320,7 +315,7 @@ CREATE POLICY "observations_grant_access" ON observations
       SELECT 1 FROM grants
       WHERE patient_id = observations.patient_id
         AND grantee_id = auth.uid()
-        AND (category = 'all' OR category = 'observations')
+        AND category = 'event_summaries'
         AND revoked_at IS NULL
     )
   );
