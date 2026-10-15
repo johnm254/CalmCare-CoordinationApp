@@ -1,16 +1,17 @@
 import Link from 'next/link';
 import { createClient } from '../../lib/supabase-server';
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    review:   'bg-[#3A1A18] text-[#FF7A6B] border border-[#FF7A6B]/30',
-    stable:   'bg-[#1A3A3A] text-[#4FC3B7] border border-[#4FC3B7]/30',
-    followup: 'bg-[#3A2A10] text-[#F4B860] border border-[#F4B860]/30',
+function StatusPill({ status }: { status: string }) {
+  const map: Record<string, { bg: string; text: string; label: string }> = {
+    review:  { bg: 'bg-[rgba(239,68,68,0.10)]',  text: 'text-[#EF4444]',  label: 'Review' },
+    stable:  { bg: 'bg-[rgba(0,191,166,0.10)]',   text: 'text-[#00BFA6]',  label: 'Stable' },
+    followup:{ bg: 'bg-[rgba(244,184,96,0.10)]',  text: 'text-[#F4B860]',  label: 'Follow-up' },
+    none:    { bg: 'bg-[#0F2040]',                text: 'text-[#3D5C80]',  label: 'No events' },
   };
-  const labels: Record<string, string> = { review: 'Review', stable: 'Stable', followup: 'Follow-up' };
+  const s = map[status] ?? map.stable;
   return (
-    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${map[status] ?? map.stable}`}>
-      {labels[status] ?? 'Stable'}
+    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${s.bg} ${s.text}`}>
+      {s.label}
     </span>
   );
 }
@@ -62,117 +63,183 @@ export default async function DashboardPage() {
   const totalEvents = Object.values(eventsByPatient).reduce((s, n) => s + n, 0);
 
   const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  const firstName = profile?.full_name?.replace(/^Dr\.?\s*/i, '').split(' ')[0] ?? 'Doctor';
 
   const stats = [
     {
-      label: 'Total Patients', value: patients.length, color: 'text-[#EAF2F6]',
-      icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>,
-      iconBg: 'bg-[#1A3A3A] text-[#4FC3B7]',
+      label: 'Total Patients',
+      value: patients.length,
+      valueColor: 'text-[#EAF4FF]',
+      iconBg: 'bg-[rgba(0,191,166,0.10)]',
+      iconColor: 'text-[#00BFA6]',
+      trend: '—',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+      ),
     },
     {
-      label: 'Need Review', value: needReview, color: needReview > 0 ? 'text-[#FF7A6B]' : 'text-[#EAF2F6]',
-      icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>,
-      iconBg: needReview > 0 ? 'bg-[#3A1A18] text-[#FF7A6B]' : 'bg-[#1A3144] text-[#A8BDCA]',
+      label: 'Need Review',
+      value: needReview,
+      valueColor: needReview > 0 ? 'text-[#EF4444]' : 'text-[#EAF4FF]',
+      iconBg: needReview > 0 ? 'bg-[rgba(239,68,68,0.10)]' : 'bg-[#0F2040]',
+      iconColor: needReview > 0 ? 'text-[#EF4444]' : 'text-[#3D5C80]',
+      trend: needReview > 0 ? '▲' : '—',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      ),
     },
     {
-      label: 'Follow-ups Due', value: (openFollowups ?? []).length, color: (openFollowups ?? []).length > 0 ? 'text-[#F4B860]' : 'text-[#EAF2F6]',
-      icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>,
-      iconBg: (openFollowups ?? []).length > 0 ? 'bg-[#3A2A10] text-[#F4B860]' : 'bg-[#1A3144] text-[#A8BDCA]',
+      label: 'Follow-ups Due',
+      value: (openFollowups ?? []).length,
+      valueColor: (openFollowups ?? []).length > 0 ? 'text-[#F4B860]' : 'text-[#EAF4FF]',
+      iconBg: (openFollowups ?? []).length > 0 ? 'bg-[rgba(244,184,96,0.10)]' : 'bg-[#0F2040]',
+      iconColor: (openFollowups ?? []).length > 0 ? 'text-[#F4B860]' : 'text-[#3D5C80]',
+      trend: (openFollowups ?? []).length > 0 ? '▲' : '—',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+      ),
     },
     {
-      label: 'Events This Week', value: totalEvents, color: 'text-[#4FC3B7]',
-      icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>,
-      iconBg: 'bg-[#1A3A3A] text-[#4FC3B7]',
+      label: 'Events This Week',
+      value: totalEvents,
+      valueColor: 'text-[#00BFA6]',
+      iconBg: 'bg-[rgba(0,191,166,0.10)]',
+      iconColor: 'text-[#00BFA6]',
+      trend: totalEvents > 0 ? '▲' : '—',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+      ),
     },
   ];
 
   return (
     <div className="p-8">
       {/* Welcome banner */}
-      <div className="bg-gradient-to-r from-[#112230] to-[#1A3144] rounded-2xl p-6 mb-8 border border-[#1E3A52]">
-        <p className="text-[#A8BDCA] text-sm mb-1">{today}</p>
-        <h1 className="text-2xl font-bold text-[#EAF2F6]">Welcome back, {profile?.full_name?.replace(/^Dr\.?\s*/i, '').split(' ')[0] ?? 'Doctor'}</h1>
-        <p className="text-[#A8BDCA] text-sm mt-1">Here is what is happening with your patients today.</p>
+      <div className="bg-gradient-to-r from-[#0D1B35] to-[#122245] border border-[#1A3265] rounded-2xl p-6 mb-8">
+        <p className="text-[#3D5C80] text-xs font-medium uppercase tracking-widest mb-1">{today}</p>
+        <h1 className="text-[#EAF4FF] font-bold" style={{ fontSize: '26px' }}>
+          {greeting}, Dr. {firstName}
+        </h1>
+        <p className="text-[#7AAAC8] text-sm mt-1">Here is what is happening with your patients today.</p>
+        {/* Pulse line */}
+        <svg viewBox="0 0 400 32" className="w-full mt-4 opacity-30" aria-hidden="true">
+          <polyline
+            points="0,16 60,16 80,4 100,28 120,16 160,16 180,8 200,24 220,16 280,16 300,6 320,26 340,16 400,16"
+            fill="none" stroke="#00BFA6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          />
+        </svg>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-8">
+      {/* KPI row */}
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
         {stats.map((s) => (
-          <div key={s.label} className="bg-[#112230] border border-[#1E3A52] rounded-2xl p-5">
+          <div key={s.label} className="bg-[#0D1B35] border border-[#1A3265] rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
-              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.iconBg}`}>
+              <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.iconBg} ${s.iconColor}`}>
                 {s.icon}
               </div>
+              <span className="text-[#3D5C80] text-xs">{s.trend}</span>
             </div>
-            <p className={`text-3xl font-black ${s.color} mb-1`}>{s.value}</p>
-            <p className="text-[#A8BDCA] text-sm">{s.label}</p>
+            <p className={`text-3xl font-black ${s.valueColor} mb-1`}>{s.value}</p>
+            <p className="text-[#7AAAC8] text-sm">{s.label}</p>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-3 gap-6">
-        {/* Patient Roster */}
-        <div className="col-span-2 bg-[#112230] border border-[#1E3A52] rounded-2xl p-6">
+        {/* Patient roster */}
+        <div className="col-span-3 xl:col-span-2 bg-[#0D1B35] border border-[#1A3265] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-[#EAF2F6]">Patients</h2>
-            <Link href="/dashboard/patients" className="text-[#4FC3B7] text-sm hover:underline">View all</Link>
+            <h2 className="text-lg font-bold text-[#EAF4FF]">Patients</h2>
+            <Link href="/dashboard/patients" className="text-[#00BFA6] text-sm hover:underline font-medium">
+              View all →
+            </Link>
           </div>
 
           {patients.length === 0 ? (
             <div className="py-12 text-center">
-              <p className="text-[#A8BDCA] text-sm">No patients linked yet.</p>
-              <p className="text-[#4F6D84] text-xs mt-1">Patients can link you from their app, or you can add a link from the Patients page.</p>
+              <div className="w-12 h-12 rounded-full bg-[#0F2040] flex items-center justify-center mx-auto mb-3">
+                <svg className="w-6 h-6 text-[#3D5C80]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <p className="text-[#7AAAC8] text-sm">No patients linked yet.</p>
+              <p className="text-[#3D5C80] text-xs mt-1">Patients can link you from their app, or you can add a link from the Patients page.</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {patients.map((patient) => (
-                <div key={patient.id} className="flex items-center justify-between py-3 border-b border-[#1E3A52] last:border-0">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[#1A3A3A] flex items-center justify-center text-[#4FC3B7] font-bold text-sm flex-shrink-0">
-                      {patient.initials}
+            <div className="space-y-1">
+              {patients.map((patient) => {
+                const status = patient.events_this_week > 0 ? 'review' : patient.open_followups > 0 ? 'followup' : 'stable';
+                return (
+                  <div key={patient.id} className="flex items-center justify-between py-3 px-3 rounded-xl hover:bg-[#0F2040] transition-colors border-b border-[#1A3265] last:border-0">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#00BFA6]/15 border border-[#00BFA6]/30 flex items-center justify-center text-[#00BFA6] font-bold text-sm flex-shrink-0">
+                        {patient.initials}
+                      </div>
+                      <div>
+                        <p className="text-[#EAF4FF] font-semibold text-sm">{patient.full_name}</p>
+                        <p className="text-[#3D5C80] text-xs">{patient.events_this_week} events this week</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-[#EAF2F6] font-semibold text-sm">{patient.full_name}</p>
+                    <div className="flex items-center gap-3">
+                      <StatusPill status={status} />
+                      <Link
+                        href={`/dashboard/patients/${patient.id}`}
+                        className="text-[#00BFA6] border border-[#1A3265] rounded-lg px-3 py-1.5 text-xs font-semibold hover:bg-[#00BFA6]/10 transition-colors min-h-[36px] flex items-center"
+                      >
+                        View →
+                      </Link>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right hidden md:block">
-                      <p className="text-[#EAF2F6] text-sm font-medium">{patient.events_this_week} events</p>
-                      <p className="text-[#4F6D84] text-xs">this week</p>
-                    </div>
-                    <StatusBadge status={patient.events_this_week > 0 ? 'review' : 'stable'} />
-                    <Link
-                      href={`/dashboard/patients/${patient.id}`}
-                      className="text-[#4FC3B7] border border-[#1E3A52] rounded-lg px-3 py-1.5 text-xs font-semibold hover:bg-[#1A3A3A] transition-colors min-h-[36px] flex items-center"
-                    >
-                      View
-                    </Link>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
 
         {/* Follow-ups */}
-        <div className="bg-[#112230] border border-[#1E3A52] rounded-2xl p-6">
+        <div className="col-span-3 xl:col-span-1 bg-[#0D1B35] border border-[#1A3265] rounded-2xl p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-[#EAF2F6]">Follow-ups</h2>
-            <Link href="/dashboard/follow-ups" className="text-[#4FC3B7] text-sm hover:underline">View all</Link>
+            <h2 className="text-lg font-bold text-[#EAF4FF]">Follow-ups</h2>
+            <Link href="/dashboard/follow-ups" className="text-[#00BFA6] text-sm hover:underline font-medium">
+              View all →
+            </Link>
           </div>
+
           {(openFollowups ?? []).length === 0 ? (
-            <p className="text-[#A8BDCA] text-sm py-4">No open follow-ups.</p>
+            <div className="py-10 text-center">
+              <div className="text-3xl mb-2">📅</div>
+              <p className="text-[#7AAAC8] text-sm">No open follow-ups.</p>
+            </div>
           ) : (
             <div className="space-y-4">
-              {(openFollowups ?? []).slice(0, 3).map((fu: any) => (
-                <div key={fu.id} className="border-b border-[#1E3A52] pb-4 last:border-0 last:pb-0">
-                  <p className="text-[#A8BDCA] text-xs mb-1">{fu.profiles?.full_name}</p>
-                  <p className="text-[#EAF2F6] text-sm font-medium leading-snug mb-2">{fu.title}</p>
-                  <p className="text-[#4F6D84] text-xs">
-                    Due {new Date(fu.due_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                  </p>
-                </div>
-              ))}
+              {(openFollowups ?? []).slice(0, 4).map((fu: any) => {
+                const daysUntil = Math.ceil((new Date(fu.due_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
+                const dateColor = daysUntil < 0 ? 'text-[#EF4444]' : daysUntil === 0 ? 'text-[#F4B860]' : 'text-[#3D5C80]';
+                return (
+                  <div key={fu.id} className="border-b border-[#1A3265] pb-4 last:border-0 last:pb-0">
+                    <p className="text-[#7AAAC8] text-xs mb-1">{(fu.profiles as any)?.full_name}</p>
+                    <p className="text-[#EAF4FF] text-sm font-semibold leading-snug mb-1.5">{fu.title}</p>
+                    <p className={`text-xs font-medium ${dateColor}`}>
+                      {daysUntil < 0
+                        ? `Overdue by ${Math.abs(daysUntil)}d`
+                        : daysUntil === 0
+                        ? 'Due today'
+                        : `Due ${new Date(fu.due_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

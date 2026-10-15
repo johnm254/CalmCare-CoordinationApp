@@ -18,10 +18,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!profile || profile.role !== 'clinician') redirect('/login');
 
   return (
-    <div className="flex min-h-screen bg-[#0D1C1C]">
+    <div className="flex min-h-screen bg-[#070D1A]">
       <InactivityLogout redirectTo="/login" />
       <Sidebar profile={profile} />
-      <main className="flex-1 ml-60 overflow-y-auto">
+      <main className="flex-1 ml-60 overflow-y-auto min-h-screen">
         {children}
       </main>
     </div>

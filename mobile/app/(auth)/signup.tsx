@@ -44,70 +44,97 @@ export default function SignupScreen() {
   return (
     <SafeAreaView style={styles.safe}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-          <Text style={styles.logo}>epi</Text>
-          <Text style={styles.heading}>Create your account</Text>
-          <Text style={styles.subheading}>You are in control of your data.</Text>
+        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}>
 
-          <View style={styles.roleRow}>
-            {(['patient', 'caregiver'] as Role[]).map((r) => (
-              <TouchableOpacity
-                key={r}
-                style={[styles.roleBtn, role === r && styles.roleBtnActive]}
-                onPress={() => setRole(r)}
-                disabled={loading}
-              >
-                <Text style={[styles.roleBtnText, role === r && styles.roleBtnTextActive]}>
-                  {r.charAt(0).toUpperCase() + r.slice(1)}
-                </Text>
-              </TouchableOpacity>
-            ))}
+          {/* Hero section */}
+          <View style={styles.hero}>
+            <View style={styles.logoMark}>
+              <View style={styles.logoRingOuter} />
+              <View style={styles.logoRingMid} />
+              <View style={styles.logoCore} />
+            </View>
+            <Text style={styles.brandName}>duara</Text>
+            <Text style={styles.tagline}>You are in control of your data.</Text>
           </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Full name"
-            placeholderTextColor={colors.textMuted}
-            value={name}
-            onChangeText={setName}
-            editable={!loading}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Email address"
-            placeholderTextColor={colors.textMuted}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-            editable={!loading}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Password (min. 8 characters)"
-            placeholderTextColor={colors.textMuted}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            editable={!loading}
-          />
+          {/* Form card */}
+          <View style={styles.card}>
+            <Text style={styles.heading}>Create account</Text>
 
-          <TouchableOpacity
-            style={[styles.btnPrimary, loading && styles.btnDisabled]}
-            onPress={handleCreate}
-            activeOpacity={0.85}
-            disabled={loading}
-          >
-            {loading
-              ? <ActivityIndicator color="#000" />
-              : <Text style={styles.btnPrimaryText}>Create account</Text>}
-          </TouchableOpacity>
+            {/* Role selector */}
+            <View style={styles.roleRow}>
+              {(['patient', 'caregiver'] as Role[]).map((r) => (
+                <TouchableOpacity
+                  key={r}
+                  style={[styles.roleBtn, role === r && styles.roleBtnActive]}
+                  onPress={() => setRole(r)}
+                  disabled={loading}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.roleBtnText, role === r && styles.roleBtnTextActive]}>
+                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-          <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={styles.linkRow}>
-            <Text style={styles.linkText}>Already have an account? </Text>
-            <Text style={[styles.linkText, styles.linkTeal]}>Sign in</Text>
-          </TouchableOpacity>
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputIcon}>👤</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Full name"
+                placeholderTextColor={colors.textMuted}
+                value={name}
+                onChangeText={setName}
+                editable={!loading}
+              />
+            </View>
+
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputIcon}>✉</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Email address"
+                placeholderTextColor={colors.textMuted}
+                value={email}
+                onChangeText={setEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoCorrect={false}
+                editable={!loading}
+              />
+            </View>
+
+            <View style={styles.inputWrapper}>
+              <Text style={styles.inputIcon}>🔒</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Password (min. 8 characters)"
+                placeholderTextColor={colors.textMuted}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                editable={!loading}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={[styles.btnPrimary, loading && styles.btnDisabled]}
+              onPress={handleCreate}
+              activeOpacity={0.85}
+              disabled={loading}
+            >
+              {loading
+                ? <ActivityIndicator color="#000" />
+                : <Text style={styles.btnPrimaryText}>Create account</Text>}
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={styles.linkRow}>
+              <Text style={styles.linkText}>Already have an account? </Text>
+              <Text style={[styles.linkText, styles.linkTeal]}>Sign in</Text>
+            </TouchableOpacity>
+          </View>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -117,30 +144,95 @@ export default function SignupScreen() {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   flex: { flex: 1 },
-  container: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: spacing.lg, paddingVertical: spacing.xxl },
-  logo: { fontSize: fonts.xxl, fontWeight: '800', color: colors.teal, letterSpacing: 2, textAlign: 'center', marginBottom: spacing.xl },
-  heading: { fontSize: fonts.xl, fontWeight: '700', color: colors.text, marginBottom: spacing.xs },
-  subheading: { fontSize: fonts.base, color: colors.textSecondary, marginBottom: spacing.xl },
+  container: { flexGrow: 1 },
+
+  // Hero
+  hero: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: spacing.xxxl,
+    paddingBottom: spacing.xxl,
+    minHeight: 200,
+  },
+  logoMark: { width: 56, height: 56, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md },
+  logoRingOuter: {
+    position: 'absolute',
+    width: 56, height: 56, borderRadius: 28,
+    borderWidth: 3, borderColor: 'rgba(0,191,166,0.3)',
+  },
+  logoRingMid: {
+    position: 'absolute',
+    width: 36, height: 36, borderRadius: 18,
+    borderWidth: 3, borderColor: 'rgba(0,191,166,0.6)',
+  },
+  logoCore: { width: 16, height: 16, borderRadius: 8, backgroundColor: colors.teal },
+  brandName: {
+    fontSize: 32, fontWeight: '800', color: colors.teal,
+    letterSpacing: 6, marginBottom: spacing.xs,
+  },
+  tagline: { fontSize: fonts.base, color: colors.textSecondary },
+
+  // Card
+  card: {
+    backgroundColor: colors.bgCard,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: colors.border,
+    padding: 28,
+    paddingBottom: 48,
+    flex: 1,
+  },
+  heading: { fontSize: fonts.xl, fontWeight: '700', color: colors.text, marginBottom: spacing.lg },
+
+  // Role selector
   roleRow: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.lg },
   roleBtn: {
-    flex: 1, paddingVertical: spacing.md, borderRadius: radius.md,
-    borderWidth: 1, borderColor: colors.border, alignItems: 'center', backgroundColor: colors.bgCard,
+    flex: 1,
+    paddingVertical: spacing.md,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    backgroundColor: colors.bgCardAlt,
   },
   roleBtnActive: { borderColor: colors.teal, backgroundColor: colors.tealDim },
   roleBtnText: { color: colors.textSecondary, fontWeight: '600', fontSize: fonts.base },
   roleBtnTextActive: { color: colors.teal },
-  input: {
-    backgroundColor: colors.inputBg, borderWidth: 1, borderColor: colors.inputBorder,
-    borderRadius: radius.md, paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
-    color: colors.text, fontSize: fonts.md, marginBottom: spacing.md,
+
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.inputBg,
+    borderWidth: 1,
+    borderColor: colors.inputBorder,
+    borderRadius: radius.md,
+    marginBottom: spacing.md,
+    paddingLeft: spacing.md,
   },
+  inputIcon: { fontSize: 16, marginRight: spacing.sm, opacity: 0.6 },
+  input: {
+    flex: 1,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.md,
+    color: colors.text,
+    fontSize: fonts.md,
+  },
+
   btnPrimary: {
-    backgroundColor: colors.teal, borderRadius: radius.lg,
-    paddingVertical: spacing.md + 2, alignItems: 'center', marginTop: spacing.sm,
+    backgroundColor: colors.teal,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.md + 2,
+    alignItems: 'center',
+    marginTop: spacing.sm,
+    marginBottom: spacing.md,
   },
   btnDisabled: { opacity: 0.6 },
   btnPrimaryText: { color: '#000', fontWeight: '700', fontSize: fonts.md },
-  linkRow: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.lg },
+
+  linkRow: { flexDirection: 'row', justifyContent: 'center', marginTop: spacing.md },
   linkText: { fontSize: fonts.base, color: colors.textSecondary },
   linkTeal: { color: colors.teal, fontWeight: '600' },
 });

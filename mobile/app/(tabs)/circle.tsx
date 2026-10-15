@@ -83,15 +83,18 @@ export default function CircleScreen() {
                     <View style={styles.avatar}>
                       <Text style={styles.avatarText}>{contact.full_name[0]}</Text>
                     </View>
-                    <View>
+                    <View style={styles.contactInfo}>
                       <Text style={styles.contactName}>{contact.full_name}</Text>
                       <Text style={styles.contactRole}>
                         {contact.relationship}{contact.is_emergency ? ' · emergency contact' : ''}
                       </Text>
                     </View>
                   </View>
-                  <View style={styles.grantBadge}>
-                    <Text style={styles.grantBadgeText}>{grantCount} of 5</Text>
+                  <View style={styles.headerRight}>
+                    <View style={styles.grantBadge}>
+                      <Text style={styles.grantBadgeText}>{grantCount} of 5</Text>
+                    </View>
+                    <Text style={styles.expandArrow}>{isOpen ? '▲' : '▼'}</Text>
                   </View>
                 </TouchableOpacity>
 
@@ -126,8 +129,9 @@ export default function CircleScreen() {
           })
         )}
 
-        <TouchableOpacity style={styles.inviteBtn}>
-          <Text style={styles.inviteBtnText}>Invite someone</Text>
+        {/* Invite button */}
+        <TouchableOpacity style={styles.inviteBtn} activeOpacity={0.85}>
+          <Text style={styles.inviteBtnText}>Invite someone to your Circle</Text>
         </TouchableOpacity>
 
       </ScrollView>
@@ -139,25 +143,76 @@ const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { flex: 1 },
   container: { padding: spacing.lg, paddingBottom: 40 },
-  title: { fontSize: fonts.xxl, fontWeight: '800', color: colors.text, marginBottom: spacing.md },
-  description: { fontSize: fonts.base, color: colors.textSecondary, lineHeight: 22, marginBottom: spacing.xl },
-  emptyCard: { backgroundColor: colors.bgCard, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, padding: spacing.xl, alignItems: 'center', marginBottom: spacing.md },
+
+  title: { fontSize: fonts.xxl, fontWeight: '800', color: colors.text, marginBottom: spacing.sm },
+  description: {
+    fontSize: fonts.sm,
+    color: colors.textSecondary,
+    lineHeight: 20,
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.xs,
+  },
+
+  emptyCard: {
+    backgroundColor: colors.bgCard, borderRadius: radius.lg,
+    borderWidth: 1, borderColor: colors.border,
+    padding: spacing.xl, alignItems: 'center', marginBottom: spacing.md,
+  },
   emptyText: { color: colors.text, fontSize: fonts.md, fontWeight: '600', marginBottom: 4 },
   emptySub: { color: colors.textSecondary, fontSize: fonts.sm },
-  contactCard: { backgroundColor: colors.bgCard, borderRadius: radius.lg, borderWidth: 1, borderColor: colors.border, marginBottom: spacing.md, overflow: 'hidden' },
-  contactHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: spacing.lg },
-  contactLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.tealMuted, alignItems: 'center', justifyContent: 'center' },
+
+  contactCard: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: spacing.md,
+    overflow: 'hidden',
+  },
+  contactHeader: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    padding: spacing.lg,
+  },
+  contactLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
+  avatar: {
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: colors.tealMuted,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: colors.teal,
+  },
   avatarText: { color: colors.teal, fontWeight: '700', fontSize: fonts.lg },
+  contactInfo: { flex: 1 },
   contactName: { fontSize: fonts.md, fontWeight: '700', color: colors.text },
   contactRole: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
-  grantBadge: { backgroundColor: colors.tealDim, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: 4 },
+  headerRight: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  grantBadge: {
+    backgroundColor: colors.tealBadge,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+  },
   grantBadgeText: { fontSize: fonts.sm, color: colors.teal, fontWeight: '600' },
-  grantList: { borderTopWidth: 1, borderTopColor: colors.border, paddingHorizontal: spacing.lg, paddingBottom: spacing.md },
-  grantRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: spacing.md, borderBottomWidth: 1, borderBottomColor: colors.border },
+  expandArrow: { fontSize: fonts.xs, color: colors.textMuted },
+
+  grantList: {
+    borderTopWidth: 1, borderTopColor: colors.border,
+    paddingHorizontal: spacing.lg, paddingBottom: spacing.md,
+  },
+  grantRow: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingVertical: spacing.md,
+    borderBottomWidth: 1, borderBottomColor: colors.border,
+  },
   grantInfo: { flex: 1, marginRight: spacing.md },
   grantLabel: { fontSize: fonts.base, fontWeight: '600', color: colors.text },
   grantSub: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
-  inviteBtn: { backgroundColor: colors.teal, borderRadius: radius.xl, paddingVertical: spacing.lg, alignItems: 'center', marginTop: spacing.sm },
+
+  inviteBtn: {
+    backgroundColor: colors.teal,
+    borderRadius: radius.xl,
+    paddingVertical: spacing.lg,
+    alignItems: 'center',
+    marginTop: spacing.sm,
+  },
   inviteBtnText: { color: '#000', fontWeight: '700', fontSize: fonts.md },
 });

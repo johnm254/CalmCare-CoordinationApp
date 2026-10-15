@@ -48,47 +48,64 @@ export default function Sidebar({ profile }: Props) {
     : 'DR';
 
   return (
-    <aside className="w-60 min-h-screen bg-[#0A121E] border-r border-[#1E3A52] flex flex-col fixed top-0 left-0 z-20">
-      <div className="px-5 py-5 border-b border-[#1E3A52]">
+    <aside className="w-60 min-h-screen bg-[#040A16] border-r border-[#1A3265] flex flex-col fixed top-0 left-0 z-20">
+      {/* Brand */}
+      <div className="px-5 py-5 border-b border-[#1A3265]">
         <div className="flex items-center gap-3">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-9 h-9" aria-hidden="true">
-            <circle cx="48" cy="48" r="10" fill="#4FC3B7"/>
-            <circle cx="48" cy="48" r="26" fill="none" stroke="#4FC3B7" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)"/>
-            <circle cx="48" cy="48" r="42" fill="none" stroke="#4FC3B7" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)"/>
+            <circle cx="48" cy="48" r="10" fill="#00BFA6"/>
+            <circle cx="48" cy="48" r="26" fill="none" stroke="#00BFA6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)"/>
+            <circle cx="48" cy="48" r="42" fill="none" stroke="#00BFA6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)"/>
           </svg>
           <div>
-            <p className="text-[#EAF2F6] font-bold text-base leading-none">Duara</p>
-            <p className="text-[#4F6D84] text-xs mt-0.5">Clinician</p>
+            <p className="text-[#EAF4FF] font-bold text-base leading-none">Duara</p>
+            <p className="text-[#3D5C80] text-xs mt-0.5">Clinician</p>
           </div>
         </div>
       </div>
 
-      <nav className="flex-1 py-4 px-3 space-y-0.5">
-        {NAV_ITEMS.map((item) => (
-          <Link key={item.href} href={item.href}>
-            <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors cursor-pointer ${
-              isActive(item.href)
-                ? 'bg-[#4FC3B7]/15 text-[#4FC3B7]'
-                : 'text-[#A8BDCA] hover:bg-[#1A3144] hover:text-[#EAF2F6]'
-            }`}>
-              {item.icon}
-              <span className="font-medium text-sm">{item.label}</span>
-            </div>
-          </Link>
-        ))}
+      {/* Navigation */}
+      <nav className="flex-1 py-5 px-3">
+        <p className="text-[#3D5C80] text-xs font-semibold uppercase tracking-widest px-3 mb-3">Navigation</p>
+        <div className="space-y-0.5">
+          {NAV_ITEMS.map((item) => (
+            <Link key={item.href} href={item.href}>
+              <div className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all cursor-pointer ${
+                isActive(item.href)
+                  ? 'bg-[#00BFA6]/10 text-[#00BFA6] border-l-2 border-[#00BFA6] pl-[10px]'
+                  : 'text-[#7AAAC8] hover:bg-[#0D1B35] hover:text-[#EAF4FF] border-l-2 border-transparent pl-[10px]'
+              }`}>
+                {item.icon}
+                <span className="font-medium text-sm">{item.label}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
       </nav>
 
-      <div className="p-4 border-t border-[#1E3A52]">
+      {/* Profile section */}
+      <div className="p-4 border-t border-[#1A3265]">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 rounded-full bg-[#1A3A3A] flex items-center justify-center text-[#4FC3B7] font-bold text-sm flex-shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[#00BFA6]/15 flex items-center justify-center text-[#00BFA6] font-bold text-sm flex-shrink-0 border border-[#00BFA6]/30">
             {initials}
           </div>
-          <div className="min-w-0">
-            <p className="text-[#EAF2F6] font-semibold text-sm truncate">{profile.full_name ?? 'Clinician'}</p>
-            <p className="text-[#4F6D84] text-xs">Verified clinician</p>
+          <div className="min-w-0 flex-1">
+            <p className="text-[#EAF4FF] font-semibold text-sm truncate">{profile.full_name ?? 'Clinician'}</p>
+            <div className="flex items-center gap-1 mt-0.5">
+              <svg className="w-3 h-3 text-[#22C87A] flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+              </svg>
+              <span className="text-[#22C87A] text-xs font-medium">Verified Clinician</span>
+            </div>
           </div>
         </div>
-        <button onClick={handleSignOut} className="text-[#4F6D84] text-xs hover:text-[#A8BDCA] transition-colors">
+        <button
+          onClick={handleSignOut}
+          className="text-[#3D5C80] text-xs hover:text-[#7AAAC8] transition-colors flex items-center gap-1.5"
+        >
+          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
           Sign out
         </button>
       </div>

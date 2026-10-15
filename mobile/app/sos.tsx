@@ -69,17 +69,22 @@ export default function SOSScreen() {
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
 
-        <View style={styles.sosLabel}>
-          <View style={styles.redDot} />
-          <Text style={styles.sosLabelText}>SOS</Text>
+        {/* Top label */}
+        <View style={styles.topRow}>
+          <Text style={styles.duaraLabel}>DUARA</Text>
+          <View style={styles.sosLabelRow}>
+            <View style={styles.redDot} />
+            <Text style={styles.sosLabelText}>SOS</Text>
+          </View>
         </View>
 
+        {/* Countdown circle */}
         <View style={styles.circleWrapper}>
           <View style={styles.circleBg} />
           <Animated.View
             style={[
               styles.circleArc,
-              { borderColor: sent ? colors.teal : colors.coral },
+              { borderColor: sent ? colors.teal : colors.emergency },
             ]}
           />
           <View style={styles.circleCenter}>
@@ -88,13 +93,15 @@ export default function SOSScreen() {
           </View>
         </View>
 
-        <Text style={styles.heading}>{sent ? 'SOS Sent' : 'Sending your SOS'}</Text>
+        {/* Heading */}
+        <Text style={styles.heading}>{sent ? 'SOS Sent' : 'Sending SOS...'}</Text>
         <Text style={styles.subtext}>
           {sent
             ? 'Your emergency contacts have been alerted.'
             : 'Your emergency contacts will be alerted with your live location.'}
         </Text>
 
+        {/* Status card */}
         <View style={styles.statusCard}>
           <View style={styles.statusRow}>
             <View style={styles.statusInfo}>
@@ -121,10 +128,13 @@ export default function SOSScreen() {
               <Text style={styles.statusTitle}>Emergency contacts</Text>
               <Text style={styles.statusSub}>First to respond is shown to everyone</Text>
             </View>
-            <Text style={styles.contactCount}>{emergencyCount}</Text>
+            <View style={styles.readyBadge}>
+              <Text style={styles.readyBadgeText}>{emergencyCount}</Text>
+            </View>
           </View>
         </View>
 
+        {/* Action buttons */}
         {!sent && (
           <TouchableOpacity style={styles.sendNowBtn} onPress={handleSendNow} activeOpacity={0.85}>
             <Text style={styles.sendNowBtnText}>Send now</Text>
@@ -140,7 +150,7 @@ export default function SOSScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: colors.bg },
+  safe: { flex: 1, backgroundColor: '#0D0505' },
   container: {
     flex: 1,
     alignItems: 'center',
@@ -148,9 +158,15 @@ const styles = StyleSheet.create({
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
   },
-  sosLabel: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xl },
-  redDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.coral },
-  sosLabelText: { fontSize: fonts.sm, fontWeight: '700', color: colors.text, letterSpacing: 2 },
+
+  // Top row
+  topRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.xl },
+  duaraLabel: { fontSize: fonts.sm, fontWeight: '800', color: colors.text, letterSpacing: 3 },
+  sosLabelRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  redDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.emergency },
+  sosLabelText: { fontSize: fonts.sm, fontWeight: '700', color: colors.emergency, letterSpacing: 2 },
+
+  // Countdown circle
   circleWrapper: {
     width: CIRCLE_SIZE,
     height: CIRCLE_SIZE,
@@ -180,8 +196,11 @@ const styles = StyleSheet.create({
   circleCenter: { alignItems: 'center' },
   countdownNum: { fontSize: 64, fontWeight: '800', color: colors.text },
   countdownLabel: { fontSize: fonts.base, color: colors.textSecondary },
+
   heading: { fontSize: fonts.xxl, fontWeight: '800', color: colors.text, marginBottom: spacing.sm, textAlign: 'center' },
   subtext: { fontSize: fonts.base, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: spacing.xl },
+
+  // Status card
   statusCard: {
     width: '100%',
     backgroundColor: colors.bgCard,
@@ -195,26 +214,32 @@ const styles = StyleSheet.create({
   statusInfo: { flex: 1 },
   statusTitle: { fontSize: fonts.base, fontWeight: '700', color: colors.text },
   statusSub: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
-  readyBadge: { backgroundColor: colors.tealDim, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: 4 },
-  readyBadgeText: { fontSize: fonts.sm, color: colors.teal, fontWeight: '700' },
-  contactCount: { fontSize: fonts.lg, fontWeight: '700', color: colors.text },
+  readyBadge: {
+    backgroundColor: colors.successDim,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
+  },
+  readyBadgeText: { fontSize: fonts.sm, color: colors.success, fontWeight: '700' },
   divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.xs },
+
+  // Buttons
   sendNowBtn: {
     width: '100%',
-    backgroundColor: colors.coral,
+    backgroundColor: colors.emergency,
     borderRadius: radius.xl,
     paddingVertical: spacing.lg,
     alignItems: 'center',
     marginBottom: spacing.md,
   },
-  sendNowBtnText: { color: '#000', fontWeight: '800', fontSize: fonts.md },
+  sendNowBtnText: { color: '#fff', fontWeight: '800', fontSize: fonts.md },
   cancelBtn: {
     width: '100%',
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.borderLight,
     borderRadius: radius.xl,
     paddingVertical: spacing.lg,
     alignItems: 'center',
   },
-  cancelBtnText: { color: colors.text, fontWeight: '600', fontSize: fonts.md },
+  cancelBtnText: { color: colors.textSecondary, fontWeight: '600', fontSize: fonts.md },
 });

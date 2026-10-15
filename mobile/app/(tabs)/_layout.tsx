@@ -1,18 +1,33 @@
 import { Tabs } from 'expo-router';
-import { Text } from 'react-native';
-import { colors } from '../../lib/theme';
+import { View, Text } from 'react-native';
+import { colors, fonts } from '../../lib/theme';
+
+const ICONS: Record<string, string> = {
+  Home: '🏠',
+  Health: '♥',
+  Circle: '◎',
+  Records: '☰',
+};
 
 function TabIcon({ label, active }: { label: string; active: boolean }) {
-  const icons: Record<string, string> = {
-    Home: '⌂',
-    Health: '♡',
-    Circle: '◎',
-    Records: '☰',
-  };
   return (
-    <Text style={{ fontSize: 20, color: active ? colors.tabActive : colors.tabInactive }}>
-      {icons[label] ?? '○'}
-    </Text>
+    <View style={{ alignItems: 'center', justifyContent: 'center', paddingTop: 4 }}>
+      {active && (
+        <View
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: 3,
+            backgroundColor: colors.teal,
+            position: 'absolute',
+            top: -2,
+          }}
+        />
+      )}
+      <Text style={{ fontSize: 20, color: active ? colors.tabActive : colors.tabInactive, marginTop: 4 }}>
+        {ICONS[label] ?? '○'}
+      </Text>
+    </View>
   );
 }
 
@@ -25,12 +40,12 @@ export default function TabsLayout() {
           backgroundColor: colors.tabBg,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
+          height: 64,
+          paddingBottom: 10,
         },
         tabBarActiveTintColor: colors.tabActive,
         tabBarInactiveTintColor: colors.tabInactive,
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        tabBarLabelStyle: { fontSize: fonts.xs, fontWeight: '600', letterSpacing: 0.3 },
       }}
     >
       <Tabs.Screen
