@@ -26,6 +26,13 @@ export async function requestNotificationPermission(): Promise<boolean> {
       vibrationPattern: [0, 250, 250, 250],
       sound: 'default',
     });
+    await Notifications.setNotificationChannelAsync('sos', {
+      name: 'SOS Emergency Alerts',
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 500, 250, 500],
+      sound: 'default',
+      bypassDnd: true,
+    });
   }
   return true;
 }
@@ -127,4 +134,27 @@ export async function registerNotificationCategories(): Promise<void> {
       options: { opensAppToForeground: false },
     },
   ]);
+
+  // SOS alert category with inline "I'm on my way" action
+  await Notifications.setNotificationCategoryAsync('SOS_ALERT', [
+    {
+      identifier: 'ON_MY_WAY',
+      buttonTitle: "I'm on my way",
+      options: { opensAppToForeground: true },
+    },
+  ]);
+}
+
+// Returns the Expo push token for this device, or null if unavailable.
+export async function getExpoPushToken(): Promise<string | null> {
+  try {
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status !== 'granted') return null;
+    const tokenObj = await Notifications.getExpoPushTokenAsync({
+      projectId: '9246ff32-9bc9-4291-bdbc-d601a5b86145',
+    });
+    return tokenObj.data;
+  } catch {
+    return null;
+  }
 }

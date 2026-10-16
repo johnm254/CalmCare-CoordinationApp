@@ -1,14 +1,15 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
-import { Animated, AppState, AppStateStatus, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import { Animated, AppState, AppStateStatus, Platform, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { Stack, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as Updates from 'expo-updates';
+import * as Notifications from 'expo-notifications';
 import type { Session } from '@supabase/supabase-js';
-import { supabase, getProfile, type Profile } from '../lib/supabase';
+import { supabase, getProfile, registerPushToken, type Profile } from '../lib/supabase';
 import { colors, fonts, radius, spacing } from '../lib/theme';
 import { initializeDB } from '../db/offline';
-import { registerNotificationCategories, requestNotificationPermission } from '../lib/notifications';
+import { registerNotificationCategories, requestNotificationPermission, getExpoPushToken } from '../lib/notifications';
 
 interface AuthContextType {
   session: Session | null;
@@ -83,6 +84,10 @@ export default function RootLayout() {
       if (session?.user) {
         const p = await getProfile(session.user.id);
         setProfile(p);
+        // Register push token so SOS push reaches this device
+        getExpoPushToken().then((token) => {
+          if (token && session.user) registerPushToken(session.user.id, token).catch(() => {});
+        });
       }
       setInitialized(true);
     });
@@ -92,6 +97,9 @@ export default function RootLayout() {
       if (session?.user) {
         const p = await getProfile(session.user.id);
         setProfile(p);
+        getExpoPushToken().then((token) => {
+          if (token && session?.user) registerPushToken(session.user.id, token).catch(() => {});
+        });
       } else {
         setProfile(null);
       }
@@ -99,9 +107,23 @@ export default function RootLayout() {
       if (event === 'SIGNED_OUT') router.replace('/(auth)/login');
     });
 
+    // Navigate to SOS alert screen when a caregiver taps an SOS push notification
+    const notifTapSub = Notifications.addNotificationResponseReceivedListener((response) => {
+      const data = response.notification.request.content.data as Record<string, string | undefined>;
+      if (data?.type === 'sos_alert' && data.sos_id) {
+        const params = new URLSearchParams({
+          sosId: data.sos_id,
+          patientName: data.patient_name ?? '',
+          lat: data.location_lat ?? '',
+          lon: data.location_lon ?? '',
+        });
+        router.push(`/sos-alert?${params.toString()}`);
+      }
+    });
+
     // CR-OFF-02: initialise local SQLite on every app start (idempotent)
     initializeDB().catch(console.error);
-    // CR-MED-12: register interactive notification categories (Taken / Snooze)
+    // CR-MED-12: register interactive notification categories (Taken / Snooze + SOS)
     registerNotificationCategories().catch(console.error);
     requestNotificationPermission().catch(console.error);
 
@@ -114,6 +136,7 @@ export default function RootLayout() {
     return () => {
       subscription.unsubscribe();
       appStateSub.remove();
+      notifTapSub.remove();
       if (autoApplyTimer.current) clearTimeout(autoApplyTimer.current);
     };
   }, []);
@@ -135,6 +158,7 @@ export default function RootLayout() {
           <Stack.Screen name="sos" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="insights" />
           <Stack.Screen name="circle-invite" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="sos-alert" options={{ presentation: 'fullScreenModal' }} />
         </Stack>
 
         {/* OTA update banner — slides up from bottom, never blocks the app */}

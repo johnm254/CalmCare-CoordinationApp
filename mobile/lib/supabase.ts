@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Platform } from 'react-native';
 
 const SUPABASE_URL = process.env.EXPO_PUBLIC_SUPABASE_URL!;
 const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
@@ -272,8 +273,13 @@ export async function sendSos(
   patientId: string,
   emergencyContactIds: string[],
   location?: { lat: number; lon: number } | null,
-) {
+): Promise<string> {
+  // Generate ID client-side so the API can reference the same row
+  const { data: uuidRow } = await supabase.rpc('gen_random_uuid');
+  const sosId: string = uuidRow ?? crypto.randomUUID?.() ?? `sos-${Date.now()}`;
+
   await supabase.from('sos_events').insert({
+    id: sosId,
     patient_id: patientId,
     sent_at: new Date().toISOString(),
     channel: 'push',
@@ -282,20 +288,72 @@ export async function sendSos(
     location: location ? JSON.stringify(location) : null,
   });
 
-  // Fire-and-forget: notify emergency contacts via email
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
   if (apiUrl) {
     try {
       await fetch(`${apiUrl}/api/sos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patient_id: patientId, recipient_ids: emergencyContactIds, location }),
+        body: JSON.stringify({
+          sos_id: sosId,
+          patient_id: patientId,
+          recipient_ids: emergencyContactIds,
+          location,
+        }),
       });
     } catch (err) {
-      // Notification failure is non-fatal — DB insert is the source of truth
       console.warn('SOS notification request failed:', err);
     }
   }
+  return sosId;
+}
+
+export async function registerPushToken(userId: string, token: string): Promise<void> {
+  await supabase.from('push_tokens').upsert(
+    { user_id: userId, token, platform: Platform.OS, updated_at: new Date().toISOString() },
+    { onConflict: 'user_id,token' },
+  );
+}
+
+export async function respondToSos(sosEventId: string, responderId: string, message?: string): Promise<void> {
+  const { error } = await supabase.from('sos_responses').upsert(
+    { sos_event_id: sosEventId, responder_id: responderId,
+      message: message ?? null, responded_at: new Date().toISOString() },
+    { onConflict: 'sos_event_id,responder_id' },
+  );
+  if (error) throw error;
+}
+
+export async function getSosDetails(sosEventId: string): Promise<{
+  id: string; patient_id: string; patient_name: string;
+  sent_at: string; location: string | null;
+} | null> {
+  const { data: sos } = await supabase
+    .from('sos_events')
+    .select('id, patient_id, sent_at, location')
+    .eq('id', sosEventId)
+    .single();
+  if (!sos) return null;
+  const { data: p } = await supabase
+    .from('profiles').select('full_name').eq('id', sos.patient_id).single();
+  return { id: sos.id, patient_id: sos.patient_id,
+    patient_name: (p as any)?.full_name ?? 'Your contact',
+    sent_at: sos.sent_at, location: sos.location };
+}
+
+export async function getSosResponders(sosEventId: string): Promise<Array<{
+  responder_id: string; full_name: string; responded_at: string;
+}>> {
+  const { data } = await supabase
+    .from('sos_responses')
+    .select('responder_id, responded_at, profiles!sos_responses_responder_id_fkey(full_name)')
+    .eq('sos_event_id', sosEventId)
+    .order('responded_at', { ascending: true });
+  return (data ?? []).map((r: any) => ({
+    responder_id: r.responder_id,
+    full_name: r.profiles?.full_name ?? 'Responding',
+    responded_at: r.responded_at,
+  }));
 }
 
 // ─── Insights ─────────────────────────────────────────────────────────────────

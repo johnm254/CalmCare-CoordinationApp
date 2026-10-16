@@ -12,9 +12,11 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { patient_id, recipient_ids } = body as {
+    const { sos_id, patient_id, recipient_ids, location } = body as {
+      sos_id?: string;
       patient_id: string;
       recipient_ids: string[];
+      location?: { lat: number; lon: number } | null;
     };
 
     if (!patient_id || !Array.isArray(recipient_ids) || recipient_ids.length === 0) {
@@ -142,12 +144,9 @@ export async function POST(request: NextRequest) {
     let failed = 0;
     const sentTo: string[] = [];
 
+    // ── Email alerts ──────────────────────────────────────────────────────────
     for (const recipient of recipients) {
-      if (!recipient.email) {
-        failed++;
-        continue;
-      }
-
+      if (!recipient.email) { failed++; continue; }
       try {
         const { error: emailError } = await resend.emails.send({
           from: 'Duara SOS <onboarding@resend.dev>',
@@ -155,25 +154,53 @@ export async function POST(request: NextRequest) {
           subject: `🚨 SOS Alert — ${patientName} needs help`,
           html: emailHtml,
         });
+        if (emailError) { failed++; } else { sent++; sentTo.push(recipient.email); }
+      } catch { failed++; }
+    }
 
-        if (emailError) {
-          console.error(`Failed to send email to ${recipient.email}:`, emailError);
-          failed++;
-        } else {
-          sent++;
-          sentTo.push(recipient.email);
+    // ── Expo push notifications ───────────────────────────────────────────────
+    if (recipient_ids.length > 0) {
+      const { data: tokenRows } = await supabaseAdmin
+        .from('push_tokens')
+        .select('token')
+        .in('user_id', recipient_ids);
+
+      if (tokenRows && tokenRows.length > 0) {
+        const messages = tokenRows.map((t: { token: string }) => ({
+          to: t.token,
+          sound: 'default',
+          title: `🚨 SOS — ${patientName} needs help`,
+          body: 'Tap to respond immediately',
+          data: {
+            type: 'sos_alert',
+            sos_id: sos_id ?? '',
+            patient_id,
+            patient_name: patientName,
+            location_lat: location?.lat?.toString() ?? '',
+            location_lon: location?.lon?.toString() ?? '',
+          },
+          priority: 'high',
+          channelId: 'sos',
+          categoryIdentifier: 'SOS_ALERT',
+        }));
+
+        try {
+          await fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Accept-Encoding': 'gzip, deflate',
+            },
+            body: JSON.stringify(messages),
+          });
+        } catch (err) {
+          console.error('Expo push failed:', err);
         }
-      } catch (err) {
-        console.error(`Error sending email to ${recipient.email}:`, err);
-        failed++;
       }
     }
 
-    return NextResponse.json({
-      sent,
-      failed,
-      recipients: sentTo,
-    });
+    return NextResponse.json({ sent, failed, recipients: sentTo });
   } catch (err) {
     console.error('SOS route error:', err);
     return NextResponse.json(
