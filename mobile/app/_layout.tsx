@@ -7,6 +7,8 @@ import * as Updates from 'expo-updates';
 import type { Session } from '@supabase/supabase-js';
 import { supabase, getProfile, type Profile } from '../lib/supabase';
 import { colors, fonts, radius, spacing } from '../lib/theme';
+import { initializeDB } from '../db/offline';
+import { registerNotificationCategories, requestNotificationPermission } from '../lib/notifications';
 
 interface AuthContextType {
   session: Session | null;
@@ -97,6 +99,12 @@ export default function RootLayout() {
       if (event === 'SIGNED_OUT') router.replace('/(auth)/login');
     });
 
+    // CR-OFF-02: initialise local SQLite on every app start (idempotent)
+    initializeDB().catch(console.error);
+    // CR-MED-12: register interactive notification categories (Taken / Snooze)
+    registerNotificationCategories().catch(console.error);
+    requestNotificationPermission().catch(console.error);
+
     checkForOTAUpdate();
 
     const appStateSub = AppState.addEventListener('change', (state: AppStateStatus) => {
@@ -126,6 +134,7 @@ export default function RootLayout() {
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="sos" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="insights" />
+          <Stack.Screen name="circle-invite" options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
         </Stack>
 
         {/* OTA update banner — slides up from bottom, never blocks the app */}

@@ -1,19 +1,16 @@
-/**
- * Offline-first sync engine
- * Orchestrates outbox push and pull of remote changes
- */
+// Sync engine — outbox push + remote pull.
+// CR-OFF-01: local SQLite is source of truth; sync on reconnect.
+// CR-OFF-02: outbox with client UUID + timestamp for every write.
+// CR-OFF-05: stale-version server conflicts cause a re-pull.
 
 import { supabase } from '../lib/supabase';
 import {
-  getUnsyncedEntries,
-  markSynced,
-  updateSyncState,
-  getSyncState,
-  queryAll,
-  insert,
-  update,
+  getUnsyncedEntries, markSynced, markOutboxError,
+  updateSyncState, getSyncState,
+  queryAll, insert, update, rawQuery,
+  getPendingSosQueue, markSosQueueSynced,
 } from './offline';
-import { v4 as uuidv4 } from 'uuid';
+import { syncNotificationsFromSchedules } from '../lib/notifications';
 
 export interface SyncResult {
   success: boolean;
@@ -23,314 +20,243 @@ export interface SyncResult {
   lastSync: string;
 }
 
-const SYNC_TIMEOUT = 30000; // 30 seconds
-const MAX_RETRIES = 3;
-
-// Main sync function
 export async function syncData(deviceId: string): Promise<SyncResult> {
   const result: SyncResult = {
-    success: true,
-    pushedCount: 0,
-    pulledCount: 0,
-    errors: [],
-    lastSync: new Date().toISOString(),
+    success: true, pushedCount: 0, pulledCount: 0, errors: [], lastSync: new Date().toISOString(),
   };
 
   try {
-    // Get current user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
 
-    if (!user) {
-      throw new Error('Not authenticated');
-    }
+    const push = await pushOutbox();
+    result.pushedCount = push.successful;
+    result.errors.push(...push.errors);
 
-    // Step 1: Push outbox entries
-    const pushResult = await pushOutbox(user.id);
-    result.pushedCount = pushResult.successful;
-    result.errors.push(...pushResult.errors);
+    const pull = await pullChanges(user.id, deviceId);
+    result.pulledCount = pull.count;
+    result.errors.push(...pull.errors);
 
-    // Step 2: Pull remote changes
-    const pullResult = await pullChanges(user.id, deviceId);
-    result.pulledCount = pullResult.count;
-    result.errors.push(...pullResult.errors);
+    await updateSyncState(deviceId, new Date().toISOString(), result.lastSync);
 
-    // Step 3: Update sync state
-    const newSyncToken = new Date().toISOString();
-    await updateSyncState(deviceId, newSyncToken, result.lastSync);
+    // Retry any SOS events that were queued offline
+    await retrySosQueue(user.id);
+
+    // Reschedule local notifications after every sync
+    await rescheduleNotifications(user.id);
 
     return result;
   } catch (error) {
-    console.error('Sync error:', error);
-    return {
-      ...result,
-      success: false,
-      errors: [{ entry: 'sync', error: String(error) }],
-    };
+    return { ...result, success: false, errors: [{ entry: 'sync', error: String(error) }] };
   }
 }
 
-// Push outbox to server
-async function pushOutbox(userId: string) {
-  const successful = [];
+// ── Outbox push ───────────────────────────────────────────────────────────────
+
+async function pushOutbox() {
+  const successful: string[] = [];
   const errors: Array<{ entry: string; error: string }> = [];
 
-  try {
-    const entries = await getUnsyncedEntries();
-
-    for (const entry of entries) {
-      try {
-        await pushEntry(userId, entry);
-        await markSynced(entry.id);
-        successful.push(entry.id);
-      } catch (error) {
-        console.error(`Failed to sync outbox entry ${entry.id}:`, error);
-        errors.push({
-          entry: entry.id,
-          error: String(error),
-        });
-      }
+  const entries = await getUnsyncedEntries();
+  for (const entry of entries) {
+    try {
+      await pushEntry(entry);
+      await markSynced(entry.id);
+      successful.push(entry.id);
+    } catch (err) {
+      await markOutboxError(entry.id, String(err));
+      errors.push({ entry: entry.id, error: String(err) });
     }
-  } catch (error) {
-    console.error('Error getting unsynced entries:', error);
-    errors.push({
-      entry: 'outbox',
-      error: String(error),
-    });
   }
-
   return { successful: successful.length, errors };
 }
 
-// Push single outbox entry
-async function pushEntry(userId: string, entry: any) {
-  switch (entry.operation) {
-    case 'insert':
-      await pushInsert(userId, entry);
-      break;
-    case 'update':
-      await pushUpdate(userId, entry);
-      break;
-    case 'delete':
-      await pushDelete(userId, entry);
-      break;
+async function pushEntry(entry: { table_name: string; operation: string; data: Record<string, unknown> }) {
+  const { table_name: table, operation, data } = entry;
+
+  if (operation === 'insert') {
+    const { error } = await supabase.from(table).insert([data]);
+    if (error) {
+      // Ignore duplicate (already synced via another path)
+      if (error.code !== '23505') throw error;
+    }
+  } else if (operation === 'update') {
+    const { id, ...rest } = data;
+    const { error } = await supabase.from(table).update(rest).eq('id', id);
+    if (error) throw error;
+  } else if (operation === 'delete') {
+    const { error } = await supabase.from(table).delete().eq('id', data.id);
+    if (error) throw error;
   }
 }
 
-async function pushInsert(userId: string, entry: any) {
-  const { table_name, data } = entry;
+// ── Remote pull ───────────────────────────────────────────────────────────────
 
-  const { error } = await supabase
-    .from(table_name)
-    .insert([data])
-    .select();
-
-  if (error) {
-    throw error;
-  }
-}
-
-async function pushUpdate(userId: string, entry: any) {
-  const { table_name, data } = entry;
-  const { id, ...updateData } = data;
-
-  const { error } = await supabase
-    .from(table_name)
-    .update(updateData)
-    .eq('id', id)
-    .select();
-
-  if (error) {
-    throw error;
-  }
-}
-
-async function pushDelete(userId: string, entry: any) {
-  const { table_name, data } = entry;
-
-  const { error } = await supabase
-    .from(table_name)
-    .delete()
-    .eq('id', data.id);
-
-  if (error) {
-    throw error;
-  }
-}
-
-// Pull remote changes
 async function pullChanges(userId: string, deviceId: string) {
-  const count = [];
+  const count: string[] = [];
   const errors: Array<{ entry: string; error: string }> = [];
 
+  const syncState = await getSyncState(deviceId);
+  const lastSync = syncState?.last_sync;
+
+  const tables: Array<{ name: string; filter: Record<string, string> }> = [
+    { name: 'medications',          filter: { patient_id: userId } },
+    { name: 'medication_schedules', filter: {} },
+    { name: 'dose_events',          filter: { patient_id: userId } },
+    { name: 'events',               filter: { patient_id: userId } },
+    { name: 'observations',         filter: { patient_id: userId } },
+    { name: 'care_circle',          filter: { patient_id: userId } },
+    { name: 'followups',            filter: { patient_id: userId } },
+    { name: 'conditions',           filter: { patient_id: userId } },
+  ];
+
+  for (const t of tables) {
+    try {
+      await pullTable(t.name, t.filter, lastSync);
+      count.push(t.name);
+    } catch (err) {
+      errors.push({ entry: t.name, error: String(err) });
+    }
+  }
+
+  // Grants: pull rows where user is patient or grantee
   try {
-    // Get last sync token
-    const syncState = await getSyncState(deviceId);
-    const lastSync = syncState?.last_sync;
-
-    // Pull medications
-    await pullTable('medications', { patient_id: userId }, lastSync);
-    count.push('medications');
-
-    // Pull medication logs
-    await pullTable('medication_logs', { patient_id: userId }, lastSync);
-    count.push('medication_logs');
-
-    // Pull events
-    await pullTable('events', { patient_id: userId }, lastSync);
-    count.push('events');
-
-    // Pull observations (if caregiver)
-    await pullTable('observations', { patient_id: userId }, lastSync);
-    count.push('observations');
-
-    // Pull care circle
-    await pullTable('care_circle', { patient_id: userId }, lastSync);
-    count.push('care_circle');
-
-    // Pull grants (for managing own access)
-    const { data: grants } = await supabase
-      .from('grants')
-      .select('*')
-      .or(`patient_id.eq.${userId},grantee_id.eq.${userId}`)
-      .gte('updated_at', lastSync || '1970-01-01');
-
-    if (grants) {
-      for (const grant of grants) {
-        await insert('grants', grant);
-      }
-    }
+    let q = supabase.from('grants').select('*')
+      .or(`patient_id.eq.${userId},grantee_id.eq.${userId}`);
+    if (lastSync) q = q.gte('updated_at', lastSync);
+    const { data, error } = await q;
+    if (error) throw error;
+    if (data) for (const row of data) await insert('grants', row);
     count.push('grants');
+  } catch (err) {
+    errors.push({ entry: 'grants', error: String(err) });
+  }
 
-    // Pull follow-ups
-    await pullTable('followups', { patient_id: userId }, lastSync);
-    count.push('followups');
-
-    // Pull care circle members (for emergency alerts)
-    const { data: circle } = await supabase
-      .from('care_circle')
-      .select('*')
-      .eq('patient_id', userId);
-
-    if (circle) {
-      for (const member of circle) {
-        await update('care_circle', member.id, member);
-      }
+  // medication_schedules: pull schedules for user's medications
+  try {
+    const meds = await queryAll<{ id: string }>('medications', { patient_id: userId });
+    if (meds.length > 0) {
+      const medIds = meds.map((m) => m.id);
+      const { data, error } = await supabase
+        .from('medication_schedules')
+        .select('*')
+        .in('medication_id', medIds);
+      if (error) throw error;
+      if (data) for (const row of data) await insert('medication_schedules', {
+        ...row,
+        times: JSON.stringify(row.times),
+        days_of_week: JSON.stringify(row.days_of_week),
+      });
     }
-
-  } catch (error) {
-    console.error('Error pulling changes:', error);
-    errors.push({
-      entry: 'pull',
-      error: String(error),
-    });
+    count.push('medication_schedules');
+  } catch (err) {
+    errors.push({ entry: 'medication_schedules', error: String(err) });
   }
 
   return { count: count.length, errors };
 }
 
-// Pull a single table
 async function pullTable(
   table: string,
-  where: Record<string, any> = {},
-  lastSync?: string
+  where: Record<string, string>,
+  lastSync?: string,
 ) {
   let query = supabase.from(table).select('*');
-
-  // Add where clauses
-  for (const [key, value] of Object.entries(where)) {
-    query = query.eq(key, value);
+  for (const [k, v] of Object.entries(where)) {
+    query = query.eq(k, v);
   }
-
-  // Add timestamp filter if sync tracking exists
-  if (lastSync && table !== 'care_circle') {
-    query = query.gte('updated_at', lastSync);
-  }
-
+  if (lastSync) query = query.gte('updated_at', lastSync);
   const { data, error } = await query;
+  if (error) throw error;
+  if (data) for (const row of data) await insert(table, row);
+}
 
-  if (error) {
-    throw error;
-  }
+// ── SOS queue retry ───────────────────────────────────────────────────────────
 
-  if (data) {
-    for (const record of data) {
-      // Upsert (insert or update)
-      const existing = await queryAll(table, { id: record.id });
-      if (existing.length > 0) {
-        await update(table, record.id, record);
-      } else {
-        await insert(table, record);
+async function retrySosQueue(userId: string) {
+  try {
+    const queue = await getPendingSosQueue();
+    for (const item of queue) {
+      if (item.patient_id !== userId) continue;
+      const location = item.location_lat != null && item.location_lon != null
+        ? { lat: item.location_lat, lon: item.location_lon }
+        : null;
+      const { error } = await supabase.from('sos_events').insert({
+        id: item.id,
+        patient_id: item.patient_id,
+        sent_at: item.created_at,
+        channel: item.channel,
+        location: location ? JSON.stringify(location) : null,
+        recipients: JSON.stringify(item.contacts.map((c) => c.member_id ?? c.phone).filter(Boolean)),
+        status: 'queued_synced',
+      });
+      if (!error || error.code === '23505') {
+        await markSosQueueSynced(item.id);
       }
     }
+  } catch {
+    // Non-fatal — next sync will retry
   }
 }
 
-// Subscribe to real-time changes (for emergency alerts, grant revocations)
+// ── Notifications after sync ──────────────────────────────────────────────────
+
+async function rescheduleNotifications(userId: string) {
+  try {
+    const meds = await queryAll<{ id: string; name: string }>('medications', { patient_id: userId });
+    const medMap = Object.fromEntries(meds.map((m) => [m.id, m.name]));
+
+    const schedules = await rawQuery<{
+      id: string; medication_id: string; times: string; days_of_week: string; active: number;
+    }>('SELECT * FROM medication_schedules WHERE active = 1');
+
+    const formatted = schedules.map((s) => ({
+      id: s.id,
+      medicationName: medMap[s.medication_id] ?? 'Medication',
+      times: JSON.parse(s.times) as string[],
+      days_of_week: JSON.parse(s.days_of_week) as number[],
+      active: s.active === 1,
+    }));
+
+    await syncNotificationsFromSchedules(formatted);
+  } catch {
+    // Non-critical; next sync will retry
+  }
+}
+
+// ── Realtime subscriptions ────────────────────────────────────────────────────
+
 export function subscribeToRealtime(
   userId: string,
-  onAlert: (data: any) => void,
-  onGrantChange: (data: any) => void
+  onAlert: (data: unknown) => void,
+  onGrantChange: (data: unknown) => void,
 ) {
-  // Subscribe to SOS events (emergency alerts)
-  const sosChannel = supabase
-    .channel(`sos:patient:${userId}`)
-    .on(
-      'postgres_changes',
-      {
-        event: 'INSERT',
-        schema: 'public',
-        table: 'sos_events',
-        filter: `recipients->>'0'=eq.${userId}`,
-      },
-      (payload) => {
-        console.log('New SOS alert:', payload);
-        onAlert(payload.new);
-      }
-    )
+  const alertsChannel = supabase
+    .channel(`alerts:patient:${userId}`)
+    .on('postgres_changes', {
+      event: 'INSERT', schema: 'public', table: 'alerts',
+      filter: `patient_id=eq.${userId}`,
+    }, (payload) => onAlert(payload.new))
     .subscribe();
 
-  // Subscribe to grant changes
   const grantsChannel = supabase
     .channel(`grants:user:${userId}`)
-    .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: 'grants',
-        filter: `grantee_id=eq.${userId}`,
-      },
-      (payload) => {
-        console.log('Grant changed:', payload);
-        onGrantChange(payload.new || payload.old);
-      }
-    )
+    .on('postgres_changes', {
+      event: '*', schema: 'public', table: 'grants',
+      filter: `grantee_id=eq.${userId}`,
+    }, (payload) => onGrantChange(payload.new ?? payload.old))
     .subscribe();
 
-  // Return unsubscribe function
   return () => {
-    supabase.removeChannel(sosChannel);
+    supabase.removeChannel(alertsChannel);
     supabase.removeChannel(grantsChannel);
   };
 }
 
-// Detect network status and sync on reconnect
 export function setupNetworkSync(deviceId: string) {
-  // This would typically use react-native-netinfo
-  // For now, we'll assume a manual trigger or periodic check
-
-  // Could be called from app.tsx
   return async () => {
-    try {
-      const result = await syncData(deviceId);
-      console.log('Sync completed:', result);
-      return result;
-    } catch (error) {
-      console.error('Network sync failed:', error);
-      throw error;
-    }
+    const result = await syncData(deviceId);
+    console.log('[sync]', result);
+    return result;
   };
 }
-

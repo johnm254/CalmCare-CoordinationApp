@@ -231,13 +231,55 @@ export async function getEmergencyContacts(patientId: string): Promise<CareCircl
   return all.filter((c) => c.is_emergency);
 }
 
-export async function sendSos(patientId: string, emergencyContactIds: string[]) {
+export async function addCareCircleMember(
+  patientId: string,
+  params: {
+    displayName: string;
+    phone: string;
+    relationship: string;
+    isEmergency: boolean;
+    memberId?: string;
+    smsOnly?: boolean;
+  },
+): Promise<void> {
+  const { error } = await supabase.from('care_circle').insert({
+    patient_id: patientId,
+    member_id: params.memberId ?? null,
+    phone: params.phone,
+    display_name: params.displayName,
+    relationship: params.relationship,
+    is_emergency: params.isEmergency,
+    sms_only: params.smsOnly ?? !params.memberId,
+  });
+  if (error) throw error;
+}
+
+export async function removeCareCircleMember(circleId: string): Promise<void> {
+  const { error } = await supabase.from('care_circle').delete().eq('id', circleId);
+  if (error) throw error;
+}
+
+export async function findProfileByEmail(email: string): Promise<Profile | null> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, role')
+    .eq('email', email.toLowerCase().trim())
+    .single();
+  return data ?? null;
+}
+
+export async function sendSos(
+  patientId: string,
+  emergencyContactIds: string[],
+  location?: { lat: number; lon: number } | null,
+) {
   await supabase.from('sos_events').insert({
     patient_id: patientId,
     sent_at: new Date().toISOString(),
     channel: 'push',
     recipients: emergencyContactIds,
     status: 'sent',
+    location: location ? JSON.stringify(location) : null,
   });
 
   // Fire-and-forget: notify emergency contacts via email
@@ -247,7 +289,7 @@ export async function sendSos(patientId: string, emergencyContactIds: string[]) 
       await fetch(`${apiUrl}/api/sos`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ patient_id: patientId, recipient_ids: emergencyContactIds }),
+        body: JSON.stringify({ patient_id: patientId, recipient_ids: emergencyContactIds, location }),
       });
     } catch (err) {
       // Notification failure is non-fatal — DB insert is the source of truth

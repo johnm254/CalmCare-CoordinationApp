@@ -16,7 +16,14 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0D1C1C"
       },
-      "permissions": ["INTERNET", "ACCESS_NETWORK_STATE"],
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "SEND_SMS",
+        "READ_SMS"
+      ],
       "package": "com.duara.app"
     },
     "ios": {
@@ -33,10 +40,24 @@
       "policy": "appVersion"
     },
     "extra": {
-      "router": { "origin": false },
-      "eas": { "projectId": "9246ff32-9bc9-4291-bdbc-d601a5b86145" }
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "9246ff32-9bc9-4291-bdbc-d601a5b86145"
+      }
     },
     "scheme": "duara",
-    "owner": "jocularjohny"
+    "owner": "jocularjohny",
+    "plugins": [
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Duara needs your location to include it in SOS alerts.",
+          "locationWhenInUsePermission": "Duara needs your location to include it in SOS alerts."
+        }
+      ]
+    ]
   }
 }

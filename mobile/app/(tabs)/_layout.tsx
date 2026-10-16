@@ -1,78 +1,105 @@
-import { Tabs } from 'expo-router';
-import { View } from 'react-native';
+import { Tabs, router } from 'expo-router';
+import { TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, fonts } from '../../lib/theme';
 
-// ─── Geometric tab icons (no emoji) ──────────────────────────────────────────
+// ─── Tab bar icons (View-based, no emoji/SVG) ─────────────────────────────────
 
-function HomeIcon({ active }: { active: boolean }) {
+function TodayIcon({ active }: { active: boolean }) {
   const c = active ? colors.tabActive : colors.tabInactive;
   return (
-    <View style={{ width: 22, height: 20, alignItems: 'center' }}>
-      {/* Roof triangle via two angled rectangles */}
-      <View style={{ width: 22, height: 10, alignItems: 'center', justifyContent: 'flex-end' }}>
+    <View style={{ width: 22, height: 22, alignItems: 'center', justifyContent: 'center' }}>
+      {/* Sun circle */}
+      <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: c }} />
+      {/* Four rays */}
+      {[0, 90, 180, 270].map((deg) => (
         <View
+          key={deg}
           style={{
-            width: 0, height: 0,
-            borderLeftWidth: 11, borderRightWidth: 11, borderBottomWidth: 10,
-            borderLeftColor: 'transparent', borderRightColor: 'transparent',
-            borderBottomColor: c,
+            position: 'absolute', width: 3, height: 3, borderRadius: 1.5,
+            backgroundColor: c,
+            transform: [{ rotate: `${deg}deg` }, { translateY: -8 }],
           }}
         />
-      </View>
-      {/* House body */}
-      <View style={{ width: 14, height: 10, backgroundColor: c, borderRadius: 1 }} />
+      ))}
     </View>
   );
 }
 
-function HealthIcon({ active }: { active: boolean }) {
+function VitalsIcon({ active }: { active: boolean }) {
   const c = active ? colors.tabActive : colors.tabInactive;
-  // Heartbeat line: a horizontal bar with a peak in the middle
   return (
-    <View style={{ width: 24, height: 16, flexDirection: 'row', alignItems: 'center' }}>
+    <View style={{ width: 26, height: 16, flexDirection: 'row', alignItems: 'center' }}>
       <View style={{ flex: 1, height: 2, backgroundColor: c, borderRadius: 1 }} />
-      <View style={{ width: 4, height: 12, backgroundColor: c, borderRadius: 2, marginHorizontal: 1 }} />
-      <View style={{ width: 4, height: 7, backgroundColor: c, borderRadius: 2, marginHorizontal: 1 }} />
+      <View style={{ width: 3, height: 14, backgroundColor: c, borderRadius: 1.5, marginHorizontal: 1 }} />
+      <View style={{ width: 3, height: 8, backgroundColor: c, borderRadius: 1.5, marginHorizontal: 1 }} />
       <View style={{ flex: 1, height: 2, backgroundColor: c, borderRadius: 1 }} />
     </View>
   );
 }
 
-function CircleIcon({ active }: { active: boolean }) {
+function MedsIcon({ active }: { active: boolean }) {
   const c = active ? colors.tabActive : colors.tabInactive;
-  // Two overlapping circles
   return (
-    <View style={{ width: 24, height: 18 }}>
+    <View style={{ width: 22, height: 22, alignItems: 'center', justifyContent: 'center' }}>
+      {/* Pill: top capsule + bottom capsule */}
+      <View style={{ width: 16, height: 8, borderRadius: 4, backgroundColor: c, marginBottom: 2 }} />
+      <View style={{ width: 16, height: 8, borderRadius: 4, backgroundColor: c, opacity: 0.5 }} />
+    </View>
+  );
+}
+
+function CareIcon({ active }: { active: boolean }) {
+  const c = active ? colors.tabActive : colors.tabInactive;
+  return (
+    <View style={{ width: 24, height: 20 }}>
       <View style={{
-        position: 'absolute', left: 0, top: 1,
-        width: 16, height: 16, borderRadius: 8,
+        position: 'absolute', left: 0, top: 2,
+        width: 14, height: 14, borderRadius: 7,
         borderWidth: 2, borderColor: c,
       }} />
       <View style={{
-        position: 'absolute', left: 8, top: 1,
-        width: 16, height: 16, borderRadius: 8,
+        position: 'absolute', left: 9, top: 2,
+        width: 14, height: 14, borderRadius: 7,
         borderWidth: 2, borderColor: c,
       }} />
     </View>
   );
 }
 
-function RecordsIcon({ active }: { active: boolean }) {
+function MeIcon({ active }: { active: boolean }) {
   const c = active ? colors.tabActive : colors.tabInactive;
-  // Document: rectangle with folded corner lines
   return (
-    <View style={{ width: 16, height: 20 }}>
+    <View style={{ width: 20, height: 22, alignItems: 'center' }}>
+      <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: c }} />
       <View style={{
-        width: 16, height: 20, borderRadius: 2,
-        borderWidth: 2, borderColor: c,
-        overflow: 'hidden',
-      }}>
-        {/* Three line stripes */}
-        <View style={{ width: 8, height: 2, backgroundColor: c, borderRadius: 1, position: 'absolute', top: 5, left: 3 }} />
-        <View style={{ width: 10, height: 2, backgroundColor: c, borderRadius: 1, position: 'absolute', top: 9, left: 2 }} />
-        <View style={{ width: 8, height: 2, backgroundColor: c, borderRadius: 1, position: 'absolute', top: 13, left: 3 }} />
-      </View>
+        width: 20, height: 8, borderTopLeftRadius: 10, borderTopRightRadius: 10,
+        backgroundColor: c, marginTop: 2,
+      }} />
     </View>
+  );
+}
+
+// ─── Persistent SOS button in header ─────────────────────────────────────────
+
+function SOSHeaderButton() {
+  return (
+    <TouchableOpacity
+      onPress={() => router.push('/sos')}
+      style={{
+        marginRight: 16,
+        backgroundColor: colors.emergency,
+        borderRadius: 999,
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        minWidth: 48, minHeight: 48,
+        alignItems: 'center', justifyContent: 'center',
+      }}
+      accessibilityLabel="SOS — press for emergency"
+      accessibilityRole="button"
+    >
+      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff' }} />
+    </TouchableOpacity>
   );
 }
 
@@ -80,7 +107,11 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        headerStyle: { backgroundColor: colors.bg },
+        headerTintColor: colors.text,
+        headerTitleStyle: { fontSize: fonts.md, fontWeight: '700' },
+        headerRight: () => <SOSHeaderButton />,
         tabBarStyle: {
           backgroundColor: colors.tabBg,
           borderTopColor: colors.border,
@@ -97,31 +128,40 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ focused }) => <HomeIcon active={focused} />,
+          title: 'Today',
+          tabBarIcon: ({ focused }) => <TodayIcon active={focused} />,
         }}
       />
       <Tabs.Screen
         name="health"
         options={{
-          title: 'Health',
-          tabBarIcon: ({ focused }) => <HealthIcon active={focused} />,
+          title: 'Vitals',
+          tabBarIcon: ({ focused }) => <VitalsIcon active={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="meds"
+        options={{
+          title: 'Meds',
+          tabBarIcon: ({ focused }) => <MedsIcon active={focused} />,
         }}
       />
       <Tabs.Screen
         name="circle"
         options={{
-          title: 'Circle',
-          tabBarIcon: ({ focused }) => <CircleIcon active={focused} />,
+          title: 'Care',
+          tabBarIcon: ({ focused }) => <CareIcon active={focused} />,
         }}
       />
       <Tabs.Screen
-        name="records"
+        name="me"
         options={{
-          title: 'Records',
-          tabBarIcon: ({ focused }) => <RecordsIcon active={focused} />,
+          title: 'Me',
+          tabBarIcon: ({ focused }) => <MeIcon active={focused} />,
         }}
       />
+      {/* Hide records from tab bar — accessible from Me tab */}
+      <Tabs.Screen name="records" options={{ href: null }} />
     </Tabs>
   );
 }

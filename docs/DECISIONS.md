@@ -1,0 +1,24 @@
+# PROJECT EPI — Architecture Decisions
+
+> Recorded 2026-10-16. Each row is a decision made (or confirmed by the client) that the spec left open.
+> Format: Decision · **Why** · **How to apply**
+
+---
+
+| # | Question | Decision | Why | How to apply |
+|---|---|---|---|---|
+| D-1 | App brand name | **"Duara"** — keep throughout the app. "Project Epi" stays as the internal project/repo codename only. | Client confirmation 2026-10-16 | All `app.json`, package names, in-app copy, SVG logos stay "Duara". Docs/repo may say "Project Epi". |
+| D-2 | Colour palette | **Keep existing palette** (`#00BFA6` teal, navy dark theme). Spec token names (epi-teal, epi-red, etc.) are mapped onto the existing colours and added as CSS variables in `src/index.css` and `mobile/lib/theme.ts`. | Designs already built around the existing palette; client confirmed 2026-10-16. | Add missing tokens (ECG gold, SOS red, reminder amber, chart colours) using spec hex values. Do NOT change existing teal or background colours. |
+| D-3 | Service role key storage | `SUPABASE_SERVICE_ROLE_KEY` must live in hosting-platform environment variables (Vercel / Railway secrets), never committed to git. `clinician-web/.env.local` is already git-ignored by root `.gitignore` (`.env*` rule). | Security: CR-SEC-03. Key must not be in any client bundle or repo history. | Add to Vercel project env vars. Never commit. CI check will fail if the key appears in any bundle. |
+| D-4 | medication_logs → dose_events | Create new `dose_events` table (proper schema + unique constraint). Migrate existing `medication_logs` rows into it. Rename `medication_logs` table to `medication_logs_old`, then create `medication_logs` VIEW over `dose_events` for backward compatibility. Mobile/web code to be updated to write to `dose_events`. | CR-MED-04: dose cannot be logged twice; build doc requires both names. | See migration 003. App code updated in Phase 2. |
+| D-5 | Minutes before paramedics called | **4 minutes** (reminder at T+2 min). Configurable per patient by clinician; global default set by admin. | Spec section 16 default | `alert_rules` and `emergency_providers` tables store this. `escalation-tick` Edge Function reads per-patient override first, then global. |
+| D-6 | SMS provider | **Africa's Talking** as primary (Kenya-first), Twilio as secondary adapter. Provider-agnostic adapter pattern. | Spec section 16 default + Kenya-first strategy | `send-sms` Edge Function uses adapter pattern; provider key in Supabase secrets. |
+| D-7 | Maps / routing | **Google Maps Platform** (Places + Directions) behind an adapter, OSRM as free/offline fallback. | Spec section 16 default | Adapter configured by admin in `emergency_providers`-equivalent settings. API key in Supabase secrets. |
+| D-8 | Hospital data | **KMHFL** import for Kenya, admin-verified. Google Places as live fallback for gaps. | Spec section 16 default | `health_facilities` table seeded from KMHFL CSV. Admin portal has import + edit UI. |
+| D-9 | Ambulance numbers | **999 / 112** seeded for Kenya. Additional contracted providers added by admin. Hard-coded numbers never appear in app code. | Spec section 16; STOP flag for go-live | Numbers stored in `emergency_providers` table only. App reads from DB. |
+| D-10 | Strap concept | **Support both A and B** via firmware flag `CONFIG_EPI_DISPLAY`. App UI adapts (screen vs LED). | Spec section 16 default | `devices.model` column = `epi_strap_a` or `epi_strap_b`. App checks device model for UI adaptation. |
+| D-11 | Who can stop escalation | **Either** the patient (strap button / app "I'm OK") or any emergency contact ("They're safe" / SMS reply code `SAFE <code>`). | Spec section 16 default | `alert_escalations.responded_at` + `responder_id` set when either responds. `escalation-tick` checks this before advancing state. |
+| D-12 | Paramedic dispatch | Sandbox mode until a real provider agreement is in place. Admin portal shows red "Dispatch not live" banner. **STOP** before go-live. | CR-SOS-03 ⚠️ | `emergency_providers.mode` = `sandbox` blocks real calls; sandbox calls a test number only. |
+| D-13 | Location scope | Live location updates every 15 s only while an alert is open, shared with emergency contacts and paramedic provider. Patient opt-in required. Expires 2 h after alert closes. | CR-GPS-02 / CR-SEC-08 — scope change confirmed as acceptable with opt-in + expiry | `location_shares` table tracks consent + expiry. Mobile only reads GPS when alert is open or patient opens Nearest Hospital. |
+| D-14 | Launch region | **Kenya first**. Kenya Data Protection Act 2019. ODPC registration required. **STOP** for legal review before launch. | Spec section 16 | All seed data uses Kenya defaults (+254, KE country code, KMHFL). |
+| D-15 | Retention | Records and audit logs: **7 years** default. Configurable in admin portal. | Spec section 16 default | `dpa_requests` and pg_cron job enforce this. |

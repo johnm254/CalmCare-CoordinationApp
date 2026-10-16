@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Switch, StyleSheet, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { router, useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 import { colors, fonts, radius, spacing } from '../../lib/theme';
 import { useAuth } from '../_layout';
 import {
-  getCareCircle, getGrantsForMember, setGrant,
+  getCareCircle, getGrantsForMember, setGrant, removeCareCircleMember,
   type CareCircleMember, type GrantKey,
 } from '../../lib/supabase';
 
@@ -39,21 +41,23 @@ export default function CircleScreen() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadCircle = useCallback(async () => {
     if (!session?.user) return;
     const uid = session.user.id;
-    getCareCircle(uid).then(async (circle) => {
-      const withGrants = await Promise.all(
-        circle.map(async (c) => ({
-          ...c,
-          grants: await getGrantsForMember(uid, c.member_id),
-        }))
-      );
-      setContacts(withGrants);
-      if (withGrants.length > 0) setExpanded(withGrants[0].id);
-      setLoading(false);
-    });
+    setLoading(true);
+    const circle = await getCareCircle(uid);
+    const withGrants = await Promise.all(
+      circle.map(async (c) => ({
+        ...c,
+        grants: await getGrantsForMember(uid, c.member_id),
+      }))
+    );
+    setContacts(withGrants);
+    if (withGrants.length > 0 && !expanded) setExpanded(withGrants[0].id);
+    setLoading(false);
   }, [session]);
+
+  useFocusEffect(useCallback(() => { loadCircle(); }, [loadCircle]));
 
   async function toggleGrant(contact: ContactWithGrants, key: GrantKey) {
     if (!session?.user || saving) return;
@@ -64,6 +68,12 @@ export default function CircleScreen() {
     );
     await setGrant(session.user.id, contact.member_id, key, newVal);
     setSaving(null);
+  }
+
+  async function handleRemove(contact: ContactWithGrants) {
+    if (!session?.user) return;
+    setContacts((prev) => prev.filter((c) => c.id !== contact.id));
+    await removeCareCircleMember(contact.id);
   }
 
   return (
@@ -144,6 +154,13 @@ export default function CircleScreen() {
                         </View>
                       );
                     })}
+                    <TouchableOpacity
+                      style={styles.removeBtn}
+                      onPress={() => handleRemove(contact)}
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.removeBtnText}>Remove from Circle</Text>
+                    </TouchableOpacity>
                   </View>
                 )}
               </View>
@@ -151,13 +168,8 @@ export default function CircleScreen() {
           })
         )}
 
-        {/* "See who viewed what" outline button */}
-        <TouchableOpacity style={styles.viewedBtn} activeOpacity={0.85}>
-          <Text style={styles.viewedBtnText}>See who viewed what</Text>
-        </TouchableOpacity>
-
         {/* Invite button */}
-        <TouchableOpacity style={styles.inviteBtn} activeOpacity={0.85}>
+        <TouchableOpacity style={styles.inviteBtn} onPress={() => router.push('/circle-invite')} activeOpacity={0.85}>
           <Text style={styles.inviteBtnText}>Invite someone to your Circle</Text>
         </TouchableOpacity>
 
@@ -238,22 +250,19 @@ const styles = StyleSheet.create({
   grantLabel: { fontSize: fonts.base, fontWeight: '600', color: colors.text },
   grantSub: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
 
-  viewedBtn: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.xl,
-    paddingVertical: spacing.md,
+  removeBtn: {
+    marginTop: spacing.md,
+    paddingVertical: spacing.sm,
     alignItems: 'center',
-    marginTop: spacing.sm,
-    marginBottom: spacing.md,
   },
-  viewedBtnText: { color: colors.textSecondary, fontWeight: '600', fontSize: fonts.base },
+  removeBtnText: { fontSize: fonts.sm, color: colors.emergency, fontWeight: '600' },
 
   inviteBtn: {
     backgroundColor: colors.teal,
     borderRadius: radius.xl,
     paddingVertical: spacing.lg,
     alignItems: 'center',
+    marginTop: spacing.md,
   },
   inviteBtnText: { color: '#000', fontWeight: '700', fontSize: fonts.md },
 });

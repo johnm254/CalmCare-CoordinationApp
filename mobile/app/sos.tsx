@@ -1,51 +1,60 @@
+// SOS screen — online push, offline SMS, no-signal queue.
+// CR-SOS-01: 5-second countdown with cancel window.
+// CR-SOS-02: online → push notification via API + Supabase record.
+// CR-SOS-03: offline SMS available → expo-sms composer with location link.
+// CR-SOS-04: no signal → queued in SQLite, plainly told, retried on reconnect.
+
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Animated, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Network from 'expo-network';
+import * as SMS from 'expo-sms';
+import * as Location from 'expo-location';
 import { colors, fonts, radius, spacing } from '../lib/theme';
 import { useAuth } from './_layout';
-import { getEmergencyContacts, sendSos } from '../lib/supabase';
+import { getEmergencyContacts, sendSos, type CareCircleMember } from '../lib/supabase';
+import { enqueueSosOffline } from '../db/offline';
 
 const CIRCLE_SIZE = 220;
 const TOTAL_SECONDS = 5;
 
-// ─── Geometric status badge icon ─────────────────────────────────────────────
-
-function ReadyDot() {
-  return <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: colors.success, marginRight: 6 }} />;
-}
+type SosChannel = 'push' | 'sms' | 'queued';
+type SosState = 'counting' | 'sending' | 'sent' | 'queued';
 
 export default function SOSScreen() {
-  const { session } = useAuth();
+  const { session, profile } = useAuth();
   const [seconds, setSeconds] = useState(TOTAL_SECONDS);
-  const [sent, setSent] = useState(false);
-  const [emergencyCount, setEmergencyCount] = useState(0);
-  const [contactIds, setContactIds] = useState<string[]>([]);
+  const [sosState, setSosState] = useState<SosState>('counting');
+  const [channel, setChannel] = useState<SosChannel>('push');
+  const [contacts, setContacts] = useState<CareCircleMember[]>([]);
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [smsError, setSmsError] = useState(false);
 
-  // Shrinking border animation (fake progress ring via scale)
   const borderAnim = useRef(new Animated.Value(1)).current;
-  // Pulse ring animation
   const pulseScale = useRef(new Animated.Value(1)).current;
   const pulseOpacity = useRef(new Animated.Value(0.6)).current;
   const sentRef = useRef(false);
 
   useEffect(() => {
     if (!session?.user) return;
-    getEmergencyContacts(session.user.id).then((contacts) => {
-      setEmergencyCount(contacts.length);
-      setContactIds(contacts.map((c) => c.member_id));
+    getEmergencyContacts(session.user.id).then(setContacts);
+
+    Location.requestForegroundPermissionsAsync().then(({ status }: { status: string }) => {
+      if (status === 'granted') {
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+          .then((loc: { coords: { latitude: number; longitude: number } }) =>
+            setLocation({ lat: loc.coords.latitude, lon: loc.coords.longitude }))
+          .catch(() => {});
+      }
     });
   }, [session]);
 
   useEffect(() => {
-    // Border color animation (red -> shrinks as time progresses)
     Animated.timing(borderAnim, {
-      toValue: 0,
-      duration: TOTAL_SECONDS * 1000,
-      useNativeDriver: false,
+      toValue: 0, duration: TOTAL_SECONDS * 1000, useNativeDriver: false,
     }).start();
 
-    // Pulsing outer ring
     Animated.loop(
       Animated.sequence([
         Animated.parallel([
@@ -77,10 +86,50 @@ export default function SOSScreen() {
   }, []);
 
   async function doSend() {
-    if (session?.user && contactIds.length > 0) {
-      await sendSos(session.user.id, contactIds);
+    if (!session?.user) return;
+    setSosState('sending');
+
+    const networkState = await Network.getNetworkStateAsync();
+    const isOnline = networkState.isConnected === true && networkState.isInternetReachable !== false;
+
+    if (isOnline) {
+      await sendSos(session.user.id, contacts.map((c) => c.member_id), location);
+      setChannel('push');
+      setSosState('sent');
+      return;
     }
-    setSent(true);
+
+    // Offline path — try SMS
+    const smsAvailable = await SMS.isAvailableAsync();
+    const phonedContacts = contacts.filter((c) => c.phone);
+
+    if (smsAvailable && phonedContacts.length > 0) {
+      const phones = phonedContacts.map((c) => c.phone!);
+      const name = profile?.full_name ?? 'Your contact';
+      let body = `🚨 ${name} needs help (SOS from Duara).`;
+      if (location) {
+        body += ` Location: https://maps.google.com/?q=${location.lat},${location.lon}`;
+      } else {
+        body += ' No GPS available.';
+      }
+
+      try {
+        const { result } = await SMS.sendSMSAsync(phones, body);
+        if (result !== 'cancelled') {
+          await enqueueSosOffline({ patientId: session.user.id, contacts, location, channel: 'sms' });
+          setChannel('sms');
+          setSosState('sent');
+          return;
+        }
+      } catch {
+        setSmsError(true);
+      }
+    }
+
+    // No network + no SMS (or SMS failed) — queue and retry
+    await enqueueSosOffline({ patientId: session.user.id, contacts, location, channel: 'queued' });
+    setChannel('queued');
+    setSosState('queued');
   }
 
   function handleSendNow() {
@@ -90,51 +139,52 @@ export default function SOSScreen() {
     }
   }
 
-  const borderColor = borderAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [colors.emergency, colors.emergency],
-  });
+  const isCounting = sosState === 'counting';
+  const isSending = sosState === 'sending';
+  const isSent = sosState === 'sent';
+  const isQueued = sosState === 'queued';
+
+  const circleColor = isSent
+    ? colors.success
+    : isQueued
+    ? colors.amber
+    : colors.emergency;
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
 
-        {/* Top label */}
+        {/* Header */}
         <View style={styles.topRow}>
           <Text style={styles.duaraLabel}>DUARA</Text>
           <View style={styles.sosLabelRow}>
-            <View style={styles.redDot} />
-            <Text style={styles.sosLabelText}>SOS</Text>
+            <View style={[styles.redDot, { backgroundColor: circleColor }]} />
+            <Text style={[styles.sosLabelText, { color: circleColor }]}>SOS</Text>
           </View>
         </View>
 
-        {/* Countdown circle with pulsing outer ring */}
+        {/* Countdown / status circle */}
         <View style={styles.circleWrapper}>
-          {/* Pulsing outer ring — only when counting down */}
-          {!sent && (
-            <Animated.View
-              style={[
-                styles.pulseRing,
-                { transform: [{ scale: pulseScale }], opacity: pulseOpacity },
-              ]}
-            />
+          {isCounting && (
+            <Animated.View style={[styles.pulseRing, { transform: [{ scale: pulseScale }], opacity: pulseOpacity }]} />
           )}
 
-          {/* Main dark circle */}
-          <View style={[styles.circleBg, sent && styles.circleBgSent]}>
-            {/* Animated colored border */}
-            <Animated.View
-              style={[
-                styles.circleRing,
-                { borderColor: sent ? colors.teal : colors.emergency },
-              ]}
-            />
-            {/* Center number / checkmark */}
+          <View style={[styles.circleBg, isSent && styles.circleBgSent, isQueued && styles.circleBgQueued]}>
+            <Animated.View style={[styles.circleRing, { borderColor: circleColor }]} />
             <View style={styles.circleCenter}>
-              {sent ? (
+              {isSending ? (
+                <ActivityIndicator color={colors.emergency} size="large" />
+              ) : isSent ? (
                 <>
-                  <Text style={[styles.countdownNum, { color: colors.teal, fontSize: 64 }]}>✓</Text>
-                  <Text style={styles.sentLabel}>SOS Sent</Text>
+                  <Text style={[styles.countdownNum, { color: colors.success, fontSize: 64 }]}>✓</Text>
+                  <Text style={[styles.sentLabel, { color: colors.success }]}>
+                    {channel === 'sms' ? 'SMS Sent' : 'Alert Sent'}
+                  </Text>
+                </>
+              ) : isQueued ? (
+                <>
+                  <Text style={[styles.countdownNum, { color: colors.amber, fontSize: 56 }]}>!</Text>
+                  <Text style={[styles.sentLabel, { color: colors.amber }]}>Queued</Text>
                 </>
               ) : (
                 <>
@@ -146,76 +196,108 @@ export default function SOSScreen() {
           </View>
         </View>
 
-        {/* Heading */}
-        {!sent && (
+        {/* Message */}
+        {isCounting && (
           <>
             <Text style={styles.heading}>Sending SOS...</Text>
+            <Text style={styles.subtext}>Your emergency contacts will be alerted with your location.</Text>
+          </>
+        )}
+        {isSent && channel === 'push' && (
+          <Text style={styles.subtext}>Your emergency contacts have been alerted.</Text>
+        )}
+        {isSent && channel === 'sms' && (
+          <Text style={styles.subtext}>SMS sent. Contacts alerted{location ? ' with your location' : ''}.</Text>
+        )}
+        {isQueued && (
+          <>
+            <Text style={[styles.heading, { color: colors.amber }]}>No signal</Text>
             <Text style={styles.subtext}>
-              Your emergency contacts will be alerted with your live location.
+              Your SOS has not been sent yet. Duara will send it automatically as soon as a signal is available.
             </Text>
           </>
         )}
-        {sent && (
-          <Text style={styles.subtext}>
-            Your emergency contacts have been alerted.
+        {smsError && (
+          <Text style={[styles.subtext, { color: colors.amber, marginTop: -spacing.md }]}>
+            SMS failed — alert queued for retry.
           </Text>
         )}
 
         {/* Status card */}
         <View style={styles.statusCard}>
-          <View style={styles.statusRow}>
-            <View style={styles.statusInfo}>
-              <Text style={styles.statusTitle}>Push alert</Text>
-              <Text style={styles.statusSub}>Used when you are online</Text>
-            </View>
-            <View style={styles.readyBadge}>
-              <ReadyDot />
-              <Text style={styles.readyBadgeText}>Ready</Text>
-            </View>
-          </View>
+          <StatusRow
+            title="Push alert"
+            sub="Online path"
+            badge={isOnlineIndicator(channel, isSent) ? 'Sent' : 'Ready'}
+            badgeGreen={isOnlineIndicator(channel, isSent)}
+          />
           <View style={styles.divider} />
-          <View style={styles.statusRow}>
-            <View style={styles.statusInfo}>
-              <Text style={styles.statusTitle}>SMS fallback</Text>
-              <Text style={styles.statusSub}>Used when you have no internet</Text>
-            </View>
-            <View style={styles.readyBadge}>
-              <ReadyDot />
-              <Text style={styles.readyBadgeText}>Ready</Text>
-            </View>
-          </View>
+          <StatusRow
+            title="SMS fallback"
+            sub="No internet path"
+            badge={channel === 'sms' && isSent ? 'Sent' : 'Ready'}
+            badgeGreen={channel === 'sms' && isSent}
+          />
           <View style={styles.divider} />
-          <View style={styles.statusRow}>
-            <View style={styles.statusInfo}>
-              <Text style={styles.statusTitle}>Emergency contacts</Text>
-              <Text style={styles.statusSub}>First to respond is shown to everyone</Text>
-            </View>
-            <View style={[styles.readyBadge, { backgroundColor: colors.tealBadge }]}>
-              <Text style={[styles.readyBadgeText, { color: colors.teal }]}>{emergencyCount}</Text>
-            </View>
-          </View>
+          <StatusRow
+            title="Emergency contacts"
+            sub="First to respond is shown to all"
+            badge={String(contacts.length)}
+            badgeTeal
+          />
         </View>
 
-        {/* Action buttons */}
-        {!sent && (
+        {/* Actions */}
+        {isCounting && (
           <TouchableOpacity style={styles.sendNowBtn} onPress={handleSendNow} activeOpacity={0.85}>
             <Text style={styles.sendNowBtnText}>Send now</Text>
           </TouchableOpacity>
         )}
-        <TouchableOpacity style={styles.cancelBtn} onPress={() => router.back()} activeOpacity={0.85}>
-          <Text style={styles.cancelBtnText}>Cancel, I am okay</Text>
-        </TouchableOpacity>
+        {(isSent || isQueued) && (
+          <TouchableOpacity style={styles.doneBtn} onPress={() => router.back()} activeOpacity={0.85}>
+            <Text style={styles.doneBtnText}>Done</Text>
+          </TouchableOpacity>
+        )}
+        {isCounting && (
+          <TouchableOpacity style={styles.cancelBtn} onPress={() => router.back()} activeOpacity={0.85}>
+            <Text style={styles.cancelBtnText}>Cancel, I am okay</Text>
+          </TouchableOpacity>
+        )}
 
       </View>
     </SafeAreaView>
   );
 }
 
+function isOnlineIndicator(channel: SosChannel, isSent: boolean) {
+  return channel === 'push' && isSent;
+}
+
+function StatusRow({
+  title, sub, badge, badgeGreen, badgeTeal,
+}: {
+  title: string; sub: string; badge: string; badgeGreen?: boolean; badgeTeal?: boolean;
+}) {
+  const bgColor = badgeTeal ? colors.tealBadge : badgeGreen ? colors.successDim : colors.bgCardAlt;
+  const textColor = badgeTeal ? colors.teal : badgeGreen ? colors.success : colors.textSecondary;
+  return (
+    <View style={styles.statusRow}>
+      <View style={styles.statusInfo}>
+        <Text style={styles.statusTitle}>{title}</Text>
+        <Text style={styles.statusSub}>{sub}</Text>
+      </View>
+      <View style={[styles.statusBadge, { backgroundColor: bgColor }]}>
+        {badgeGreen && <View style={{ width: 6, height: 6, borderRadius: 3, backgroundColor: colors.success, marginRight: 4 }} />}
+        <Text style={[styles.statusBadgeText, { color: textColor }]}>{badge}</Text>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#0D0505' },
   container: {
-    flex: 1,
-    alignItems: 'center',
+    flex: 1, alignItems: 'center',
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
     paddingBottom: spacing.xxl,
@@ -224,44 +306,38 @@ const styles = StyleSheet.create({
   topRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.xl },
   duaraLabel: { fontSize: fonts.sm, fontWeight: '800', color: colors.text, letterSpacing: 3 },
   sosLabelRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  redDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.emergency },
-  sosLabelText: { fontSize: fonts.sm, fontWeight: '700', color: colors.emergency, letterSpacing: 2 },
+  redDot: { width: 8, height: 8, borderRadius: 4 },
+  sosLabelText: { fontSize: fonts.sm, fontWeight: '700', letterSpacing: 2 },
 
   circleWrapper: {
-    width: CIRCLE_SIZE,
-    height: CIRCLE_SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: CIRCLE_SIZE, height: CIRCLE_SIZE,
+    alignItems: 'center', justifyContent: 'center',
     marginBottom: spacing.xl,
   },
   pulseRing: {
     position: 'absolute',
-    width: CIRCLE_SIZE + 30,
-    height: CIRCLE_SIZE + 30,
+    width: CIRCLE_SIZE + 30, height: CIRCLE_SIZE + 30,
     borderRadius: (CIRCLE_SIZE + 30) / 2,
-    borderWidth: 2,
-    borderColor: colors.emergency,
+    borderWidth: 2, borderColor: colors.emergency,
   },
   circleBg: {
-    width: CIRCLE_SIZE,
-    height: CIRCLE_SIZE,
+    width: CIRCLE_SIZE, height: CIRCLE_SIZE,
     borderRadius: CIRCLE_SIZE / 2,
     backgroundColor: '#180505',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: 'center', justifyContent: 'center',
   },
   circleBgSent: { backgroundColor: '#051810' },
+  circleBgQueued: { backgroundColor: '#181205' },
   circleRing: {
     position: 'absolute',
-    width: CIRCLE_SIZE,
-    height: CIRCLE_SIZE,
+    width: CIRCLE_SIZE, height: CIRCLE_SIZE,
     borderRadius: CIRCLE_SIZE / 2,
     borderWidth: 5,
   },
   circleCenter: { alignItems: 'center' },
   countdownNum: { fontSize: 80, fontWeight: '800', lineHeight: 88 },
   countdownLabel: { fontSize: fonts.base, color: colors.textSecondary },
-  sentLabel: { fontSize: fonts.lg, fontWeight: '700', color: colors.teal, marginTop: 4 },
+  sentLabel: { fontSize: fonts.lg, fontWeight: '700', marginTop: 4 },
 
   heading: { fontSize: fonts.xxl, fontWeight: '800', color: colors.text, marginBottom: spacing.sm, textAlign: 'center' },
   subtext: { fontSize: fonts.base, color: colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: spacing.xl },
@@ -279,33 +355,30 @@ const styles = StyleSheet.create({
   statusInfo: { flex: 1 },
   statusTitle: { fontSize: fonts.base, fontWeight: '700', color: colors.text },
   statusSub: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
-  readyBadge: {
-    backgroundColor: colors.successDim,
+  statusBadge: {
     borderRadius: radius.full,
     paddingHorizontal: spacing.md,
     paddingVertical: 4,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'row', alignItems: 'center',
   },
-  readyBadgeText: { fontSize: fonts.sm, color: colors.success, fontWeight: '700' },
+  statusBadgeText: { fontSize: fonts.sm, fontWeight: '700' },
   divider: { height: 1, backgroundColor: colors.border, marginVertical: spacing.xs },
 
   sendNowBtn: {
-    width: '100%',
-    backgroundColor: colors.emergency,
-    borderRadius: radius.xl,
-    paddingVertical: spacing.lg,
-    alignItems: 'center',
-    marginBottom: spacing.md,
+    width: '100%', backgroundColor: colors.emergency,
+    borderRadius: radius.xl, paddingVertical: spacing.lg,
+    alignItems: 'center', marginBottom: spacing.md,
   },
   sendNowBtnText: { color: '#fff', fontWeight: '800', fontSize: fonts.md },
+  doneBtn: {
+    width: '100%', backgroundColor: colors.teal,
+    borderRadius: radius.xl, paddingVertical: spacing.lg,
+    alignItems: 'center', marginBottom: spacing.md,
+  },
+  doneBtnText: { color: '#000', fontWeight: '800', fontSize: fonts.md },
   cancelBtn: {
-    width: '100%',
-    borderWidth: 1,
-    borderColor: colors.borderLight,
-    borderRadius: radius.xl,
-    paddingVertical: spacing.lg,
-    alignItems: 'center',
+    width: '100%', borderWidth: 1, borderColor: colors.borderLight,
+    borderRadius: radius.xl, paddingVertical: spacing.lg, alignItems: 'center',
   },
   cancelBtnText: { color: colors.textSecondary, fontWeight: '600', fontSize: fonts.md },
 });
