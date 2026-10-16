@@ -63,23 +63,20 @@ CREATE POLICY "emergency_contact_reads_responses" ON sos_responses
 -- Enable Realtime so the caregiver screen updates live
 ALTER PUBLICATION supabase_realtime ADD TABLE sos_responses;
 
--- ── Escalation cron (pg_cron) ─────────────────────────────────────────────────
--- Calls the escalation-tick Edge Function every minute.
--- Requires pg_cron extension (enabled by default on Supabase Pro; skip on Free).
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'pg_cron') THEN
-    PERFORM cron.schedule(
-      'sos-escalation-tick',
-      '* * * * *',
-      $$
-        SELECT net.http_post(
-          url  := current_setting('app.supabase_url') || '/functions/v1/escalation-tick',
-          headers := '{"Authorization":"Bearer ' || current_setting('app.service_role_key') || '"}'::jsonb,
-          body := '{}'::jsonb
-        );
-      $$
-    );
-  END IF;
-END;
-$$;
+-- ── Escalation cron ───────────────────────────────────────────────────────────
+-- Set up via Supabase Dashboard → Edge Functions → escalation-tick → Schedule,
+-- or run this once manually in the SQL editor after deploying the function:
+--
+-- SELECT cron.schedule(
+--   'sos-escalation-tick',
+--   '* * * * *',
+--   $cron$
+--     SELECT net.http_post(
+--       url     := 'https://<project-ref>.supabase.co/functions/v1/escalation-tick',
+--       headers := jsonb_build_object(
+--                    'Authorization', 'Bearer ' || current_setting('app.service_role_key', true)
+--                  ),
+--       body    := '{}'::jsonb
+--     );
+--   $cron$
+-- );
