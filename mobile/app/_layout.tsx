@@ -8,6 +8,7 @@ import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as Updates from 'expo-updates';
 import * as Notifications from 'expo-notifications';
+import * as Location from 'expo-location';
 import type { Session } from '@supabase/supabase-js';
 import { supabase, getProfile, registerPushToken, type Profile } from '../lib/supabase';
 import { colors, fonts, radius, spacing } from '../lib/theme';
@@ -224,6 +225,7 @@ export default function RootLayout() {
     initializeDB().catch(console.error);
     registerNotificationCategories().catch(console.error);
     requestNotificationPermission().catch(console.error);
+    Location.requestForegroundPermissionsAsync().catch(() => {});
     checkForOTAUpdate();
 
     const appStateSub = AppState.addEventListener('change', (state: AppStateStatus) => {
