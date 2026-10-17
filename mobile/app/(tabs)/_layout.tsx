@@ -67,6 +67,17 @@ function CareIcon({ active }: { active: boolean }) {
   );
 }
 
+function MapIcon({ active }: { active: boolean }) {
+  const c = active ? colors.tabActive : colors.tabInactive;
+  return (
+    <View style={{ width: 22, height: 26, alignItems: 'center' }}>
+      <View style={{ width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: c }} />
+      <View style={{ width: 2.5, height: 8, backgroundColor: c, borderRadius: 1.5, marginTop: -2 }} />
+      <View style={{ width: 6, height: 2, borderRadius: 1, backgroundColor: c, opacity: 0.5 }} />
+    </View>
+  );
+}
+
 function MeIcon({ active }: { active: boolean }) {
   const c = active ? colors.tabActive : colors.tabInactive;
   return (
@@ -122,7 +133,7 @@ export default function TabsLayout() {
         },
         tabBarActiveTintColor: colors.tabActive,
         tabBarInactiveTintColor: colors.tabInactive,
-        tabBarLabelStyle: { fontSize: fonts.xs, fontWeight: '600', letterSpacing: 0.3, marginTop: 2 },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', letterSpacing: 0.2, marginTop: 1 },
       }}
     >
       <Tabs.Screen
@@ -151,6 +162,14 @@ export default function TabsLayout() {
         options={{
           title: 'Care',
           tabBarIcon: ({ focused }) => <CareIcon active={focused} />,
+        }}
+      />
+      <Tabs.Screen
+        name="map"
+        options={{
+          title: 'Map',
+          tabBarIcon: ({ focused }) => <MapIcon active={focused} />,
+          headerTitle: 'Track',
         }}
       />
       <Tabs.Screen

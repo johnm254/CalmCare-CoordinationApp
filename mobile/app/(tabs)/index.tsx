@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Animated } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Animated, Image } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, radius, spacing } from '../../lib/theme';
 import { useAuth } from '../_layout';
 import { getMedications, logMedicationTaken, getCareCircle, type Medication } from '../../lib/supabase';
+import { getWeather, iconUrl, type WeatherData } from '../../lib/weather';
 
 // ─── View-based grid icons (no emoji) ────────────────────────────────────────
 
@@ -98,14 +99,25 @@ function BellIcon() {
 const GRID_ITEMS = [
   { icon: 'lightning', title: 'Conditions', subtitle: 'Types and triggers', route: '/records' },
   { icon: 'circles', title: 'Care Circle', subtitle: 'You decide who sees what', route: '/circle' },
-  { icon: 'cross', title: 'My Doctor', subtitle: 'Verified clinician link', route: '/records' },
+  { icon: 'map', title: 'Track', subtitle: 'Live map & SOS history', route: '/map' },
   { icon: 'doc', title: 'Records', subtitle: 'Events, notes, reports', route: '/records' },
 ];
+
+function MapPinIcon() {
+  return (
+    <View style={{ width: 22, height: 26, alignItems: 'center' }}>
+      <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2.5, borderColor: colors.teal }} />
+      <View style={{ width: 3, height: 8, backgroundColor: colors.teal, borderRadius: 1.5, marginTop: -2 }} />
+      <View style={{ width: 6, height: 2, borderRadius: 1, backgroundColor: colors.teal, opacity: 0.4 }} />
+    </View>
+  );
+}
 
 function GridIcon({ type }: { type: string }) {
   if (type === 'lightning') return <LightningIcon />;
   if (type === 'circles') return <CircleOverlapIcon />;
   if (type === 'cross') return <CrossIcon />;
+  if (type === 'map') return <MapPinIcon />;
   return <DocumentIcon />;
 }
 
@@ -115,6 +127,8 @@ export default function HomeScreen() {
   const [circleCount, setCircleCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [takenId, setTakenId] = useState<string | null>(null);
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [forecastOpen, setForecastOpen] = useState(false);
 
   // Pulsing dot animation for PROTECTED badge
   const pulseAnim = useRef(new Animated.Value(0.5)).current;
@@ -126,6 +140,7 @@ export default function HomeScreen() {
         Animated.timing(pulseAnim, { toValue: 0.5, duration: 900, useNativeDriver: true }),
       ])
     ).start();
+    getWeather().then(setWeather);
   }, []);
 
   const hour = new Date().getHours();
@@ -210,6 +225,65 @@ export default function HomeScreen() {
             </View>
           </View>
         </TouchableOpacity>
+
+        {/* Weather widget */}
+        {weather && (
+          <TouchableOpacity
+            style={styles.weatherCard}
+            onPress={() => setForecastOpen((v) => !v)}
+            activeOpacity={0.85}
+          >
+            {/* Current conditions row */}
+            <View style={styles.weatherMain}>
+              <Image source={{ uri: iconUrl(weather.current.iconCode) }} style={styles.weatherIcon} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.weatherCity}>{weather.current.city}</Text>
+                <Text style={styles.weatherDesc}>{weather.current.description}</Text>
+              </View>
+              <View style={styles.weatherTempWrap}>
+                <Text style={styles.weatherTemp}>{weather.current.temp}°C</Text>
+                <Text style={styles.weatherFeels}>Feels {weather.current.feels_like}°</Text>
+              </View>
+            </View>
+
+            {/* Stats row */}
+            <View style={styles.weatherStats}>
+              <View style={styles.weatherStat}>
+                <View style={styles.weatherStatDot} />
+                <Text style={styles.weatherStatText}>{weather.current.humidity}% humidity</Text>
+              </View>
+              <View style={styles.weatherStat}>
+                <View style={[styles.weatherStatDot, { backgroundColor: colors.blue }]} />
+                <Text style={styles.weatherStatText}>{weather.current.wind_kph} km/h wind</Text>
+              </View>
+              <TouchableOpacity onPress={() => router.push('/map' as any)}>
+                <Text style={styles.weatherMapLink}>Map →</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Seizure trigger warning */}
+            {weather.trigger && (
+              <View style={styles.weatherTrigger}>
+                <View style={styles.weatherTriggerDot} />
+                <Text style={styles.weatherTriggerText}>{weather.trigger}</Text>
+              </View>
+            )}
+
+            {/* 5-day forecast — expandable */}
+            {forecastOpen && (
+              <View style={styles.forecastRow}>
+                {weather.forecast.map((day) => (
+                  <View key={day.day} style={styles.forecastItem}>
+                    <Text style={styles.forecastDay}>{day.day}</Text>
+                    <Image source={{ uri: iconUrl(day.iconCode) }} style={styles.forecastIcon} />
+                    <Text style={styles.forecastHigh}>{day.high}°</Text>
+                    <Text style={styles.forecastLow}>{day.low}°</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </TouchableOpacity>
+        )}
 
         {/* Medication card */}
         {loading ? (
@@ -395,6 +469,37 @@ const styles = StyleSheet.create({
   },
   takenBtnDone: { backgroundColor: colors.tealDim },
   takenBtnText: { color: '#000', fontWeight: '700', fontSize: fonts.sm },
+
+  // Weather widget
+  weatherCard: {
+    backgroundColor: colors.bgCard, borderRadius: radius.lg, borderWidth: 1,
+    borderColor: colors.border, padding: spacing.lg, marginBottom: spacing.md, gap: spacing.md,
+  },
+  weatherMain: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  weatherIcon: { width: 52, height: 52 },
+  weatherCity: { fontSize: fonts.sm, fontWeight: '700', color: colors.text },
+  weatherDesc: { fontSize: fonts.xs, color: colors.textSecondary, marginTop: 2, textTransform: 'capitalize' },
+  weatherTempWrap: { alignItems: 'flex-end' },
+  weatherTemp: { fontSize: fonts.xxl, fontWeight: '800', color: colors.text },
+  weatherFeels: { fontSize: fonts.xs, color: colors.textMuted },
+  weatherStats: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
+  weatherStat: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  weatherStatDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.teal },
+  weatherStatText: { fontSize: fonts.xs, color: colors.textSecondary },
+  weatherMapLink: { fontSize: fonts.xs, color: colors.teal, fontWeight: '700', marginLeft: 'auto' },
+  weatherTrigger: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm,
+    backgroundColor: colors.amberDim, borderRadius: radius.sm,
+    borderWidth: 1, borderColor: colors.amber + '50', padding: spacing.sm,
+  },
+  weatherTriggerDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.amber, flexShrink: 0, marginTop: 3 },
+  weatherTriggerText: { fontSize: fonts.xs, color: colors.amber, lineHeight: 16, flex: 1 },
+  forecastRow: { flexDirection: 'row', justifyContent: 'space-between', paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border },
+  forecastItem: { alignItems: 'center', gap: 2, flex: 1 },
+  forecastDay: { fontSize: fonts.xs, color: colors.textMuted, fontWeight: '600' },
+  forecastIcon: { width: 32, height: 32 },
+  forecastHigh: { fontSize: fonts.sm, color: colors.text, fontWeight: '700' },
+  forecastLow: { fontSize: fonts.xs, color: colors.textMuted },
 
   // Grid
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginTop: spacing.sm },

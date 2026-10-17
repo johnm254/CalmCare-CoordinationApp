@@ -24,7 +24,12 @@
         "SEND_SMS",
         "READ_SMS"
       ],
-      "package": "com.duara.app"
+      "package": "com.duara.app",
+      "config": {
+        "googleMaps": {
+          "apiKey": "REPLACE_WITH_GOOGLE_MAPS_API_KEY"
+        }
+      }
     },
     "ios": {
       "supportsTablet": true,
@@ -51,6 +56,7 @@
     "owner": "jocularjohny",
     "plugins": [
       "expo-secure-store",
+      "react-native-maps",
       [
         "expo-location",
         {
