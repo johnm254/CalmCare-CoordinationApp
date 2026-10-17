@@ -1,4 +1,4 @@
-// Map & tracking screen — live location + SOS history + weather overlay.
+﻿// Map & tracking screen — live location + SOS history + weather overlay.
 // react-native-maps requires a new APK build (native module).
 // Google Maps Android key: add GOOGLE_MAPS_API_KEY to .env.local
 
@@ -149,8 +149,8 @@ export default function MapScreen() {
         <Circle
           center={location}
           radius={60}
-          fillColor="rgba(0,191,166,0.12)"
-          strokeColor="rgba(0,191,166,0.4)"
+          fillColor="rgba(139,92,246,0.12)"
+          strokeColor="rgba(139,92,246,0.4)"
           strokeWidth={1}
         />
         <Marker coordinate={location} anchor={{ x: 0.5, y: 0.5 }} tracksViewChanges={false}>

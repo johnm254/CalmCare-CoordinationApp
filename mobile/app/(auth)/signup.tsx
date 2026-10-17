@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
   KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert,
@@ -184,7 +184,7 @@ export default function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: '#070D1A' },
+  safe: { flex: 1, backgroundColor: '#09090F' },
   flex: { flex: 1 },
   container: { flexGrow: 1 },
 
@@ -203,12 +203,12 @@ const styles = StyleSheet.create({
   logoRingOuter: {
     position: 'absolute',
     width: 60, height: 60, borderRadius: 30,
-    borderWidth: 2, borderColor: 'rgba(0,191,166,0.2)',
+    borderWidth: 2, borderColor: 'rgba(139,92,246,0.2)',
   },
   logoRingMid: {
     position: 'absolute',
     width: 40, height: 40, borderRadius: 20,
-    borderWidth: 2, borderColor: 'rgba(0,191,166,0.5)',
+    borderWidth: 2, borderColor: 'rgba(139,92,246,0.5)',
   },
   logoCore: { width: 18, height: 18, borderRadius: 9, backgroundColor: colors.teal },
   heroHeading: {
@@ -218,13 +218,13 @@ const styles = StyleSheet.create({
   tagline: { fontSize: fonts.sm, color: colors.textSecondary, textAlign: 'center', paddingHorizontal: spacing.xxl },
 
   card: {
-    backgroundColor: '#0D1B35',
+    backgroundColor: '#14122A',
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: '#1A3265',
+    borderColor: '#2E2B50',
     padding: 28,
     paddingBottom: 48,
     flex: 1,

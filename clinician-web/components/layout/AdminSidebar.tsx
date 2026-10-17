@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -7,7 +7,7 @@ const NAV = [
   {
     href: '/admin/clinicians',
     label: 'Clinicians',
-    color: 'from-[#4FC3B7] to-[#2A8F86]',
+    color: 'from-[#8B5CF6] to-[#6D28D9]',
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -40,11 +40,11 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-56 flex-shrink-0 bg-[#0B1629] border-r border-[#1A2F4A] flex flex-col">
+    <aside className="w-56 flex-shrink-0 bg-[#07060E] border-r border-[#2E2B50] flex flex-col">
       {/* Logo */}
-      <div className="px-5 pt-6 pb-5 border-b border-[#1A2F4A]">
+      <div className="px-5 pt-6 pb-5 border-b border-[#2E2B50]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#4FC3B7] to-[#2A8F86] flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center flex-shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-5 h-5" aria-hidden="true">
               <circle cx="48" cy="48" r="10" fill="white"/>
               <circle cx="48" cy="48" r="26" fill="none" stroke="white" strokeWidth="7" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)"/>
@@ -52,15 +52,15 @@ export default function AdminSidebar() {
             </svg>
           </div>
           <div>
-            <p className="text-[#E8F0F6] font-bold text-base leading-none">Duara</p>
-            <p className="text-[#4A6578] text-xs mt-0.5">Admin Panel</p>
+            <p className="text-[#F5F0FF] font-bold text-base leading-none">Duara</p>
+            <p className="text-[#504C78] text-xs mt-0.5">Admin Panel</p>
           </div>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-5 space-y-1">
-        <p className="text-[#4A6578] text-[10px] font-semibold uppercase tracking-widest px-3 mb-3">Main Menu</p>
+        <p className="text-[#504C78] text-[10px] font-semibold uppercase tracking-widest px-3 mb-3">Main Menu</p>
         {NAV.map((item) => {
           const active = pathname.startsWith(item.href);
           return (
@@ -69,11 +69,11 @@ export default function AdminSidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 active
-                  ? 'bg-[#4FC3B7]/15 text-[#4FC3B7] border border-[#4FC3B7]/20'
-                  : 'text-[#7B93A8] hover:bg-[#1A2F4A] hover:text-[#E8F0F6]'
+                  ? 'bg-[#8B5CF6]/15 text-[#8B5CF6] border border-[#8B5CF6]/20'
+                  : 'text-[#9B96C0] hover:bg-[#2E2B50] hover:text-[#F5F0FF]'
               }`}
             >
-              <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${active ? 'bg-gradient-to-br ' + item.color + ' text-white' : 'bg-[#1A2F4A] text-[#7B93A8]'}`}>
+              <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${active ? 'bg-gradient-to-br ' + item.color + ' text-white' : 'bg-[#2E2B50] text-[#9B96C0]'}`}>
                 {item.icon}
               </span>
               {item.label}
@@ -83,14 +83,14 @@ export default function AdminSidebar() {
       </nav>
 
       {/* System status */}
-      <div className="mx-3 mb-4 p-4 rounded-2xl bg-[#0F1E32] border border-[#1A2F4A]">
-        <p className="text-[#7B93A8] text-[10px] font-semibold uppercase tracking-widest mb-2">System Status</p>
+      <div className="mx-3 mb-4 p-4 rounded-2xl bg-[#14122A] border border-[#2E2B50]">
+        <p className="text-[#9B96C0] text-[10px] font-semibold uppercase tracking-widest mb-2">System Status</p>
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
           </span>
-          <p className="text-[#E8F0F6] text-xs font-medium">All Systems Operational</p>
+          <p className="text-[#F5F0FF] text-xs font-medium">All Systems Operational</p>
         </div>
       </div>
     </aside>

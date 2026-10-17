@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 import { createClient } from '../../lib/supabase-server';
 import Sidebar from '../../components/layout/Sidebar';
 import InactivityLogout from '../../components/InactivityLogout';
@@ -51,7 +51,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="flex min-h-screen bg-[#070D1A]">
+    <div className="flex min-h-screen bg-[#09090F]">
       <InactivityLogout redirectTo="/login" />
       <Sidebar profile={profile} />
       <main className="flex-1 ml-60 overflow-y-auto min-h-screen">

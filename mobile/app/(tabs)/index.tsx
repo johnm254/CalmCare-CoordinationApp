@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, StyleSheet, ActivityIndicator, Animated, Image } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -385,17 +385,17 @@ const styles = StyleSheet.create({
   ringOuter: {
     position: 'absolute',
     width: 64, height: 64, borderRadius: 32,
-    borderWidth: 2, borderColor: 'rgba(0,191,166,0.2)',
+    borderWidth: 2, borderColor: 'rgba(139,92,246,0.2)',
   },
   ringMid: {
     position: 'absolute',
     width: 46, height: 46, borderRadius: 23,
-    borderWidth: 2, borderColor: 'rgba(0,191,166,0.4)',
+    borderWidth: 2, borderColor: 'rgba(139,92,246,0.4)',
   },
   ringInner: {
     position: 'absolute',
     width: 28, height: 28, borderRadius: 14,
-    borderWidth: 2, borderColor: 'rgba(0,191,166,0.7)',
+    borderWidth: 2, borderColor: 'rgba(139,92,246,0.7)',
   },
   ringCore: { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.teal },
   circleText: { flex: 1 },

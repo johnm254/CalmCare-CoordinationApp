@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 
@@ -67,28 +67,28 @@ export default function AdminActivityPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#EAF4FF]">System activity</h1>
-        <p className="text-[#7AAAC8] text-sm mt-1">
+        <h1 className="text-2xl font-bold text-[#F5F0FF]">System activity</h1>
+        <p className="text-[#9B96C0] text-sm mt-1">
           Platform-wide audit trail — SOS alerts, events, and authentication logs.
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-[#0D1B35] border border-[#1A3265] rounded-2xl p-5">
-          <p className="text-3xl font-black text-[#EAF4FF] mb-0.5">{loading ? '—' : entries.length}</p>
-          <p className="text-[#7AAAC8] text-sm">Total entries</p>
-          <p className="text-[#3D5C80] text-xs mt-1">Last 100 records</p>
+        <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl p-5">
+          <p className="text-3xl font-black text-[#F5F0FF] mb-0.5">{loading ? '—' : entries.length}</p>
+          <p className="text-[#9B96C0] text-sm">Total entries</p>
+          <p className="text-[#504C78] text-xs mt-1">Last 100 records</p>
         </div>
-        <div className="bg-[#0D1B35] border border-[#1A3265] rounded-2xl p-5">
-          <p className={`text-3xl font-black mb-0.5 ${sosCount > 0 ? 'text-[#EF4444]' : 'text-[#EAF4FF]'}`}>{loading ? '—' : sosCount}</p>
-          <p className="text-[#7AAAC8] text-sm">SOS alerts</p>
-          <p className="text-[#3D5C80] text-xs mt-1">In this window</p>
+        <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl p-5">
+          <p className={`text-3xl font-black mb-0.5 ${sosCount > 0 ? 'text-[#EF4444]' : 'text-[#F5F0FF]'}`}>{loading ? '—' : sosCount}</p>
+          <p className="text-[#9B96C0] text-sm">SOS alerts</p>
+          <p className="text-[#504C78] text-xs mt-1">In this window</p>
         </div>
-        <div className="bg-[#0D1B35] border border-[#1A3265] rounded-2xl p-5">
-          <p className="text-3xl font-black text-[#00BFA6] mb-0.5">{loading ? '—' : todayCount}</p>
-          <p className="text-[#7AAAC8] text-sm">Events today</p>
-          <p className="text-[#3D5C80] text-xs mt-1">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
+        <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl p-5">
+          <p className="text-3xl font-black text-[#8B5CF6] mb-0.5">{loading ? '—' : todayCount}</p>
+          <p className="text-[#9B96C0] text-sm">Events today</p>
+          <p className="text-[#504C78] text-xs mt-1">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
         </div>
       </div>
 
@@ -100,8 +100,8 @@ export default function AdminActivityPage() {
             onClick={() => setFilter(f)}
             className={`text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all border ${
               filter === f
-                ? 'bg-[#00BFA6] text-[#070D1A] border-[#00BFA6]'
-                : 'bg-transparent text-[#7AAAC8] border-[#1A3265] hover:border-[#00BFA6]/50 hover:text-[#EAF4FF]'
+                ? 'bg-[#8B5CF6] text-[#09090F] border-[#8B5CF6]'
+                : 'bg-transparent text-[#9B96C0] border-[#2E2B50] hover:border-[#8B5CF6]/50 hover:text-[#F5F0FF]'
             }`}
           >
             {f}
@@ -110,15 +110,15 @@ export default function AdminActivityPage() {
       </div>
 
       {/* Timeline */}
-      <div className="bg-[#0D1B35] border border-[#1A3265] rounded-2xl p-6">
+      <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl p-6">
         {loading ? (
           <div className="py-16 text-center">
-            <div className="inline-block w-6 h-6 border-2 border-[#00BFA6] border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-[#7AAAC8] text-sm">Loading activity…</p>
+            <div className="inline-block w-6 h-6 border-2 border-[#8B5CF6] border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-[#9B96C0] text-sm">Loading activity…</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-[#7AAAC8] text-sm">No activity in this category.</p>
+            <p className="text-[#9B96C0] text-sm">No activity in this category.</p>
           </div>
         ) : (
           <div className="space-y-0">
@@ -127,17 +127,17 @@ export default function AdminActivityPage() {
               const isEvent = entry.kind === 'event';
               const isLogin = entry.kind === 'login' || entry.kind === 'audit';
 
-              const dotColor = isSOS ? 'bg-[#EF4444]' : isEvent ? 'bg-[#F4B860]' : 'bg-[#00BFA6]';
+              const dotColor = isSOS ? 'bg-[#EF4444]' : isEvent ? 'bg-[#F4B860]' : 'bg-[#8B5CF6]';
               const ringColor = isSOS
                 ? 'bg-[rgba(239,68,68,0.15)]'
                 : isEvent
                 ? 'bg-[rgba(244,184,96,0.15)]'
-                : 'bg-[rgba(0,191,166,0.12)]';
+                : 'bg-[rgba(139,92,246,0.12)]';
 
               return (
                 <div key={entry.id} className={`flex gap-4 pb-5 relative ${isSOS ? 'bg-[rgba(239,68,68,0.03)] -mx-6 px-6 rounded-xl' : ''}`}>
                   {i < filtered.length - 1 && (
-                    <div className="absolute left-4 top-9 bottom-0 w-px bg-[#1A3265]" />
+                    <div className="absolute left-4 top-9 bottom-0 w-px bg-[#2E2B50]" />
                   )}
                   <div className="flex-shrink-0 mt-0.5">
                     <div className={`w-8 h-8 rounded-full ${ringColor} flex items-center justify-center`}>
@@ -156,22 +156,22 @@ export default function AdminActivityPage() {
                           <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full mb-1.5 ${
                             isEvent
                               ? 'bg-[rgba(244,184,96,0.12)] text-[#F4B860]'
-                              : 'bg-[rgba(0,191,166,0.10)] text-[#00BFA6]'
+                              : 'bg-[rgba(139,92,246,0.10)] text-[#8B5CF6]'
                           }`}>
                             {isLogin ? 'Auth' : 'Event'}
                           </span>
                         )}
-                        <p className="text-[#EAF4FF] text-sm font-semibold">{entry.description}</p>
-                        <p className="text-[#7AAAC8] text-xs mt-0.5">
+                        <p className="text-[#F5F0FF] text-sm font-semibold">{entry.description}</p>
+                        <p className="text-[#9B96C0] text-xs mt-0.5">
                           {entry.actorName}
                           {entry.patientName && (
-                            <> · <span className="text-[#EAF4FF] font-semibold">{entry.patientName}</span></>
+                            <> · <span className="text-[#F5F0FF] font-semibold">{entry.patientName}</span></>
                           )}
                         </p>
                       </div>
                       <div className="flex-shrink-0 text-right">
-                        <p className="text-[#3D5C80] text-xs whitespace-nowrap">{timeAgo(entry.at)}</p>
-                        <p className="text-[#3D5C80] text-xs mt-0.5 whitespace-nowrap">{formatTime(entry.at)}</p>
+                        <p className="text-[#504C78] text-xs whitespace-nowrap">{timeAgo(entry.at)}</p>
+                        <p className="text-[#504C78] text-xs mt-0.5 whitespace-nowrap">{formatTime(entry.at)}</p>
                       </div>
                     </div>
                   </div>

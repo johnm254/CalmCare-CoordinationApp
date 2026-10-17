@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 
@@ -31,10 +31,10 @@ type AuditEntry  = {
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <div className="bg-[#0D1B35] border border-[#1A3265] rounded-2xl p-6">
+    <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl p-6">
       <div className="mb-5">
-        <h2 className="text-[#EAF4FF] font-bold text-base">{title}</h2>
-        {description && <p className="text-[#7AAAC8] text-sm mt-0.5">{description}</p>}
+        <h2 className="text-[#F5F0FF] font-bold text-base">{title}</h2>
+        {description && <p className="text-[#9B96C0] text-sm mt-0.5">{description}</p>}
       </div>
       <div className="space-y-4">{children}</div>
     </div>
@@ -43,10 +43,10 @@ function Section({ title, description, children }: { title: string; description?
 
 function InfoRow({ label, value, badge }: { label: string; value: string; badge?: { text: string; color: string } }) {
   return (
-    <div className="flex items-center justify-between py-2.5 border-b border-[#1A3265] last:border-0">
-      <span className="text-[#7AAAC8] text-sm">{label}</span>
+    <div className="flex items-center justify-between py-2.5 border-b border-[#2E2B50] last:border-0">
+      <span className="text-[#9B96C0] text-sm">{label}</span>
       <div className="flex items-center gap-2">
-        <span className="text-[#EAF4FF] text-sm font-medium font-mono">{value}</span>
+        <span className="text-[#F5F0FF] text-sm font-medium font-mono">{value}</span>
         {badge && (
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badge.color}`}>{badge.text}</span>
         )}
@@ -173,25 +173,25 @@ export default function AdminSettingsPage() {
   return (
     <div className="p-6 max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#EAF4FF]">Platform settings</h1>
-        <p className="text-[#7AAAC8] text-sm mt-1">System configuration and diagnostics for Duara.</p>
+        <h1 className="text-2xl font-bold text-[#F5F0FF]">Platform settings</h1>
+        <p className="text-[#9B96C0] text-sm mt-1">System configuration and diagnostics for Duara.</p>
       </div>
 
       <div className="space-y-5">
         {/* System info */}
         <Section title="System information" description="Supabase project and environment details.">
-          <InfoRow label="Project ID" value={projectId} badge={{ text: 'Supabase', color: 'bg-[rgba(0,191,166,0.10)] text-[#00BFA6]' }} />
+          <InfoRow label="Project ID" value={projectId} badge={{ text: 'Supabase', color: 'bg-[rgba(139,92,246,0.10)] text-[#8B5CF6]' }} />
           <InfoRow
             label="Environment" value={env}
-            badge={{ text: env === 'production' ? 'Live' : 'Dev', color: env === 'production' ? 'bg-[rgba(0,191,166,0.10)] text-[#00BFA6]' : 'bg-[rgba(244,184,96,0.12)] text-[#F4B860]' }}
+            badge={{ text: env === 'production' ? 'Live' : 'Dev', color: env === 'production' ? 'bg-[rgba(139,92,246,0.10)] text-[#8B5CF6]' : 'bg-[rgba(244,184,96,0.12)] text-[#F4B860]' }}
           />
           <InfoRow label="Supabase URL" value={supabaseUrl.length > 40 ? supabaseUrl.slice(0, 40) + '…' : supabaseUrl} />
           <div className="flex items-center justify-between py-2.5">
-            <span className="text-[#7AAAC8] text-sm">API status</span>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#00BFA6] bg-[rgba(0,191,166,0.10)] border border-[#00BFA6]/25 rounded-full px-3 py-1">
+            <span className="text-[#9B96C0] text-sm">API status</span>
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8B5CF6] bg-[rgba(139,92,246,0.10)] border border-[#8B5CF6]/25 rounded-full px-3 py-1">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00BFA6] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00BFA6]" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#8B5CF6] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#8B5CF6]" />
               </span>
               Operational
             </span>
@@ -206,9 +206,9 @@ export default function AdminSettingsPage() {
             </div>
           )}
           {loadingFlags ? (
-            <p className="text-[#7AAAC8] text-sm">Loading…</p>
+            <p className="text-[#9B96C0] text-sm">Loading…</p>
           ) : flags.length === 0 ? (
-            <p className="text-[#3D5C80] text-sm">No feature flags found. Run migration 005 to seed them.</p>
+            <p className="text-[#504C78] text-sm">No feature flags found. Run migration 005 to seed them.</p>
           ) : (
             flags.map((flag) => {
               const meta = FLAG_META[flag.key] ?? { label: flag.key, sub: '' };
@@ -216,15 +216,15 @@ export default function AdminSettingsPage() {
               return (
                 <div key={flag.key} className="flex items-center justify-between py-1">
                   <div>
-                    <p className="text-[#EAF4FF] text-sm font-medium">{meta.label}</p>
-                    {meta.sub && <p className="text-[#7AAAC8] text-xs mt-0.5">{meta.sub}</p>}
+                    <p className="text-[#F5F0FF] text-sm font-medium">{meta.label}</p>
+                    {meta.sub && <p className="text-[#9B96C0] text-xs mt-0.5">{meta.sub}</p>}
                   </div>
                   <button
                     role="switch"
                     aria-checked={flag.enabled}
                     disabled={busy}
                     onClick={() => toggleFlag(flag.key, !flag.enabled)}
-                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 disabled:opacity-60 ${flag.enabled ? 'bg-[#00BFA6]' : 'bg-[#1A3265]'}`}
+                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 disabled:opacity-60 ${flag.enabled ? 'bg-[#8B5CF6]' : 'bg-[#2E2B50]'}`}
                   >
                     <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${flag.enabled ? 'left-6' : 'left-1'}`} />
                   </button>
@@ -237,7 +237,7 @@ export default function AdminSettingsPage() {
         {/* Schema status */}
         <Section title="Schema status" description="Check that all required database tables are accessible.">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[#7AAAC8] text-xs">
+            <p className="text-[#9B96C0] text-xs">
               {tableStatuses.every((t) => t.ok === null)
                 ? 'Click "Check tables" to verify.'
                 : `${tableStatuses.filter((t) => t.ok).length} / ${TABLES.length} tables reachable`}
@@ -245,7 +245,7 @@ export default function AdminSettingsPage() {
             <button
               onClick={checkSchema}
               disabled={checkingSchema}
-              className="text-xs font-semibold text-[#00BFA6] border border-[#00BFA6]/30 px-3 py-1.5 rounded-lg hover:bg-[#00BFA6]/10 transition-colors disabled:opacity-50"
+              className="text-xs font-semibold text-[#8B5CF6] border border-[#8B5CF6]/30 px-3 py-1.5 rounded-lg hover:bg-[#8B5CF6]/10 transition-colors disabled:opacity-50"
             >
               {checkingSchema ? 'Checking…' : 'Check tables'}
             </button>
@@ -255,16 +255,16 @@ export default function AdminSettingsPage() {
               <div
                 key={t.name}
                 className={`flex items-center justify-between rounded-xl px-3 py-2.5 border ${
-                  t.ok === null ? 'border-[#1A3265] bg-[#0F2040]'
-                  : t.ok ? 'border-[#00BFA6]/20 bg-[rgba(0,191,166,0.06)]'
+                  t.ok === null ? 'border-[#2E2B50] bg-[#1C1A35]'
+                  : t.ok ? 'border-[#8B5CF6]/20 bg-[rgba(139,92,246,0.06)]'
                   : 'border-[#EF4444]/20 bg-[rgba(239,68,68,0.06)]'
                 }`}
               >
-                <span className="text-[#7AAAC8] text-xs font-mono">{t.name}</span>
+                <span className="text-[#9B96C0] text-xs font-mono">{t.name}</span>
                 {t.ok === null ? (
-                  <span className="text-[#3D5C80] text-xs">—</span>
+                  <span className="text-[#504C78] text-xs">—</span>
                 ) : t.ok ? (
-                  <span className="text-[#00BFA6] text-xs font-semibold">OK</span>
+                  <span className="text-[#8B5CF6] text-xs font-semibold">OK</span>
                 ) : (
                   <span className="text-[#EF4444] text-xs font-semibold">Missing</span>
                 )}
@@ -277,12 +277,12 @@ export default function AdminSettingsPage() {
         <Section title="Email (Resend)" description="Status of the transactional email integration.">
           <div className="flex items-center justify-between py-1">
             <div>
-              <p className="text-[#EAF4FF] text-sm font-medium">Resend API key</p>
-              <p className="text-[#7AAAC8] text-xs mt-0.5">Set via RESEND_API_KEY environment variable.</p>
+              <p className="text-[#F5F0FF] text-sm font-medium">Resend API key</p>
+              <p className="text-[#9B96C0] text-xs mt-0.5">Set via RESEND_API_KEY environment variable.</p>
             </div>
             <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${
               resendConfigured
-                ? 'bg-[rgba(0,191,166,0.10)] text-[#00BFA6] border-[#00BFA6]/25'
+                ? 'bg-[rgba(139,92,246,0.10)] text-[#8B5CF6] border-[#8B5CF6]/25'
                 : 'bg-[rgba(244,184,96,0.10)] text-[#F4B860] border-[#F4B860]/25'
             }`}>
               {resendConfigured ? 'Configured' : 'Not set'}
@@ -294,20 +294,20 @@ export default function AdminSettingsPage() {
         <Section title="Test email" description="Send a test email via the SOS API route to verify Resend is working.">
           <form onSubmit={sendTestEmail} className="space-y-3">
             <div>
-              <label className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">Recipient email</label>
+              <label className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">Recipient email</label>
               <input
                 type="email"
                 placeholder="you@example.com"
                 value={testEmail}
                 onChange={(e) => setTestEmail(e.target.value)}
                 required
-                className="w-full bg-[#070D1A] border border-[#1A3265] rounded-xl px-4 py-3 text-[#EAF4FF] placeholder:text-[#3D5C80] focus:border-[#00BFA6] focus:outline-none text-sm"
+                className="w-full bg-[#09090F] border border-[#2E2B50] rounded-xl px-4 py-3 text-[#F5F0FF] placeholder:text-[#504C78] focus:border-[#8B5CF6] focus:outline-none text-sm"
               />
             </div>
             {testResult && (
               <div className={`rounded-xl px-4 py-3 text-sm font-medium border ${
                 testResult.type === 'success'
-                  ? 'bg-[rgba(0,191,166,0.10)] border-[#00BFA6]/30 text-[#00BFA6]'
+                  ? 'bg-[rgba(139,92,246,0.10)] border-[#8B5CF6]/30 text-[#8B5CF6]'
                   : 'bg-[rgba(239,68,68,0.10)] border-[#EF4444]/30 text-[#EF4444]'
               }`}>
                 {testResult.msg}
@@ -316,7 +316,7 @@ export default function AdminSettingsPage() {
             <button
               type="submit"
               disabled={sendingTest || !testEmail}
-              className="bg-[#0F2040] border border-[#1A3265] text-[#EAF4FF] text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#1A3265] transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="bg-[#1C1A35] border border-[#2E2B50] text-[#F5F0FF] text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#2E2B50] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -329,22 +329,22 @@ export default function AdminSettingsPage() {
         {/* Audit log viewer */}
         <Section title="Audit log" description="Last 50 platform events across all patients.">
           {loadingAudit ? (
-            <p className="text-[#7AAAC8] text-sm">Loading…</p>
+            <p className="text-[#9B96C0] text-sm">Loading…</p>
           ) : auditEntries.length === 0 ? (
-            <p className="text-[#3D5C80] text-sm">No audit entries yet.</p>
+            <p className="text-[#504C78] text-sm">No audit entries yet.</p>
           ) : (
-            <div className="divide-y divide-[#1A3265]">
+            <div className="divide-y divide-[#2E2B50]">
               {auditEntries.map((entry) => (
                 <div key={entry.id} className="flex items-start justify-between py-3 gap-4">
                   <div className="min-w-0">
-                    <p className="text-[#EAF4FF] text-sm font-medium">{formatAuditAction(entry.action)}</p>
-                    <p className="text-[#7AAAC8] text-xs mt-0.5">
+                    <p className="text-[#F5F0FF] text-sm font-medium">{formatAuditAction(entry.action)}</p>
+                    <p className="text-[#9B96C0] text-xs mt-0.5">
                       {entry.actor_name ?? 'System'}
                       {entry.actor_role ? ` · ${entry.actor_role}` : ''}
                       {entry.resource_type ? ` · ${entry.resource_type}` : ''}
                     </p>
                   </div>
-                  <span className="text-[#3D5C80] text-xs whitespace-nowrap flex-shrink-0">
+                  <span className="text-[#504C78] text-xs whitespace-nowrap flex-shrink-0">
                     {new Date(entry.at).toLocaleString('en-KE', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
@@ -356,7 +356,7 @@ export default function AdminSettingsPage() {
         {/* Danger zone */}
         <div className="bg-[rgba(239,68,68,0.04)] border border-[#EF4444]/20 rounded-2xl p-5">
           <h2 className="text-[#EF4444] font-bold text-sm mb-1">Danger zone</h2>
-          <p className="text-[#7AAAC8] text-xs mb-4">These actions are irreversible. Proceed with caution.</p>
+          <p className="text-[#9B96C0] text-xs mb-4">These actions are irreversible. Proceed with caution.</p>
           <div className="flex flex-wrap gap-3">
             <button className="px-4 py-2 rounded-xl border border-[#EF4444]/40 text-[#EF4444] text-sm font-semibold hover:bg-[#EF4444]/10 transition-colors">
               Purge audit log

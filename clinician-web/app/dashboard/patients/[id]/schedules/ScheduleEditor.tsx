@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import { createClient } from '../../../../../lib/supabase-browser';
 
@@ -141,29 +141,29 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
   }
 
   const inputClass =
-    'bg-[#0D1B35] border border-[#1A3265] rounded-xl px-3 py-2.5 text-[#EAF4FF] placeholder:text-[#3D5C80] focus:border-[#00BFA6] focus:outline-none focus:ring-2 focus:ring-[#00BFA6]/20 text-sm transition-colors disabled:opacity-50';
+    'bg-[#14122A] border border-[#2E2B50] rounded-xl px-3 py-2.5 text-[#F5F0FF] placeholder:text-[#504C78] focus:border-[#8B5CF6] focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 text-sm transition-colors disabled:opacity-50';
 
   return (
-    <div className="bg-[#0D1B35] border border-[#1A3265] rounded-2xl overflow-hidden">
+    <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl overflow-hidden">
       {/* Header */}
       <div className="px-6 py-5 flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[rgba(0,191,166,0.10)] border border-[#00BFA6]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <svg className="w-4 h-4 text-[#00BFA6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <div className="w-9 h-9 rounded-xl bg-[rgba(139,92,246,0.10)] border border-[#8B5CF6]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg className="w-4 h-4 text-[#8B5CF6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </div>
           <div>
-            <p className="text-[#EAF4FF] font-bold text-sm">{medication.name}</p>
+            <p className="text-[#F5F0FF] font-bold text-sm">{medication.name}</p>
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
               {medication.strength && (
-                <span className="text-[#7AAAC8] text-xs">{medication.strength}</span>
+                <span className="text-[#9B96C0] text-xs">{medication.strength}</span>
               )}
               {medication.form && (
-                <span className="text-[#3D5C80] text-xs">{medication.form}</span>
+                <span className="text-[#504C78] text-xs">{medication.form}</span>
               )}
               {medication.dose && (
-                <span className="bg-[#0F2040] text-[#7AAAC8] text-xs px-2 py-0.5 rounded-md">{medication.dose}</span>
+                <span className="bg-[#1C1A35] text-[#9B96C0] text-xs px-2 py-0.5 rounded-md">{medication.dose}</span>
               )}
             </div>
           </div>
@@ -181,7 +181,7 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
           {!editing && (
             <button
               onClick={startEdit}
-              className="border border-[#1A3265] text-[#7AAAC8] text-xs font-medium px-3.5 py-2 rounded-xl hover:bg-[#0F2040] hover:text-[#EAF4FF] transition-colors"
+              className="border border-[#2E2B50] text-[#9B96C0] text-xs font-medium px-3.5 py-2 rounded-xl hover:bg-[#1C1A35] hover:text-[#F5F0FF] transition-colors"
             >
               Edit schedule
             </button>
@@ -191,28 +191,28 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
 
       {/* Current schedule summary */}
       {!editing && currentSchedule && (
-        <div className="px-6 pb-5 border-t border-[#1A3265] pt-4">
+        <div className="px-6 pb-5 border-t border-[#2E2B50] pt-4">
           <div className="flex flex-wrap gap-3">
             <div>
-              <p className="text-[#3D5C80] text-xs mb-1.5">Times</p>
+              <p className="text-[#504C78] text-xs mb-1.5">Times</p>
               <div className="flex flex-wrap gap-1.5">
                 {currentSchedule.times.map((t) => (
-                  <span key={t} className="bg-[rgba(0,191,166,0.10)] text-[#00BFA6] text-xs px-2.5 py-1 rounded-full border border-[#00BFA6]/20 font-mono">
+                  <span key={t} className="bg-[rgba(139,92,246,0.10)] text-[#8B5CF6] text-xs px-2.5 py-1 rounded-full border border-[#8B5CF6]/20 font-mono">
                     {t}
                   </span>
                 ))}
               </div>
             </div>
             <div>
-              <p className="text-[#3D5C80] text-xs mb-1.5">Days</p>
+              <p className="text-[#504C78] text-xs mb-1.5">Days</p>
               <div className="flex flex-wrap gap-1">
                 {DAYS.map((d) => (
                   <span
                     key={d}
                     className={`text-xs px-2 py-0.5 rounded-full ${
                       currentSchedule.days.includes(d)
-                        ? 'bg-[rgba(0,191,166,0.10)] text-[#00BFA6] border border-[#00BFA6]/20'
-                        : 'bg-[#0F2040] text-[#3D5C80] border border-[#1A3265]'
+                        ? 'bg-[rgba(139,92,246,0.10)] text-[#8B5CF6] border border-[#8B5CF6]/20'
+                        : 'bg-[#1C1A35] text-[#504C78] border border-[#2E2B50]'
                     }`}
                   >
                     {d}
@@ -221,38 +221,38 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
               </div>
             </div>
             <div>
-              <p className="text-[#3D5C80] text-xs mb-1">Escalate to</p>
-              <span className="text-[#7AAAC8] text-xs capitalize">{currentSchedule.escalate_to}</span>
+              <p className="text-[#504C78] text-xs mb-1">Escalate to</p>
+              <span className="text-[#9B96C0] text-xs capitalize">{currentSchedule.escalate_to}</span>
             </div>
             <div>
-              <p className="text-[#3D5C80] text-xs mb-1">Missed after</p>
-              <span className="text-[#7AAAC8] text-xs">{currentSchedule.missed_after} min</span>
+              <p className="text-[#504C78] text-xs mb-1">Missed after</p>
+              <span className="text-[#9B96C0] text-xs">{currentSchedule.missed_after} min</span>
             </div>
           </div>
         </div>
       )}
 
       {!editing && !currentSchedule && (
-        <div className="px-6 pb-5 border-t border-[#1A3265] pt-4">
-          <p className="text-[#3D5C80] text-sm">No schedule configured yet.</p>
+        <div className="px-6 pb-5 border-t border-[#2E2B50] pt-4">
+          <p className="text-[#504C78] text-sm">No schedule configured yet.</p>
         </div>
       )}
 
       {/* Inline edit form */}
       {editing && (
-        <div className="border-t border-[#1A3265] bg-[#0F2040] px-6 py-6">
+        <div className="border-t border-[#2E2B50] bg-[#1C1A35] px-6 py-6">
           <div className="space-y-6">
             {/* Times */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest">
+                <label className="text-[#9B96C0] text-xs font-semibold uppercase tracking-widest">
                   Times of day
                 </label>
                 {draft.times.length < 4 && (
                   <button
                     type="button"
                     onClick={addTime}
-                    className="text-[#00BFA6] text-xs hover:text-[#00A896] transition-colors flex items-center gap-1"
+                    className="text-[#8B5CF6] text-xs hover:text-[#00A896] transition-colors flex items-center gap-1"
                     aria-label="Add a time"
                   >
                     <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -276,7 +276,7 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
                       <button
                         type="button"
                         onClick={() => removeTime(i)}
-                        className="text-[#3D5C80] hover:text-[#EF4444] transition-colors"
+                        className="text-[#504C78] hover:text-[#EF4444] transition-colors"
                         aria-label={`Remove time ${i + 1}`}
                       >
                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -291,7 +291,7 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
 
             {/* Days */}
             <div>
-              <label className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                 Days of week
               </label>
               <div className="flex flex-wrap gap-2">
@@ -303,8 +303,8 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
                     aria-pressed={draft.days.includes(day)}
                     className={`text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors ${
                       draft.days.includes(day)
-                        ? 'bg-[rgba(0,191,166,0.15)] border-[#00BFA6]/40 text-[#00BFA6]'
-                        : 'bg-[#0D1B35] border-[#1A3265] text-[#3D5C80] hover:border-[#243D6E] hover:text-[#7AAAC8]'
+                        ? 'bg-[rgba(139,92,246,0.15)] border-[#8B5CF6]/40 text-[#8B5CF6]'
+                        : 'bg-[#14122A] border-[#2E2B50] text-[#504C78] hover:border-[#3D3A65] hover:text-[#9B96C0]'
                     }`}
                   >
                     {day}
@@ -315,7 +315,7 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
 
             {/* Dose amount */}
             <div>
-              <label htmlFor={`dose-amount-${medication.id}`} className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor={`dose-amount-${medication.id}`} className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                 Dose amount
               </label>
               <div className="flex items-center gap-2">
@@ -328,14 +328,14 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
                   className={inputClass + ' w-40'}
                   aria-label="Dose amount"
                 />
-                <span className="text-[#3D5C80] text-xs">Patients cannot change this value</span>
+                <span className="text-[#504C78] text-xs">Patients cannot change this value</span>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               {/* Snooze interval */}
               <div>
-                <label htmlFor={`snooze-${medication.id}`} className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+                <label htmlFor={`snooze-${medication.id}`} className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                   Snooze interval
                 </label>
                 <select
@@ -353,7 +353,7 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
 
               {/* Max repeats */}
               <div>
-                <label htmlFor={`repeats-${medication.id}`} className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+                <label htmlFor={`repeats-${medication.id}`} className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                   Max snoozes
                 </label>
                 <select
@@ -371,7 +371,7 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
 
               {/* Missed after */}
               <div>
-                <label htmlFor={`missed-${medication.id}`} className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+                <label htmlFor={`missed-${medication.id}`} className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                   Mark missed after
                 </label>
                 <select
@@ -390,7 +390,7 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
 
             {/* Escalate to */}
             <div>
-              <label className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                 Escalate missed dose to
               </label>
               <div className="flex gap-2">
@@ -402,8 +402,8 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
                     aria-pressed={draft.escalate_to === opt.value}
                     className={`text-xs font-semibold px-4 py-2 rounded-full border transition-colors ${
                       draft.escalate_to === opt.value
-                        ? 'bg-[rgba(0,191,166,0.15)] border-[#00BFA6]/40 text-[#00BFA6]'
-                        : 'bg-[#0D1B35] border-[#1A3265] text-[#3D5C80] hover:border-[#243D6E] hover:text-[#7AAAC8]'
+                        ? 'bg-[rgba(139,92,246,0.15)] border-[#8B5CF6]/40 text-[#8B5CF6]'
+                        : 'bg-[#14122A] border-[#2E2B50] text-[#504C78] hover:border-[#3D3A65] hover:text-[#9B96C0]'
                     }`}
                   >
                     {opt.label}
@@ -423,7 +423,7 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="bg-[#00BFA6] text-[#070D1A] font-bold rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-10 px-6 text-sm"
+                className="bg-[#8B5CF6] text-[#09090F] font-bold rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-10 px-6 text-sm"
               >
                 {saving ? (
                   <span className="flex items-center gap-2">
@@ -439,7 +439,7 @@ export default function ScheduleEditor({ medication, initialSchedule, patientId 
                 type="button"
                 onClick={cancelEdit}
                 disabled={saving}
-                className="border border-[#1A3265] text-[#7AAAC8] font-medium rounded-xl hover:bg-[#0D1B35] hover:text-[#EAF4FF] transition-colors min-h-10 px-5 text-sm"
+                className="border border-[#2E2B50] text-[#9B96C0] font-medium rounded-xl hover:bg-[#14122A] hover:text-[#F5F0FF] transition-colors min-h-10 px-5 text-sm"
               >
                 Cancel
               </button>

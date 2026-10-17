@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+﻿import { useEffect, useState, useCallback } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
   Modal, Switch, TextInput, ActivityIndicator, Linking, Alert, Platform,
@@ -740,7 +740,7 @@ export default function MeScreen() {
             activeOpacity={0.75}
             accessibilityRole="button"
           >
-            <IconBadge bg="rgba(0,191,166,0.12)">
+            <IconBadge bg="rgba(139,92,246,0.12)">
               <View style={{ width: 14, height: 10, borderRadius: 2, borderWidth: 1.5, borderColor: colors.teal }} />
             </IconBadge>
             <View style={s.rowText}>
@@ -790,7 +790,7 @@ export default function MeScreen() {
         <SectionHeader title="DEVICES" />
         <View style={s.card}>
           <SettingRow
-            iconBg="rgba(0,191,166,0.12)"
+            iconBg="rgba(139,92,246,0.12)"
             icon={<View style={{ width: 18, height: 12, borderRadius: 4, borderWidth: 1.5, borderColor: colors.teal }} />}
             label="Epi Strap"
             value="Not paired"
@@ -823,7 +823,7 @@ export default function MeScreen() {
           />
           <View style={s.divider} />
           <SettingRow
-            iconBg="rgba(0,191,166,0.12)"
+            iconBg="rgba(139,92,246,0.12)"
             icon={
               <View style={{ gap: 3 }}>
                 <View style={{ width: 14, height: 2, backgroundColor: colors.teal, borderRadius: 1 }} />

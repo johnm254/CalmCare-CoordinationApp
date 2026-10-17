@@ -1,24 +1,21 @@
 import { Tabs, router } from 'expo-router';
-import { TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, fonts } from '../../lib/theme';
+import { TouchableOpacity, View, Text } from 'react-native';
+import { colors, fonts, radius } from '../../lib/theme';
 
-// ─── Tab bar icons (View-based, no emoji/SVG) ─────────────────────────────────
+// ─── Tab bar icons ─────────────────────────────────────────────────────────────
 
 function TodayIcon({ active }: { active: boolean }) {
-  const c = active ? colors.tabActive : colors.tabInactive;
+  const c = active ? colors.teal : colors.tabInactive;
   return (
-    <View style={{ width: 22, height: 22, alignItems: 'center', justifyContent: 'center' }}>
-      {/* Sun circle */}
-      <View style={{ width: 10, height: 10, borderRadius: 5, backgroundColor: c }} />
-      {/* Four rays */}
-      {[0, 90, 180, 270].map((deg) => (
+    <View style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ width: 11, height: 11, borderRadius: 5.5, backgroundColor: c }} />
+      {[0, 72, 144, 216, 288].map((deg) => (
         <View
           key={deg}
           style={{
             position: 'absolute', width: 3, height: 3, borderRadius: 1.5,
             backgroundColor: c,
-            transform: [{ rotate: `${deg}deg` }, { translateY: -8 }],
+            transform: [{ rotate: `${deg}deg` }, { translateY: -9 }],
           }}
         />
       ))}
@@ -27,71 +24,76 @@ function TodayIcon({ active }: { active: boolean }) {
 }
 
 function VitalsIcon({ active }: { active: boolean }) {
-  const c = active ? colors.tabActive : colors.tabInactive;
+  const c = active ? colors.teal : colors.tabInactive;
   return (
-    <View style={{ width: 26, height: 16, flexDirection: 'row', alignItems: 'center' }}>
+    <View style={{ width: 28, height: 18, flexDirection: 'row', alignItems: 'center' }}>
       <View style={{ flex: 1, height: 2, backgroundColor: c, borderRadius: 1 }} />
-      <View style={{ width: 3, height: 14, backgroundColor: c, borderRadius: 1.5, marginHorizontal: 1 }} />
-      <View style={{ width: 3, height: 8, backgroundColor: c, borderRadius: 1.5, marginHorizontal: 1 }} />
+      <View style={{ width: 3, height: 16, backgroundColor: c, borderRadius: 1.5, marginHorizontal: 1.5 }} />
+      <View style={{ width: 3, height: 10, backgroundColor: c, borderRadius: 1.5, marginHorizontal: 1.5 }} />
+      <View style={{ width: 3, height: 6, backgroundColor: c, borderRadius: 1.5, marginHorizontal: 1.5 }} />
       <View style={{ flex: 1, height: 2, backgroundColor: c, borderRadius: 1 }} />
     </View>
   );
 }
 
 function MedsIcon({ active }: { active: boolean }) {
-  const c = active ? colors.tabActive : colors.tabInactive;
+  const c = active ? colors.teal : colors.tabInactive;
   return (
-    <View style={{ width: 22, height: 22, alignItems: 'center', justifyContent: 'center' }}>
-      {/* Pill: top capsule + bottom capsule */}
-      <View style={{ width: 16, height: 8, borderRadius: 4, backgroundColor: c, marginBottom: 2 }} />
-      <View style={{ width: 16, height: 8, borderRadius: 4, backgroundColor: c, opacity: 0.5 }} />
+    <View style={{ width: 24, height: 24, alignItems: 'center', justifyContent: 'center' }}>
+      <View style={{ width: 18, height: 9, borderRadius: 9, backgroundColor: c }} />
+      <View style={{ width: 18, height: 9, borderRadius: 9, backgroundColor: c, opacity: 0.45, marginTop: 2 }} />
     </View>
   );
 }
 
 function CareIcon({ active }: { active: boolean }) {
-  const c = active ? colors.tabActive : colors.tabInactive;
+  const c = active ? colors.teal : colors.tabInactive;
   return (
-    <View style={{ width: 24, height: 20 }}>
+    <View style={{ width: 26, height: 22 }}>
       <View style={{
         position: 'absolute', left: 0, top: 2,
-        width: 14, height: 14, borderRadius: 7,
-        borderWidth: 2, borderColor: c,
+        width: 15, height: 15, borderRadius: 7.5,
+        borderWidth: 2.5, borderColor: c,
       }} />
       <View style={{
-        position: 'absolute', left: 9, top: 2,
-        width: 14, height: 14, borderRadius: 7,
-        borderWidth: 2, borderColor: c,
+        position: 'absolute', left: 10, top: 2,
+        width: 15, height: 15, borderRadius: 7.5,
+        borderWidth: 2.5, borderColor: c, opacity: 0.65,
       }} />
-    </View>
-  );
-}
-
-function MapIcon({ active }: { active: boolean }) {
-  const c = active ? colors.tabActive : colors.tabInactive;
-  return (
-    <View style={{ width: 22, height: 26, alignItems: 'center' }}>
-      <View style={{ width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: c }} />
-      <View style={{ width: 2.5, height: 8, backgroundColor: c, borderRadius: 1.5, marginTop: -2 }} />
-      <View style={{ width: 6, height: 2, borderRadius: 1, backgroundColor: c, opacity: 0.5 }} />
     </View>
   );
 }
 
 function MeIcon({ active }: { active: boolean }) {
-  const c = active ? colors.tabActive : colors.tabInactive;
+  const c = active ? colors.teal : colors.tabInactive;
   return (
-    <View style={{ width: 20, height: 22, alignItems: 'center' }}>
-      <View style={{ width: 14, height: 14, borderRadius: 7, backgroundColor: c }} />
+    <View style={{ width: 22, height: 24, alignItems: 'center' }}>
+      <View style={{ width: 15, height: 15, borderRadius: 7.5, backgroundColor: c }} />
       <View style={{
-        width: 20, height: 8, borderTopLeftRadius: 10, borderTopRightRadius: 10,
+        width: 22, height: 9, borderTopLeftRadius: 11, borderTopRightRadius: 11,
         backgroundColor: c, marginTop: 2,
       }} />
     </View>
   );
 }
 
-// ─── Persistent SOS button in header ─────────────────────────────────────────
+// ─── Custom tab bar label with active pill ────────────────────────────────────
+
+function TabLabel({ label, active }: { label: string; active: boolean }) {
+  return (
+    <Text style={{
+      fontSize: 10,
+      fontWeight: active ? '700' : '500',
+      letterSpacing: 0.3,
+      color: active ? colors.teal : colors.tabInactive,
+      marginTop: 3,
+    }}>
+      {label}
+    </Text>
+  );
+}
+
+// ─── SOS header button ────────────────────────────────────────────────────────
 
 function SOSHeaderButton() {
   return (
@@ -100,16 +102,21 @@ function SOSHeaderButton() {
       style={{
         marginRight: 16,
         backgroundColor: colors.emergency,
-        borderRadius: 999,
-        paddingHorizontal: 14,
-        paddingVertical: 6,
-        minWidth: 48, minHeight: 48,
+        borderRadius: radius.full,
+        paddingHorizontal: 18,
+        paddingVertical: 7,
+        minWidth: 52, minHeight: 36,
         alignItems: 'center', justifyContent: 'center',
+        shadowColor: colors.emergency,
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.6,
+        shadowRadius: 8,
+        elevation: 8,
       }}
       accessibilityLabel="SOS — press for emergency"
       accessibilityRole="button"
     >
-      <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: '#fff' }} />
+      <Text style={{ color: '#fff', fontWeight: '800', fontSize: 13, letterSpacing: 1 }}>SOS</Text>
     </TouchableOpacity>
   );
 }
@@ -121,65 +128,110 @@ export default function TabsLayout() {
         headerShown: true,
         headerStyle: { backgroundColor: colors.bg },
         headerTintColor: colors.text,
-        headerTitleStyle: { fontSize: fonts.md, fontWeight: '700' },
+        headerTitleStyle: { fontSize: fonts.md, fontWeight: '700', color: colors.text },
         headerRight: () => <SOSHeaderButton />,
         tabBarStyle: {
           backgroundColor: colors.tabBg,
           borderTopColor: colors.border,
           borderTopWidth: 1,
-          height: 68,
-          paddingBottom: 12,
-          paddingTop: 8,
+          height: 72,
+          paddingBottom: 14,
+          paddingTop: 10,
         },
-        tabBarActiveTintColor: colors.tabActive,
+        tabBarActiveTintColor: colors.teal,
         tabBarInactiveTintColor: colors.tabInactive,
-        tabBarLabelStyle: { fontSize: 10, fontWeight: '600', letterSpacing: 0.2, marginTop: 1 },
+        tabBarShowLabel: false,
+        tabBarItemStyle: { paddingVertical: 2 },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Today',
-          tabBarIcon: ({ focused }) => <TodayIcon active={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <View style={{ alignItems: 'center' }}>
+              <View style={{
+                padding: 6, borderRadius: 12,
+                backgroundColor: focused ? `rgba(139,92,246,0.15)` : 'transparent',
+              }}>
+                <TodayIcon active={focused} />
+              </View>
+              <TabLabel label="Today" active={focused} />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
         name="health"
         options={{
           title: 'Vitals',
-          tabBarIcon: ({ focused }) => <VitalsIcon active={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <View style={{ alignItems: 'center' }}>
+              <View style={{
+                padding: 6, borderRadius: 12,
+                backgroundColor: focused ? `rgba(139,92,246,0.15)` : 'transparent',
+              }}>
+                <VitalsIcon active={focused} />
+              </View>
+              <TabLabel label="Vitals" active={focused} />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
         name="meds"
         options={{
           title: 'Meds',
-          tabBarIcon: ({ focused }) => <MedsIcon active={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <View style={{ alignItems: 'center' }}>
+              <View style={{
+                padding: 6, borderRadius: 12,
+                backgroundColor: focused ? `rgba(139,92,246,0.15)` : 'transparent',
+              }}>
+                <MedsIcon active={focused} />
+              </View>
+              <TabLabel label="Meds" active={focused} />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
         name="circle"
         options={{
           title: 'Care',
-          tabBarIcon: ({ focused }) => <CareIcon active={focused} />,
-        }}
-      />
-      <Tabs.Screen
-        name="map"
-        options={{
-          title: 'Map',
-          tabBarIcon: ({ focused }) => <MapIcon active={focused} />,
-          headerTitle: 'Track',
+          tabBarIcon: ({ focused }) => (
+            <View style={{ alignItems: 'center' }}>
+              <View style={{
+                padding: 6, borderRadius: 12,
+                backgroundColor: focused ? `rgba(139,92,246,0.15)` : 'transparent',
+              }}>
+                <CareIcon active={focused} />
+              </View>
+              <TabLabel label="Care" active={focused} />
+            </View>
+          ),
         }}
       />
       <Tabs.Screen
         name="me"
         options={{
           title: 'Me',
-          tabBarIcon: ({ focused }) => <MeIcon active={focused} />,
+          tabBarIcon: ({ focused }) => (
+            <View style={{ alignItems: 'center' }}>
+              <View style={{
+                padding: 6, borderRadius: 12,
+                backgroundColor: focused ? `rgba(139,92,246,0.15)` : 'transparent',
+              }}>
+                <MeIcon active={focused} />
+              </View>
+              <TabLabel label="Me" active={focused} />
+            </View>
+          ),
         }}
       />
-      {/* Hide records from tab bar — accessible from Me tab */}
+      {/* Map accessible from Today "Track" card — hidden from tab bar */}
+      <Tabs.Screen name="map" options={{ href: null }} />
+      {/* Records accessible from Me tab */}
       <Tabs.Screen name="records" options={{ href: null }} />
     </Tabs>
   );

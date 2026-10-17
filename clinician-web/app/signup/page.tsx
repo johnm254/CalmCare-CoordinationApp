@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -18,7 +18,7 @@ function StrengthBar({ password }: { password: string }) {
   // 0 = empty, 1-2 = weak (red), 3 = fair (amber), 4-5 = strong (green)
   const color =
     password.length === 0
-      ? '#1A3265'
+      ? '#2E2B50'
       : passing <= 2
       ? '#EF4444'
       : passing === 3
@@ -32,7 +32,7 @@ function StrengthBar({ password }: { password: string }) {
           <div
             key={i}
             className="h-1.5 flex-1 rounded-full transition-colors duration-300"
-            style={{ backgroundColor: password.length > 0 && i <= passing ? color : '#1A3265' }}
+            style={{ backgroundColor: password.length > 0 && i <= passing ? color : '#2E2B50' }}
           />
         ))}
       </div>
@@ -132,33 +132,33 @@ export default function SignUpPage() {
   }
 
   const inputClass =
-    'w-full bg-[#0D1B35] border border-[#1A3265] rounded-xl px-4 py-3.5 text-[#EAF4FF] placeholder:text-[#3D5C80] focus:border-[#00BFA6] focus:outline-none focus:ring-2 focus:ring-[#00BFA6]/20 text-sm transition-colors disabled:opacity-50';
+    'w-full bg-[#14122A] border border-[#2E2B50] rounded-xl px-4 py-3.5 text-[#F5F0FF] placeholder:text-[#504C78] focus:border-[#8B5CF6] focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 text-sm transition-colors disabled:opacity-50';
 
   return (
-    <div className="min-h-screen bg-[#070D1A] flex">
+    <div className="min-h-screen bg-[#09090F] flex">
       {/* Left panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-[#040A16] border-r border-[#1A3265] flex-col items-center justify-center px-12 py-16 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-[#07060E] border-r border-[#2E2B50] flex-col items-center justify-center px-12 py-16 relative overflow-hidden">
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(0,191,166,0.07) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(139,92,246,0.07) 0%, transparent 70%)' }}
         />
         <div className="relative z-10 flex flex-col items-center text-center max-w-sm w-full">
           <div className="relative mb-2">
-            <div className="w-14 h-14 rounded-full border-2 border-[#00BFA6] opacity-20 absolute inset-0" />
-            <div className="absolute rounded-full border-2 border-[#00BFA6] opacity-50" style={{ inset: 10 }} />
-            <div className="absolute rounded-full bg-[#00BFA6]" style={{ inset: 20 }} />
+            <div className="w-14 h-14 rounded-full border-2 border-[#8B5CF6] opacity-20 absolute inset-0" />
+            <div className="absolute rounded-full border-2 border-[#8B5CF6] opacity-50" style={{ inset: 10 }} />
+            <div className="absolute rounded-full bg-[#8B5CF6]" style={{ inset: 20 }} />
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-14 h-14 relative" aria-hidden="true">
-              <circle cx="48" cy="48" r="10" fill="#00BFA6" />
-              <circle cx="48" cy="48" r="26" fill="none" stroke="#00BFA6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
-              <circle cx="48" cy="48" r="42" fill="none" stroke="#00BFA6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
+              <circle cx="48" cy="48" r="10" fill="#8B5CF6" />
+              <circle cx="48" cy="48" r="26" fill="none" stroke="#8B5CF6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
+              <circle cx="48" cy="48" r="42" fill="none" stroke="#8B5CF6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
             </svg>
           </div>
-          <h1 className="text-[#EAF4FF] font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>Duara</h1>
-          <p className="text-[#00BFA6] text-sm mt-2 tracking-wide font-medium">Clinician Portal</p>
+          <h1 className="text-[#F5F0FF] font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>Duara</h1>
+          <p className="text-[#8B5CF6] text-sm mt-2 tracking-wide font-medium">Clinician Portal</p>
 
           <div className="mt-10 w-full space-y-6">
-            <div className="bg-[#0D1B35] border border-[#1A3265] rounded-2xl p-5 text-left">
-              <p className="text-[#EAF4FF] font-semibold text-sm mb-2">Registration process</p>
+            <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl p-5 text-left">
+              <p className="text-[#F5F0FF] font-semibold text-sm mb-2">Registration process</p>
               <ol className="space-y-2.5">
                 {[
                   'Submit your details and licence number',
@@ -166,8 +166,8 @@ export default function SignUpPage() {
                   'Receive email confirmation to activate your account',
                   'Set up two-factor authentication',
                 ].map((step, i) => (
-                  <li key={i} className="flex items-start gap-3 text-[#7AAAC8] text-xs">
-                    <span className="w-5 h-5 rounded-full bg-[rgba(0,191,166,0.10)] border border-[#00BFA6]/30 flex items-center justify-center text-[#00BFA6] font-bold flex-shrink-0 text-xs">
+                  <li key={i} className="flex items-start gap-3 text-[#9B96C0] text-xs">
+                    <span className="w-5 h-5 rounded-full bg-[rgba(139,92,246,0.10)] border border-[#8B5CF6]/30 flex items-center justify-center text-[#8B5CF6] font-bold flex-shrink-0 text-xs">
                       {i + 1}
                     </span>
                     {step}
@@ -181,8 +181,8 @@ export default function SignUpPage() {
                 'Patient-controlled consent & data access',
                 'HIPAA-aligned data handling',
               ].map((b) => (
-                <li key={b} className="flex items-center gap-3 text-[#7AAAC8] text-sm">
-                  <svg className="w-4 h-4 text-[#00BFA6] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li key={b} className="flex items-center gap-3 text-[#9B96C0] text-sm">
+                  <svg className="w-4 h-4 text-[#8B5CF6] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   {b}
@@ -194,26 +194,26 @@ export default function SignUpPage() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#070D1A] overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#09090F] overflow-y-auto">
         {/* Mobile logo */}
         <div className="flex lg:hidden flex-col items-center mb-8">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-12 h-12" aria-hidden="true">
-            <circle cx="48" cy="48" r="10" fill="#00BFA6" />
-            <circle cx="48" cy="48" r="26" fill="none" stroke="#00BFA6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
-            <circle cx="48" cy="48" r="42" fill="none" stroke="#00BFA6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
+            <circle cx="48" cy="48" r="10" fill="#8B5CF6" />
+            <circle cx="48" cy="48" r="26" fill="none" stroke="#8B5CF6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
+            <circle cx="48" cy="48" r="42" fill="none" stroke="#8B5CF6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
           </svg>
-          <p className="text-[#EAF4FF] font-extrabold text-2xl mt-2">Duara</p>
-          <p className="text-[#00BFA6] text-xs mt-1">Clinician Portal</p>
+          <p className="text-[#F5F0FF] font-extrabold text-2xl mt-2">Duara</p>
+          <p className="text-[#8B5CF6] text-xs mt-1">Clinician Portal</p>
         </div>
 
         <div className="w-full max-w-md">
-          <h2 className="text-[#EAF4FF] font-bold mb-1" style={{ fontSize: '28px' }}>Create your account</h2>
-          <p className="text-[#7AAAC8] text-sm mb-8">Register as a clinician to access patient dashboards.</p>
+          <h2 className="text-[#F5F0FF] font-bold mb-1" style={{ fontSize: '28px' }}>Create your account</h2>
+          <p className="text-[#9B96C0] text-sm mb-8">Register as a clinician to access patient dashboards.</p>
 
           <form onSubmit={handleSignUp} className="space-y-5" noValidate>
             {/* Full name */}
             <div>
-              <label htmlFor="full-name" className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="full-name" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                 Full name
               </label>
               <input
@@ -232,7 +232,7 @@ export default function SignUpPage() {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="email" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                 Email address
               </label>
               <input
@@ -251,7 +251,7 @@ export default function SignUpPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="password" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                 Password
               </label>
               <input
@@ -274,7 +274,7 @@ export default function SignUpPage() {
 
             {/* Confirm password */}
             <div>
-              <label htmlFor="confirm-password" className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="confirm-password" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                 Confirm password
               </label>
               <input
@@ -299,7 +299,7 @@ export default function SignUpPage() {
 
             {/* Cadre */}
             <div>
-              <label htmlFor="cadre" className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="cadre" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                 Cadre
               </label>
               <select
@@ -320,7 +320,7 @@ export default function SignUpPage() {
 
             {/* Registering body */}
             <div>
-              <label htmlFor="registering-body" className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="registering-body" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                 Registering body
               </label>
               <select
@@ -341,7 +341,7 @@ export default function SignUpPage() {
 
             {/* Licence number */}
             <div>
-              <label htmlFor="licence-number" className="block text-[#7AAAC8] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="licence-number" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
                 Licence number
               </label>
               <input
@@ -369,7 +369,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#00BFA6] text-[#070D1A] font-bold rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
+              className="w-full bg-[#8B5CF6] text-[#09090F] font-bold rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -383,9 +383,9 @@ export default function SignUpPage() {
             </button>
           </form>
 
-          <p className="text-center text-[#3D5C80] text-xs mt-8">
+          <p className="text-center text-[#504C78] text-xs mt-8">
             Already registered?{' '}
-            <Link href="/login" className="text-[#7AAAC8] font-medium hover:text-[#00BFA6] transition-colors">
+            <Link href="/login" className="text-[#9B96C0] font-medium hover:text-[#8B5CF6] transition-colors">
               Sign in
             </Link>
           </p>
