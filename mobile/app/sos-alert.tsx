@@ -22,8 +22,8 @@ function timeSince(iso: string): string {
 
 export default function SosAlertScreen() {
   const { session, profile } = useAuth();
-  const { sosId, patientName: paramName, lat, lon } = useLocalSearchParams<{
-    sosId: string; patientName: string; lat: string; lon: string;
+  const { sosId, alertId, patientName: paramName, lat, lon } = useLocalSearchParams<{
+    sosId: string; alertId?: string; patientName: string; lat: string; lon: string;
   }>();
 
   const [sosDetails, setSosDetails] = useState<{
@@ -77,6 +77,10 @@ export default function SosAlertScreen() {
     setResponding(true);
     try {
       await respondToSos(sosId, session.user.id, "I'm on my way");
+      // Immediately stop escalation-tick from dispatching ambulance
+      if (alertId) {
+        await supabase.from('alerts').update({ state: 'responded' }).eq('id', alertId);
+      }
       setMyResponse(true);
     } catch {
       // ignore — Realtime will update anyway

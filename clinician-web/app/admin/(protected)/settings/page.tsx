@@ -8,10 +8,26 @@ const TABLES = [
   'events',
   'sos_events',
   'followups',
-  'medication_logs',
+  'dose_events',
   'audit_log',
   'care_circle',
+  'feature_flags',
+  'alerts',
 ];
+
+const FLAG_META: Record<string, { label: string; sub: string }> = {
+  live_dispatch:         { label: 'Live dispatch',         sub: 'Send real ambulance requests (disables sandbox mode)' },
+  background_location:   { label: 'Background location',   sub: 'Track patient GPS in background for ambulance routing' },
+  hospital_arrival_sms:  { label: 'Hospital arrival SMS',  sub: 'Send SMS to family when patient arrives at hospital' },
+  health_kit_bridge:     { label: 'HealthKit / Google Fit', sub: 'Sync wearable data from Apple HealthKit and Google Fit' },
+  org_admin_role:        { label: 'Org admin role',        sub: 'Enable multi-facility organisation admin features' },
+};
+
+type FeatureFlag = { key: string; enabled: boolean; rollout: object | null; updated_at: string | null };
+type AuditEntry  = {
+  id: string; action: string; actor_role: string | null; actor_name: string | null;
+  resource_type: string | null; metadata: object | null; at: string;
+};
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
@@ -21,25 +37,6 @@ function Section({ title, description, children }: { title: string; description?
         {description && <p className="text-[#7AAAC8] text-sm mt-0.5">{description}</p>}
       </div>
       <div className="space-y-4">{children}</div>
-    </div>
-  );
-}
-
-function Toggle({ label, sub, checked, onChange }: { label: string; sub?: string; checked: boolean; onChange: (v: boolean) => void }) {
-  return (
-    <div className="flex items-center justify-between py-1">
-      <div>
-        <p className="text-[#EAF4FF] text-sm font-medium">{label}</p>
-        {sub && <p className="text-[#7AAAC8] text-xs mt-0.5">{sub}</p>}
-      </div>
-      <button
-        role="switch"
-        aria-checked={checked}
-        onClick={() => onChange(!checked)}
-        className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${checked ? 'bg-[#00BFA6]' : 'bg-[#1A3265]'}`}
-      >
-        <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${checked ? 'left-6' : 'left-1'}`} />
-      </button>
     </div>
   );
 }
@@ -61,22 +58,65 @@ function InfoRow({ label, value, badge }: { label: string; value: string; badge?
 type TableStatus = { name: string; ok: boolean | null };
 
 export default function AdminSettingsPage() {
-  const [saved, setSaved] = useState(false);
-  const [testEmail, setTestEmail] = useState('');
-  const [sendingTest, setSendingTest] = useState(false);
-  const [testResult, setTestResult] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  // Schema check
   const [tableStatuses, setTableStatuses] = useState<TableStatus[]>(TABLES.map((n) => ({ name: n, ok: null })));
   const [checkingSchema, setCheckingSchema] = useState(false);
 
-  // Settings toggles
-  const [sosNotify, setSosNotify] = useState(true);
-  const [eventAlerts, setEventAlerts] = useState(true);
-  const [weeklyDigest, setWeeklyDigest] = useState(true);
-  const [twoFactor, setTwoFactor] = useState(false);
+  // Test email
+  const [testEmail, setTestEmail] = useState('');
+  const [sendingTest, setSendingTest] = useState(false);
+  const [testResult, setTestResult] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+
+  // Feature flags
+  const [flags, setFlags] = useState<FeatureFlag[]>([]);
+  const [loadingFlags, setLoadingFlags] = useState(true);
+  const [togglingKey, setTogglingKey] = useState<string | null>(null);
+  const [flagError, setFlagError] = useState<string | null>(null);
+
+  // Audit log
+  const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
+  const [loadingAudit, setLoadingAudit] = useState(true);
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '(not set)';
   const env = process.env.NODE_ENV ?? 'development';
   const projectId = supabaseUrl.split('.')[0]?.replace('https://', '') ?? '—';
+  const resendConfigured = !!(process.env.RESEND_API_KEY || typeof window === 'undefined');
+
+  useEffect(() => {
+    fetch('/api/admin/feature-flags')
+      .then((r) => r.json())
+      .then((j) => setFlags(j.flags ?? []))
+      .catch(() => setFlagError('Could not load feature flags.'))
+      .finally(() => setLoadingFlags(false));
+
+    fetch('/api/admin/audit-log')
+      .then((r) => r.json())
+      .then((j) => setAuditEntries(j.entries ?? []))
+      .catch(() => {})
+      .finally(() => setLoadingAudit(false));
+  }, []);
+
+  async function toggleFlag(key: string, enabled: boolean) {
+    setTogglingKey(key);
+    setFlagError(null);
+    try {
+      const res = await fetch('/api/admin/feature-flags', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, enabled }),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        setFlagError(j.error ?? 'Toggle failed');
+      } else {
+        setFlags((prev) => prev.map((f) => f.key === key ? { ...f, enabled } : f));
+      }
+    } catch {
+      setFlagError('Network error');
+    } finally {
+      setTogglingKey(null);
+    }
+  }
 
   async function checkSchema() {
     setCheckingSchema(true);
@@ -106,11 +146,11 @@ export default function AdminSettingsPage() {
         body: JSON.stringify({ test: true, email: testEmail }),
       });
       const json = await res.json().catch(() => ({}));
-      if (res.ok) {
-        setTestResult({ type: 'success', msg: `Test email dispatched to ${testEmail}` });
-      } else {
-        setTestResult({ type: 'error', msg: json.error ?? `Request failed (${res.status})` });
-      }
+      setTestResult(
+        res.ok
+          ? { type: 'success', msg: `Test email dispatched to ${testEmail}` }
+          : { type: 'error', msg: json.error ?? `Request failed (${res.status})` }
+      );
     } catch (err: any) {
       setTestResult({ type: 'error', msg: err.message ?? 'Network error' });
     } finally {
@@ -118,40 +158,33 @@ export default function AdminSettingsPage() {
     }
   }
 
-  function handleSave() {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
+  function formatAuditAction(action: string): string {
+    switch (action) {
+      case 'view_patient':      return 'Viewed patient profile';
+      case 'view_events':       return 'Viewed health events';
+      case 'view_alerts':       return 'Viewed alerts';
+      case 'view_medications':  return 'Viewed medications';
+      case 'toggle_feature_flag': return 'Toggled feature flag';
+      case 'break_glass':       return 'Emergency access';
+      default: return action.replace(/_/g, ' ');
+    }
   }
-
-  const resendConfigured = !!(process.env.RESEND_API_KEY || typeof window === 'undefined');
 
   return (
     <div className="p-6 max-w-3xl">
-      <div className="mb-6 flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[#EAF4FF]">Platform settings</h1>
-          <p className="text-[#7AAAC8] text-sm mt-1">System configuration and diagnostics for Duara.</p>
-        </div>
-        <button
-          onClick={handleSave}
-          className="flex items-center gap-2 bg-[#00BFA6] text-[#070D1A] font-bold px-5 py-2.5 rounded-xl text-sm hover:bg-[#00A896] transition-colors"
-        >
-          {saved ? (
-            <>
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-              </svg>
-              Saved
-            </>
-          ) : 'Save changes'}
-        </button>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-[#EAF4FF]">Platform settings</h1>
+        <p className="text-[#7AAAC8] text-sm mt-1">System configuration and diagnostics for Duara.</p>
       </div>
 
       <div className="space-y-5">
         {/* System info */}
         <Section title="System information" description="Supabase project and environment details.">
           <InfoRow label="Project ID" value={projectId} badge={{ text: 'Supabase', color: 'bg-[rgba(0,191,166,0.10)] text-[#00BFA6]' }} />
-          <InfoRow label="Environment" value={env} badge={{ text: env === 'production' ? 'Live' : 'Dev', color: env === 'production' ? 'bg-[rgba(0,191,166,0.10)] text-[#00BFA6]' : 'bg-[rgba(244,184,96,0.12)] text-[#F4B860]' }} />
+          <InfoRow
+            label="Environment" value={env}
+            badge={{ text: env === 'production' ? 'Live' : 'Dev', color: env === 'production' ? 'bg-[rgba(0,191,166,0.10)] text-[#00BFA6]' : 'bg-[rgba(244,184,96,0.12)] text-[#F4B860]' }}
+          />
           <InfoRow label="Supabase URL" value={supabaseUrl.length > 40 ? supabaseUrl.slice(0, 40) + '…' : supabaseUrl} />
           <div className="flex items-center justify-between py-2.5">
             <span className="text-[#7AAAC8] text-sm">API status</span>
@@ -163,6 +196,42 @@ export default function AdminSettingsPage() {
               Operational
             </span>
           </div>
+        </Section>
+
+        {/* Feature flags */}
+        <Section title="Feature flags" description="Toggle platform capabilities. Changes take effect immediately and are audit-logged.">
+          {flagError && (
+            <div className="bg-[rgba(239,68,68,0.08)] border border-[#EF4444]/25 rounded-xl px-4 py-2.5 text-[#EF4444] text-sm mb-2">
+              {flagError}
+            </div>
+          )}
+          {loadingFlags ? (
+            <p className="text-[#7AAAC8] text-sm">Loading…</p>
+          ) : flags.length === 0 ? (
+            <p className="text-[#3D5C80] text-sm">No feature flags found. Run migration 005 to seed them.</p>
+          ) : (
+            flags.map((flag) => {
+              const meta = FLAG_META[flag.key] ?? { label: flag.key, sub: '' };
+              const busy = togglingKey === flag.key;
+              return (
+                <div key={flag.key} className="flex items-center justify-between py-1">
+                  <div>
+                    <p className="text-[#EAF4FF] text-sm font-medium">{meta.label}</p>
+                    {meta.sub && <p className="text-[#7AAAC8] text-xs mt-0.5">{meta.sub}</p>}
+                  </div>
+                  <button
+                    role="switch"
+                    aria-checked={flag.enabled}
+                    disabled={busy}
+                    onClick={() => toggleFlag(flag.key, !flag.enabled)}
+                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 disabled:opacity-60 ${flag.enabled ? 'bg-[#00BFA6]' : 'bg-[#1A3265]'}`}
+                  >
+                    <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${flag.enabled ? 'left-6' : 'left-1'}`} />
+                  </button>
+                </div>
+              );
+            })
+          )}
         </Section>
 
         {/* Schema status */}
@@ -186,11 +255,9 @@ export default function AdminSettingsPage() {
               <div
                 key={t.name}
                 className={`flex items-center justify-between rounded-xl px-3 py-2.5 border ${
-                  t.ok === null
-                    ? 'border-[#1A3265] bg-[#0F2040]'
-                    : t.ok
-                    ? 'border-[#00BFA6]/20 bg-[rgba(0,191,166,0.06)]'
-                    : 'border-[#EF4444]/20 bg-[rgba(239,68,68,0.06)]'
+                  t.ok === null ? 'border-[#1A3265] bg-[#0F2040]'
+                  : t.ok ? 'border-[#00BFA6]/20 bg-[rgba(0,191,166,0.06)]'
+                  : 'border-[#EF4444]/20 bg-[rgba(239,68,68,0.06)]'
                 }`}
               >
                 <span className="text-[#7AAAC8] text-xs font-mono">{t.name}</span>
@@ -206,7 +273,7 @@ export default function AdminSettingsPage() {
           </div>
         </Section>
 
-        {/* SMTP / Resend status */}
+        {/* Email */}
         <Section title="Email (Resend)" description="Status of the transactional email integration.">
           <div className="flex items-center justify-between py-1">
             <div>
@@ -259,12 +326,31 @@ export default function AdminSettingsPage() {
           </form>
         </Section>
 
-        {/* Notification toggles */}
-        <Section title="Notifications" description="Platform-wide automated email notification settings.">
-          <Toggle label="SOS alerts" sub="Notify clinicians when a patient triggers SOS." checked={sosNotify} onChange={setSosNotify} />
-          <Toggle label="New event alerts" sub="Notify clinicians when a patient logs a high-severity event." checked={eventAlerts} onChange={setEventAlerts} />
-          <Toggle label="Weekly digest" sub="Send clinicians a Sunday summary of their patients' week." checked={weeklyDigest} onChange={setWeeklyDigest} />
-          <Toggle label="Require two-factor authentication" sub="Clinicians must set up 2FA before accessing patient data." checked={twoFactor} onChange={setTwoFactor} />
+        {/* Audit log viewer */}
+        <Section title="Audit log" description="Last 50 platform events across all patients.">
+          {loadingAudit ? (
+            <p className="text-[#7AAAC8] text-sm">Loading…</p>
+          ) : auditEntries.length === 0 ? (
+            <p className="text-[#3D5C80] text-sm">No audit entries yet.</p>
+          ) : (
+            <div className="divide-y divide-[#1A3265]">
+              {auditEntries.map((entry) => (
+                <div key={entry.id} className="flex items-start justify-between py-3 gap-4">
+                  <div className="min-w-0">
+                    <p className="text-[#EAF4FF] text-sm font-medium">{formatAuditAction(entry.action)}</p>
+                    <p className="text-[#7AAAC8] text-xs mt-0.5">
+                      {entry.actor_name ?? 'System'}
+                      {entry.actor_role ? ` · ${entry.actor_role}` : ''}
+                      {entry.resource_type ? ` · ${entry.resource_type}` : ''}
+                    </p>
+                  </div>
+                  <span className="text-[#3D5C80] text-xs whitespace-nowrap flex-shrink-0">
+                    {new Date(entry.at).toLocaleString('en-KE', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </Section>
 
         {/* Danger zone */}

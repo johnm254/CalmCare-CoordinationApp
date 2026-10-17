@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking,
+  View, Text, ScrollView, TouchableOpacity, StyleSheet, Linking, ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
@@ -35,6 +35,29 @@ function SectionHeader({ title }: { title: string }) {
   return <Text style={styles.sectionLabel}>{title}</Text>;
 }
 
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type AuditEntry = {
+  id: string;
+  action: string;
+  actor_role: string | null;
+  resource_type: string | null;
+  at: string;
+};
+
+function formatAuditAction(action: string, actorRole: string | null): string {
+  const role = actorRole === 'clinician' ? 'Clinician' : actorRole === 'admin' ? 'Admin' : 'System';
+  switch (action) {
+    case 'view_patient': return `${role} viewed your profile`;
+    case 'view_events': return `${role} viewed your health events`;
+    case 'view_alerts': return `${role} viewed your alerts`;
+    case 'view_medications': return `${role} viewed your medications`;
+    case 'view_followups': return `${role} viewed your follow-ups`;
+    case 'break_glass': return `${role} used emergency access`;
+    default: return `${role}: ${action.replace(/_/g, ' ')}`;
+  }
+}
+
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function MeScreen() {
@@ -42,6 +65,22 @@ export default function MeScreen() {
   const [crisisLines] = useState([
     { name: 'Befrienders Kenya', phone: '+254722178177' },
   ]);
+  const [showLog, setShowLog] = useState(false);
+  const [auditLog, setAuditLog] = useState<AuditEntry[]>([]);
+  const [loadingLog, setLoadingLog] = useState(false);
+
+  async function loadAuditLog() {
+    if (!session?.user) return;
+    setLoadingLog(true);
+    const { data } = await supabase
+      .from('audit_log')
+      .select('id, action, actor_role, resource_type, at')
+      .eq('patient_id', session.user.id)
+      .order('at', { ascending: false })
+      .limit(20);
+    setAuditLog(data ?? []);
+    setLoadingLog(false);
+  }
 
   const initials = (profile?.full_name ?? 'U')
     .split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -102,7 +141,43 @@ export default function MeScreen() {
         {/* Account */}
         <SectionHeader title="ACCOUNT" />
         <View style={styles.card}>
-          <MenuRow label="Activity log" sublabel="Who viewed your data" onPress={() => {}} />
+          <TouchableOpacity
+            style={styles.row}
+            onPress={() => {
+              if (!showLog) loadAuditLog();
+              setShowLog((v) => !v);
+            }}
+            accessibilityRole="button"
+          >
+            <View style={styles.rowTextWrap}>
+              <Text style={styles.rowLabel}>Activity log</Text>
+              <Text style={styles.rowSublabel}>Who viewed your data</Text>
+            </View>
+            <View style={{ width: 8, height: 8, borderRightWidth: 2, borderTopWidth: 2, borderColor: colors.textMuted, transform: [{ rotate: showLog ? '135deg' : '45deg' }] }} />
+          </TouchableOpacity>
+          {showLog && (
+            <View style={styles.logContainer}>
+              {loadingLog ? (
+                <ActivityIndicator size="small" color={colors.teal} style={{ marginVertical: 12 }} />
+              ) : auditLog.length === 0 ? (
+                <Text style={styles.logEmpty}>No access events recorded yet.</Text>
+              ) : (
+                auditLog.map((entry) => (
+                  <View key={entry.id} style={styles.logEntry}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.logAction}>{formatAuditAction(entry.action, entry.actor_role)}</Text>
+                      {entry.resource_type ? (
+                        <Text style={styles.logResource}>{entry.resource_type}</Text>
+                      ) : null}
+                    </View>
+                    <Text style={styles.logTime}>
+                      {new Date(entry.at).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' })}
+                    </Text>
+                  </View>
+                ))
+              )}
+            </View>
+          )}
           <View style={styles.divider} />
           <MenuRow label="Export my data" sublabel="Kenya DPA right" onPress={() => {}} />
           <View style={styles.divider} />
@@ -249,5 +324,40 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     fontSize: fonts.xs,
     marginTop: spacing.xl,
+  },
+
+  logContainer: {
+    borderTopWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  logEntry: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    paddingVertical: 5,
+  },
+  logAction: {
+    fontSize: fonts.sm,
+    color: colors.text,
+    fontWeight: '500',
+  },
+  logResource: {
+    fontSize: fonts.xs,
+    color: colors.textMuted,
+    marginTop: 1,
+  },
+  logTime: {
+    fontSize: fonts.xs,
+    color: colors.textMuted,
+    flexShrink: 0,
+    marginLeft: spacing.sm,
+  },
+  logEmpty: {
+    fontSize: fonts.sm,
+    color: colors.textMuted,
+    textAlign: 'center',
+    paddingVertical: spacing.md,
   },
 });
