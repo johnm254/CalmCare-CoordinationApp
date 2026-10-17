@@ -212,9 +212,10 @@ export default function RootLayout() {
       if (data?.type === 'sos_alert' && data.sos_id) {
         const params = new URLSearchParams({
           sosId: data.sos_id,
-          patientName: data.patient_name ?? '',
-          lat: data.location_lat ?? '',
-          lon: data.location_lon ?? '',
+          ...(data.alert_id    ? { alertId:     data.alert_id }    : {}),
+          ...(data.patient_name ? { patientName: data.patient_name } : {}),
+          ...(data.location_lat ? { lat:         data.location_lat } : {}),
+          ...(data.location_lon ? { lon:         data.location_lon } : {}),
         });
         router.push(`/sos-alert?${params.toString()}`);
       }
