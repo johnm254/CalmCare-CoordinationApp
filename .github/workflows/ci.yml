@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install root deps
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check clinician-web
+        working-directory: clinician-web
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm type-check
+
+      - name: Type-check mobile
+        working-directory: mobile
+        run: |
+          pnpm install --frozen-lockfile
+          npx tsc --noEmit
+
+  rls-tests:
+    name: RLS / pgTAP
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase
+        run: supabase start --workdir supabase
+
+      - name: Run pgTAP tests
+        run: supabase test db --workdir supabase
+
+      - name: Stop local Supabase
+        if: always()
+        run: supabase stop --workdir supabase
+
+  service-key-check:
+    name: No service key in bundles
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Grep for service_role key patterns
+        run: |
+          if grep -r --include="*.ts" --include="*.tsx" --include="*.js" \
+               -l "service_role" \
+               clinician-web/app mobile/app 2>/dev/null | grep -v "\.test\." | grep -v "__tests__"; then
+            echo "ERROR: service_role key found in client bundle sources" >&2
+            exit 1
+          fi
+          echo "OK: no service_role key in client sources"

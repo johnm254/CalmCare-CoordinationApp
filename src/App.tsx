@@ -4,7 +4,7 @@ import { supabase } from "./lib/supabase";
 type IconName =
   | "home" | "pulse" | "users" | "file" | "bell" | "shield" | "pill"
   | "mic" | "check" | "arrow" | "plus" | "camera" | "image" | "close"
-  | "upload" | "doc" | "trash" | "map" | "locate" | "heart" | "clock";
+  | "upload" | "doc" | "trash" | "map" | "locate" | "heart" | "clock" | "power";
 
 function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, React.ReactNode> = {
@@ -29,6 +29,7 @@ function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
     locate: <><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></>,
     heart: <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>,
     clock: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,
+    power: <><path d="M12 2v8"/><path d="M4.93 4.93a10 10 0 1 0 14.14 0"/></>,
   };
   return (
     <svg
@@ -94,6 +95,16 @@ function StatusBanner({ state }: { state: string }) {
   );
 }
 
+function DuaraRing() {
+  return (
+    <svg viewBox="0 0 64 64" width={64} height={64} fill="none" style={{ flexShrink: 0 }}>
+      <circle cx="32" cy="32" r="26" stroke="#3DD6B5" strokeWidth="5" />
+      <circle cx="32" cy="32" r="14" stroke="#3DD6B5" strokeWidth="4" strokeOpacity={0.45} />
+      <circle cx="32" cy="32" r="5" fill="#3DD6B5" />
+    </svg>
+  );
+}
+
 function PatientHome({
   onSos,
   navigate,
@@ -116,63 +127,39 @@ function PatientHome({
 
   return (
     <div className="phone dark">
-      {/* Gradient hero header */}
-      <div className="hero-gradient">
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
-          <img
-            src="https://i.pravatar.cc/150?img=5"
-            alt="Amina"
-            className="avatar-img"
-            style={{ width: 48, height: 48 }}
-          />
-          <div style={{ flex: 1 }}>
-            <span style={{ color: "#9DB6B4", fontSize: 13 }}>Good evening</span>
-            <h1 style={{ fontSize: 20, margin: "2px 0 0", fontWeight: 800, letterSpacing: "-0.4px", color: "#EAF4F1" }}>
-              Amina Wanjiku
-            </h1>
-          </div>
-          <button className="icon-button" aria-label="Notifications">
-            <Icon name="bell" />
-          </button>
+      <header className="patient-head">
+        <div className="init-avatar">E</div>
+        <div style={{ flex: 1 }}>
+          <span style={{ color: "#9DB6B4", fontSize: 13 }}>Good evening</span>
+          <h1 style={{ fontSize: 20, margin: "2px 0 0", fontWeight: 800, letterSpacing: "-0.4px", color: "#EAF4F1" }}>
+            Your care, your control
+          </h1>
         </div>
-
-        {/* Stats row */}
-        <div className="stat-row">
-          <div className="stat-pill">
-            <Icon name="pulse" size={12} /> 2 Events this week
-          </div>
-          <div className="stat-pill">
-            <Icon name="check" size={12} /> 5 Days adherence
-          </div>
-          <div className="stat-pill">
-            <Icon name="users" size={12} /> 3 Contacts
-          </div>
-        </div>
-      </div>
+        <button className="icon-button" aria-label="Notifications">
+          <Icon name="bell" />
+        </button>
+      </header>
 
       <main className="mobile-content">
-        {/* Protection card with teal accent */}
-        <section className="card protection protection-accent">
-          <div className="status-ring">
-            <Icon name="shield" size={34} />
-          </div>
+        <section className="card protection">
+          <DuaraRing />
           <div>
             <div className="eyebrow jade">Protected</div>
             <h2>Your Circle is active</h2>
-            <p>Trusted contacts are ready when you need them.</p>
+            <p>Trusted contacts are ready to be alerted the moment you need them.</p>
           </div>
         </section>
 
-        {/* SOS button with pulse animation */}
         <button className="sos-button sos-button-pulse" onClick={onSos}>
           <div>
             <strong>Hold to send SOS</strong>
             <span>Alerts your Circle with live location</span>
           </div>
-          <span className="sos-icon">!</span>
+          <div className="sos-icon">
+            <Icon name="power" size={22} />
+          </div>
         </button>
 
-        {/* Medication card with checkmark feedback */}
         <section className="card medication">
           <div className="icon-tile">
             <Icon name="pill" />
@@ -216,29 +203,21 @@ function PatientHome({
       <nav className="bottom-nav">
         {(
           [
-            ["home", "Home"],
-            ["pulse", "Insights"],
-            ["users", "Circle"],
-            ["file", "Records"],
-          ] as [IconName, string][]
-        ).map(([icon, label]) => {
-          const targetScreen =
-            label === "Home" ? "home"
-            : label === "Insights" ? "insights"
-            : label === "Circle" ? "circle"
-            : "records";
-          const isActive = activeTab === targetScreen;
-          return (
-            <button
-              key={label}
-              className={isActive ? "selected" : ""}
-              onClick={() => navigate(targetScreen)}
-            >
-              <Icon name={icon} />
-              <span>{label}</span>
-            </button>
-          );
-        })}
+            ["home", "Home", "home"],
+            ["pulse", "Health", "insights"],
+            ["users", "Circle", "circle"],
+            ["file", "Records", "records"],
+          ] as [IconName, string, string][]
+        ).map(([icon, label, target]) => (
+          <button
+            key={label}
+            className={activeTab === target ? "selected" : ""}
+            onClick={() => navigate(target)}
+          >
+            <Icon name={icon} />
+            <span>{label}</span>
+          </button>
+        ))}
       </nav>
     </div>
   );
@@ -246,6 +225,13 @@ function PatientHome({
 
 function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDispatch: () => void }) {
   const [sent, setSent] = useState(false);
+  const [count, setCount] = useState(5);
+
+  useEffect(() => {
+    if (sent) return;
+    const t = setInterval(() => setCount(c => Math.max(0, c - 1)), 1000);
+    return () => clearInterval(t);
+  }, [sent]);
 
   const handleSend = () => {
     setSent(true);
@@ -259,9 +245,12 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
           status: "sent",
         })
     ).catch(() => undefined);
-    // Navigate to ambulance screen after brief delay
     setTimeout(() => onDispatch(), 800);
   };
+
+  const radius = 78;
+  const circumference = 2 * Math.PI * radius;
+  const dashoffset = circumference * (1 - count / 5);
 
   if (sent) {
     return (
@@ -284,12 +273,33 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
       <div className="eyebrow coral">
         <span className="dot coral-bg" /> SOS
       </div>
-      <div className="countdown">
-        <strong>5</strong>
-        <span>seconds</span>
+
+      <div className="countdown-wrap">
+        <svg viewBox="0 0 200 200" width={190} height={190}>
+          <circle cx="100" cy="100" r={radius} fill="none" stroke="#1e3540" strokeWidth={12} />
+          <circle
+            cx="100"
+            cy="100"
+            r={radius}
+            fill="none"
+            stroke="#FF6B6B"
+            strokeWidth={12}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={dashoffset}
+            transform="rotate(-90 100 100)"
+            style={{ transition: "stroke-dashoffset 1s linear" }}
+          />
+        </svg>
+        <div className="countdown-label">
+          <strong>{count}</strong>
+          <span>seconds</span>
+        </div>
       </div>
+
       <h1>Sending your SOS</h1>
       <p>Your emergency contacts will be alerted with your live location.</p>
+
       <section className="card compact-list">
         <div>
           <span>
@@ -313,6 +323,7 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
           <b>3</b>
         </div>
       </section>
+
       <div className="sos-actions">
         <Button tone="danger" onClick={handleSend}>
           Send now
@@ -396,16 +407,15 @@ function CircleScreen({ back }: { back: () => void }) {
         <h1>Care Circle</h1>
       </header>
       <main className="mobile-content">
-        <p className="intro">You decide who sees what. You can remove access at any time.</p>
+        <p className="intro">
+          You decide who sees what. Changes apply the next time their phone syncs, and you can
+          remove access at any time.
+        </p>
         <section className="card person-card">
           <div className="person">
-            <img
-              src="https://i.pravatar.cc/150?img=47"
-              alt="Wambui Njoroge"
-              className="avatar-img"
-            />
+            <div className="letter-avatar">A</div>
             <div>
-              <h2>Wambui Njoroge</h2>
+              <h2>Contact A</h2>
               <p>Caregiver · emergency contact</p>
             </div>
             <span className="chip">{toggles.filter(Boolean).length} of 5</span>
@@ -428,19 +438,15 @@ function CircleScreen({ back }: { back: () => void }) {
           ))}
         </section>
         <section className="card person collapsed">
-          <img
-            src="https://i.pravatar.cc/150?img=12"
-            alt="David Ochieng"
-            className="avatar-img"
-          />
-          <div>
-            <h2>David Ochieng</h2>
+          <div className="letter-avatar">B</div>
+          <div style={{ flex: 1 }}>
+            <h2>Contact B</h2>
             <p>Family · emergency contact</p>
           </div>
           <span className="chip muted-chip">1 of 5</span>
         </section>
         <Button tone="outline" className="full">
-          See who viewed what
+          <Icon name="clock" size={16} /> See who viewed what
         </Button>
         <Button className="full">Invite someone</Button>
       </main>
@@ -469,6 +475,10 @@ function Insights({ back }: { back: () => void }) {
         <section className="card insight">
           <div className="eyebrow jade">This week</div>
           <h2>You logged 2 events. Both came after a late or missed evening dose.</h2>
+          <div className="insight-actions">
+            <button className="insight-btn">Set an earlier reminder</button>
+            <button className="insight-btn">See the logs</button>
+          </div>
           <p>
             Built from <u>2 event logs</u> and <u>7 medication check-ins</u>. This is a pattern, not
             a diagnosis.

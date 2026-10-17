@@ -41,6 +41,24 @@
 @keyframes sos-pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,107,.55)}50%{box-shadow:0 0 0 14px rgba(255,107,107,0)}}
 .sos-button-pulse{animation:sos-pulse 1.8s infinite}
 
+/* Patient home header */
+.patient-head{display:flex;align-items:center;gap:12px;padding:24px 20px 16px}
+.init-avatar{width:44px;height:44px;border-radius:14px;background:#183239;color:#3DD6B5;display:grid;place-items:center;font-weight:800;font-size:18px;flex:none}
+
+/* Letter avatar for care circle contacts */
+.letter-avatar{width:48px;height:48px;border-radius:50%;background:#183239;color:#3DD6B5;display:grid;place-items:center;font-weight:800;font-size:18px;flex:none}
+
+/* SVG countdown arc */
+.countdown-wrap{position:relative;width:190px;height:190px;margin:24px auto 18px;display:flex;align-items:center;justify-content:center}
+.countdown-label{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.countdown-label strong{font-size:72px;line-height:1;color:#EAF4F1;font-weight:800}
+.countdown-label span{color:#9DB6B4;font-size:15px;margin-top:2px}
+
+/* Insight action buttons */
+.insight-actions{display:flex;gap:10px;margin:14px 0 10px;flex-wrap:wrap}
+.insight-btn{border:1px solid rgba(61,214,181,.35);background:transparent;color:#3DD6B5;border-radius:99px;padding:10px 16px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.insight-btn:hover{background:rgba(61,214,181,.1)}
+
 /* Hero gradient for PatientHome header */
 .hero-gradient{background:linear-gradient(135deg,#0B2A35 0%,#0E4A42 100%);padding:28px 20px 20px;position:relative}
 .hero-gradient .mobile-head{padding:0;margin-bottom:16px}
