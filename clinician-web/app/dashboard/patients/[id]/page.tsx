@@ -139,9 +139,6 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             <span className="bg-[rgba(139,92,246,0.10)] text-[#8B5CF6] text-xs font-semibold px-3 py-1.5 rounded-full border border-[#8B5CF6]/20">
               Active Patient
             </span>
-            <button className="border border-[#2E2B50] text-[#9B96C0] text-sm font-medium px-4 py-2 rounded-xl hover:bg-[#1C1A35] transition-colors">
-              Edit
-            </button>
           </div>
         </div>
       </div>

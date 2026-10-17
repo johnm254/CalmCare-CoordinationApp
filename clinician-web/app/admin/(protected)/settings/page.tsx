@@ -77,6 +77,10 @@ export default function AdminSettingsPage() {
   const [auditEntries, setAuditEntries] = useState<AuditEntry[]>([]);
   const [loadingAudit, setLoadingAudit] = useState(true);
 
+  // Danger zone
+  const [dangerLoading, setDangerLoading] = useState<string | null>(null);
+  const [dangerResult, setDangerResult] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '(not set)';
   const env = process.env.NODE_ENV ?? 'development';
   const projectId = supabaseUrl.split('.')[0]?.replace('https://', '') ?? '—';
@@ -155,6 +159,33 @@ export default function AdminSettingsPage() {
       setTestResult({ type: 'error', msg: err.message ?? 'Network error' });
     } finally {
       setSendingTest(false);
+    }
+  }
+
+  async function runDangerAction(action: string, confirmMsg: string) {
+    if (!window.confirm(confirmMsg)) return;
+    setDangerLoading(action);
+    setDangerResult(null);
+    try {
+      const res = await fetch('/api/admin/danger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok) {
+        const msg = action === 'purge_audit_log'
+          ? 'Audit log purged (entries older than 30 days deleted).'
+          : `All sessions revoked (${json.revoked ?? 0} users signed out).`;
+        setDangerResult({ type: 'success', msg });
+        if (action === 'purge_audit_log') setAuditEntries([]);
+      } else {
+        setDangerResult({ type: 'error', msg: json.error ?? 'Action failed' });
+      }
+    } catch {
+      setDangerResult({ type: 'error', msg: 'Network error' });
+    } finally {
+      setDangerLoading(null);
     }
   }
 
@@ -357,12 +388,29 @@ export default function AdminSettingsPage() {
         <div className="bg-[rgba(239,68,68,0.04)] border border-[#EF4444]/20 rounded-2xl p-5">
           <h2 className="text-[#EF4444] font-bold text-sm mb-1">Danger zone</h2>
           <p className="text-[#9B96C0] text-xs mb-4">These actions are irreversible. Proceed with caution.</p>
+          {dangerResult && (
+            <div className={`mb-4 px-4 py-2.5 rounded-xl text-sm border ${
+              dangerResult.type === 'success'
+                ? 'bg-[rgba(16,185,129,0.08)] border-[#10B981]/30 text-[#10B981]'
+                : 'bg-[rgba(239,68,68,0.08)] border-[#EF4444]/30 text-[#EF4444]'
+            }`}>
+              {dangerResult.msg}
+            </div>
+          )}
           <div className="flex flex-wrap gap-3">
-            <button className="px-4 py-2 rounded-xl border border-[#EF4444]/40 text-[#EF4444] text-sm font-semibold hover:bg-[#EF4444]/10 transition-colors">
-              Purge audit log
+            <button
+              onClick={() => runDangerAction('purge_audit_log', 'This will permanently delete all audit log entries older than 30 days. Continue?')}
+              disabled={dangerLoading !== null}
+              className="px-4 py-2 rounded-xl border border-[#EF4444]/40 text-[#EF4444] text-sm font-semibold hover:bg-[#EF4444]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {dangerLoading === 'purge_audit_log' ? 'Purging…' : 'Purge audit log'}
             </button>
-            <button className="px-4 py-2 rounded-xl border border-[#EF4444]/40 text-[#EF4444] text-sm font-semibold hover:bg-[#EF4444]/10 transition-colors">
-              Revoke all sessions
+            <button
+              onClick={() => runDangerAction('revoke_all_sessions', 'This will immediately sign out ALL users across the platform. They will need to log in again. Continue?')}
+              disabled={dangerLoading !== null}
+              className="px-4 py-2 rounded-xl border border-[#EF4444]/40 text-[#EF4444] text-sm font-semibold hover:bg-[#EF4444]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {dangerLoading === 'revoke_all_sessions' ? 'Revoking…' : 'Revoke all sessions'}
             </button>
           </div>
         </div>
