@@ -150,7 +150,7 @@ Helper functions: `is_verified_clinician`, `has_grant`, `is_emergency_contact`, 
 | ID | Status | Where | Missing |
 |---|---|---|---|
 | CR-CLIN-01 | partial | `clinician-web/app/signup/`, `mfa-setup/`, `mfa-verify/`, `verification-pending/` | Sign-up with licence number exists; MFA screens exist; verification-pending page exists; no test that unverified clinician sees nothing; no licence-expiry reminder |
-| CR-CLIN-02 | partial | `clinician-web/app/dashboard/patients/page.tsx` | Patient list exists; no urgency sort (critical → warning → missed dose → low adherence → unworn strap) |
+| CR-CLIN-02 | partial | `clinician-web/app/dashboard/patients/page.tsx` (Phase 3) | Urgency sort implemented: critical alert → warning alert → events this week → follow-up → stable; red dot on avatar for score ≥3; "N need attention" counter; no adherence % or unworn-strap tiers yet (no BLE) |
 | CR-CLIN-03 | partial | `clinician-web/app/dashboard/patients/[id]/page.tsx` | Patient overview; granted categories not greyed when not granted; no vital charts with limit lines; no motion events; no mood/sleep section |
 | CR-CLIN-04 | missing | `ecg_recordings` table exists | No ECG strip viewer (25 mm/s grid, zoom, gain); no "mark reviewed with note" UI |
 | CR-CLIN-05 | partial | `app/dashboard/patients/[id]/alert-rules/` | RuleEditor component exists; no "would have fired N times in 7 days" preview; no test |
@@ -166,7 +166,7 @@ Helper functions: `is_verified_clinician`, `has_grant`, `is_emergency_contact`, 
 |---|---|---|---|
 | CR-ADM-01 | partial | `clinician-web/app/admin/`, `lib/supabase-admin.ts` | Admin section exists; MFA enforcement in place; no IP allowlist; every action NOT yet fully audited |
 | CR-ADM-02 | partial | `clinician-web/app/admin/(protected)/page.tsx` | Admin overview page exists; no system-health metrics; no "Dispatch not live" banner |
-| CR-ADM-03 | partial | `clinician-web/app/admin/(protected)/clinicians/page.tsx` | Clinician list + invite; no verification queue (approve/reject with evidence); no register-lookup integration |
+| CR-ADM-03 | partial | `clinician-web/app/admin/(protected)/clinicians/page.tsx` + `/api/admin/verifications` (Phase 3) | Verification queue tab: pending badge count, approve/reject with notes modal, evidence link; `verified` field now reads `clinician_verifications` table; no KMPDC register-API lookup |
 | CR-ADM-04 | partial | `organisations`, `org_members` tables | Tables + RLS exist; no admin UI to manage orgs or clinic manager role |
 | CR-ADM-05 | partial | `approved_addon_models`, `firmware_releases` tables | Tables exist; no admin UI; no firmware upload/staged-rollout UI |
 | CR-ADM-06 | partial | `emergency_providers` table (Kenya 999/112 seeded, sandbox) | Table seeded; no admin UI for routing; no test-call button; no sandbox/live switch UI |

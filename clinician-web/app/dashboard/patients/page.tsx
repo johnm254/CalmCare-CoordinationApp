@@ -4,10 +4,37 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { createClient } from '../../../lib/supabase-browser';
 
-function StatusPill({ eventsThisWeek, openFollowups }: { eventsThisWeek: number; openFollowups: number }) {
-  if (eventsThisWeek > 0)
+// Urgency score — higher = shown first
+// 4: critical open alert   3: warning open alert
+// 2: events this week      1: open follow-up       0: stable
+function urgencyScore(p: PatientRow): number {
+  if (p.critical_alerts > 0) return 4;
+  if (p.warning_alerts > 0) return 3;
+  if (p.events_this_week > 0) return 2;
+  if (p.open_followups > 0) return 1;
+  return 0;
+}
+
+type PatientRow = {
+  id: string;
+  full_name: string;
+  email: string;
+  initials: string;
+  events_this_week: number;
+  open_followups: number;
+  critical_alerts: number;
+  warning_alerts: number;
+};
+
+function UrgencyPill({ patient }: { patient: PatientRow }) {
+  const score = urgencyScore(patient);
+  if (score === 4)
+    return <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[rgba(239,68,68,0.15)] text-[#EF4444] border border-[#EF4444]/20">Critical</span>;
+  if (score === 3)
+    return <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[rgba(244,184,96,0.15)] text-[#F4B860] border border-[#F4B860]/20">Warning</span>;
+  if (score === 2)
     return <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[rgba(239,68,68,0.10)] text-[#EF4444]">Review</span>;
-  if (openFollowups > 0)
+  if (score === 1)
     return <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[rgba(244,184,96,0.10)] text-[#F4B860]">Follow-up</span>;
   return <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[rgba(0,191,166,0.10)] text-[#00BFA6]">Stable</span>;
 }
@@ -22,8 +49,7 @@ function LinkInstructionsModal({ onClose }: { onClose: () => void }) {
             <h2 className="text-[#EAF4FF] font-bold text-lg">Link a patient</h2>
             <p className="text-[#7AAAC8] text-sm mt-1">Patients initiate the link from the Duara mobile app.</p>
           </div>
-          <button
-            onClick={onClose}
+          <button onClick={onClose}
             className="w-8 h-8 rounded-lg bg-[#0F2040] flex items-center justify-center text-[#7AAAC8] hover:text-[#EAF4FF] transition-colors flex-shrink-0"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -31,7 +57,6 @@ function LinkInstructionsModal({ onClose }: { onClose: () => void }) {
             </svg>
           </button>
         </div>
-
         <div className="space-y-4">
           {[
             { step: '1', text: 'Ask your patient to open the Duara mobile app and go to Care Circle.' },
@@ -47,15 +72,12 @@ function LinkInstructionsModal({ onClose }: { onClose: () => void }) {
             </div>
           ))}
         </div>
-
         <div className="mt-6 bg-[#0F2040] border border-[#1A3265] rounded-xl px-4 py-3">
           <p className="text-[#3D5C80] text-xs">
             Patient consent is required before any data is shared. Links are revocable by the patient at any time.
           </p>
         </div>
-
-        <button
-          onClick={onClose}
+        <button onClick={onClose}
           className="mt-5 w-full bg-[#00BFA6] text-[#070D1A] font-bold py-2.5 rounded-xl text-sm hover:bg-[#00A896] transition-colors"
         >
           Got it
@@ -66,7 +88,7 @@ function LinkInstructionsModal({ onClose }: { onClose: () => void }) {
 }
 
 export default function PatientsPage() {
-  const [patients, setPatients] = useState<any[]>([]);
+  const [patients, setPatients] = useState<PatientRow[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [showLinkModal, setShowLinkModal] = useState(false);
@@ -87,32 +109,57 @@ export default function PatientsPage() {
 
       const patientIds = (links ?? []).map((l: any) => l.patient_id);
 
-      const { data: events } = patientIds.length
-        ? await supabase.from('events').select('patient_id, severity').in('patient_id', patientIds).gte('occurred_at', weekAgo)
-        : { data: [] };
+      const [eventsRes, followupsRes, alertsRes] = await Promise.all([
+        patientIds.length
+          ? supabase.from('events').select('patient_id, severity').in('patient_id', patientIds).gte('occurred_at', weekAgo)
+          : Promise.resolve({ data: [] }),
 
-      const { data: followups } = patientIds.length
-        ? await supabase.from('followups').select('patient_id').in('patient_id', patientIds).eq('status', 'open').eq('clinician_id', user.id)
-        : { data: [] };
+        patientIds.length
+          ? supabase.from('followups').select('patient_id').in('patient_id', patientIds).eq('status', 'open').eq('clinician_id', user.id)
+          : Promise.resolve({ data: [] }),
 
+        // Open alerts — not resolved/cancelled/false_alarm
+        patientIds.length
+          ? supabase.from('alerts').select('patient_id, severity')
+              .in('patient_id', patientIds)
+              .not('state', 'in', '("resolved","cancelled","false_alarm")')
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      // Aggregate
       const eventsByPatient: Record<string, number> = {};
-      (events ?? []).forEach((e: any) => {
+      (eventsRes.data ?? []).forEach((e: any) => {
         eventsByPatient[e.patient_id] = (eventsByPatient[e.patient_id] ?? 0) + 1;
       });
 
       const followupsByPatient: Record<string, number> = {};
-      (followups ?? []).forEach((f: any) => {
+      (followupsRes.data ?? []).forEach((f: any) => {
         followupsByPatient[f.patient_id] = (followupsByPatient[f.patient_id] ?? 0) + 1;
       });
 
-      const result = (links ?? []).map((l: any) => ({
+      const criticalAlertsByPatient: Record<string, number> = {};
+      const warningAlertsByPatient: Record<string, number> = {};
+      (alertsRes.data ?? []).forEach((a: any) => {
+        if (a.severity === 'critical') {
+          criticalAlertsByPatient[a.patient_id] = (criticalAlertsByPatient[a.patient_id] ?? 0) + 1;
+        } else if (a.severity === 'warning') {
+          warningAlertsByPatient[a.patient_id] = (warningAlertsByPatient[a.patient_id] ?? 0) + 1;
+        }
+      });
+
+      const result: PatientRow[] = (links ?? []).map((l: any) => ({
         id: l.patient_id,
         full_name: l.profiles?.full_name ?? 'Unknown',
         email: l.profiles?.email ?? '',
         initials: (l.profiles?.full_name ?? 'U').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase(),
         events_this_week: eventsByPatient[l.patient_id] ?? 0,
         open_followups: followupsByPatient[l.patient_id] ?? 0,
+        critical_alerts: criticalAlertsByPatient[l.patient_id] ?? 0,
+        warning_alerts: warningAlertsByPatient[l.patient_id] ?? 0,
       }));
+
+      // Sort by urgency score descending
+      result.sort((a, b) => urgencyScore(b) - urgencyScore(a));
 
       setPatients(result);
       setLoading(false);
@@ -125,6 +172,8 @@ export default function PatientsPage() {
     p.email.toLowerCase().includes(search.toLowerCase())
   );
 
+  const criticalCount = patients.filter((p) => urgencyScore(p) >= 3).length;
+
   return (
     <div className="p-8">
       {/* Page header */}
@@ -134,6 +183,11 @@ export default function PatientsPage() {
           {!loading && (
             <span className="bg-[rgba(0,191,166,0.10)] text-[#00BFA6] text-xs font-semibold px-2.5 py-1 rounded-full border border-[#00BFA6]/20">
               {filtered.length}
+            </span>
+          )}
+          {!loading && criticalCount > 0 && (
+            <span className="bg-[rgba(239,68,68,0.12)] text-[#EF4444] text-xs font-semibold px-2.5 py-1 rounded-full border border-[#EF4444]/20">
+              {criticalCount} need attention
             </span>
           )}
         </div>
@@ -176,8 +230,7 @@ export default function PatientsPage() {
         </div>
       ) : (
         <div className="bg-[#0D1B35] border border-[#1A3265] rounded-2xl overflow-hidden">
-          {/* Table header */}
-          <div className="grid grid-cols-[1fr_160px_100px_120px_80px] px-6 py-3.5 border-b border-[#1A3265] text-[#3D5C80] text-xs font-semibold uppercase tracking-widest">
+          <div className="grid grid-cols-[1fr_160px_100px_130px_80px] px-6 py-3.5 border-b border-[#1A3265] text-[#3D5C80] text-xs font-semibold uppercase tracking-widest">
             <span>Name</span>
             <span>Email</span>
             <span>Events / Week</span>
@@ -185,16 +238,20 @@ export default function PatientsPage() {
             <span />
           </div>
 
-          {/* Table rows */}
           {filtered.map((patient, i) => (
             <div
               key={patient.id}
-              className={`grid grid-cols-[1fr_160px_100px_120px_80px] px-6 py-4 items-center border-b border-[#1A3265] last:border-0 hover:bg-[#0F2040] transition-colors ${i % 2 === 1 ? 'bg-[#0A1628]' : ''}`}
+              className={`grid grid-cols-[1fr_160px_100px_130px_80px] px-6 py-4 items-center border-b border-[#1A3265] last:border-0 hover:bg-[#0F2040] transition-colors ${i % 2 === 1 ? 'bg-[#0A1628]' : ''}`}
             >
-              {/* Avatar + name */}
+              {/* Avatar + name + alert dot */}
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-[#00BFA6]/15 border border-[#00BFA6]/30 flex items-center justify-center text-[#00BFA6] font-bold text-sm flex-shrink-0">
-                  {patient.initials}
+                <div className="relative">
+                  <div className="w-9 h-9 rounded-full bg-[#00BFA6]/15 border border-[#00BFA6]/30 flex items-center justify-center text-[#00BFA6] font-bold text-sm flex-shrink-0">
+                    {patient.initials}
+                  </div>
+                  {urgencyScore(patient) >= 3 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#EF4444] border-2 border-[#0D1B35]" />
+                  )}
                 </div>
                 <p className="text-[#EAF4FF] font-semibold text-sm">{patient.full_name}</p>
               </div>
@@ -209,8 +266,8 @@ export default function PatientsPage() {
                 </span>
               </div>
 
-              {/* Status */}
-              <StatusPill eventsThisWeek={patient.events_this_week} openFollowups={patient.open_followups} />
+              {/* Urgency pill */}
+              <UrgencyPill patient={patient} />
 
               {/* View */}
               <Link
