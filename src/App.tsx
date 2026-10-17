@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 
-type IconName = "home" | "pulse" | "users" | "file" | "bell" | "shield" | "pill" | "mic" | "check" | "arrow" | "plus";
+type IconName = "home" | "pulse" | "users" | "file" | "bell" | "shield" | "pill" | "mic" | "check" | "arrow" | "plus" | "camera" | "image" | "close" | "upload" | "doc" | "trash";
 
 function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, React.ReactNode> = {
@@ -15,6 +15,12 @@ function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
     check: <path d="m4 12 5 5L20 6"/>,
     arrow: <><path d="m9 18 6-6-6-6"/></>,
     plus: <path d="M12 5v14M5 12h14"/>,
+    camera: <><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></>,
+    image: <><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></>,
+    close: <path d="M18 6 6 18M6 6l12 12"/>,
+    upload: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></>,
+    doc: <><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></>,
+    trash: <><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/></>,
   };
   return <svg aria-hidden="true" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">{paths[name]}</svg>;
 }
@@ -42,10 +48,10 @@ function PatientHome({ onSos, navigate }: { onSos: () => void; navigate: (s: str
       <button className="sos-button" onClick={onSos}><div><strong>Hold to send SOS</strong><span>Alerts your Circle with live location</span></div><span className="sos-icon">!</span></button>
       <section className="card medication"><div className="icon-tile"><Icon name="pill"/></div><div className="grow"><span>Next medication · 20:00</span><h2>Levetiracetam 500 mg</h2></div><Button onClick={() => undefined}>Taken</Button></section>
       <div className="tile-grid">
-        {[["pulse","Conditions","Types and triggers"],["users","Care Circle","You decide who sees what"],["shield","My Doctor","Verified clinician link"],["file","Records","Events, notes, reports"]].map(([icon,title,sub]) => <button className="feature-tile" key={title} onClick={() => title === "Care Circle" && navigate("circle")}><Icon name={icon as IconName}/><strong>{title}</strong><span>{sub}</span></button>)}
+        {[["pulse","Conditions","Types and triggers"],["users","Care Circle","You decide who sees what"],["shield","My Doctor","Verified clinician link"],["file","Records","Events, notes, reports"]].map(([icon,title,sub]) => <button className="feature-tile" key={title} onClick={() => (title === "Care Circle" && navigate("circle")) || (title === "Records" && navigate("records"))}><Icon name={icon as IconName}/><strong>{title}</strong><span>{sub}</span></button>)}
       </div>
     </main>
-    <nav className="bottom-nav">{[["home","Home"],["pulse","Insights"],["users","Circle"],["file","Records"]].map(([icon,label]) => <button className={label === "Home" ? "selected" : ""} onClick={() => (label === "Insights" || label === "Circle") && navigate(label.toLowerCase())} key={label}><Icon name={icon as IconName}/><span>{label}</span></button>)}</nav>
+    <nav className="bottom-nav">{[["home","Home"],["pulse","Insights"],["users","Circle"],["file","Records"]].map(([icon,label]) => <button className={label === "Home" ? "selected" : ""} onClick={() => { if (label === "Insights") navigate("insights"); else if (label === "Circle") navigate("circle"); else if (label === "Records") navigate("records"); else navigate("home"); }} key={label}><Icon name={icon as IconName}/><span>{label}</span></button>)}</nav>
   </div>;
 }
 
@@ -81,6 +87,122 @@ function Clinician() {
 
 function Sidebar(){return <aside className="sidebar"><div className="brand"><span>E</span><strong>Epi</strong> Clinic</div><nav>{["Patient management","Health trends","Events review","Follow-up management"].map((x,i)=><button className={i===0?"active":""} key={x}>{x}</button>)}</nav><div className="verified"><div><Icon name="shield"/> Verified clinician</div><p>Every record view is consent-checked and written to an audit trail.</p></div></aside>}
 
+function ImageUpload({ onAdd, max = 4 }: { onAdd?: (url: string) => void; max?: number }) {
+  const [previews, setPreviews] = useState<string[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const handleFiles = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files).slice(0, max - previews.length).forEach(file => {
+      const url = URL.createObjectURL(file);
+      setPreviews(p => [...p, url]);
+      onAdd?.(url);
+    });
+  };
+
+  const remove = (i: number) => setPreviews(p => p.filter((_, idx) => idx !== i));
+
+  return (
+    <div className="img-upload-root">
+      {previews.length > 0 && (
+        <div className="img-preview-grid">
+          {previews.map((src, i) => (
+            <div className="img-thumb" key={src}>
+              <img src={src} alt={`Attachment ${i + 1}`} />
+              <button className="img-remove" onClick={() => remove(i)} aria-label="Remove"><Icon name="close" size={14}/></button>
+            </div>
+          ))}
+          {previews.length < max && (
+            <button className="img-add-more" onClick={() => inputRef.current?.click()}>
+              <Icon name="plus" size={20}/>
+            </button>
+          )}
+        </div>
+      )}
+      {previews.length === 0 && (
+        <button className="img-dropzone" onClick={() => inputRef.current?.click()}>
+          <div className="img-drop-icon"><Icon name="camera" size={28}/></div>
+          <strong>Add photo or document</strong>
+          <span>Tap to browse your device</span>
+        </button>
+      )}
+      <input ref={inputRef} type="file" accept="image/*,application/pdf" multiple style={{ display: "none" }} onChange={e => handleFiles(e.target.files)} />
+    </div>
+  );
+}
+
+type RecordItem = { id: number; title: string; date: string; type: "photo" | "doc" | "report"; thumb?: string };
+
+function RecordsScreen({ back }: { back: () => void }) {
+  const [tab, setTab] = useState<"all" | "photos" | "docs">("all");
+  const [showUpload, setShowUpload] = useState(false);
+  const [records, setRecords] = useState<RecordItem[]>([
+    { id: 1, title: "Hospital discharge summary", date: "Oct 10, 2026", type: "doc" },
+    { id: 2, title: "MRI scan — Oct 2026", date: "Oct 8, 2026", type: "report" },
+    { id: 3, title: "Medication label photo", date: "Oct 5, 2026", type: "photo" },
+    { id: 4, title: "Seizure observation", date: "Sep 29, 2026", type: "photo" },
+  ]);
+
+  const filtered = tab === "all" ? records : tab === "photos" ? records.filter(r => r.type === "photo") : records.filter(r => r.type !== "photo");
+
+  const addRecord = (url: string) => {
+    setRecords(prev => [{ id: Date.now(), title: "New attachment", date: "Oct 17, 2026", type: "photo", thumb: url }, ...prev]);
+    setShowUpload(false);
+  };
+
+  const remove = (id: number) => setRecords(prev => prev.filter(r => r.id !== id));
+
+  return (
+    <div className="phone dark scroll-phone">
+      <header className="subhead">
+        <button className="icon-button" onClick={back}>‹</button>
+        <h1>Records</h1>
+        <button className="icon-button" onClick={() => setShowUpload(v => !v)} aria-label="Add"><Icon name="plus"/></button>
+      </header>
+
+      {showUpload && (
+        <div className="records-upload-panel">
+          <p className="upload-label">Attach a photo or document</p>
+          <ImageUpload onAdd={addRecord} />
+        </div>
+      )}
+
+      <div className="records-tabs">
+        {(["all","photos","docs"] as const).map(t => (
+          <button key={t} className={tab === t ? "active" : ""} onClick={() => setTab(t)}>
+            {t === "all" ? "All" : t === "photos" ? "Photos" : "Documents"}
+          </button>
+        ))}
+      </div>
+
+      <main className="mobile-content" style={{ paddingTop: 8 }}>
+        {filtered.length === 0 && (
+          <div className="records-empty">
+            <Icon name="image" size={38}/>
+            <p>No {tab} yet. Tap + to add one.</p>
+          </div>
+        )}
+        {filtered.map(r => (
+          <div className="record-row" key={r.id}>
+            <div className="record-thumb">
+              {r.thumb ? <img src={r.thumb} alt="" /> : r.type === "photo" ? <Icon name="image" size={22}/> : <Icon name="doc" size={22}/>}
+            </div>
+            <div className="record-meta">
+              <strong>{r.title}</strong>
+              <span>{r.date} · {r.type}</span>
+            </div>
+            <button className="icon-button record-del" onClick={() => remove(r.id)} aria-label="Delete"><Icon name="trash" size={16}/></button>
+          </div>
+        ))}
+
+        <button className="records-add-btn" onClick={() => setShowUpload(true)}>
+          <Icon name="upload" size={18}/> Upload new file
+        </button>
+      </main>
+    </div>
+  );
+}
+
 export default function App() {
   const [role,setRole]=useState<"patient"|"caregiver"|"clinician">("patient");
   const [screen,setScreen]=useState("home");
@@ -88,6 +210,6 @@ export default function App() {
   return <div className={`app ${state === "Large text" ? "large-text":""}`}>
     <div className="preview-tools"><div className="role-switch">{["patient","caregiver","clinician"].map(r=><button key={r} className={role===r?"active":""} onClick={()=>{setRole(r as typeof role);setScreen("home")}}>{r}</button>)}</div><StateBar state={state} setState={setState}/></div>
     <StatusBanner state={state}/>
-    <div className="stage">{role==="patient" ? screen==="sos"?<SosScreen back={()=>setScreen("home")}/>:screen==="circle"?<CircleScreen back={()=>setScreen("home")}/>:screen==="insights"?<Insights back={()=>setScreen("home")}/>:<PatientHome onSos={()=>setScreen("sos")} navigate={setScreen}/>:role==="caregiver"?<Caregiver/>:<Clinician/>}</div>
+    <div className="stage">{role==="patient" ? screen==="sos"?<SosScreen back={()=>setScreen("home")}/>:screen==="circle"?<CircleScreen back={()=>setScreen("home")}/>:screen==="insights"?<Insights back={()=>setScreen("home")}/>:screen==="records"?<RecordsScreen back={()=>setScreen("home")}/>:<PatientHome onSos={()=>setScreen("sos")} navigate={setScreen}/>:role==="caregiver"?<Caregiver/>:<Clinician/>}</div>
   </div>;
 }
