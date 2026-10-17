@@ -1,13 +1,17 @@
 import { useEffect, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  ActivityIndicator, Modal, TextInput, Alert,
+  ActivityIndicator, Modal, Alert,
 } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors, fonts, radius, spacing } from '../../lib/theme';
 import { useAuth } from '../_layout';
-import { getEvents, getInsightsSummary, logEvent, type Event } from '../../lib/supabase';
+import {
+  getEvents, getInsightsSummary, logEvent,
+  logMoodCheckin, getTodaysMoodScore,
+  type Event,
+} from '../../lib/supabase';
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -225,6 +229,97 @@ const modal = StyleSheet.create({
   cancelBtnText: { color: colors.textSecondary, fontSize: fonts.base },
 });
 
+// ─── Mood check-in (CR-MED-04) ───────────────────────────────────────────────
+
+const MOOD_EMOJIS = ['😔', '😕', '😐', '🙂', '😊'] as const;
+const MOOD_LABELS = ['Rough', 'Low', 'Okay', 'Good', 'Great'] as const;
+
+function MoodCheckin({ userId, onSaved }: { userId: string; onSaved: () => void }) {
+  const [todayScore, setTodayScore] = useState<number | null>(null);
+  const [saving, setSaving] = useState<number | null>(null);
+
+  useEffect(() => {
+    getTodaysMoodScore(userId).then(setTodayScore).catch(() => {});
+  }, [userId]);
+
+  async function handleSelect(score: number) {
+    if (saving !== null) return;
+    setSaving(score);
+    try {
+      await logMoodCheckin(userId, score);
+      setTodayScore(score);
+      onSaved();
+    } catch {
+      Alert.alert('Could not save mood', 'Please try again.');
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  return (
+    <View style={mood.card}>
+      <View style={mood.header}>
+        <Text style={mood.title}>How are you feeling today?</Text>
+        {todayScore !== null && (
+          <View style={mood.doneBadge}>
+            <Text style={mood.doneBadgeText}>Logged</Text>
+          </View>
+        )}
+      </View>
+      <View style={mood.row}>
+        {MOOD_EMOJIS.map((emoji, i) => {
+          const score = i + 1;
+          const selected = todayScore === score;
+          return (
+            <TouchableOpacity
+              key={score}
+              style={[mood.emojiBtn, selected && mood.emojiBtnSelected]}
+              onPress={() => handleSelect(score)}
+              activeOpacity={0.75}
+            >
+              {saving === score
+                ? <ActivityIndicator size="small" color={colors.teal} />
+                : <Text style={mood.emoji}>{emoji}</Text>
+              }
+              <Text style={[mood.emojiLabel, selected && mood.emojiLabelSelected]}>
+                {MOOD_LABELS[i]}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      <Text style={mood.disclaimer}>
+        Mood data is private by default. Your clinician cannot see it unless you choose to share.
+      </Text>
+    </View>
+  );
+}
+
+const mood = StyleSheet.create({
+  card: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    marginBottom: spacing.xl,
+  },
+  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.lg },
+  title: { fontSize: fonts.md, fontWeight: '700', color: colors.text },
+  doneBadge: { backgroundColor: colors.tealBadge, borderRadius: radius.full, paddingHorizontal: spacing.md, paddingVertical: 3 },
+  doneBadgeText: { fontSize: fonts.xs, fontWeight: '700', color: colors.teal },
+  row: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: spacing.md },
+  emojiBtn: {
+    flex: 1, alignItems: 'center', paddingVertical: spacing.sm,
+    borderRadius: radius.md, borderWidth: 1, borderColor: 'transparent',
+  },
+  emojiBtnSelected: { borderColor: colors.teal, backgroundColor: colors.tealDim },
+  emoji: { fontSize: 28 },
+  emojiLabel: { fontSize: fonts.xs, color: colors.textMuted, marginTop: 4 },
+  emojiLabelSelected: { color: colors.teal, fontWeight: '700' },
+  disclaimer: { fontSize: fonts.xs, color: colors.textMuted, lineHeight: 16 },
+});
+
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
 export default function HealthScreen() {
@@ -234,6 +329,7 @@ export default function HealthScreen() {
   const [insights, setInsights] = useState<{ this_week_events: number; pattern: string; suggestion: string; med_checkins: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [logModalVisible, setLogModalVisible] = useState(false);
+  const [moodKey, setMoodKey] = useState(0);
 
   function loadData() {
     if (!session?.user) return;
@@ -301,6 +397,15 @@ export default function HealthScreen() {
             )}
           </View>
         </TouchableOpacity>
+
+        {/* Mood check-in — CR-MED-04 */}
+        {session?.user && (
+          <MoodCheckin
+            key={moodKey}
+            userId={session.user.id}
+            onSaved={() => setMoodKey((k) => k + 1)}
+          />
+        )}
 
         <Text style={styles.sectionTitle}>Events</Text>
 

@@ -20,14 +20,14 @@
 | BLE | **Not installed** — `react-native-ble-plx` absent | No strap or add-on BLE |
 | Firmware | **None** | Hardware layer not started |
 | Offline store | SQLite (`mobile/db/schema.ts`) — plain, no SQLCipher | Outbox pattern in `sync.ts` |
-| Location | **expo-location not installed** | GPS not implemented |
-| Contacts | **expo-contacts not installed** | Picker not implemented |
-| Notifications | **expo-notifications not installed** | Local reminders absent |
-| SMS | **Africa's Talking / Twilio not integrated** | Schema + adapter pattern planned |
-| Maps | **react-native-maps not installed** | No in-app map |
-| Edge Functions | **None** | Escalation engine not written |
-| Tests | **Zero** — no pgTAP, no Vitest, no Playwright, no Maestro | Phase 0 gate not met |
-| CI | **None** | No GitHub Actions or equivalent |
+| Location | expo-location ~17.0.1 installed; used in `sos.tsx` | No background location loop (feature-flagged off) |
+| Contacts | **expo-contacts not installed** | Manual entry in circle-invite; picker not implemented |
+| Notifications | expo-notifications ~0.28.19 installed; `notifications.ts` fully implemented | Push token registered on login; local reminders scheduled after sync |
+| SMS | expo-sms ~12.0.1 installed; wired in `sos.tsx` offline path | Africa's Talking / Twilio not integrated for server-side SMS |
+| Maps | **react-native-maps not installed** | No in-app map; Google Maps `tel:`/`geo:` deep links planned |
+| Edge Functions | `escalation-tick` implemented (Phase 2) | T0→T+2→T+4 state machine, sandbox dispatch |
+| Tests | pgTAP suite added (Phase 1) — 28 assertions | No Vitest, Playwright, or Maestro yet |
+| CI | `.github/workflows/ci.yml` added (Phase 1) | TypeScript check, pgTAP, service-key grep |
 
 ### Folder layout
 
@@ -182,7 +182,7 @@ Helper functions: `is_verified_clinician`, `has_grant`, `is_emergency_contact`, 
 | ID | Status | Where | Missing |
 |---|---|---|---|
 | CR-SOS-01 | partial | `mobile/app/sos.tsx`, `alerts` table | SOS button trigger exists; no fall/seizure detection; no critical-limit trigger; `alert.source` = 'sos_button' only |
-| CR-SOS-02 | partial | `alert_escalations` table, migration 003 RLS | State machine schema exists; no `escalation-tick` Edge Function to advance T0→T+2→T+4; no push or SMS notifications |
+| CR-SOS-02 | partial | `supabase/functions/escalation-tick/index.ts` (Phase 2) | T0→T+2→T+4 state machine implemented; sandbox dispatch inserted; no Africa's Talking/Twilio for real SMS/voice |
 | CR-SOS-03 | partial | `mobile/db/schema.ts` `sos_queue` table, outbox | Queue table exists in SQLite; no SMS composition (`expo-sms` not installed); no "Not sent yet — retrying" user-facing message; escalation clock not checked from original time |
 | CR-SOS-04 | partial | `mobile/app/sos-alert.tsx` | Caregiver alert screen exists; no response → stop escalation wired end-to-end; SMS reply code (`SAFE <code>`) not handled |
 | CR-SOS-05 | partial | `alert_rules` table + `alerts.pathway = 'mental_health'` | Schema separates medical vs mental_health pathway; no Edge Function that routes mental-health differently; no crisis_resources display in app |
@@ -192,7 +192,7 @@ Helper functions: `is_verified_clinician`, `has_grant`, `is_emergency_contact`, 
 
 | ID | Status | Where | Missing |
 |---|---|---|---|
-| CR-LOC-01 | missing | `patient_locations` table, migration 003 | `expo-location` not installed; no GPS reads; no 15-s update loop |
+| CR-LOC-01 | partial | `mobile/app/sos.tsx`, `patient_locations` table | `expo-location` installed + used; `sendSos` writes location to `patient_locations` on SOS; no 15-s background loop (feature-flagged off) |
 | CR-LOC-02 | missing | `saved_places` table | Table exists; no UI to add home address/landmarks; not included in SOS payload |
 | CR-LOC-03 | missing | `care_circle.phone`, `care_circle.sms_only` | `expo-contacts` not installed; no contacts picker; manual entry not wired |
 | CR-LOC-04 | missing | `health_facilities` table + PostGIS | Table exists; zero facility rows (no KMHFL import); no fallback to Google Places |
@@ -210,7 +210,7 @@ Helper functions: `is_verified_clinician`, `has_grant`, `is_emergency_contact`, 
 | CR-MED-01 | partial | `medication_schedules` table, `mobile/app/(tabs)/meds.tsx` | Schedule table + RLS exist; no local notification scheduled; no strap reminder sync; no repeat/snooze/missed flow |
 | CR-MED-02 | partial | `dose_events` table with UNIQUE (schedule_id, scheduled_for) | Unique constraint exists; mobile "Taken" button not yet wired to `dose_events` (still writes to old path); caregiver "Mark taken" not implemented |
 | CR-MED-03 | partial | `refill_alerts` table | Table exists; no threshold check job; no refill notification |
-| CR-MED-04 | partial | `mood_checkins`, `crisis_resources`, `alert_rules.pathway = 'mental_health'` | Tables exist; no mobile mood UI; no "never dispatches ambulance" gate tested; crisis_resources not displayed in app |
+| CR-MED-04 | partial | `mobile/app/(tabs)/health.tsx` MoodCheckin (Phase 2) | 5-point emoji scale added; writes to `mood_checkins`; private by default (disclaimer shown); no "never dispatches ambulance" gate tested; crisis_resources not displayed |
 | CR-MED-05 | partial | `grants.category = 'mood'` (off by default in schema) | Category exists; no UI to grant mood access; mood defaults to off |
 
 ### Privacy and security — `CR-SEC`

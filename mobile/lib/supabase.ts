@@ -114,11 +114,20 @@ export async function getMedications(patientId: string): Promise<Medication[]> {
   return (data ?? []) as Medication[];
 }
 
-export async function logMedicationTaken(medicationId: string, patientId: string) {
-  await supabase.from('medication_logs').insert({
+export async function logMedicationTaken(
+  medicationId: string,
+  patientId: string,
+  scheduleId?: string,
+  scheduledFor?: string,
+) {
+  await supabase.from('dose_events').insert({
     medication_id: medicationId,
     patient_id: patientId,
-    taken_at: new Date().toISOString(),
+    schedule_id: scheduleId ?? null,
+    scheduled_for: scheduledFor ?? new Date().toISOString(),
+    status: 'taken',
+    confirmed_at: new Date().toISOString(),
+    confirmed_via: 'app',
   });
 }
 
@@ -274,19 +283,43 @@ export async function sendSos(
   emergencyContactIds: string[],
   location?: { lat: number; lon: number } | null,
 ): Promise<string> {
-  // Generate ID client-side so the API can reference the same row
-  const { data: uuidRow } = await supabase.rpc('gen_random_uuid');
-  const sosId: string = uuidRow ?? crypto.randomUUID?.() ?? `sos-${Date.now()}`;
+  const sosId = crypto.randomUUID();
+  const alertId = crypto.randomUUID();
+  const now = new Date().toISOString();
+
+  // Create the alert row first — escalation-tick drives state from here
+  await supabase.from('alerts').insert({
+    id: alertId,
+    patient_id: patientId,
+    source: 'sos_button',
+    severity: 'critical',
+    pathway: 'medical',
+    state: 'raised',
+    opened_at: now,
+  });
 
   await supabase.from('sos_events').insert({
     id: sosId,
+    alert_id: alertId,
     patient_id: patientId,
-    sent_at: new Date().toISOString(),
+    sent_at: now,
     channel: 'push',
     recipients: emergencyContactIds,
     status: 'sent',
     location: location ? JSON.stringify(location) : null,
   });
+
+  // Write current location to patient_locations for caregiver tracking
+  if (location) {
+    try {
+      await supabase.from('patient_locations').insert({
+        patient_id: patientId,
+        alert_id: alertId,
+        location: `POINT(${location.lon} ${location.lat})`,
+        recorded_at: now,
+      });
+    } catch { /* non-fatal */ }
+  }
 
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
   if (apiUrl) {
@@ -296,6 +329,7 @@ export async function sendSos(
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           sos_id: sosId,
+          alert_id: alertId,
           patient_id: patientId,
           recipient_ids: emergencyContactIds,
           location,
@@ -354,6 +388,31 @@ export async function getSosResponders(sosEventId: string): Promise<Array<{
     full_name: r.profiles?.full_name ?? 'Responding',
     responded_at: r.responded_at,
   }));
+}
+
+// ─── Mood ─────────────────────────────────────────────────────────────────────
+
+export async function logMoodCheckin(patientId: string, score: number): Promise<void> {
+  const { error } = await supabase.from('mood_checkins').insert({
+    patient_id: patientId,
+    score,
+    occurred_at: new Date().toISOString(),
+  });
+  if (error) throw error;
+}
+
+export async function getTodaysMoodScore(patientId: string): Promise<number | null> {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+  const { data } = await supabase
+    .from('mood_checkins')
+    .select('score')
+    .eq('patient_id', patientId)
+    .gte('occurred_at', startOfDay.toISOString())
+    .order('occurred_at', { ascending: false })
+    .limit(1)
+    .single();
+  return data?.score ?? null;
 }
 
 // ─── Insights ─────────────────────────────────────────────────────────────────
