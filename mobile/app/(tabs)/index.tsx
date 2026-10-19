@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  ActivityIndicator, Animated, Image,
+  ActivityIndicator, Animated, Image, useWindowDimensions,
 } from 'react-native';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
@@ -15,131 +16,124 @@ import {
 } from '../../lib/supabase';
 import { getWeather, iconUrl, type WeatherData } from '../../lib/weather';
 
-// ─── Medical icon components ──────────────────────────────────────────────────
-
-function BrainWaveIcon({ color = colors.teal }: { color?: string }) {
-  return (
-    <View style={{ width: 28, height: 20, justifyContent: 'center' }}>
-      {/* EEG-style wave */}
-      <View style={{ position: 'absolute', left: 0, top: 9, width: 4, height: 2, backgroundColor: color, borderRadius: 1 }} />
-      <View style={{ position: 'absolute', left: 4, top: 7, width: 3, height: 6, backgroundColor: color, borderRadius: 1 }} />
-      <View style={{ position: 'absolute', left: 7, top: 3, width: 3, height: 14, backgroundColor: color, borderRadius: 1 }} />
-      <View style={{ position: 'absolute', left: 10, top: 7, width: 3, height: 6, backgroundColor: color, borderRadius: 1 }} />
-      <View style={{ position: 'absolute', left: 13, top: 9, width: 3, height: 2, backgroundColor: color, borderRadius: 1 }} />
-      <View style={{ position: 'absolute', left: 16, top: 6, width: 3, height: 8, backgroundColor: color, borderRadius: 1 }} />
-      <View style={{ position: 'absolute', left: 19, top: 9, width: 9, height: 2, backgroundColor: color, borderRadius: 1 }} />
-    </View>
-  );
-}
-
-function PillIcon({ color = colors.teal }: { color?: string }) {
-  return (
-    <View style={{ width: 26, height: 14, flexDirection: 'row' }}>
-      <View style={{
-        width: 13, height: 14, borderTopLeftRadius: 7, borderBottomLeftRadius: 7,
-        backgroundColor: color,
-      }} />
-      <View style={{
-        width: 13, height: 14, borderTopRightRadius: 7, borderBottomRightRadius: 7,
-        backgroundColor: color, opacity: 0.45,
-      }} />
-      <View style={{ position: 'absolute', left: 12, top: 0, width: 2, height: 14, backgroundColor: colors.bg }} />
-    </View>
-  );
-}
-
-function PersonIcon({ color = colors.teal }: { color?: string }) {
-  return (
-    <View style={{ width: 20, height: 24, alignItems: 'center' }}>
-      <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: color }} />
-      <View style={{
-        width: 20, height: 10, borderTopLeftRadius: 10, borderTopRightRadius: 10,
-        backgroundColor: color, opacity: 0.6, marginTop: 2,
-      }} />
-    </View>
-  );
-}
-
-function HeartPulseIcon({ color = colors.emergency }: { color?: string }) {
-  return (
-    <View style={{ width: 26, height: 20, justifyContent: 'center' }}>
-      <View style={{ position: 'absolute', left: 0,  top: 9, width: 4,  height: 2, backgroundColor: color, borderRadius: 1 }} />
-      <View style={{ position: 'absolute', left: 4,  top: 5, width: 3,  height: 10, backgroundColor: color, borderRadius: 1 }} />
-      <View style={{ position: 'absolute', left: 7,  top: 1, width: 3,  height: 18, backgroundColor: color, borderRadius: 1 }} />
-      <View style={{ position: 'absolute', left: 10, top: 5, width: 3,  height: 10, backgroundColor: color, borderRadius: 1 }} />
-      <View style={{ position: 'absolute', left: 13, top: 9, width: 13, height: 2, backgroundColor: color, borderRadius: 1 }} />
-    </View>
-  );
-}
-
-function LightningIcon() {
-  return (
-    <View style={{ width: 22, height: 28, alignItems: 'center', justifyContent: 'center' }}>
-      <View style={{ width: 14, height: 14, backgroundColor: colors.amber, borderRadius: 2, transform: [{ skewX: '-15deg' }, { rotate: '-8deg' }], position: 'absolute', top: 0, left: 4 }} />
-      <View style={{ width: 14, height: 14, backgroundColor: colors.amber, borderRadius: 2, transform: [{ skewX: '-15deg' }, { rotate: '-8deg' }], position: 'absolute', bottom: 0, right: 4 }} />
-      <View style={{ width: 18, height: 5, backgroundColor: colors.bgCard, transform: [{ rotate: '-35deg' }], position: 'absolute' }} />
-    </View>
-  );
-}
-
-function CircleOverlapIcon() {
-  return (
-    <View style={{ width: 28, height: 20 }}>
-      <View style={{ position: 'absolute', left: 0, top: 0, width: 18, height: 18, borderRadius: 9, backgroundColor: colors.tealMuted, borderWidth: 2, borderColor: colors.teal }} />
-      <View style={{ position: 'absolute', left: 10, top: 0, width: 18, height: 18, borderRadius: 9, backgroundColor: colors.tealMuted, borderWidth: 2, borderColor: colors.teal, opacity: 0.7 }} />
-    </View>
-  );
-}
-
-function MapPinIcon() {
-  return (
-    <View style={{ width: 22, height: 26, alignItems: 'center' }}>
-      <View style={{ width: 20, height: 20, borderRadius: 10, borderWidth: 2.5, borderColor: colors.teal }} />
-      <View style={{ width: 3, height: 8, backgroundColor: colors.teal, borderRadius: 1.5, marginTop: -2 }} />
-      <View style={{ width: 6, height: 2, borderRadius: 1, backgroundColor: colors.teal, opacity: 0.4 }} />
-    </View>
-  );
-}
-
-function DocumentIcon() {
-  return (
-    <View style={{ width: 18, height: 22 }}>
-      <View style={{ width: 18, height: 22, borderRadius: 3, borderWidth: 2, borderColor: colors.textSecondary }}>
-        <View style={{ width: 10, height: 2, backgroundColor: colors.textSecondary, borderRadius: 1, position: 'absolute', top: 5, left: 3 }} />
-        <View style={{ width: 12, height: 2, backgroundColor: colors.textSecondary, borderRadius: 1, position: 'absolute', top: 9, left: 2 }} />
-        <View style={{ width: 10, height: 2, backgroundColor: colors.textSecondary, borderRadius: 1, position: 'absolute', top: 13, left: 3 }} />
-      </View>
-    </View>
-  );
-}
-
-function BellIcon() {
-  return (
-    <View style={{ width: 18, height: 20, alignItems: 'center' }}>
-      <View style={{ width: 14, height: 13, borderRadius: 7, borderTopLeftRadius: 7, borderTopRightRadius: 7, borderWidth: 2, borderColor: colors.textSecondary, borderBottomWidth: 0, marginTop: 2 }} />
-      <View style={{ width: 18, height: 4, backgroundColor: colors.textSecondary, borderRadius: 1 }} />
-      <View style={{ width: 6, height: 3, borderBottomLeftRadius: 3, borderBottomRightRadius: 3, borderWidth: 2, borderColor: colors.textSecondary, borderTopWidth: 0, marginTop: -1 }} />
-    </View>
-  );
-}
-
 const GRID_ITEMS = [
-  { icon: 'lightning', title: 'Conditions', subtitle: 'Types & triggers', route: '/records' },
-  { icon: 'circles',   title: 'Care Circle', subtitle: 'Who sees what',   route: '/circle' },
-  { icon: 'map',       title: 'Track',       subtitle: 'Map & SOS history', route: '/map' },
-  { icon: 'doc',       title: 'Records',     subtitle: 'Events & reports',  route: '/records' },
+  {
+    icon: 'flash',          lib: 'ion',
+    title: 'Conditions',   subtitle: 'Types and triggers',        route: '/records',
+    color: '#F59E0B',
+  },
+  {
+    icon: 'people',         lib: 'ion',
+    title: 'Care Circle',  subtitle: 'You decide who sees what',  route: '/circle',
+    color: '#8B5CF6',
+  },
+  {
+    icon: 'shield-checkmark', lib: 'ion',
+    title: 'My Doctor',    subtitle: 'Verified clinician link',   route: '/circle',
+    color: '#10B981',
+  },
+  {
+    icon: 'document-text',  lib: 'ion',
+    title: 'Records',      subtitle: 'Events, notes, reports',    route: '/records',
+    color: '#3B82F6',
+  },
 ];
 
-function GridIcon({ type }: { type: string }) {
-  if (type === 'lightning') return <LightningIcon />;
-  if (type === 'circles')   return <CircleOverlapIcon />;
-  if (type === 'map')       return <MapPinIcon />;
-  return <DocumentIcon />;
+// ── Animated concentric rings ──────────────────────────────────────────────────
+
+function ConcentricRings({ size = 72, pulse }: { size?: number; pulse: Animated.Value }) {
+  const r1 = size / 2;
+  const r2 = size * 0.65 / 2;
+  const r3 = size * 0.38 / 2;
+  return (
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Animated.View style={{
+        position: 'absolute', width: size, height: size, borderRadius: r1,
+        borderWidth: 2, borderColor: 'rgba(139,92,246,0.22)',
+        transform: [{ scale: pulse.interpolate({ inputRange: [0,1], outputRange: [1, 1.06] }) }],
+      }} />
+      <View style={{
+        position: 'absolute', width: size * 0.65, height: size * 0.65, borderRadius: r2,
+        borderWidth: 2, borderColor: 'rgba(139,92,246,0.45)',
+      }} />
+      <View style={{
+        position: 'absolute', width: size * 0.38, height: size * 0.38, borderRadius: r3,
+        borderWidth: 2.5, borderColor: 'rgba(139,92,246,0.8)',
+      }} />
+      <Animated.View style={{
+        width: size * 0.14, height: size * 0.14,
+        borderRadius: (size * 0.14) / 2,
+        backgroundColor: colors.teal,
+        opacity: pulse,
+        shadowColor: colors.teal, shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.9, shadowRadius: 6, elevation: 6,
+      }} />
+    </View>
+  );
 }
 
-// ─── Main screen ──────────────────────────────────────────────────────────────
+// ── Health banner ──────────────────────────────────────────────────────────────
+
+function HealthBanner({ name, streak }: { name: string; streak: number }) {
+  const pulseAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1, duration: 2000, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 0, duration: 2000, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
+
+  return (
+    <LinearGradient
+      colors={['#1A1035', '#0D0B1E']}
+      style={styles.banner}
+    >
+      {/* ECG lines decoration */}
+      <View style={styles.ecgDecor} pointerEvents="none">
+        {[0, 1, 2].map((i) => (
+          <Animated.View key={i} style={[styles.ecgLine, {
+            opacity: pulseAnim.interpolate({
+              inputRange: [0, 0.5, 1],
+              outputRange: [0.04, 0.10 - i * 0.02, 0.04],
+            }),
+            top: 16 + i * 20,
+          }]} />
+        ))}
+        {/* Pulse spike */}
+        <View style={styles.ecgSpike} />
+      </View>
+
+      <View style={styles.bannerContent}>
+        <View>
+          <Text style={styles.bannerLabel}>SEIZURE-FREE STREAK</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4, marginTop: 2 }}>
+            <Text style={styles.bannerStreak}>{streak}</Text>
+            <Text style={styles.bannerDays}>days</Text>
+          </View>
+          <Text style={styles.bannerSub}>Keep going, {name || 'you\'re doing great'}.</Text>
+        </View>
+
+        {/* Heart rate visual */}
+        <View style={styles.bannerChart}>
+          <Animated.View style={[styles.bannerChartDot, {
+            opacity: pulseAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.4, 1, 0.4] }),
+            transform: [{ scale: pulseAnim.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.8, 1.2, 0.8] }) }],
+          }]} />
+          <Ionicons name="heart" size={28} color={colors.emergency} style={{ opacity: 0.85 }} />
+          <Text style={styles.bannerBpm}>72 <Text style={styles.bannerBpmLabel}>BPM</Text></Text>
+        </View>
+      </View>
+    </LinearGradient>
+  );
+}
+
+// ── Main screen ────────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
+  const { width } = useWindowDimensions();
   const { profile, session } = useAuth();
   const [medications, setMedications] = useState<Medication[]>([]);
   const [circleCount, setCircleCount] = useState(0);
@@ -148,51 +142,33 @@ export default function HomeScreen() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [forecastOpen, setForecastOpen] = useState(false);
   const [streakDays, setStreakDays] = useState(0);
-  const [displayStreak, setDisplayStreak] = useState(0);
 
-  // Staggered entrance — 8 slots
+  const pulseAnim = useRef(new Animated.Value(0.5)).current;
+  const sosScale  = useRef(new Animated.Value(1)).current;
+
+  // Staggered entrance
   const anims = useRef(
-    Array.from({ length: 8 }, () => ({
-      y:  new Animated.Value(40),
+    Array.from({ length: 7 }, () => ({
+      y:  new Animated.Value(28),
       op: new Animated.Value(0),
     }))
   ).current;
 
-  // 3D hero tilt
-  const heroTilt = useRef(new Animated.Value(1)).current;
-
-  // Count-up for streak
-  const streakAnim = useRef(new Animated.Value(0)).current;
-
-  // Pulse dot
-  const pulseAnim = useRef(new Animated.Value(0.5)).current;
-
-  // SOS press scale
-  const sosScale = useRef(new Animated.Value(1)).current;
-
   useEffect(() => {
-    // Stagger entrance
     anims.forEach((a, i) => {
       Animated.sequence([
-        Animated.delay(i * 90 + 200),
+        Animated.delay(i * 80 + 120),
         Animated.parallel([
-          Animated.spring(a.y,  { toValue: 0, tension: 60, friction: 13, useNativeDriver: true }),
-          Animated.timing(a.op, { toValue: 1, duration: 400, useNativeDriver: true }),
+          Animated.spring(a.y,  { toValue: 0, tension: 65, friction: 14, useNativeDriver: true }),
+          Animated.timing(a.op, { toValue: 1, duration: 340, useNativeDriver: true }),
         ]),
       ]).start();
     });
 
-    // Hero 3D entrance tilt: perspective faux-rotate
-    Animated.sequence([
-      Animated.delay(300),
-      Animated.spring(heroTilt, { toValue: 0, tension: 45, friction: 11, useNativeDriver: true }),
-    ]).start();
-
-    // Pulse loop
     Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, { toValue: 1,   duration: 900, useNativeDriver: true }),
-        Animated.timing(pulseAnim, { toValue: 0.5, duration: 900, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1,   duration: 1100, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 0.5, duration: 1100, useNativeDriver: true }),
       ])
     ).start();
 
@@ -207,8 +183,6 @@ export default function HomeScreen() {
       setCircleCount(circle.length);
       setLoading(false);
     });
-
-    // Seizure-free streak: days since last seizure event
     supabase
       .from('events')
       .select('occurred_at')
@@ -217,19 +191,9 @@ export default function HomeScreen() {
       .order('occurred_at', { ascending: false })
       .limit(1)
       .then(({ data }) => {
-        let days = 0;
-        if (!data || data.length === 0) {
-          days = 30;
-        } else {
-          const last = new Date(data[0].occurred_at);
-          days = Math.floor((Date.now() - last.getTime()) / 86_400_000);
-        }
-        setStreakDays(days);
-        const counter = new Animated.Value(0);
-        counter.addListener(({ value }) => setDisplayStreak(Math.round(value)));
-        Animated.timing(counter, {
-          toValue: days, duration: 1200, useNativeDriver: false,
-        }).start(() => counter.removeAllListeners());
+        if (!data || data.length === 0) { setStreakDays(30); return; }
+        const days = Math.floor((Date.now() - new Date(data[0].occurred_at).getTime()) / 86_400_000);
+        setStreakDays(Math.max(0, days));
       });
   }, [session]);
 
@@ -242,20 +206,19 @@ export default function HomeScreen() {
 
   function onSosPressIn() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-    Animated.spring(sosScale, { toValue: 0.97, useNativeDriver: true, tension: 200, friction: 12 }).start();
+    Animated.spring(sosScale, { toValue: 0.97, useNativeDriver: true, tension: 220, friction: 12 }).start();
   }
   function onSosPressOut() {
-    Animated.spring(sosScale, { toValue: 1, useNativeDriver: true, tension: 200, friction: 12 }).start();
+    Animated.spring(sosScale, { toValue: 1, useNativeDriver: true, tension: 220, friction: 12 }).start();
   }
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  const firstName = profile?.full_name?.split(' ')[0] ?? '';
-  const initials  = (profile?.full_name ?? 'U').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
-
-  const nextMed = medications[0];
-
-  const heroTranslateY = heroTilt.interpolate({ inputRange: [0, 1], outputRange: [0, 24] });
+  const hour       = new Date().getHours();
+  const greeting   = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const firstName  = profile?.full_name?.split(' ')[0] ?? '';
+  const initials   = (profile?.full_name ?? 'U').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
+  const nextMed    = medications[0];
+  const pad        = spacing.xl; // 20
+  const cardWidth  = (width - pad * 2 - spacing.md) / 2;
 
   function slot(i: number) {
     return { transform: [{ translateY: anims[i].y }], opacity: anims[i].op };
@@ -263,108 +226,52 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.container, { paddingHorizontal: pad }]}
+        showsVerticalScrollIndicator={false}
+      >
 
-        {/* ── Header ──────────────────────────────────────────────────────── */}
+        {/* ── Header ─────────────────────────────────────────────────────── */}
         <Animated.View style={[styles.header, slot(0)]}>
           <View style={styles.headerLeft}>
-            <LinearGradient
-              colors={['#8B5CF6', '#6D28D9']}
-              style={styles.avatarGrad}
-            >
+            <LinearGradient colors={['#8B5CF6', '#6D28D9']} style={styles.avatar}>
               <Text style={styles.avatarText}>{initials}</Text>
             </LinearGradient>
             <View>
-              <Text style={styles.greeting}>{greeting}{firstName ? `, ${firstName}` : ''}</Text>
-              <Text style={styles.heroText}>Your care dashboard</Text>
+              <Text style={styles.greeting}>{greeting}</Text>
+              <Text style={styles.heroName}>{firstName || 'Your care, your control'}</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.bellBtn}>
-            <BellIcon />
+          <TouchableOpacity style={styles.bellBtn} onPress={() => {}}>
+            <Ionicons name="notifications-outline" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         </Animated.View>
 
-        {/* ── Hero card — 3D entrance + streak ────────────────────────────── */}
-        <Animated.View style={[slot(1), { transform: [...(slot(1).transform as any), { translateY: heroTranslateY }] }]}>
-          <LinearGradient
-            colors={['#1A1035', '#0D0B1E']}
-            style={styles.heroCard}
-          >
-            {/* ECG decoration */}
-            <View style={styles.ecgRow} pointerEvents="none">
-              <View style={styles.ecgFlat} />
-              <View style={styles.ecgUp} />
-              <View style={styles.ecgPeak} />
-              <View style={styles.ecgDown} />
-              <View style={styles.ecgBump} />
-              <View style={styles.ecgFlat2} />
-            </View>
+        {/* ── Health banner ───────────────────────────────────────────────── */}
+        <Animated.View style={slot(1)}>
+          <HealthBanner name={firstName} streak={streakDays} />
+        </Animated.View>
 
-            {/* Top row: pulse icon + label */}
-            <View style={styles.heroTopRow}>
-              <View style={styles.heroBadge}>
-                <HeartPulseIcon color={colors.emergency} />
-                <Text style={styles.heroBadgeText}>SEIZURE-FREE</Text>
-              </View>
-              <View style={styles.heroDateDot}>
-                <Animated.View style={[styles.heroDotInner, { opacity: pulseAnim }]} />
-                <Text style={styles.heroDateText}>LIVE</Text>
-              </View>
+        {/* ── Circle protection card ─────────────────────────────────────── */}
+        <Animated.View style={[styles.card, slot(2)]}>
+          <ConcentricRings size={72} pulse={pulseAnim} />
+          <View style={styles.circleText}>
+            <View style={styles.protectedRow}>
+              <Animated.View style={[styles.pulseDot, { opacity: pulseAnim }]} />
+              <Text style={styles.protectedLabel}>PROTECTED</Text>
             </View>
-
-            {/* Streak counter */}
-            <View style={styles.streakWrap}>
-              <Text style={styles.streakNum}>{displayStreak}</Text>
-              <Text style={styles.streakLabel}>days</Text>
-            </View>
-            <Text style={styles.streakSub}>
-              {streakDays === 0 ? 'Keep going — every day counts.' : `${streakDays} consecutive days seizure-free`}
+            <Text style={styles.cardTitle}>Your Circle is active</Text>
+            <Text style={styles.cardSub}>
+              {circleCount > 0
+                ? `${circleCount} trusted contact${circleCount !== 1 ? 's' : ''} ready to be alerted.`
+                : 'Trusted contacts are ready to be alerted the moment you need them.'}
             </Text>
-
-            {/* Bottom gradient band */}
-            <LinearGradient
-              colors={['transparent', 'rgba(139,92,246,0.08)']}
-              style={styles.heroBottomBand}
-            />
-
-            {/* Concentric rings decoration */}
-            <View style={styles.ringDecorWrap} pointerEvents="none">
-              <View style={[styles.ringDecor, { width: 180, height: 180, borderRadius: 90, opacity: 0.06 }]} />
-              <View style={[styles.ringDecor, { width: 130, height: 130, borderRadius: 65, opacity: 0.10 }]} />
-              <View style={[styles.ringDecor, { width: 80,  height: 80,  borderRadius: 40, opacity: 0.16 }]} />
-            </View>
-          </LinearGradient>
+          </View>
         </Animated.View>
 
-        {/* ── Stats row ────────────────────────────────────────────────────── */}
-        <Animated.View style={[styles.statsRow, slot(2)]}>
-          <LinearGradient colors={['#1C1535', '#14122A']} style={styles.statCard}>
-            <View style={styles.statIconWrap}>
-              <BrainWaveIcon />
-            </View>
-            <Text style={styles.statValue}>{streakDays}d</Text>
-            <Text style={styles.statLabel}>Free</Text>
-          </LinearGradient>
-
-          <LinearGradient colors={['#1C1535', '#14122A']} style={styles.statCard}>
-            <View style={styles.statIconWrap}>
-              <PillIcon />
-            </View>
-            <Text style={styles.statValue}>{medications.length}</Text>
-            <Text style={styles.statLabel}>Meds</Text>
-          </LinearGradient>
-
-          <LinearGradient colors={['#1C1535', '#14122A']} style={styles.statCard}>
-            <View style={styles.statIconWrap}>
-              <PersonIcon />
-            </View>
-            <Text style={styles.statValue}>{circleCount}</Text>
-            <Text style={styles.statLabel}>Circle</Text>
-          </LinearGradient>
-        </Animated.View>
-
-        {/* ── SOS button ────────────────────────────────────────────────────── */}
-        <Animated.View style={[slot(3), { transform: [{ scale: sosScale }] }]}>
+        {/* ── SOS button ─────────────────────────────────────────────────── */}
+        <Animated.View style={[{ transform: [{ scale: sosScale }] }, slot(3)]}>
           <TouchableOpacity
             onPress={() => router.push('/sos')}
             onLongPress={() => router.push('/sos')}
@@ -373,86 +280,84 @@ export default function HomeScreen() {
             activeOpacity={1}
           >
             <LinearGradient
-              colors={['#C0392B', '#922B21']}
+              colors={['#EF4444', '#C0392B']}
               start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
               style={styles.sosBtn}
             >
               <View style={styles.sosBtnInner}>
-                <View style={styles.sosBtnTextWrap}>
-                  <Text style={styles.sosBtnTitle}>Hold for SOS</Text>
+                <View>
+                  <Text style={styles.sosBtnTitle}>Hold to send SOS</Text>
                   <Text style={styles.sosBtnSub}>Alerts your Circle with live location</Text>
                 </View>
-                <View style={styles.sosPowerBtn}>
-                  <Text style={styles.sosPowerIcon}>⏻</Text>
+                <View style={styles.sosPowerWrap}>
+                  <Ionicons name="power" size={26} color="#fff" />
                 </View>
               </View>
             </LinearGradient>
           </TouchableOpacity>
         </Animated.View>
 
-        {/* ── Circle protection card ────────────────────────────────────────── */}
-        <Animated.View style={[styles.circleCard, slot(4)]}>
-          <View style={styles.concentricWrap}>
-            <View style={styles.ringOuter} />
-            <View style={styles.ringMid} />
-            <View style={styles.ringInner} />
-            <Animated.View style={[styles.ringCore, { opacity: pulseAnim }]} />
-          </View>
-          <View style={styles.circleText}>
-            <View style={styles.protectedRow}>
-              <Animated.View style={[styles.pulseDot, { opacity: pulseAnim }]} />
-              <Text style={styles.protectedLabel}>PROTECTED</Text>
-            </View>
-            <Text style={styles.circleTitle}>Your Circle is active</Text>
-            <Text style={styles.circleSubtitle}>
-              {circleCount > 0
-                ? `${circleCount} trusted contact${circleCount !== 1 ? 's' : ''} ready to be alerted.`
-                : 'Add contacts to your care circle.'}
-            </Text>
-          </View>
-        </Animated.View>
-
-        {/* ── Medication card ────────────────────────────────────────────────── */}
-        <Animated.View style={slot(5)}>
+        {/* ── Medication card ────────────────────────────────────────────── */}
+        <Animated.View style={slot(4)}>
           {loading ? (
-            <View style={styles.loadingCard}>
+            <View style={styles.card}>
               <ActivityIndicator color={colors.teal} />
             </View>
           ) : nextMed ? (
-            <LinearGradient colors={['#1C1A35', '#14122A']} style={styles.medCard}>
-              <View style={styles.medLeft}>
-                <View style={styles.medIcon}>
-                  <PillIcon />
-                </View>
-                <View>
-                  <Text style={styles.medTime}>Next medication</Text>
-                  <Text style={styles.medName}>{nextMed.name}</Text>
-                  <Text style={styles.medDose}>{nextMed.dose}</Text>
-                </View>
+            <View style={styles.medCard}>
+              <View style={styles.medIconWrap}>
+                <MaterialCommunityIcons name="pill" size={24} color={colors.teal} />
               </View>
-              <View style={styles.medRight}>
-                <View style={styles.timeBadge}>
-                  <Text style={styles.timeBadgeText}>{nextMed.schedule.time}</Text>
-                </View>
-                <TouchableOpacity
-                  style={[styles.takenBtn, takenId === nextMed.id && styles.takenBtnDone]}
-                  onPress={() => handleTaken(nextMed)}
-                  disabled={takenId === nextMed.id}
-                >
-                  <Text style={styles.takenBtnText}>{takenId === nextMed.id ? '✓ Done' : 'Taken'}</Text>
-                </TouchableOpacity>
+              <View style={styles.medInfo}>
+                <Text style={styles.medTime}>
+                  Next medication · {nextMed.schedule?.time ?? '—'}
+                </Text>
+                <Text style={styles.medName}>{nextMed.name}</Text>
+                <Text style={styles.medDose}>{nextMed.dose}</Text>
               </View>
-            </LinearGradient>
+              <TouchableOpacity
+                style={[styles.takenBtn, takenId === nextMed.id && styles.takenBtnDone]}
+                onPress={() => handleTaken(nextMed)}
+                disabled={takenId === nextMed.id}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.takenBtnText}>
+                  {takenId === nextMed.id ? '✓ Done' : 'Taken'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           ) : null}
         </Animated.View>
 
-        {/* ── Weather widget ──────────────────────────────────────────────────── */}
+        {/* ── 2×2 Quick access grid ─────────────────────────────────────── */}
+        <Animated.View style={[styles.grid, slot(5)]}>
+          {GRID_ITEMS.map((item) => (
+            <TouchableOpacity
+              key={item.title}
+              style={[styles.gridItem, { width: cardWidth }]}
+              onPress={() => router.push(item.route as any)}
+              activeOpacity={0.82}
+            >
+              <View style={[styles.gridIconBg, { backgroundColor: item.color + '18' }]}>
+                <Ionicons
+                  name={item.icon as any}
+                  size={22}
+                  color={item.color}
+                />
+              </View>
+              <Text style={styles.gridTitle}>{item.title}</Text>
+              <Text style={styles.gridSub}>{item.subtitle}</Text>
+            </TouchableOpacity>
+          ))}
+        </Animated.View>
+
+        {/* ── Weather widget ─────────────────────────────────────────────── */}
         {weather && (
           <Animated.View style={slot(6)}>
             <TouchableOpacity
               style={styles.weatherCard}
               onPress={() => setForecastOpen((v) => !v)}
-              activeOpacity={0.85}
+              activeOpacity={0.88}
             >
               <View style={styles.weatherMain}>
                 <Image source={{ uri: iconUrl(weather.current.iconCode) }} style={styles.weatherIcon} />
@@ -460,30 +365,33 @@ export default function HomeScreen() {
                   <Text style={styles.weatherCity}>{weather.current.city}</Text>
                   <Text style={styles.weatherDesc}>{weather.current.description}</Text>
                 </View>
-                <View style={styles.weatherTempWrap}>
+                <View style={{ alignItems: 'flex-end' }}>
                   <Text style={styles.weatherTemp}>{weather.current.temp}°C</Text>
                   <Text style={styles.weatherFeels}>Feels {weather.current.feels_like}°</Text>
                 </View>
               </View>
-              <View style={styles.weatherStats}>
+
+              <View style={styles.weatherStatsRow}>
                 <View style={styles.weatherStat}>
-                  <View style={styles.weatherStatDot} />
-                  <Text style={styles.weatherStatText}>{weather.current.humidity}% humidity</Text>
+                  <Ionicons name="water-outline" size={13} color={colors.blue} />
+                  <Text style={styles.weatherStatTxt}>{weather.current.humidity}% humidity</Text>
                 </View>
                 <View style={styles.weatherStat}>
-                  <View style={[styles.weatherStatDot, { backgroundColor: colors.blue }]} />
-                  <Text style={styles.weatherStatText}>{weather.current.wind_kph} km/h wind</Text>
+                  <Ionicons name="flag-outline" size={13} color={colors.textMuted} />
+                  <Text style={styles.weatherStatTxt}>{weather.current.wind_kph} km/h wind</Text>
                 </View>
                 <TouchableOpacity onPress={() => router.push('/map' as any)}>
                   <Text style={styles.weatherMapLink}>Map →</Text>
                 </TouchableOpacity>
               </View>
+
               {weather.trigger && (
-                <View style={styles.weatherTrigger}>
-                  <View style={styles.weatherTriggerDot} />
-                  <Text style={styles.weatherTriggerText}>{weather.trigger}</Text>
+                <View style={styles.triggerRow}>
+                  <Ionicons name="warning-outline" size={14} color={colors.amber} />
+                  <Text style={styles.triggerTxt}>{weather.trigger}</Text>
                 </View>
               )}
+
               {forecastOpen && (
                 <View style={styles.forecastRow}>
                   {weather.forecast.map((day) => (
@@ -500,25 +408,6 @@ export default function HomeScreen() {
           </Animated.View>
         )}
 
-        {/* ── 2×2 quick-access grid ──────────────────────────────────────────── */}
-        <Animated.View style={[styles.grid, slot(7)]}>
-          {GRID_ITEMS.map((item) => (
-            <TouchableOpacity
-              key={item.title}
-              onPress={() => router.push(item.route as any)}
-              activeOpacity={0.82}
-            >
-              <LinearGradient colors={['#1C1A35', '#14122A']} style={styles.gridItem}>
-                <View style={styles.gridIconWrap}>
-                  <GridIcon type={item.icon} />
-                </View>
-                <Text style={styles.gridTitle}>{item.title}</Text>
-                <Text style={styles.gridSubtitle}>{item.subtitle}</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-          ))}
-        </Animated.View>
-
       </ScrollView>
     </SafeAreaView>
   );
@@ -527,106 +416,57 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safe:      { flex: 1, backgroundColor: colors.bg },
   scroll:    { flex: 1 },
-  container: { padding: spacing.xl, paddingBottom: 40, gap: spacing.md },
+  container: { paddingTop: spacing.md, paddingBottom: 40, gap: spacing.md },
 
   // Header
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
-  avatarGrad: {
-    width: 46, height: 46, borderRadius: 23,
-    alignItems: 'center', justifyContent: 'center',
-  },
+  header:     { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 4 },
+  headerLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  avatar:     { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: '#fff', fontWeight: '800', fontSize: fonts.md },
   greeting:   { fontSize: fonts.sm, color: colors.textSecondary },
-  heroText:   { fontSize: fonts.md, fontWeight: '700', color: colors.text },
+  heroName:   { fontSize: fonts.md, fontWeight: '700', color: colors.text },
   bellBtn: {
-    width: 42, height: 42, borderRadius: 21,
+    width: 40, height: 40, borderRadius: 20,
     backgroundColor: colors.bgCard, borderWidth: 1, borderColor: colors.border,
     alignItems: 'center', justifyContent: 'center',
   },
 
-  // Hero card
-  heroCard: {
-    borderRadius: radius.xxl,
-    borderWidth: 1,
-    borderColor: 'rgba(139,92,246,0.25)',
-    padding: spacing.xl,
-    paddingBottom: spacing.xxl,
-    overflow: 'hidden',
-    minHeight: 180,
-    shadowColor: '#8B5CF6',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 14,
-  },
-  ecgRow: {
-    position: 'absolute', top: 18, right: 18,
-    flexDirection: 'row', alignItems: 'center', opacity: 0.25,
-  },
-  ecgFlat:  { width: 14, height: 2, backgroundColor: colors.emergency, borderRadius: 1 },
-  ecgUp:    { width: 3, height: 16, backgroundColor: colors.emergency, borderRadius: 1, marginBottom: 7 },
-  ecgPeak:  { width: 3, height: 28, backgroundColor: colors.emergency, borderRadius: 1 },
-  ecgDown:  { width: 3, height: 16, backgroundColor: colors.emergency, borderRadius: 1, marginTop: 7 },
-  ecgBump:  { width: 5, height: 10, backgroundColor: colors.emergency, borderRadius: 2, marginBottom: 2 },
-  ecgFlat2: { width: 18, height: 2, backgroundColor: colors.emergency, borderRadius: 1 },
-
-  heroTopRow:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: spacing.xl },
-  heroBadge:     { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  heroBadgeText: { fontSize: fonts.xs, fontWeight: '700', color: colors.emergency, letterSpacing: 1.2 },
-  heroDateDot:   { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  heroDotInner:  { width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.success },
-  heroDateText:  { fontSize: fonts.xs, color: colors.success, fontWeight: '700', letterSpacing: 1 },
-
-  streakWrap: { flexDirection: 'row', alignItems: 'baseline', gap: 6 },
-  streakNum: {
-    fontSize: 64, fontWeight: '800', color: colors.text,
-    lineHeight: 68,
-    textShadowColor: 'rgba(139,92,246,0.5)',
-    textShadowOffset: { width: 0, height: 0 },
-    textShadowRadius: 18,
-  },
-  streakLabel:   { fontSize: fonts.xl, fontWeight: '700', color: colors.textSecondary, paddingBottom: 8 },
-  streakSub:     { fontSize: fonts.sm, color: colors.textSecondary, marginTop: spacing.xs },
-  heroBottomBand:{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 40 },
-  ringDecorWrap: { position: 'absolute', right: -40, top: -40, alignItems: 'center', justifyContent: 'center' },
-  ringDecor:     { position: 'absolute', borderWidth: 1.5, borderColor: colors.teal },
-
-  // Stats row
-  statsRow: { flexDirection: 'row', gap: spacing.md },
-  statCard: {
-    flex: 1, borderRadius: radius.xl,
-    borderWidth: 1, borderColor: colors.border,
-    padding: spacing.lg, alignItems: 'center', gap: 4,
-    shadowColor: '#8B5CF6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 4,
-  },
-  statIconWrap: { marginBottom: 4 },
-  statValue: { fontSize: fonts.xl, fontWeight: '800', color: colors.text },
-  statLabel: { fontSize: fonts.xs, color: colors.textSecondary, fontWeight: '600', letterSpacing: 0.5 },
-
-  // SOS
-  sosBtn: {
+  // Health banner
+  banner: {
     borderRadius: radius.xl,
-    padding: spacing.lg,
-    shadowColor: colors.emergency,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.5,
-    shadowRadius: 14,
-    elevation: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(139,92,246,0.2)',
+    padding: spacing.xl,
+    overflow: 'hidden',
+    shadowColor: '#8B5CF6', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.25, shadowRadius: 14, elevation: 10,
   },
-  sosBtnInner:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  sosBtnTextWrap: { flex: 1 },
-  sosBtnTitle:    { fontSize: 20, fontWeight: '800', color: '#fff', marginBottom: 4 },
-  sosBtnSub:      { fontSize: fonts.sm, color: 'rgba(255,255,255,0.8)' },
-  sosPowerBtn: {
-    width: 48, height: 48, borderRadius: 24,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    alignItems: 'center', justifyContent: 'center',
+  ecgDecor:   { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
+  ecgLine: {
+    position: 'absolute', left: 0, right: 0, height: 1,
+    backgroundColor: colors.teal,
   },
-  sosPowerIcon: { fontSize: 26, color: '#fff' },
+  ecgSpike: {
+    position: 'absolute', right: 60, top: 28,
+    width: 2, height: 28,
+    backgroundColor: colors.emergency,
+    opacity: 0.3,
+  },
+  bannerContent:  { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  bannerLabel:    { fontSize: fonts.xs, fontWeight: '700', color: colors.teal, letterSpacing: 1.2 },
+  bannerStreak:   { fontSize: 52, fontWeight: '800', color: colors.text, lineHeight: 56 },
+  bannerDays:     { fontSize: fonts.xl, fontWeight: '600', color: colors.textSecondary, paddingBottom: 6 },
+  bannerSub:      { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 4 },
+  bannerChart:    { alignItems: 'center', gap: 6 },
+  bannerChartDot: {
+    position: 'absolute', top: -8,
+    width: 10, height: 10, borderRadius: 5,
+    backgroundColor: colors.emergency,
+  },
+  bannerBpm:      { fontSize: fonts.xl, fontWeight: '800', color: colors.text, marginTop: 4 },
+  bannerBpmLabel: { fontSize: fonts.xs, color: colors.textSecondary, fontWeight: '500' },
 
-  // Circle card
-  circleCard: {
+  // Generic card
+  card: {
     backgroundColor: colors.bgCard,
     borderRadius: radius.xl,
     borderWidth: 1,
@@ -636,107 +476,101 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: spacing.lg,
   },
-  concentricWrap: { width: 64, height: 64, flexShrink: 0, alignItems: 'center', justifyContent: 'center' },
-  ringOuter:  { position: 'absolute', width: 64, height: 64, borderRadius: 32, borderWidth: 2, borderColor: 'rgba(139,92,246,0.2)' },
-  ringMid:    { position: 'absolute', width: 46, height: 46, borderRadius: 23, borderWidth: 2, borderColor: 'rgba(139,92,246,0.4)' },
-  ringInner:  { position: 'absolute', width: 28, height: 28, borderRadius: 14, borderWidth: 2, borderColor: 'rgba(139,92,246,0.7)' },
-  ringCore:   { width: 12, height: 12, borderRadius: 6, backgroundColor: colors.teal },
-  circleText: { flex: 1 },
-  protectedRow:  { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
-  pulseDot:      { width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.teal },
+
+  // Circle card text
+  circleText:     { flex: 1 },
+  protectedRow:   { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 5 },
+  pulseDot:       { width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.teal },
   protectedLabel: { fontSize: fonts.xs, fontWeight: '700', color: colors.teal, letterSpacing: 1.5 },
-  circleTitle:    { fontSize: fonts.md, fontWeight: '700', color: colors.text, marginBottom: 4 },
-  circleSubtitle: { fontSize: fonts.sm, color: colors.textSecondary, lineHeight: 18 },
+  cardTitle:      { fontSize: fonts.md, fontWeight: '700', color: colors.text, marginBottom: 4 },
+  cardSub:        { fontSize: fonts.sm, color: colors.textSecondary, lineHeight: 19 },
 
-  // Loading
-  loadingCard: {
-    backgroundColor: colors.bgCard, borderRadius: radius.lg,
-    padding: spacing.xl, alignItems: 'center',
-  },
-
-  // Med card
-  medCard: {
+  // SOS
+  sosBtn: {
     borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
     padding: spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    shadowColor: '#8B5CF6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 8, elevation: 4,
+    paddingVertical: 18,
+    shadowColor: '#EF4444', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.45, shadowRadius: 14, elevation: 10,
   },
-  medLeft:  { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
-  medIcon: {
-    width: 44, height: 44, borderRadius: 22,
-    backgroundColor: colors.tealDim,
+  sosBtnInner: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sosBtnTitle: { fontSize: 18, fontWeight: '800', color: '#fff', marginBottom: 3 },
+  sosBtnSub:   { fontSize: fonts.sm, color: 'rgba(255,255,255,0.8)' },
+  sosPowerWrap: {
+    width: 46, height: 46, borderRadius: 23,
+    backgroundColor: 'rgba(0,0,0,0.25)',
     alignItems: 'center', justifyContent: 'center',
   },
-  medTime:  { fontSize: fonts.xs, color: colors.textSecondary, marginBottom: 2 },
-  medName:  { fontSize: fonts.md, fontWeight: '700', color: colors.text },
-  medDose:  { fontSize: fonts.sm, color: colors.textSecondary },
-  medRight: { alignItems: 'flex-end', gap: spacing.xs },
-  timeBadge: {
-    backgroundColor: colors.bgCardAlt,
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.md,
-    paddingVertical: 3,
+
+  // Medication
+  medCard: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.xl,
+    borderWidth: 1, borderColor: colors.border,
+    padding: spacing.lg,
+    flexDirection: 'row', alignItems: 'center', gap: spacing.md,
   },
-  timeBadgeText: { fontSize: fonts.xs, color: colors.textSecondary, fontWeight: '600' },
+  medIconWrap: {
+    width: 46, height: 46, borderRadius: 23,
+    backgroundColor: colors.tealDim,
+    alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  },
+  medInfo:    { flex: 1 },
+  medTime:    { fontSize: fonts.xs, color: colors.textSecondary, marginBottom: 2 },
+  medName:    { fontSize: fonts.md, fontWeight: '700', color: colors.text },
+  medDose:    { fontSize: fonts.sm, color: colors.textSecondary },
   takenBtn: {
     backgroundColor: colors.teal,
     borderRadius: radius.full,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    flexShrink: 0,
   },
   takenBtnDone: { backgroundColor: colors.tealDim },
-  takenBtnText: { color: '#000', fontWeight: '700', fontSize: fonts.sm },
+  takenBtnText: { color: '#fff', fontWeight: '700', fontSize: fonts.sm },
+
+  // Grid
+  grid:     { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
+  gridItem: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.xl,
+    borderWidth: 1, borderColor: colors.border,
+    padding: spacing.lg,
+    gap: 6,
+  },
+  gridIconBg: {
+    width: 40, height: 40, borderRadius: 12,
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: 4,
+  },
+  gridTitle: { fontSize: fonts.md, fontWeight: '700', color: colors.text },
+  gridSub:   { fontSize: fonts.sm, color: colors.textSecondary, lineHeight: 17 },
 
   // Weather
   weatherCard: {
     backgroundColor: colors.bgCard, borderRadius: radius.xl, borderWidth: 1,
     borderColor: colors.border, padding: spacing.lg, gap: spacing.md,
   },
-  weatherMain: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  weatherIcon: { width: 52, height: 52 },
-  weatherCity:    { fontSize: fonts.sm, fontWeight: '700', color: colors.text },
-  weatherDesc:    { fontSize: fonts.xs, color: colors.textSecondary, marginTop: 2, textTransform: 'capitalize' },
-  weatherTempWrap:{ alignItems: 'flex-end' },
-  weatherTemp:    { fontSize: fonts.xxl, fontWeight: '800', color: colors.text },
-  weatherFeels:   { fontSize: fonts.xs, color: colors.textMuted },
-  weatherStats:   { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
-  weatherStat:    { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  weatherStatDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.teal },
-  weatherStatText:{ fontSize: fonts.xs, color: colors.textSecondary },
-  weatherMapLink: { fontSize: fonts.xs, color: colors.teal, fontWeight: '700', marginLeft: 'auto' },
-  weatherTrigger: {
-    flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm,
+  weatherMain:     { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  weatherIcon:     { width: 52, height: 52 },
+  weatherCity:     { fontSize: fonts.sm, fontWeight: '700', color: colors.text },
+  weatherDesc:     { fontSize: fonts.xs, color: colors.textSecondary, marginTop: 2, textTransform: 'capitalize' },
+  weatherTemp:     { fontSize: fonts.xxl, fontWeight: '800', color: colors.text },
+  weatherFeels:    { fontSize: fonts.xs, color: colors.textMuted },
+  weatherStatsRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.lg },
+  weatherStat:     { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  weatherStatTxt:  { fontSize: fonts.xs, color: colors.textSecondary },
+  weatherMapLink:  { fontSize: fonts.xs, color: colors.teal, fontWeight: '700', marginLeft: 'auto' },
+  triggerRow: {
+    flexDirection: 'row', alignItems: 'flex-start', gap: 6,
     backgroundColor: colors.amberDim, borderRadius: radius.sm,
-    borderWidth: 1, borderColor: colors.amber + '50', padding: spacing.sm,
+    borderWidth: 1, borderColor: colors.amber + '40', padding: 10,
   },
-  weatherTriggerDot:  { width: 7, height: 7, borderRadius: 4, backgroundColor: colors.amber, flexShrink: 0, marginTop: 3 },
-  weatherTriggerText: { fontSize: fonts.xs, color: colors.amber, lineHeight: 16, flex: 1 },
-  forecastRow: {
-    flexDirection: 'row', justifyContent: 'space-between',
-    paddingTop: spacing.sm, borderTopWidth: 1, borderTopColor: colors.border,
-  },
+  triggerTxt:   { fontSize: fonts.xs, color: colors.amber, lineHeight: 17, flex: 1 },
+  forecastRow:  { flexDirection: 'row', justifyContent: 'space-between', borderTopWidth: 1, borderTopColor: colors.border, paddingTop: spacing.sm },
   forecastItem: { alignItems: 'center', gap: 2, flex: 1 },
   forecastDay:  { fontSize: fonts.xs, color: colors.textMuted, fontWeight: '600' },
-  forecastIcon: { width: 32, height: 32 },
+  forecastIcon: { width: 30, height: 30 },
   forecastHigh: { fontSize: fonts.sm, color: colors.text, fontWeight: '700' },
   forecastLow:  { fontSize: fonts.xs, color: colors.textMuted },
-
-  // Grid
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-  gridItem: {
-    width: '47%',
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    paddingVertical: spacing.xl,
-    shadowColor: '#8B5CF6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 3,
-  },
-  gridIconWrap: { marginBottom: spacing.md },
-  gridTitle:    { fontSize: fonts.md, fontWeight: '700', color: colors.text, marginBottom: 4 },
-  gridSubtitle: { fontSize: fonts.sm, color: colors.textSecondary, lineHeight: 18 },
 });
