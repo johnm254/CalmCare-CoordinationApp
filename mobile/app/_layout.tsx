@@ -9,6 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as Updates from 'expo-updates';
 import * as Notifications from 'expo-notifications';
 import * as Location from 'expo-location';
+import * as LocalAuthentication from 'expo-local-authentication';
 import type { Session } from '@supabase/supabase-js';
 import { supabase, getProfile, registerPushToken, type Profile } from '../lib/supabase';
 import { colors, fonts, radius, spacing } from '../lib/theme';
@@ -33,12 +34,215 @@ export function useAuth() { return useContext(AuthContext); }
 
 type UpdateStatus = 'idle' | 'downloading' | 'ready' | 'applying';
 
+// ── Animated splash screen ────────────────────────────────────────────────────
+
+function SplashOverlay({ exiting }: { exiting: boolean }) {
+  const ring1 = useRef(new Animated.Value(0)).current;
+  const ring2 = useRef(new Animated.Value(0)).current;
+  const ring3 = useRef(new Animated.Value(0)).current;
+  const coreS = useRef(new Animated.Value(0)).current;
+  const titleY = useRef(new Animated.Value(20)).current;
+  const titleOp = useRef(new Animated.Value(0)).current;
+  const tagOp = useRef(new Animated.Value(0)).current;
+  const exitOp = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const spring = (v: Animated.Value, delay: number) =>
+      Animated.sequence([
+        Animated.delay(delay),
+        Animated.spring(v, { toValue: 1, tension: 55, friction: 11, useNativeDriver: true }),
+      ]);
+    spring(ring1, 0).start();
+    spring(ring2, 180).start();
+    spring(ring3, 340).start();
+    Animated.sequence([
+      Animated.delay(280),
+      Animated.spring(coreS, { toValue: 1, tension: 160, friction: 7, useNativeDriver: true }),
+    ]).start();
+    Animated.sequence([
+      Animated.delay(520),
+      Animated.parallel([
+        Animated.spring(titleY, { toValue: 0, tension: 80, friction: 12, useNativeDriver: true }),
+        Animated.timing(titleOp, { toValue: 1, duration: 380, useNativeDriver: true }),
+      ]),
+    ]).start();
+    Animated.sequence([
+      Animated.delay(850),
+      Animated.timing(tagOp, { toValue: 1, duration: 400, useNativeDriver: true }),
+    ]).start();
+  }, []);
+
+  useEffect(() => {
+    if (exiting) {
+      Animated.timing(exitOp, { toValue: 0, duration: 500, useNativeDriver: true }).start();
+    }
+  }, [exiting]);
+
+  return (
+    <Animated.View style={[splashStyles.container, { opacity: exitOp }]} pointerEvents="none">
+      <View style={splashStyles.logoWrap}>
+        <Animated.View style={[splashStyles.ring, splashStyles.r1, {
+          opacity: ring1,
+          transform: [{ scale: ring1.interpolate({ inputRange: [0,1], outputRange: [0.3,1] }) }],
+        }]} />
+        <Animated.View style={[splashStyles.ring, splashStyles.r2, {
+          opacity: ring2,
+          transform: [{ scale: ring2.interpolate({ inputRange: [0,1], outputRange: [0.3,1] }) }],
+        }]} />
+        <Animated.View style={[splashStyles.ring, splashStyles.r3, {
+          opacity: ring3,
+          transform: [{ scale: ring3.interpolate({ inputRange: [0,1], outputRange: [0.3,1] }) }],
+        }]} />
+        <Animated.View style={[splashStyles.core, { transform: [{ scale: coreS }], opacity: coreS }]} />
+      </View>
+      <Animated.View style={{ alignItems: 'center', transform: [{ translateY: titleY }], opacity: titleOp }}>
+        <Text style={splashStyles.brand}>duara</Text>
+      </Animated.View>
+      <Animated.Text style={[splashStyles.tagline, { opacity: tagOp }]}>
+        Care · Connect · Protect
+      </Animated.Text>
+    </Animated.View>
+  );
+}
+
+const splashStyles = StyleSheet.create({
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.bg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 999,
+    gap: spacing.lg,
+  },
+  logoWrap: {
+    width: 120, height: 120,
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: spacing.xl,
+  },
+  ring: { position: 'absolute', borderWidth: 2 },
+  r1: { width: 120, height: 120, borderRadius: 60, borderColor: 'rgba(139,92,246,0.20)' },
+  r2: { width: 84,  height: 84,  borderRadius: 42, borderColor: 'rgba(139,92,246,0.45)' },
+  r3: { width: 54,  height: 54,  borderRadius: 27, borderColor: 'rgba(139,92,246,0.75)' },
+  core: {
+    width: 22, height: 22, borderRadius: 11,
+    backgroundColor: colors.teal,
+    shadowColor: colors.teal, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.9, shadowRadius: 14, elevation: 10,
+  },
+  brand: {
+    fontSize: 42, fontWeight: '800', color: colors.text,
+    letterSpacing: 7, marginBottom: 2,
+  },
+  tagline: {
+    fontSize: fonts.sm, color: colors.textSecondary, letterSpacing: 1.5,
+  },
+});
+
+// ── Biometric lock screen ─────────────────────────────────────────────────────
+
+function BiometricLock({ onUnlock }: { onUnlock: () => void }) {
+  const ringPulse = useRef(new Animated.Value(1)).current;
+  const btnScale  = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(ringPulse, { toValue: 1.08, duration: 1600, useNativeDriver: true }),
+        Animated.timing(ringPulse, { toValue: 1,    duration: 1600, useNativeDriver: true }),
+      ])
+    ).start();
+    // Auto-prompt on mount
+    handleUnlock();
+  }, []);
+
+  async function handleUnlock() {
+    const has = await LocalAuthentication.hasHardwareAsync();
+    const enrolled = await LocalAuthentication.isEnrolledAsync();
+    if (!has || !enrolled) { onUnlock(); return; }
+    const result = await LocalAuthentication.authenticateAsync({
+      promptMessage: 'Verify to continue',
+      fallbackLabel: 'Use passcode',
+    });
+    if (result.success) onUnlock();
+  }
+
+  function onPressIn() {
+    Animated.spring(btnScale, { toValue: 0.95, useNativeDriver: true, tension: 200, friction: 12 }).start();
+  }
+  function onPressOut() {
+    Animated.spring(btnScale, { toValue: 1, useNativeDriver: true, tension: 200, friction: 12 }).start();
+  }
+
+  return (
+    <View style={bioStyles.container}>
+      <View style={bioStyles.logoWrap}>
+        <Animated.View style={[bioStyles.ring, bioStyles.r1, { transform: [{ scale: ringPulse }] }]} />
+        <View style={[bioStyles.ring, bioStyles.r2]} />
+        <View style={[bioStyles.ring, bioStyles.r3]} />
+        <View style={bioStyles.core} />
+      </View>
+      <Text style={bioStyles.title}>Locked</Text>
+      <Text style={bioStyles.sub}>Verify your identity to continue</Text>
+      <Animated.View style={{ transform: [{ scale: btnScale }], marginTop: spacing.xxl }}>
+        <TouchableOpacity
+          onPress={handleUnlock}
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          style={bioStyles.btn}
+          activeOpacity={1}
+        >
+          <Text style={bioStyles.btnText}>Unlock</Text>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
+  );
+}
+
+const bioStyles = StyleSheet.create({
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.bg,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 998,
+    gap: spacing.md,
+  },
+  logoWrap: {
+    width: 110, height: 110,
+    alignItems: 'center', justifyContent: 'center',
+    marginBottom: spacing.xl,
+  },
+  ring: { position: 'absolute', borderWidth: 2 },
+  r1: { width: 110, height: 110, borderRadius: 55, borderColor: 'rgba(139,92,246,0.18)' },
+  r2: { width: 76,  height: 76,  borderRadius: 38, borderColor: 'rgba(139,92,246,0.42)' },
+  r3: { width: 48,  height: 48,  borderRadius: 24, borderColor: 'rgba(139,92,246,0.72)' },
+  core: {
+    width: 20, height: 20, borderRadius: 10,
+    backgroundColor: colors.teal,
+    shadowColor: colors.teal, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.9, shadowRadius: 12, elevation: 8,
+  },
+  title: { fontSize: fonts.xxl, fontWeight: '800', color: colors.text, marginTop: spacing.lg },
+  sub: { fontSize: fonts.base, color: colors.textSecondary },
+  btn: {
+    backgroundColor: colors.teal,
+    paddingVertical: 16, paddingHorizontal: 56,
+    borderRadius: radius.xl,
+    shadowColor: colors.teal, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.5, shadowRadius: 12, elevation: 8,
+  },
+  btnText: { color: '#fff', fontWeight: '800', fontSize: fonts.md, letterSpacing: 0.5 },
+});
+
 // ── Root layout ───────────────────────────────────────────────────────────────
 
 export default function RootLayout() {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [initialized, setInitialized] = useState(false);
+
+  // Splash + biometric
+  const [splashDone, setSplashDone] = useState(false);
+  const [splashExiting, setSplashExiting] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const bgStartRef = useRef<number | null>(null);
 
   // Update flow
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus>('idle');
@@ -228,14 +432,35 @@ export default function RootLayout() {
     Location.requestForegroundPermissionsAsync().catch(() => {});
     checkForOTAUpdate();
 
+    // Dismiss splash after 1.8s (animations complete by then)
+    const splashTimer = setTimeout(() => {
+      setSplashExiting(true);
+      setTimeout(() => setSplashDone(true), 500);
+    }, 1800);
+
     const appStateSub = AppState.addEventListener('change', (state: AppStateStatus) => {
-      if (state === 'active') checkForOTAUpdate();
+      if (state === 'background' || state === 'inactive') {
+        bgStartRef.current = Date.now();
+      }
+      if (state === 'active') {
+        checkForOTAUpdate();
+        if (bgStartRef.current !== null) {
+          const elapsed = Date.now() - bgStartRef.current;
+          bgStartRef.current = null;
+          if (elapsed >= 5 * 60 * 1000) {
+            LocalAuthentication.hasHardwareAsync().then((has) => {
+              if (has) setLocked(true);
+            });
+          }
+        }
+      }
     });
 
     return () => {
       subscription.unsubscribe();
       appStateSub.remove();
       notifTapSub.remove();
+      clearTimeout(splashTimer);
       if (autoApplyTimer.current) clearTimeout(autoApplyTimer.current);
       if (countdownTimer.current) clearInterval(countdownTimer.current);
       if (downloadFakeTimer.current) clearInterval(downloadFakeTimer.current);
@@ -255,6 +480,13 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <AuthContext.Provider value={{ session, profile, isLoading: !initialized }}>
         <StatusBar style="light" backgroundColor={colors.bg} />
+
+        {/* Splash overlay — shown until 1.8s, fades out over 500ms */}
+        {!splashDone && <SplashOverlay exiting={splashExiting} />}
+
+        {/* Biometric lock — shown after 5-min background */}
+        {locked && <BiometricLock onUnlock={() => setLocked(false)} />}
+
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="(auth)" />
