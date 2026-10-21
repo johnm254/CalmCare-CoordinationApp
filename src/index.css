@@ -1,5 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 @import 'tailwindcss';
+
+@theme {
+  --color-surface: #031616;
+  --color-surface-dim: #031616;
+  --color-surface-bright: #293d3b;
+  --color-surface-container-lowest: #001110;
+  --color-surface-container-low: #0b1f1e;
+  --color-surface-container: #0f2322;
+  --color-surface-container-high: #1a2d2c;
+  --color-surface-container-highest: #253837;
+  --color-on-surface: #d1e7e5;
+  --color-on-surface-variant: #bec9c7;
+  --color-outline: #889391;
+  --color-outline-variant: #3f4947;
+  --color-primary: #88d4cd;
+  --color-on-primary: #003734;
+  --color-primary-container: #2f7f79;
+  --color-on-primary-container: #e8fffb;
+  --color-secondary: #74d8c5;
+  --color-on-secondary: #003730;
+  --color-secondary-container: #008374;
+  --color-on-secondary-container: #f4fffb;
+  --color-tertiary: #c5c0ff;
+  --color-on-tertiary: #2a1c84;
+  --color-tertiary-container: #6e66cb;
+  --color-on-tertiary-container: #fdf9ff;
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+  --color-background: #031616;
+  --color-on-background: #d1e7e5;
+  --color-inverse-surface: #d1e7e5;
+  --color-inverse-on-surface: #203433;
+  --color-inverse-primary: #0f6a64;
+}
 
 :root{font-family:"Manrope",sans-serif;color:#0B1A1F;background:#e9eeec;font-synthesis:none}*{box-sizing:border-box}body{margin:0}button,textarea{font:inherit}button{cursor:pointer}.app{min-height:100vh}.preview-tools{height:64px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1px solid #DCE6E4;position:sticky;top:0;z-index:20}.role-switch,.statebar{display:flex;gap:4px;background:#F3F6F5;padding:4px;border-radius:999px}.role-switch button,.statebar button{border:0;background:transparent;border-radius:999px;padding:8px 14px;text-transform:capitalize;font-size:12px;font-weight:700;color:#4F6866}.role-switch .active,.statebar .active{background:#0B1A1F;color:#EAF4F1}.stage{padding:28px;display:flex;justify-content:center}.status-banner{position:fixed;z-index:30;top:74px;left:50%;transform:translateX(-50%);background:#0B1A1F;color:#fff;border-radius:99px;padding:10px 18px;font-size:13px;display:flex;gap:9px;align-items:center}.status-banner.error{background:#9B1C1C}.large-text{font-size:118%}
 .phone{width:390px;height:844px;position:relative;overflow:hidden;border-radius:28px}.dark{background:#0B1A1F;color:#EAF4F1}.light{background:#F3F6F5;color:#0B1A1F}.mobile-head{padding:24px 20px 14px;display:flex;align-items:center;gap:12px}.mobile-head>div:nth-child(2){flex:1}.mobile-head span,.care-head span{color:#86A3A1;font-size:14px}.mobile-head h1,.care-head h1{font-size:23px;margin:2px 0 0;font-weight:800;letter-spacing:-.5px}.avatar{height:48px;width:48px;border-radius:16px;background:#183239;color:#3DD6B5;display:grid;place-items:center;font-weight:800;font-size:20px;flex:none}.icon-button{height:48px;width:48px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:transparent;color:inherit;display:grid;place-items:center}.mobile-content{padding:8px 20px 105px;display:flex;flex-direction:column;gap:14px}.card{border-radius:24px;padding:20px;background:#fff;border:1px solid #DCE6E4}.dark .card{background:#12272D;border-color:rgba(255,255,255,.08)}.card h2{font-size:17px;margin:0 0 6px;font-weight:800}.card p{margin:0;color:#4F6866;line-height:1.55;font-size:14px}.dark .card p{color:#9DB6B4}.protection{display:flex;gap:18px;align-items:center}.protection h2{font-size:19px}.status-ring{width:82px;height:82px;border:8px solid #3DD6B5;border-right-color:#183239;border-radius:50%;display:grid;place-items:center;color:#3DD6B5;flex:none}.eyebrow{text-transform:uppercase;letter-spacing:.08em;font-size:12px;font-weight:800}.jade{color:#3DD6B5}.coral{color:#FF6B6B}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px}.coral-bg{background:#FF6B6B}.sos-button{border:0;border-radius:24px;padding:17px 20px;background:#FF6B6B;color:#2A0A0A;display:flex;justify-content:space-between;align-items:center;text-align:left;min-height:92px}.sos-button strong{display:block;font-size:21px;font-weight:800}.sos-button span{font-size:13px}.sos-icon{height:52px;width:52px;border-radius:50%;background:#2A0A0A;color:#FF6B6B;display:grid;place-items:center;font-size:25px!important;font-weight:800}.medication{display:flex;gap:13px;align-items:center}.grow{flex:1}.medication span{color:#9DB6B4;font-size:12px}.medication h2{margin-top:3px}.icon-tile{height:48px;width:48px;border-radius:16px;background:#183239;color:#3DD6B5;display:grid;place-items:center;flex:none}.button{border:0;min-height:44px;border-radius:999px;padding:10px 18px;font-weight:800;background:#3DD6B5;color:#062A24;display:inline-flex;align-items:center;justify-content:center;gap:8px}.button.outline{background:transparent;border:1px solid currentColor;color:inherit}.button.danger{background:#FF6B6B;color:#2A0A0A}.button.ink{background:#0B1A1F;color:#EAF4F1}.full{width:100%}.tile-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.feature-tile{min-height:128px;border:1px solid rgba(255,255,255,.08);border-radius:20px;background:#12272D;color:#3DD6B5;padding:18px;text-align:left;display:flex;flex-direction:column;align-items:flex-start}.feature-tile strong{font-size:16px;color:#EAF4F1;margin-top:auto}.feature-tile span{font-size:12px;color:#9DB6B4;margin-top:3px}.bottom-nav{height:82px;position:absolute;bottom:0;left:0;right:0;background:#0B1A1F;border-top:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-around}.bottom-nav button{background:none;border:0;color:#86A3A1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-width:70px}.bottom-nav button span{font-size:11px}.bottom-nav .selected{color:#3DD6B5}

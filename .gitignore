@@ -21,3 +21,8 @@ logs/
 # beside it.
 /.plugins/
 /.opencode-skills/
+
+# Claude Code local state (contains API keys and session data)
+/.claude/settings.local.json
+/.claude/scheduled_tasks.lock
+/.claude/worktrees/

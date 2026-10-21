@@ -8,7 +8,9 @@
     "build:preview": "eas build --platform android --profile preview",
     "build:production": "eas build --platform android --profile production",
     "update:preview": "eas update --channel preview --message",
-    "update:production": "eas update --channel production --message"
+    "update:production": "eas update --channel production --message",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "1.23.1",

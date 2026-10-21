@@ -1,5 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "./lib/supabase";
+import StitchDashboard from "./components/StitchDashboard";
+import StitchGPS from "./components/StitchGPS";
+import StitchMedications from "./components/StitchMedications";
+import StitchVitals from "./components/StitchVitals";
 
 type IconName =
   | "home" | "pulse" | "users" | "file" | "bell" | "shield" | "pill"
@@ -197,6 +201,42 @@ function PatientHome({
               <span>{sub}</span>
             </button>
           ))}
+        </div>
+
+        {/* Stitch web dashboard tiles */}
+        <div style={{ margin: "6px 0 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <button
+            className="feature-tile"
+            onClick={() => navigate("stitch-dashboard")}
+          >
+            <Icon name="pulse" />
+            <strong>New Dashboard</strong>
+            <span>Full clinical telemetry</span>
+          </button>
+          <button
+            className="feature-tile"
+            onClick={() => navigate("stitch-gps")}
+          >
+            <Icon name="locate" />
+            <strong>GPS Live</strong>
+            <span>Emergency dispatch</span>
+          </button>
+          <button
+            className="feature-tile"
+            onClick={() => navigate("stitch-meds")}
+          >
+            <Icon name="pill" />
+            <strong>Medications</strong>
+            <span>Dosing &amp; consent</span>
+          </button>
+          <button
+            className="feature-tile"
+            onClick={() => navigate("stitch-vitals")}
+          >
+            <Icon name="heart" />
+            <strong>Vitals</strong>
+            <span>ECG &amp; biometrics</span>
+          </button>
         </div>
       </main>
 
@@ -1004,6 +1044,14 @@ export default function App() {
             <Insights back={() => setScreen("home")} />
           ) : screen === "records" ? (
             <RecordsScreen back={() => setScreen("home")} />
+          ) : screen === "stitch-dashboard" ? (
+            <StitchDashboard back={() => setScreen("home")} />
+          ) : screen === "stitch-gps" ? (
+            <StitchGPS back={() => setScreen("home")} />
+          ) : screen === "stitch-meds" ? (
+            <StitchMedications back={() => setScreen("home")} />
+          ) : screen === "stitch-vitals" ? (
+            <StitchVitals back={() => setScreen("home")} />
           ) : (
             <PatientHome onSos={() => setScreen("sos")} navigate={navigate} activeTab={screen} />
           )
