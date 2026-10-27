@@ -542,7 +542,7 @@ function Insights({ back }: { back: () => void }) {
               <button className="mic" onClick={() => setLogging(true)}>
                 <Icon name="mic" size={30} />
               </button>
-              <p>Say what happened and Epi turns it into a log you can edit.</p>
+              <p>Say what happened and Mojo turns it into a log you can edit.</p>
             </>
           )}
         </section>
@@ -557,7 +557,7 @@ function Insights({ back }: { back: () => void }) {
           <Button>Review</Button>
         </section>
         <p className="ai-rule">
-          Epi never diagnoses or changes your medication. Summaries are drafts built from source
+          Mojo never diagnoses or changes your medication. Summaries are drafts built from source
           records.
         </p>
       </main>
@@ -700,7 +700,7 @@ function Clinician() {
                 </section>
               </div>
               <div className="audit-note">
-                Epi summarizes what was logged. It does not diagnose or recommend treatment. Nothing
+                Mojo summarises what was logged. It does not diagnose or recommend treatment. Nothing
                 is saved until you approve it.
               </div>
             </div>
@@ -815,8 +815,8 @@ function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="brand">
-        <span>E</span>
-        <strong>Epi</strong> Clinic
+        <span>M</span>
+        <strong>Mojo</strong>
       </div>
       <nav>
         {["Patient management", "Health trends", "Events review", "Follow-up management"].map(

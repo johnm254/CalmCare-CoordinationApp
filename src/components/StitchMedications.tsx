@@ -53,9 +53,9 @@ export default function StitchMedications({ back }: { back: () => void }) {
       <header className="fixed top-0 left-0 right-0 h-16 z-50 bg-surface-container-low/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.35)]">
         <div className="h-16 w-full px-4 lg:px-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-max">
-            <img alt="Project Epi Brand Logo" className="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X11sUo6w1A3CZazeoGGiXvO4g-TAR5XyDj46485sZkPflTjh23SF-s-CBelHVfMDMI-oT_sfep3jOw_dsxyiQa2KBz0UdLB0u4gu0dMY06SsYgoQT0OOPdN0-NwxKeIYYSSZZne3ukJCan1JBqR7aHzGnOVrtFcq8F47ISnZIJ4hm84tEgOLXakHNrNegqSC0M1i70Wqx908CdPyNz5XFQHrQJZXWBUe3lYY6CS2D0HaahG_O_fSvR_cOP" />
+            <img alt="Mojo brand logo" className="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X11sUo6w1A3CZazeoGGiXvO4g-TAR5XyDj46485sZkPflTjh23SF-s-CBelHVfMDMI-oT_sfep3jOw_dsxyiQa2KBz0UdLB0u4gu0dMY06SsYgoQT0OOPdN0-NwxKeIYYSSZZne3ukJCan1JBqR7aHzGnOVrtFcq8F47ISnZIJ4hm84tEgOLXakHNrNegqSC0M1i70Wqx908CdPyNz5XFQHrQJZXWBUe3lYY6CS2D0HaahG_O_fSvR_cOP" />
             <div className="flex flex-col">
-              <span className="text-on-surface tracking-tight leading-none" style={{ fontSize: 16, fontWeight: 600 }}>Project Epi</span>
+              <span className="text-on-surface tracking-tight leading-none" style={{ fontSize: 16, fontWeight: 600 }}>Mojo</span>
               <span className="text-secondary tracking-normal leading-none mt-1" style={{ fontSize: 12 }}>Clinical Telemetry</span>
             </div>
           </div>
@@ -256,7 +256,7 @@ export default function StitchMedications({ back }: { back: () => void }) {
                         </div>
                       </div>
                       <p className="text-on-surface-variant mb-3" style={{ fontSize: 12 }}>
-                        Correlated with Epi-Strap capacitive skin impedance telemetry at administration timestamps.
+                        Correlated with Mojo Strap capacitive skin impedance telemetry at administration timestamps.
                       </p>
                       <div className="w-full bg-surface-container-high/40 p-3 rounded-lg flex flex-col gap-2">
                         <div className="flex justify-between items-center text-on-surface-variant uppercase" style={{ fontSize: 11 }}>
@@ -308,7 +308,7 @@ export default function StitchMedications({ back }: { back: () => void }) {
                     </div>
                     <div className="space-y-3">
                       {[
-                        { icon: "ecg_heart", title: "Continuous Biometrics & Vitals", badge: "Epi Strap Stream", desc: "Heart rate, EDA (galvanic skin conductance), and sleep staging packets.", label: "Shared with Care Circle", defaultChecked: true },
+                        { icon: "ecg_heart", title: "Continuous Biometrics & Vitals", badge: "Mojo Strap Stream", desc: "Heart rate, EDA (galvanic skin conductance), and sleep staging packets.", label: "Shared with Care Circle", defaultChecked: true },
                         { icon: "monitor_heart", title: "Raw ECG Strip & Seizure Detection Vectors", badge: "High-Frequency", desc: "High-frequency 250Hz vector traces used for clinical spike and wave evaluation.", label: "Clinician Only", defaultChecked: true },
                         { icon: "pill", title: "Medication Regimen Adherence Logs", badge: "Daily Feed", desc: "Dosage confirmations and delay timestamps sent to care circle coordinators.", label: "Care Circle & Pharmacy", defaultChecked: true },
                         { icon: "fmd_good", title: "Emergency High-Precision GPS Coordinates", badge: "Conditional Trigger", desc: "Location remains completely obscured until manual SOS or confirmed tonic-clonic fall.", label: "SOS Dispatch Only", defaultChecked: true, iconColor: "text-error" },

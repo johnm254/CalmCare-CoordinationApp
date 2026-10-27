@@ -125,9 +125,9 @@ export default function StitchDashboard({ back }: { back: () => void }) {
       <header className="fixed top-0 left-0 right-0 h-16 z-50 bg-surface-container-low/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.35)]">
         <div className="h-16 w-full px-4 lg:px-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-max">
-            <img alt="Project Epi Brand Logo" className="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X11sUo6w1A3CZazeoGGiXvO4g-TAR5XyDj46485sZkPflTjh23SF-s-CBelHVfMDMI-oT_sfep3jOw_dsxyiQa2KBz0UdLB0u4gu0dMY06SsYgoQT0OOPdN0-NwxKeIYYSSZZne3ukJCan1JBqR7aHzGnOVrtFcq8F47ISnZIJ4hm84tEgOLXakHNrNegqSC0M1i70Wqx908CdPyNz5XFQHrQJZXWBUe3lYY6CS2D0HaahG_O_fSvR_cOP" />
+            <img alt="Mojo brand logo" className="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X11sUo6w1A3CZazeoGGiXvO4g-TAR5XyDj46485sZkPflTjh23SF-s-CBelHVfMDMI-oT_sfep3jOw_dsxyiQa2KBz0UdLB0u4gu0dMY06SsYgoQT0OOPdN0-NwxKeIYYSSZZne3ukJCan1JBqR7aHzGnOVrtFcq8F47ISnZIJ4hm84tEgOLXakHNrNegqSC0M1i70Wqx908CdPyNz5XFQHrQJZXWBUe3lYY6CS2D0HaahG_O_fSvR_cOP" />
             <div className="flex flex-col">
-              <span className="font-title-md text-on-surface tracking-tight leading-none" style={{ fontSize: 16, fontWeight: 600 }}>Project Epi</span>
+              <span className="font-title-md text-on-surface tracking-tight leading-none" style={{ fontSize: 16, fontWeight: 600 }}>Mojo</span>
               <span className="text-secondary tracking-normal leading-none mt-1" style={{ fontSize: 12 }}>Clinical Telemetry</span>
             </div>
           </div>
@@ -141,7 +141,7 @@ export default function StitchDashboard({ back }: { back: () => void }) {
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container-high/80">
               <span className="material-symbols-outlined text-secondary text-base">watch</span>
-              <span className="text-on-surface" style={{ fontSize: 13 }}>Epi Strap A</span>
+              <span className="text-on-surface" style={{ fontSize: 13 }}>Mojo Strap</span>
               <span className="text-secondary bg-surface-container-highest px-1.5 py-0.5 rounded-full" style={{ fontSize: 11 }}>Connected 92%</span>
             </div>
           </div>
@@ -267,7 +267,7 @@ export default function StitchDashboard({ back }: { back: () => void }) {
                   </div>
                   <div className="flex flex-col justify-center flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <span className="text-on-surface truncate" style={{ fontSize: 16, fontWeight: 600 }}>Epi Strap Pro X</span>
+                      <span className="text-on-surface truncate" style={{ fontSize: 16, fontWeight: 600 }}>Mojo Strap</span>
                       <span className="flex items-center gap-1 text-secondary font-semibold" style={{ fontSize: 13 }}>
                         <span className="material-symbols-outlined text-sm">battery_charging_90</span> 92%
                       </span>

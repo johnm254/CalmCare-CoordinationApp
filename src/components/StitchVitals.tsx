@@ -54,9 +54,9 @@ export default function StitchVitals({ back }: { back: () => void }) {
       <header className="fixed top-0 left-0 right-0 h-16 z-50 bg-surface-container-low/95 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.35)]">
         <div className="h-16 w-full px-4 lg:px-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-max">
-            <img alt="Project Epi Brand Logo" className="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X11sUo6w1A3CZazeoGGiXvO4g-TAR5XyDj46485sZkPflTjh23SF-s-CBelHVfMDMI-oT_sfep3jOw_dsxyiQa2KBz0UdLB0u4gu0dMY06SsYgoQT0OOPdN0-NwxKeIYYSSZZne3ukJCan1JBqR7aHzGnOVrtFcq8F47ISnZIJ4hm84tEgOLXakHNrNegqSC0M1i70Wqx908CdPyNz5XFQHrQJZXWBUe3lYY6CS2D0HaahG_O_fSvR_cOP" />
+            <img alt="Mojo brand logo" className="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1X11sUo6w1A3CZazeoGGiXvO4g-TAR5XyDj46485sZkPflTjh23SF-s-CBelHVfMDMI-oT_sfep3jOw_dsxyiQa2KBz0UdLB0u4gu0dMY06SsYgoQT0OOPdN0-NwxKeIYYSSZZne3ukJCan1JBqR7aHzGnOVrtFcq8F47ISnZIJ4hm84tEgOLXakHNrNegqSC0M1i70Wqx908CdPyNz5XFQHrQJZXWBUe3lYY6CS2D0HaahG_O_fSvR_cOP" />
             <div className="flex flex-col">
-              <span className="text-on-surface tracking-tight leading-none" style={{ fontSize: 16, fontWeight: 600 }}>Project Epi</span>
+              <span className="text-on-surface tracking-tight leading-none" style={{ fontSize: 16, fontWeight: 600 }}>Mojo</span>
               <span className="text-secondary tracking-normal leading-none mt-1" style={{ fontSize: 12 }}>Clinical Telemetry</span>
             </div>
           </div>
@@ -144,7 +144,7 @@ export default function StitchVitals({ back }: { back: () => void }) {
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-secondary text-xl">watch</span>
-                      <span className="text-on-surface font-semibold" style={{ fontSize: 16, fontWeight: 600 }}>Epi Hardware Band Alpha</span>
+                      <span className="text-on-surface font-semibold" style={{ fontSize: 16, fontWeight: 600 }}>Mojo Strap</span>
                     </div>
                     <span className="px-2.5 py-1 rounded-full bg-secondary-container text-on-secondary-container font-bold uppercase tracking-wider" style={{ fontSize: 11 }}>BLE 5.3 Connected</span>
                   </div>

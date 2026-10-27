@@ -15,7 +15,7 @@ export default function StitchGPS({ back }: { back: () => void }) {
         <div className="h-16 w-full px-4 lg:px-6 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-max">
             <div className="flex flex-col">
-              <span className="font-title-md text-on-surface tracking-tight leading-none" style={{ fontSize: 16, fontWeight: 600 }}>Project Epi</span>
+              <span className="font-title-md text-on-surface tracking-tight leading-none" style={{ fontSize: 16, fontWeight: 600 }}>Mojo</span>
               <span className="text-secondary text-xs mt-1">GPS &amp; Emergency</span>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function StitchGPS({ back }: { back: () => void }) {
                 </div>
                 <p className="text-sm text-on-surface-variant mb-3">If data drops, hardware sends encrypted GSM SMS with GPS coords to kin.</p>
                 <div className="bg-surface-container-lowest p-3 rounded-lg font-mono text-sm text-primary mb-3 leading-relaxed break-all">
-                  [EPI-SOS] Patient: Sarah Mwangi LOC: -1.2988,36.8122 ACC:0.8m TIME:14:02EAT MED:Keppra-750mg
+                  Mojo SOS: Sarah Mwangi LOC: -1.2988,36.8122 ACC:0.8m TIME:14:02EAT
                 </div>
               </div>
             </div>
