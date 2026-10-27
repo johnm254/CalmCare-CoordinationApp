@@ -1,4 +1,75 @@
+import { useState } from "react";
+
+type Hospital = {
+  name: string;
+  address: string;
+  distanceKm: number;
+  etaMin: number;
+  open24h: boolean;
+  phone: string;
+  capabilities: string[];
+  erStatus: string;
+};
+
+function rankHospitals(hospitals: Hospital[], patientConditions: string[]): Hospital[] {
+  return [...hospitals].sort((a, b) => {
+    // 1. 24h open first
+    if (a.open24h !== b.open24h) return a.open24h ? -1 : 1;
+    // 2. condition match count (more matches = higher rank)
+    const matchA = patientConditions.filter(c => a.capabilities.includes(c)).length;
+    const matchB = patientConditions.filter(c => b.capabilities.includes(c)).length;
+    if (matchA !== matchB) return matchB - matchA;
+    // 3. distance ascending
+    return a.distanceKm - b.distanceKm;
+  });
+}
+
 export default function StitchGPS({ back }: { back: () => void }) {
+  const [hospitals] = useState<Hospital[]>([
+    {
+      name: "The Nairobi Hospital",
+      address: "Argwings Kodhek Rd, Upper Hill",
+      distanceKm: 1.8,
+      etaMin: 6,
+      open24h: true,
+      phone: "+254202845000",
+      capabilities: ["neurology", "icu", "ambulance", "epilepsy"],
+      erStatus: "ER Open (0 wait)",
+    },
+    {
+      name: "Aga Khan University Hospital",
+      address: "3rd Parklands Avenue",
+      distanceKm: 3.4,
+      etaMin: 11,
+      open24h: true,
+      phone: "+254203662000",
+      capabilities: ["neurology", "icu", "ambulance", "epilepsy", "mri"],
+      erStatus: "3 Ambulances Ready",
+    },
+    {
+      name: "Kenyatta National Hospital",
+      address: "Hospital Rd, Upper Hill",
+      distanceKm: 2.1,
+      etaMin: 8,
+      open24h: true,
+      phone: "+254202726300",
+      capabilities: ["neurology", "epilepsy", "icu"],
+      erStatus: "ER Open",
+    },
+    {
+      name: "MP Shah Hospital",
+      address: "Shivachi Rd, Parklands",
+      distanceKm: 4.7,
+      etaMin: 15,
+      open24h: false,
+      phone: "+254203673000",
+      capabilities: ["ambulance", "icu", "mri"],
+      erStatus: "Day hours only",
+    },
+  ]);
+
+  const rankedHospitals = rankHospitals(hospitals, ["epilepsy", "neurology"]);
+
   return (
     <div className="dark bg-surface text-on-surface antialiased min-h-screen" style={{ fontFamily: "Inter, sans-serif" }}>
       {/* Back button */}
@@ -135,46 +206,72 @@ export default function StitchGPS({ back }: { back: () => void }) {
                   </span>
                 </div>
                 <div className="flex flex-col gap-3">
-                  <div className="p-3.5 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex flex-col gap-2">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="font-semibold text-on-surface">The Nairobi Hospital</h4>
-                        <p className="text-sm text-on-surface-variant">Argwings Kodhek Rd, Upper Hill</p>
+                  {rankedHospitals.map((hospital) => (
+                    <div
+                      key={hospital.name}
+                      className="p-3.5 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex flex-col gap-2"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <span
+                              className={`w-2 h-2 rounded-full flex-shrink-0 ${hospital.open24h ? "bg-green-400" : "bg-on-surface-variant"}`}
+                              title={hospital.open24h ? "Open 24h" : "Not 24h"}
+                            ></span>
+                            <h4 className="font-semibold text-on-surface text-sm leading-snug truncate">{hospital.name}</h4>
+                          </div>
+                          <p className="text-xs text-on-surface-variant truncate">{hospital.address}</p>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <span className="text-xl font-semibold text-primary leading-none">
+                            {hospital.distanceKm.toFixed(1)} <span className="text-xs uppercase">km</span>
+                          </span>
+                          <span className="block text-xs font-bold text-secondary mt-0.5">{hospital.etaMin} mins ETA</span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-2xl font-semibold text-primary leading-none">1.8 <span className="text-xs uppercase">km</span></span>
-                        <span className="block text-xs font-bold text-secondary mt-0.5">6 mins ETA</span>
+
+                      {/* Capabilities chips — truncated to 3 */}
+                      <div className="flex flex-wrap gap-1">
+                        {hospital.capabilities.slice(0, 3).map((cap) => (
+                          <span
+                            key={cap}
+                            className="text-xs bg-primary-container/30 text-on-surface-variant px-1.5 py-0.5 rounded-full capitalize"
+                          >
+                            {cap}
+                          </span>
+                        ))}
+                        {hospital.capabilities.length > 3 && (
+                          <span className="text-xs text-on-surface-variant px-1 py-0.5">
+                            +{hospital.capabilities.length - 3}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="pt-1 flex items-center justify-between gap-2">
+                        <span className="text-xs text-on-surface-variant flex items-center gap-1 truncate">
+                          <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${hospital.open24h ? "bg-secondary" : "bg-on-surface-variant"}`}></span>
+                          {hospital.erStatus}
+                        </span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <a
+                            className="text-xs text-primary hover:underline flex items-center gap-0.5"
+                            href={`tel:${hospital.phone}`}
+                          >
+                            <span className="material-symbols-outlined text-xs">call</span> Call
+                          </a>
+                          <span className="text-on-surface-variant text-xs">·</span>
+                          <a
+                            className="text-xs text-secondary hover:underline flex items-center gap-0.5"
+                            href={`https://maps.google.com/?q=${encodeURIComponent(hospital.name)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <span className="material-symbols-outlined text-xs">directions</span> Directions
+                          </a>
+                        </div>
                       </div>
                     </div>
-                    <div className="pt-2 flex items-center justify-between">
-                      <span className="text-sm text-on-surface-variant flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> ER Open (0 wait)
-                      </span>
-                      <a className="text-sm text-primary hover:underline flex items-center gap-1" href="tel:+254202845000">
-                        <span className="material-symbols-outlined text-sm">call</span> Direct ER
-                      </a>
-                    </div>
-                  </div>
-                  <div className="p-3.5 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors flex flex-col gap-2">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="font-semibold text-on-surface">Aga Khan University Hospital</h4>
-                        <p className="text-sm text-on-surface-variant">3rd Parklands Avenue</p>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-2xl font-semibold text-on-surface leading-none">3.4 <span className="text-xs uppercase">km</span></span>
-                        <span className="block text-xs font-bold text-on-surface-variant mt-0.5">11 mins</span>
-                      </div>
-                    </div>
-                    <div className="pt-2 flex items-center justify-between">
-                      <span className="text-sm text-on-surface-variant flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span> 3 Ambulances Ready
-                      </span>
-                      <a className="text-sm text-primary hover:underline flex items-center gap-1" href="tel:+254203662000">
-                        <span className="material-symbols-outlined text-sm">call</span> Dispatch
-                      </a>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 

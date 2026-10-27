@@ -429,7 +429,7 @@ function DevicesSection() {
   );
 }
 
-function LocationSection() {
+function LocationSection({ navigate }: { navigate?: (s: string) => void }) {
   const [shareAlerts, setShareAlerts] = useState(true);
   const [bgLocation, setBgLocation] = useState(false);
 
@@ -454,8 +454,9 @@ function LocationSection() {
         <button
           className="button outline"
           style={{ height: 36, padding: "6px 14px", fontSize: 13 }}
+          onClick={() => navigate?.("saved-places")}
         >
-          Edit
+          Manage places
         </button>
       </div>
 
@@ -741,7 +742,7 @@ function AppInfoSection() {
 }
 
 // ─── Root component ───────────────────────────────────────────────────────────
-export default function MeScreen({ back }: { back: () => void }) {
+export default function MeScreen({ back, navigate }: { back: () => void; navigate?: (s: string) => void }) {
   return (
     <div className="phone dark scroll-phone" style={{ position: "relative" }}>
       <header className="subhead">
@@ -766,7 +767,7 @@ export default function MeScreen({ back }: { back: () => void }) {
       <main className="mobile-content">
         <ProfileSection />
         <DevicesSection />
-        <LocationSection />
+        <LocationSection navigate={navigate} />
         <PrivacySection />
         <NotificationsSection />
         <AppInfoSection />

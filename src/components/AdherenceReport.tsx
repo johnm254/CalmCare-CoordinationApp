@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { logAccess } from "../lib/audit";
 
 type Period = "7" | "30" | "90";
 type Patient = "All" | "Patient A" | "Patient B" | "Patient C";
@@ -87,6 +88,10 @@ export default function AdherenceReport({ back }: { back: () => void }) {
   const [patient, setPatient] = useState<Patient>("All");
   const [period, setPeriod] = useState<Period>("30");
   const [toast, setToast] = useState<string | null>(null);
+
+  useEffect(() => {
+    logAccess("demo-patient-id", "dose_events", "clinician_adherence_report");
+  }, []);
 
   const showToast = (msg: string) => {
     setToast(msg);

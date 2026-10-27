@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import { logAccess } from "../lib/audit";
 
 type SelectedPatient = "Patient A" | "Patient B" | "Patient C";
 type Pathway = "medical" | "mental_health";
@@ -149,6 +150,10 @@ export default function AlertLimitEditor({ back }: { back: () => void }) {
   const [selectedPatient, setSelectedPatient] = useState<SelectedPatient>("Patient A");
   const [rules, setRules] = useState<Record<SelectedPatient, AlertRule[]>>(RULES_BY_PATIENT);
   const [editState, setEditState] = useState<EditState | null>(null);
+
+  useEffect(() => {
+    logAccess("demo-patient-id", "alert_rules", "clinician_limit_editor");
+  }, []);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateKey | "">("");
   const [templateOpen, setTemplateOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);

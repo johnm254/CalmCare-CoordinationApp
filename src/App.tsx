@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { supabase } from "./lib/supabase";
+import { getCopy } from "./i18n/catalogue";
+import { logAccess } from "./lib/audit";
 import StitchDashboard from "./components/StitchDashboard";
 import StitchGPS from "./components/StitchGPS";
 import StitchMedications from "./components/StitchMedications";
@@ -7,6 +9,8 @@ import StitchVitals from "./components/StitchVitals";
 import AlertsInbox from "./components/AlertsInbox";
 import AdherenceReport from "./components/AdherenceReport";
 import AlertLimitEditor from "./components/AlertLimitEditor";
+import MedScheduleEditor from "./components/MedScheduleEditor";
+import SavedPlaces from "./components/SavedPlaces";
 import OnboardingScreen from "./components/OnboardingScreen";
 import MeScreen from "./components/MeScreen";
 import AdminPortal from "./components/AdminPortal";
@@ -289,10 +293,10 @@ function PatientHome({
       <nav className="bottom-nav">
         {(
           [
-            ["home", "Home", "home"],
-            ["pulse", "Health", "insights"],
-            ["users", "Circle", "circle"],
-            ["file", "Records", "records"],
+            ["home", "Today", "home"],
+            ["pulse", "Vitals", "insights"],
+            ["pill", "Meds", "stitch-meds"],
+            ["users", "Care", "circle"],
             ["shield", "Me", "me"],
           ] as [IconName, string, string][]
         ).map(([icon, label, target]) => (
@@ -314,7 +318,8 @@ function PatientHome({
 
 function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDispatch: () => void }) {
   const [sent, setSent] = useState(false);
-  const [count, setCount] = useState(5);
+  const [cancelled, setCancelled] = useState(false);
+  const [count, setCount] = useState(10);
 
   useEffect(() => {
     if (sent) return;
@@ -339,7 +344,23 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
 
   const radius = 78;
   const circumference = 2 * Math.PI * radius;
-  const dashoffset = circumference * (1 - count / 5);
+  const dashoffset = circumference * (1 - count / 10);
+
+  const sentCopy = getCopy("SOS-01-APP");
+  const cancelCopy = getCopy("SOS-FA-APP");
+
+  if (cancelled) {
+    return (
+      <div className="phone dark center-screen">
+        <div className="eyebrow jade">Cancelled</div>
+        <h1>SOS cancelled</h1>
+        <p>{cancelCopy?.en ?? "Your SOS contact has been told you're OK."}</p>
+        <Button tone="outline" onClick={() => back()}>
+          Return home
+        </Button>
+      </div>
+    );
+  }
 
   if (sent) {
     return (
@@ -349,7 +370,7 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
         </div>
         <div className="eyebrow coral">SOS sent</div>
         <h1>Your Circle has been alerted</h1>
-        <p>Live location is being shared with 3 emergency contacts.</p>
+        <p>{sentCopy?.en ?? "SOS sent. We've told your SOS contact."}</p>
         <Button tone="outline" onClick={() => back(true)}>
           Return home
         </Button>
@@ -363,7 +384,7 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
         <span className="dot coral-bg" /> SOS
       </div>
 
-      <div className="countdown-wrap" role="timer" aria-live="assertive" aria-label={`${count} seconds until SOS is sent`}>
+      <div className="countdown-wrap" role="timer" aria-live="assertive" aria-label={`${count} seconds to cancel`}>
         <svg viewBox="0 0 200 200" width={190} height={190} aria-hidden="true">
           <circle cx="100" cy="100" r={radius} fill="none" stroke="#1e3540" strokeWidth={12} />
           <circle
@@ -417,7 +438,7 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
         <Button tone="danger" onClick={handleSend}>
           Send now
         </Button>
-        <Button tone="outline" onClick={() => back()}>
+        <Button tone="outline" onClick={() => setCancelled(true)}>
           Cancel, I am okay
         </Button>
       </div>
@@ -473,7 +494,9 @@ function AmbulanceScreen({ onCancel }: { onCancel: () => void }) {
 function CircleScreen({ back }: { back: () => void }) {
   const [toggles, setToggles] = useState([true, true, true, true, false]);
   const [toast, setToast] = useState(false);
+  const [toastMsg, setToastMsg] = useState("Sharing preference updated");
   const [showPicker, setShowPicker] = useState(false);
+  const [contactBStatus, setContactBStatus] = useState<"pending" | "accepted">("pending");
   const labels = [
     ["Emergency alerts", "Receive your SOS with location"],
     ["Medication schedule", "Doses and reminders"],
@@ -485,8 +508,20 @@ function CircleScreen({ back }: { back: () => void }) {
     const next = [...toggles];
     next[i] = !next[i];
     setToggles(next);
+    setToastMsg("Sharing preference updated");
     setToast(true);
     setTimeout(() => setToast(false), 1800);
+  };
+
+  const handleAcceptB = () => {
+    setContactBStatus("accepted");
+    supabase.from("care_circle")
+      .update({ contact_status: "accepted" })
+      .eq("contact_name", "Contact B")
+      .then(() => undefined);
+    setToastMsg("Contact B accepted via SMS");
+    setToast(true);
+    setTimeout(() => setToast(false), 2200);
   };
   return (
     <div className="phone dark scroll-phone">
@@ -532,8 +567,26 @@ function CircleScreen({ back }: { back: () => void }) {
           <div style={{ flex: 1 }}>
             <h2>Contact B</h2>
             <p>Family · emergency contact</p>
+            {contactBStatus === "pending" ? (
+              <span style={{ fontSize: 11, color: "#F5A623", display: "block", marginTop: 2 }}>
+                Pending SMS reply — not yet receiving alerts
+              </span>
+            ) : (
+              <span style={{ fontSize: 11, color: "#3DD6B5", display: "block", marginTop: 2 }}>
+                Active · accepted via SMS
+              </span>
+            )}
           </div>
-          <span className="chip muted-chip">1 of 5</span>
+          {contactBStatus === "pending" ? (
+            <button
+              style={{ fontSize: 11, background: "#1e3540", color: "#F5A623", border: "1px solid #F5A623", borderRadius: 99, padding: "4px 10px", cursor: "pointer", whiteSpace: "nowrap" }}
+              onClick={handleAcceptB}
+            >
+              Demo: accept
+            </button>
+          ) : (
+            <span className="chip muted-chip">1 of 5</span>
+          )}
         </section>
         <Button tone="outline" className="full">
           <Icon name="clock" size={16} /> See who viewed what
@@ -548,7 +601,7 @@ function CircleScreen({ back }: { back: () => void }) {
       )}
       {toast && (
         <div className="toast">
-          <Icon name="check" /> Sharing preference updated
+          <Icon name="check" /> {toastMsg}
         </div>
       )}
     </div>
@@ -878,7 +931,11 @@ function CaregiverScreen() {
 function Clinician() {
   const [brief, setBrief] = useState(false);
   const [approved, setApproved] = useState(false);
-  const [clinicianScreen, setClinicianScreen] = useState<"dashboard" | "alerts" | "adherence" | "limits">("dashboard");
+  const [clinicianScreen, setClinicianScreen] = useState<"dashboard" | "alerts" | "adherence" | "limits" | "schedules">("dashboard");
+
+  useEffect(() => {
+    logAccess("demo-patient-id", "vital_samples", "clinician_dashboard");
+  }, []);
 
   if (clinicianScreen === "alerts") {
     return <AlertsInbox back={() => setClinicianScreen("dashboard")} />;
@@ -888,6 +945,9 @@ function Clinician() {
   }
   if (clinicianScreen === "limits") {
     return <AlertLimitEditor back={() => setClinicianScreen("dashboard")} />;
+  }
+  if (clinicianScreen === "schedules") {
+    return <MedScheduleEditor back={() => setClinicianScreen("dashboard")} />;
   }
 
   if (brief)
@@ -1072,6 +1132,15 @@ function Clinician() {
             <div className="eyebrow jade" style={{ marginBottom: 6 }}>&#9679; CR-CLIN-05</div>
             <h2 style={{ marginBottom: 4 }}>Alert limit editor</h2>
             <p style={{ fontSize: 12, color: "#4F6866" }}>Set per-patient alert thresholds and apply condition templates.</p>
+          </button>
+          <button
+            className="card"
+            style={{ textAlign: "left", border: "1.5px solid #DCE6E4", cursor: "pointer", background: "#fff" }}
+            onClick={() => setClinicianScreen("schedules")}
+          >
+            <div className="eyebrow jade" style={{ marginBottom: 6 }}>&#9679; CR-CLIN-06</div>
+            <h2 style={{ marginBottom: 4 }}>Medication schedules</h2>
+            <p style={{ fontSize: 12, color: "#4F6866" }}>Set doses, times, escalation targets, and stock thresholds per patient.</p>
           </button>
         </div>
       </main>
@@ -1322,8 +1391,10 @@ export default function App() {
             <StitchVitals back={() => setScreen("home")} />
           ) : screen === "onboarding" ? (
             <OnboardingScreen onComplete={() => setScreen("home")} />
+          ) : screen === "saved-places" ? (
+            <SavedPlaces back={() => setScreen("me")} />
           ) : screen === "me" ? (
-            <MeScreen back={() => setScreen("home")} />
+            <MeScreen back={() => setScreen("home")} navigate={navigate} />
           ) : (
             <PatientHome onSos={() => setScreen("sos")} navigate={navigate} activeTab={screen} />
           )

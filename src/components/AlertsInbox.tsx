@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import { logAccess } from "../lib/audit";
 
 type AlertState = "open" | "acknowledged" | "closed";
 type Severity = "critical" | "warning";
@@ -102,6 +103,10 @@ export default function AlertsInbox({ back }: { back: () => void }) {
   const [alerts, setAlerts] = useState<Alert[]>(INITIAL_ALERTS);
   const [activeFilter, setActiveFilter] = useState<FilterKey>("All");
   const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  useEffect(() => {
+    logAccess("demo-patient-id", "alerts", "clinician_alerts_inbox");
+  }, []);
   const [closeForm, setCloseForm] = useState<CloseForm | null>(null);
   const [noteForm, setNoteForm] = useState<NoteForm | null>(null);
   const [toast, setToast] = useState<string | null>(null);
