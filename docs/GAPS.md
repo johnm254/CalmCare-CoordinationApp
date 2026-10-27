@@ -1,4 +1,4 @@
-# PROJECT EPI — Gaps and Blocked Items
+# Mojo — Gaps and Blocked Items
 
 > Items listed here cannot be completed in code alone. Each has a reason and a flag for client/legal action.
 > Status: ⚠️ built with default (configurable) · ❌ blocked (cannot proceed without external action)
@@ -33,3 +33,34 @@ These features are built behind a feature flag in the `feature_flags` table and 
 | `hospital_arrival_sms` | Notify facility emergency desk when patient may be en route | Opt-in per facility via admin portal |
 | `health_kit_bridge` | Read BP/glucose/weight from Apple HealthKit / Android Health Connect | After testing on target devices |
 | `org_admin_role` | org_admin role UI and permissions | After first clinic onboards |
+| `release2_ecg_rhythm` | Rhythm classification in ECG panel | After PPB guidance + validation study |
+
+---
+
+## Stage 6 copy gaps (human sign-off required before any patient-facing pilot)
+
+All 34 entries in `src/i18n/catalogue.ts` are `status: draft`. Zero are approved.
+
+| Count | Gate | Items |
+|---|---|---|
+| 16 | clinician + legal | SOS steps 0–4, fall-check messages, caregiver alert copy, consent screens |
+| 10 | clinician only | Strap screen text (dose, ECG events) |
+| 1 | legal only | Location consent (CON-02) |
+| 7 | none | Strap utility messages (battery, linked, etc.) |
+
+**Action required:** Route the draft catalogue to O'Brien Kyalo (content) → named clinician → legal reviewer → project lead sign-off. See `docs/COPY_LOG.md` for the full table and playbook references.
+
+## Stage 6 accessibility gaps (require device testing)
+
+| Item | What is needed |
+|---|---|
+| 200% system text size | Manual test on iOS and Android at 200% font scale; verify no truncation in SOS screens |
+| VoiceOver / TalkBack | Screen-reader walkthrough of the SOS flow end-to-end |
+| Dark mode (Vitals / Clinician) | StitchVitals and Clinician shell use hardcoded dark colors; verify contrast ratios with WCAG AA tool |
+| Swahili RTL | Swahili is LTR, but flag for translator: any idioms or length mismatches that break layout |
+
+## Stage 6 i18n gaps
+
+- Swahili strings in `catalogue.ts` are machine-drafted. All marked `needs_review`. A human Swahili speaker must review before any Swahili-language pilot.
+- No runtime i18n framework is wired up yet (all strings in `catalogue.ts` are a reference catalogue, not yet connected to the UI via `getCopy()` / `getSurface()`). Wiring to the UI is Stage 6 completion work.
+- `TODO(COPY): SOS-CG-02` — caregiver alert copy in Swahili not yet in the catalogue.

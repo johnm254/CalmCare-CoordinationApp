@@ -277,11 +277,13 @@ function PatientHome({
         ).map(([icon, label, target]) => (
           <button
             key={label}
+            aria-label={label}
+            aria-current={activeTab === target ? "page" : undefined}
             className={activeTab === target ? "selected" : ""}
             onClick={() => navigate(target)}
           >
             <Icon name={icon} />
-            <span>{label}</span>
+            <span aria-hidden="true">{label}</span>
           </button>
         ))}
       </nav>
@@ -340,8 +342,8 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
         <span className="dot coral-bg" /> SOS
       </div>
 
-      <div className="countdown-wrap">
-        <svg viewBox="0 0 200 200" width={190} height={190}>
+      <div className="countdown-wrap" role="timer" aria-live="assertive" aria-label={`${count} seconds until SOS is sent`}>
+        <svg viewBox="0 0 200 200" width={190} height={190} aria-hidden="true">
           <circle cx="100" cy="100" r={radius} fill="none" stroke="#1e3540" strokeWidth={12} />
           <circle
             cx="100"
@@ -357,7 +359,7 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
             style={{ transition: "stroke-dashoffset 1s linear" }}
           />
         </svg>
-        <div className="countdown-label">
+        <div className="countdown-label" aria-hidden="true">
           <strong>{count}</strong>
           <span>seconds</span>
         </div>
