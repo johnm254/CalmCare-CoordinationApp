@@ -232,6 +232,13 @@ export default function EmergencyMap({ alertId, onCancel }: Props) {
       ambulancePosRef.current = next;
       ambulanceMarker.current.setLatLng(next);
 
+      // Broadcast position so other subscribed clients see live ambulance movement
+      channel.send({
+        type: "broadcast",
+        event: "position",
+        payload: { lat: next[0], lng: next[1] },
+      }).catch(() => undefined);
+
       if (haversineKm(next, target) < 0.05 && !arrivedRef.current) {
         arrivedRef.current = true;
         setToast("Paramedics have arrived.");

@@ -316,10 +316,12 @@ function PatientHome({
   );
 }
 
-function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDispatch: () => void }) {
+function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDispatch: (sosEventId: string) => void }) {
   const [sent, setSent] = useState(false);
   const [cancelled, setCancelled] = useState(false);
   const [count, setCount] = useState(10);
+  const [sosEventId, setSosEventId] = useState<string | null>(null);
+  const [escalationState, setEscalationState] = useState("sent");
 
   useEffect(() => {
     if (sent) return;
@@ -327,19 +329,47 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
     return () => clearInterval(t);
   }, [sent]);
 
-  const handleSend = () => {
+  // Real-time: listen for escalation state changes after SOS is in DB
+  useEffect(() => {
+    if (!sosEventId) return;
+    const ch = supabase
+      .channel(`sos-state-${sosEventId}`)
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "alerts",
+        filter: `sos_event_id=eq.${sosEventId}`,
+      }, (payload: { new: Record<string, unknown> }) => {
+        if (typeof payload.new.state === "string") setEscalationState(payload.new.state);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [sosEventId]);
+
+  const handleSend = async () => {
     setSent(true);
-    Promise.resolve(
-      supabase
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const { data: eventData } = await supabase
         .from("sos_events")
         .insert({
-          sent_at: new Date(),
+          patient_id: user?.id,
+          sent_at: new Date().toISOString(),
           channel: "push",
           location: { latitude: -1.2921, longitude: 36.8219 },
           status: "sent",
         })
-    ).catch(() => undefined);
-    setTimeout(() => onDispatch(), 800);
+        .select("id")
+        .single();
+      const id = eventData?.id ?? crypto.randomUUID();
+      setSosEventId(id);
+      setTimeout(() => onDispatch(id), 800);
+    } catch {
+      // Fall back to a client-generated ID so the UI flow continues
+      const id = crypto.randomUUID();
+      setSosEventId(id);
+      setTimeout(() => onDispatch(id), 800);
+    }
   };
 
   const radius = 78;
@@ -363,6 +393,15 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
   }
 
   if (sent) {
+    const stateLabel: Record<string, string> = {
+      sent: "Notifying your contacts",
+      fall_check: "Checking if you are okay",
+      raised: "Contacts alerted",
+      awaiting_response: "Waiting for a response",
+      dispatching: "Paramedics being called",
+      resolved: "Escalation stopped — someone reached you",
+      closed: "Escalation ended",
+    };
     return (
       <div className="phone dark center-screen">
         <div className="sent-check">
@@ -370,6 +409,9 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
         </div>
         <div className="eyebrow coral">SOS sent</div>
         <h1>Your Circle has been alerted</h1>
+        <p style={{ fontSize: 13, color: "#3DD6B5", marginBottom: 4 }}>
+          {stateLabel[escalationState] ?? escalationState}
+        </p>
         <p>{sentCopy?.en ?? "SOS sent. We've told your SOS contact."}</p>
         <Button tone="outline" onClick={() => back(true)}>
           Return home
@@ -447,8 +489,8 @@ function SosScreen({ back, onDispatch }: { back: (sent?: boolean) => void; onDis
 }
 
 // Lazy-load EmergencyMap to avoid SSR issues with Leaflet
-function AmbulanceScreen({ onCancel }: { onCancel: () => void }) {
-  const [MapComponent, setMapComponent] = useState<React.ComponentType<{ onCancel: () => void }> | null>(null);
+function AmbulanceScreen({ onCancel, alertId }: { onCancel: () => void; alertId?: string }) {
+  const [MapComponent, setMapComponent] = useState<React.ComponentType<{ onCancel: () => void; alertId?: string }> | null>(null);
 
   useEffect(() => {
     import("./components/EmergencyMap").then(mod => {
@@ -471,7 +513,7 @@ function AmbulanceScreen({ onCancel }: { onCancel: () => void }) {
       </header>
       <div style={{ flex: 1, position: "relative", overflow: "hidden" }}>
         {MapComponent ? (
-          <MapComponent onCancel={onCancel} />
+          <MapComponent onCancel={onCancel} alertId={alertId} />
         ) : (
           <div
             style={{
@@ -676,21 +718,59 @@ function Insights({ back }: { back: () => void }) {
 
 // CR-CG-02: caregiver emergency alert — name and time first, calm styling,
 // action buttons: reached / not reached / call / directions / nearest hospital.
-function CaregiverScreen() {
+function CaregiverScreen({ activeSosEventId }: { activeSosEventId?: string | null }) {
   const [alertActive, setAlertActive] = useState(false);
   const [responded, setResponded] = useState<"reached" | "not_reached" | null>(null);
   const [showDirections, setShowDirections] = useState(false);
+  const [demoSosEventId, setDemoSosEventId] = useState<string | null>(activeSosEventId ?? null);
+  const [alertState, setAlertState] = useState("raised");
   const alertTime = "20:07 EAT";
   const patientLat = -1.2921;
   const patientLon = 36.8219;
   const providerPhone = "999";
 
+  // Real-time: listen for alert state changes while active
+  useEffect(() => {
+    if (!demoSosEventId || !alertActive) return;
+    const ch = supabase
+      .channel(`cg-sos-${demoSosEventId}`)
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "alerts",
+        filter: `sos_event_id=eq.${demoSosEventId}`,
+      }, (payload: { new: Record<string, unknown> }) => {
+        if (typeof payload.new.state === "string") setAlertState(payload.new.state);
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [demoSosEventId, alertActive]);
+
+  const handleStartDemo = async () => {
+    // Prefer the event ID from the patient SOS if available
+    if (activeSosEventId) {
+      setDemoSosEventId(activeSosEventId);
+      setAlertActive(true);
+      return;
+    }
+    // Otherwise pick the most recent open SOS event
+    const { data } = await supabase
+      .from("sos_events")
+      .select("id")
+      .order("sent_at", { ascending: false })
+      .limit(1)
+      .single();
+    setDemoSosEventId(data?.id ?? null);
+    setAlertActive(true);
+  };
+
   const handleResponse = async (type: "reached" | "not_reached") => {
     setResponded(type);
-    // Insert sos_response row (alertId and sosEventId are demo placeholders)
+    if (!demoSosEventId) return;
+    const { data: { user } } = await supabase.auth.getUser();
     await supabase.from("sos_responses").insert({
-      sos_event_id: "00000000-0000-0000-0000-000000000000",
-      responder_id: (await supabase.auth.getUser()).data.user?.id,
+      sos_event_id: demoSosEventId,
+      responder_id: user?.id,
       response_type: type,
     }).then(() => undefined);
   };
@@ -850,7 +930,7 @@ function CaregiverScreen() {
               marginTop: 12, background: "#E24B4A", color: "#fff", border: 0,
               borderRadius: 99, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer",
             }}
-            onClick={() => setAlertActive(true)}
+            onClick={handleStartDemo}
           >
             Demo: simulate SOS
           </button>
@@ -1343,6 +1423,20 @@ export default function App() {
   const [role, setRole] = useState<"patient" | "caregiver" | "clinician" | "admin">("patient");
   const [screen, setScreen] = useState("home");
   const [state, setState] = useState("Default");
+  const [activeSosEventId, setActiveSosEventId] = useState<string | null>(null);
+
+  // Register push token on mount.
+  // On web this is a no-op; in the Expo mobile app replace this with:
+  //   const token = await Notifications.getExpoPushTokenAsync();
+  //   await supabase.from("push_tokens").upsert({ user_id: userId, token: token.data, platform: "ios" });
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      // Web push token registration would go here (requires VAPID setup)
+      // For now log so developers can see it's wired
+      console.debug("[push] would register token for user", user.id);
+    });
+  }, []);
 
   const navigate = (s: string) => setScreen(s);
 
@@ -1371,10 +1465,10 @@ export default function App() {
           screen === "sos" ? (
             <SosScreen
               back={() => setScreen("home")}
-              onDispatch={() => setScreen("ambulance")}
+              onDispatch={(id) => { setActiveSosEventId(id); setScreen("ambulance"); }}
             />
           ) : screen === "ambulance" ? (
-            <AmbulanceScreen onCancel={() => setScreen("home")} />
+            <AmbulanceScreen onCancel={() => setScreen("home")} alertId={activeSosEventId ?? undefined} />
           ) : screen === "circle" ? (
             <CircleScreen back={() => setScreen("home")} />
           ) : screen === "insights" ? (
@@ -1399,7 +1493,7 @@ export default function App() {
             <PatientHome onSos={() => setScreen("sos")} navigate={navigate} activeTab={screen} />
           )
         ) : role === "caregiver" ? (
-          <CaregiverScreen />
+          <CaregiverScreen activeSosEventId={activeSosEventId} />
         ) : role === "admin" ? (
           <AdminPortal back={() => setRole("clinician")} />
         ) : (
