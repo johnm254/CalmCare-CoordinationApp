@@ -120,13 +120,29 @@ function PatientHome({
 }) {
   const [medTaken, setMedTaken] = useState(false);
 
-  const handleMedTaken = () => {
+  const handleMedTaken = async () => {
     setMedTaken(true);
-    Promise.resolve(
-      supabase
-        .from("medication_logs")
-        .insert({ taken_at: new Date(), medication: "Levetiracetam 500 mg", patient_id: "demo" })
-    ).catch(() => undefined);
+    // CR-MED-02: insert into dose_events (medication_logs is now a VIEW).
+    // Look up the patient's first medication to satisfy the NOT NULL FK.
+    const { data: session } = await supabase.auth.getSession();
+    const patientId = session?.session?.user?.id;
+    if (!patientId) return;
+    const { data: med } = await supabase
+      .from("medications")
+      .select("id")
+      .eq("patient_id", patientId)
+      .limit(1)
+      .single();
+    if (!med?.id) return;
+    const now = new Date().toISOString();
+    await supabase.from("dose_events").insert({
+      medication_id:  med.id,
+      patient_id:     patientId,
+      scheduled_for:  now,
+      confirmed_at:   now,
+      status:         "taken",
+      confirmed_via:  "app",
+    }).catch(() => undefined);
   };
 
   return (
@@ -178,6 +194,10 @@ function PatientHome({
             <Button onClick={handleMedTaken}>Taken</Button>
           )}
         </section>
+
+        <p className="safety-note">
+          Your reminders follow the schedule your clinician entered. Mojo never changes your dose.
+        </p>
 
         <div className="tile-grid">
           {(
@@ -238,6 +258,10 @@ function PatientHome({
             <span>ECG &amp; biometrics</span>
           </button>
         </div>
+
+        <p className="safety-note">
+          Mojo helps you and your care team watch trends. It does not diagnose or treat any condition.
+        </p>
       </main>
 
       <nav className="bottom-nav">
