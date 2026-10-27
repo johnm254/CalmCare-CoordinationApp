@@ -22,12 +22,12 @@
 
 /* ── Onboarding ─────────────────────────────────────────────── */
 .onboarding{display:flex;flex-direction:column;height:100%;background:#0B1A1F;color:#EAF4F1;padding:0}
-.onboarding-progress{height:4px;background:#1A3040;flex-none}
+.onboarding-progress{height:4px;background:#1A3040;flex-shrink:0}
 .onboarding-progress-fill{height:100%;background:#3DD6B5;transition:width .35s ease}
 .onboarding-body{flex:1;overflow-y:auto;padding:32px 24px 24px;display:flex;flex-direction:column;gap:20px}
 .onboarding-body h1{font-size:28px;margin:0;font-weight:800;letter-spacing:-.5px}
 .onboarding-body p{color:#9DB6B4;margin:0;line-height:1.6}
-.onboarding-foot{padding:20px 24px 32px;display:flex;flex-direction:column;gap:12px;flex-none}
+.onboarding-foot{padding:20px 24px 32px;display:flex;flex-direction:column;gap:12px;flex-shrink:0}
 .onboarding-field{display:flex;flex-direction:column;gap:6px}
 .onboarding-field label{font-size:12px;font-weight:700;color:#9DB6B4;text-transform:uppercase;letter-spacing:.06em}
 .onboarding-field input,.onboarding-field select{background:#12272D;border:1px solid rgba(255,255,255,.12);color:#EAF4F1;border-radius:14px;padding:14px 16px;font-size:15px;width:100%;outline:none}
