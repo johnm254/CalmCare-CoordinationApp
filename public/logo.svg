@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 48" fill="none">
+  <!-- Mojo pulse glyph -->
+  <circle cx="24" cy="24" r="18" stroke="#3DD6B5" stroke-width="3.5"/>
+  <circle cx="24" cy="24" r="9"  stroke="#3DD6B5" stroke-width="2.5" stroke-opacity="0.45"/>
+  <circle cx="24" cy="24" r="3.5" fill="#3DD6B5"/>
+  <!-- Wordmark -->
+  <text x="52" y="33" font-family="system-ui,-apple-system,sans-serif" font-size="26" font-weight="800" letter-spacing="-0.8" fill="#EAF4F1">Mojo</text>
+</svg>

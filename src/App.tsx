@@ -4,6 +4,16 @@ import StitchDashboard from "./components/StitchDashboard";
 import StitchGPS from "./components/StitchGPS";
 import StitchMedications from "./components/StitchMedications";
 import StitchVitals from "./components/StitchVitals";
+import AlertsInbox from "./components/AlertsInbox";
+import AdherenceReport from "./components/AdherenceReport";
+import AlertLimitEditor from "./components/AlertLimitEditor";
+import OnboardingScreen from "./components/OnboardingScreen";
+import MeScreen from "./components/MeScreen";
+import AdminPortal from "./components/AdminPortal";
+import BleVitalsPanel from "./components/BleVitalsPanel";
+import ContactsPicker from "./components/ContactsPicker";
+import CaregiverMissedDose from "./components/CaregiverMissedDose";
+import CaregiverDirections from "./components/CaregiverDirections";
 
 type IconName =
   | "home" | "pulse" | "users" | "file" | "bell" | "shield" | "pill"
@@ -261,6 +271,16 @@ function PatientHome({
           </button>
         </div>
 
+        <BleVitalsPanel compact />
+
+        <div style={{ margin: "6px 0 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          <button className="feature-tile" onClick={() => navigate("onboarding")}>
+            <Icon name="check" />
+            <strong>Onboarding</strong>
+            <span>Complete your setup</span>
+          </button>
+        </div>
+
         <p className="safety-note">
           Mojo helps you and your care team watch trends. It does not diagnose or treat any condition.
         </p>
@@ -273,6 +293,7 @@ function PatientHome({
             ["pulse", "Health", "insights"],
             ["users", "Circle", "circle"],
             ["file", "Records", "records"],
+            ["shield", "Me", "me"],
           ] as [IconName, string, string][]
         ).map(([icon, label, target]) => (
           <button
@@ -452,6 +473,7 @@ function AmbulanceScreen({ onCancel }: { onCancel: () => void }) {
 function CircleScreen({ back }: { back: () => void }) {
   const [toggles, setToggles] = useState([true, true, true, true, false]);
   const [toast, setToast] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
   const labels = [
     ["Emergency alerts", "Receive your SOS with location"],
     ["Medication schedule", "Doses and reminders"],
@@ -516,8 +538,14 @@ function CircleScreen({ back }: { back: () => void }) {
         <Button tone="outline" className="full">
           <Icon name="clock" size={16} /> See who viewed what
         </Button>
-        <Button className="full">Invite someone</Button>
+        <Button className="full" onClick={() => setShowPicker(true)}>Invite someone</Button>
       </main>
+      {showPicker && (
+        <ContactsPicker
+          onAdd={() => setShowPicker(false)}
+          onClose={() => setShowPicker(false)}
+        />
+      )}
       {toast && (
         <div className="toast">
           <Icon name="check" /> Sharing preference updated
@@ -598,6 +626,7 @@ function Insights({ back }: { back: () => void }) {
 function CaregiverScreen() {
   const [alertActive, setAlertActive] = useState(false);
   const [responded, setResponded] = useState<"reached" | "not_reached" | null>(null);
+  const [showDirections, setShowDirections] = useState(false);
   const alertTime = "20:07 EAT";
   const patientLat = -1.2921;
   const patientLon = 36.8219;
@@ -773,6 +802,16 @@ function CaregiverScreen() {
             Demo: simulate SOS
           </button>
         </section>
+
+        <CaregiverMissedDose
+          patientName="Amina Wanjiku"
+          drugName="Levetiracetam 500 mg"
+          scheduledFor="20:00"
+          onRemind={() => undefined}
+          onMarkTaken={() => undefined}
+          onDismiss={() => undefined}
+        />
+
         <section className="card">
           <h2>What you can see</h2>
           <div className="chips">
@@ -811,11 +850,27 @@ function CaregiverScreen() {
           </article>
         </section>
       </main>
-      <div className="sticky-action">
+      <div className="sticky-action" style={{ display: "flex", gap: 10 }}>
+        <Button tone="ink" onClick={() => setShowDirections(true)}>
+          <Icon name="map" /> Directions
+        </Button>
         <Button tone="ink">
           <Icon name="plus" /> Record an observation
         </Button>
       </div>
+
+      {showDirections && (
+        <CaregiverDirections
+          patientAddress="Westlands, Nairobi"
+          patientLat={patientLat}
+          patientLon={patientLon}
+          hospitalName="Aga Khan University Hospital"
+          hospitalAddress="3rd Parklands Ave, Nairobi"
+          hospitalLat={-1.3001}
+          hospitalLon={36.8072}
+          onClose={() => setShowDirections(false)}
+        />
+      )}
     </div>
   );
 }
@@ -823,6 +878,18 @@ function CaregiverScreen() {
 function Clinician() {
   const [brief, setBrief] = useState(false);
   const [approved, setApproved] = useState(false);
+  const [clinicianScreen, setClinicianScreen] = useState<"dashboard" | "alerts" | "adherence" | "limits">("dashboard");
+
+  if (clinicianScreen === "alerts") {
+    return <AlertsInbox back={() => setClinicianScreen("dashboard")} />;
+  }
+  if (clinicianScreen === "adherence") {
+    return <AdherenceReport back={() => setClinicianScreen("dashboard")} />;
+  }
+  if (clinicianScreen === "limits") {
+    return <AlertLimitEditor back={() => setClinicianScreen("dashboard")} />;
+  }
+
   if (brief)
     return (
       <div className="clinician-shell">
@@ -978,6 +1045,35 @@ function Clinician() {
           </div>
           <Button>Open queue</Button>
         </section>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginTop: 20 }}>
+          <button
+            className="card"
+            style={{ textAlign: "left", border: "1.5px solid #DCE6E4", cursor: "pointer", background: "#fff" }}
+            onClick={() => setClinicianScreen("alerts")}
+          >
+            <div className="eyebrow jade" style={{ marginBottom: 6 }}>&#9679; CR-CLIN-08</div>
+            <h2 style={{ marginBottom: 4 }}>Alerts inbox</h2>
+            <p style={{ fontSize: 12, color: "#4F6866" }}>Review, acknowledge, and close patient alerts with escalation timelines.</p>
+          </button>
+          <button
+            className="card"
+            style={{ textAlign: "left", border: "1.5px solid #DCE6E4", cursor: "pointer", background: "#fff" }}
+            onClick={() => setClinicianScreen("adherence")}
+          >
+            <div className="eyebrow jade" style={{ marginBottom: 6 }}>&#9679; CR-CLIN-07</div>
+            <h2 style={{ marginBottom: 4 }}>Adherence report</h2>
+            <p style={{ fontSize: 12, color: "#4F6866" }}>Medication adherence overview with charts and CSV export.</p>
+          </button>
+          <button
+            className="card"
+            style={{ textAlign: "left", border: "1.5px solid #DCE6E4", cursor: "pointer", background: "#fff" }}
+            onClick={() => setClinicianScreen("limits")}
+          >
+            <div className="eyebrow jade" style={{ marginBottom: 6 }}>&#9679; CR-CLIN-05</div>
+            <h2 style={{ marginBottom: 4 }}>Alert limit editor</h2>
+            <p style={{ fontSize: 12, color: "#4F6866" }}>Set per-patient alert thresholds and apply condition templates.</p>
+          </button>
+        </div>
       </main>
     </div>
   );
@@ -1175,7 +1271,7 @@ function RecordsScreen({ back }: { back: () => void }) {
 }
 
 export default function App() {
-  const [role, setRole] = useState<"patient" | "caregiver" | "clinician">("patient");
+  const [role, setRole] = useState<"patient" | "caregiver" | "clinician" | "admin">("patient");
   const [screen, setScreen] = useState("home");
   const [state, setState] = useState("Default");
 
@@ -1185,7 +1281,7 @@ export default function App() {
     <div className={`app ${state === "Large text" ? "large-text" : ""}`}>
       <div className="preview-tools">
         <div className="role-switch">
-          {["patient", "caregiver", "clinician"].map(r => (
+          {["patient", "caregiver", "clinician", "admin"].map(r => (
             <button
               key={r}
               className={role === r ? "active" : ""}
@@ -1224,11 +1320,17 @@ export default function App() {
             <StitchMedications back={() => setScreen("home")} />
           ) : screen === "stitch-vitals" ? (
             <StitchVitals back={() => setScreen("home")} />
+          ) : screen === "onboarding" ? (
+            <OnboardingScreen onComplete={() => setScreen("home")} />
+          ) : screen === "me" ? (
+            <MeScreen back={() => setScreen("home")} />
           ) : (
             <PatientHome onSos={() => setScreen("sos")} navigate={navigate} activeTab={screen} />
           )
         ) : role === "caregiver" ? (
           <CaregiverScreen />
+        ) : role === "admin" ? (
+          <AdminPortal back={() => setRole("clinician")} />
         ) : (
           <Clinician />
         )}
