@@ -2,175 +2,176 @@
 // Mirrors the Supabase schema; dose_events replaces medication_logs (view alias kept).
 
 export interface Profile {
-  id: string;
-  role: 'patient' | 'caregiver' | 'clinician' | 'admin' | 'org_admin';
-  full_name: string;
-  email: string;
-  phone?: string;
-  language: string;
-  country: string;
-  avatar_url?: string;
-  created_at: string;
-  updated_at: string;
+  id: string
+  role: "patient" | "caregiver" | "clinician" | "admin" | "org_admin"
+  full_name: string
+  email: string
+  phone?: string
+  language: string
+  country: string
+  avatar_url?: string
+  created_at: string
+  updated_at: string
 }
 
 export interface Condition {
-  id: string;
-  patient_id: string;
-  condition_template_id?: string;
-  type: string;
-  notes?: string;
-  active: boolean;
-  created_at: string;
-  updated_at: string;
+  id: string
+  patient_id: string
+  condition_template_id?: string
+  type: string
+  notes?: string
+  active: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface Medication {
-  id: string;
-  patient_id: string;
-  name: string;
-  dose: string;            // legacy field
-  strength?: string;
-  form?: string;
-  instructions?: string;
-  prescribed_by?: string;
-  stock_count?: number;
-  refill_threshold?: number;
-  schedule: {             // legacy inline schedule kept for compat
-    time: string;
-    days: string[];
-  };
-  version: number;
-  active: boolean;
-  created_at: string;
-  updated_at: string;
+  id: string
+  patient_id: string
+  name: string
+  dose: string // legacy field
+  strength?: string
+  form?: string
+  instructions?: string
+  prescribed_by?: string
+  stock_count?: number
+  refill_threshold?: number
+  schedule: {
+    // legacy inline schedule kept for compat
+    time: string
+    days: string[]
+  }
+  version: number
+  active: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface MedicationSchedule {
-  id: string;
-  medication_id: string;
-  times: string[];          // ["08:00", "20:00"]
-  days_of_week: number[];   // 0=Sun … 6=Sat
-  dose_amount?: string;
-  snooze_interval_min: number;
-  max_repeats: number;
-  missed_after_min: number;
-  escalate_to: 'caregiver' | 'clinician' | 'both';
-  version: number;
-  active: boolean;
-  created_at: string;
-  updated_at: string;
+  id: string
+  medication_id: string
+  times: string[] // ["08:00", "20:00"]
+  days_of_week: number[] // 0=Sun … 6=Sat
+  dose_amount?: string
+  snooze_interval_min: number
+  max_repeats: number
+  missed_after_min: number
+  escalate_to: "caregiver" | "clinician" | "both"
+  version: number
+  active: boolean
+  created_at: string
+  updated_at: string
 }
 
 // CR-MED-04: canonical "taken" log; unique on (schedule_id, scheduled_for)
 export interface DoseEvent {
-  id: string;
-  medication_id: string;
-  schedule_id?: string;
-  patient_id: string;
-  scheduled_for?: string;
-  status: 'pending' | 'taken' | 'snoozed' | 'missed' | 'skipped';
-  confirmed_at?: string;
-  confirmed_via?: 'strap' | 'app' | 'caregiver';
-  confirmed_by?: string;
-  synced_at?: string;
-  created_at: string;
+  id: string
+  medication_id: string
+  schedule_id?: string
+  patient_id: string
+  scheduled_for?: string
+  status: "pending" | "taken" | "snoozed" | "missed" | "skipped"
+  confirmed_at?: string
+  confirmed_via?: "strap" | "app" | "caregiver"
+  confirmed_by?: string
+  synced_at?: string
+  created_at: string
 }
 
 export interface Event {
-  id: string;
-  patient_id: string;
-  logged_by: string;
-  occurred_at: string;
-  event_type: string;
-  details?: Record<string, unknown>;
-  severity?: 'mild' | 'moderate' | 'severe';
-  created_at: string;
+  id: string
+  patient_id: string
+  logged_by: string
+  occurred_at: string
+  event_type: string
+  details?: Record<string, unknown>
+  severity?: "mild" | "moderate" | "severe"
+  created_at: string
 }
 
 export interface Observation {
-  id: string;
-  patient_id: string;
-  author_id: string;
-  occurred_at: string;
-  note: string;
-  created_at: string;
+  id: string
+  patient_id: string
+  author_id: string
+  occurred_at: string
+  note: string
+  created_at: string
 }
 
 export interface CareCircleMember {
-  id: string;
-  patient_id: string;
-  member_id?: string;
-  phone?: string;
-  full_name: string;
-  display_name?: string;
-  relationship?: string;
-  is_emergency: boolean;
-  sms_only: boolean;
-  created_at: string;
-  updated_at: string;
+  id: string
+  patient_id: string
+  member_id?: string
+  phone?: string
+  full_name: string
+  display_name?: string
+  relationship?: string
+  is_emergency: boolean
+  sms_only: boolean
+  created_at: string
+  updated_at: string
 }
 
 export interface Grant {
-  id: string;
-  patient_id: string;
-  grantee_id: string;
-  category: string;
-  granted_at: string;
-  revoked_at?: string;
-  created_at: string;
+  id: string
+  patient_id: string
+  grantee_id: string
+  category: string
+  granted_at: string
+  revoked_at?: string
+  created_at: string
 }
 
 export interface ClinicianLink {
-  id: string;
-  patient_id: string;
-  clinician_id: string;
-  invited_by?: string;
-  verified_at?: string;
-  ended_at?: string;
-  created_at: string;
+  id: string
+  patient_id: string
+  clinician_id: string
+  invited_by?: string
+  verified_at?: string
+  ended_at?: string
+  created_at: string
 }
 
 export interface FollowUp {
-  id: string;
-  patient_id: string;
-  clinician_id: string;
-  title: string;
-  description?: string;
-  due_at: string;
-  completed_at?: string;
-  status: 'open' | 'in_progress' | 'completed' | 'cancelled';
-  created_at: string;
+  id: string
+  patient_id: string
+  clinician_id: string
+  title: string
+  description?: string
+  due_at: string
+  completed_at?: string
+  status: "open" | "in_progress" | "completed" | "cancelled"
+  created_at: string
 }
 
 export interface SOSEvent {
-  id: string;
-  patient_id: string;
-  sent_at: string;
-  channel: 'push' | 'sms' | 'queued';
-  location?: { latitude: number; longitude: number };
-  recipients: string[];
-  status: 'sent' | 'failed' | 'queued' | 'retrying';
-  created_at: string;
+  id: string
+  patient_id: string
+  sent_at: string
+  channel: "push" | "sms" | "queued"
+  location?: { latitude: number longitude: number }
+  recipients: string[]
+  status: "sent" | "failed" | "queued" | "retrying"
+  created_at: string
 }
 
 export interface OutboxEntry {
-  id: string;
-  table_name: string;
-  operation: 'insert' | 'update' | 'delete';
-  data: Record<string, unknown>;
-  synced: boolean;
-  error?: string;
-  created_at: string;
-  synced_at?: string;
+  id: string
+  table_name: string
+  operation: "insert" | "update" | "delete"
+  data: Record<string, unknown>
+  synced: boolean
+  error?: string
+  created_at: string
+  synced_at?: string
 }
 
 export interface SyncState {
-  id: string;
-  device_id: string;
-  last_sync?: string;
-  sync_token?: string;
-  created_at: string;
+  id: string
+  device_id: string
+  last_sync?: string
+  sync_token?: string
+  created_at: string
 }
 
 // SQLite DDL — runs at app startup; CREATE IF NOT EXISTS is idempotent.
@@ -382,4 +383,4 @@ CREATE INDEX IF NOT EXISTS idx_clinician_links_patient_id ON clinician_links(pat
 CREATE INDEX IF NOT EXISTS idx_followups_patient_id ON followups(patient_id);
 CREATE INDEX IF NOT EXISTS idx_sos_events_patient_id ON sos_events(patient_id);
 CREATE INDEX IF NOT EXISTS idx_outbox_synced ON outbox(synced);
-`;
+`

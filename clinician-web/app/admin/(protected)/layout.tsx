@@ -1,22 +1,28 @@
-import { redirect } from 'next/navigation';
-import { createClient } from '../../../lib/supabase-server';
-import AdminSidebar from '../../../components/layout/AdminSidebar';
-import AdminHeader from '../../../components/admin/AdminHeader';
-import InactivityLogout from '../../../components/InactivityLogout';
+import { redirect } from "next/navigation"
+import { createClient } from "../../../lib/supabase-server"
+import AdminSidebar from "../../../components/layout/AdminSidebar"
+import AdminHeader from "../../../components/admin/AdminHeader"
+import InactivityLogout from "../../../components/InactivityLogout"
 
-export default async function AdminProtectedLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+export default async function AdminProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  const supabase = createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-  if (!user) redirect('/admin/login');
+  if (!user) redirect("/admin/login")
 
   const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, full_name, email')
-    .eq('id', user.id)
-    .single();
+    .from("profiles")
+    .select("role, full_name, email")
+    .eq("id", user.id)
+    .single()
 
-  if (profile?.role !== 'admin') redirect('/admin/login');
+  if (profile?.role !== "admin") redirect("/admin/login")
 
   return (
     <div className="flex h-screen bg-[#070E1B] text-white overflow-hidden">
@@ -27,5 +33,5 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
     </div>
-  );
+  )
 }

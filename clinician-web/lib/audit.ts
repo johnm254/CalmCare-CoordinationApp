@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from "@supabase/supabase-js"
 
 /**
  * Log a clinician data-access event via the SECURITY DEFINER RPC.
@@ -9,16 +9,18 @@ export async function logAccess(
   patientId: string,
   action: string,
   entity: string,
-  entityId?: string
+  entityId?: string,
 ): Promise<void> {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return
 
-  await supabase.rpc('log_access', {
+  await supabase.rpc("log_access", {
     p_clinician_id: user.id,
     p_patient_id: patientId,
     p_action: action,
     p_entity: entity,
     p_entity_id: entityId ?? null,
-  });
+  })
 }

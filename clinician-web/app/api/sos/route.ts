@@ -1,71 +1,75 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { Resend } from 'resend';
+import { NextRequest, NextResponse } from "next/server"
+import { createClient } from "@supabase/supabase-js"
+import { Resend } from "resend"
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+)
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = await request.json()
     const { sos_id, patient_id, recipient_ids, location } = body as {
-      sos_id?: string;
-      patient_id: string;
-      recipient_ids: string[];
-      location?: { lat: number; lon: number } | null;
-    };
+      sos_id?: string
+      patient_id: string
+      recipient_ids: string[]
+      location?: { lat: number lon: number } | null
+    }
 
-    if (!patient_id || !Array.isArray(recipient_ids) || recipient_ids.length === 0) {
+    if (
+      !patient_id ||
+      !Array.isArray(recipient_ids) ||
+      recipient_ids.length === 0
+    ) {
       return NextResponse.json(
-        { error: 'patient_id and recipient_ids are required' },
-        { status: 400 }
-      );
+        { error: "patient_id and recipient_ids are required" },
+        { status: 400 },
+      )
     }
 
     // Fetch patient profile
     const { data: patientProfile, error: patientError } = await supabaseAdmin
-      .from('profiles')
-      .select('id, full_name, email')
-      .eq('id', patient_id)
-      .single();
+      .from("profiles")
+      .select("id, full_name, email")
+      .eq("id", patient_id)
+      .single()
 
     if (patientError || !patientProfile) {
-      return NextResponse.json(
-        { error: 'Patient profile not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Patient profile not found" }, {
+        status: 404,
+      })
     }
 
-    const patientName = patientProfile.full_name ?? 'Your patient';
+    const patientName = patientProfile.full_name ?? "Your patient"
 
     // Fetch recipient profiles
-    const { data: recipientProfiles, error: recipientsError } = await supabaseAdmin
-      .from('profiles')
-      .select('id, full_name, email')
-      .in('id', recipient_ids);
+    const { data: recipientProfiles, error: recipientsError } =
+      await supabaseAdmin
+        .from("profiles")
+        .select("id, full_name, email")
+        .in("id", recipient_ids)
 
     if (recipientsError) {
       return NextResponse.json(
-        { error: 'Failed to fetch recipient profiles' },
-        { status: 500 }
-      );
+        { error: "Failed to fetch recipient profiles" },
+        { status: 500 },
+      )
     }
 
-    const recipients = recipientProfiles ?? [];
-    const now = new Date();
-    const timeString = now.toLocaleString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      timeZoneName: 'short',
-    });
+    const recipients = recipientProfiles ?? []
+    const now = new Date()
+    const timeString = now.toLocaleString("en-US", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZoneName: "short",
+    })
 
     const emailHtml = `
 <!DOCTYPE html>
@@ -138,74 +142,83 @@ export async function POST(request: NextRequest) {
   </table>
 </body>
 </html>
-`;
+`
 
-    let sent = 0;
-    let failed = 0;
-    const sentTo: string[] = [];
+    let sent = 0
+    let failed = 0
+    const sentTo: string[] = []
 
     // ── Email alerts ──────────────────────────────────────────────────────────
     for (const recipient of recipients) {
-      if (!recipient.email) { failed++; continue; }
+      if (!recipient.email) {
+        failed++
+        continue
+      }
       try {
         const { error: emailError } = await resend.emails.send({
-          from: 'Duara SOS <onboarding@resend.dev>',
+          from: "Duara SOS <onboarding@resend.dev>",
           to: recipient.email,
           subject: `🚨 SOS Alert — ${patientName} needs help`,
           html: emailHtml,
-        });
-        if (emailError) { failed++; } else { sent++; sentTo.push(recipient.email); }
-      } catch { failed++; }
+        })
+        if (emailError) {
+          failed++
+        } else {
+          sent++
+          sentTo.push(recipient.email)
+        }
+      } catch {
+        failed++
+      }
     }
 
     // ── Expo push notifications ───────────────────────────────────────────────
     if (recipient_ids.length > 0) {
       const { data: tokenRows } = await supabaseAdmin
-        .from('push_tokens')
-        .select('token')
-        .in('user_id', recipient_ids);
+        .from("push_tokens")
+        .select("token")
+        .in("user_id", recipient_ids)
 
       if (tokenRows && tokenRows.length > 0) {
         const messages = tokenRows.map((t: { token: string }) => ({
           to: t.token,
-          sound: 'default',
+          sound: "default",
           title: `🚨 SOS — ${patientName} needs help`,
-          body: 'Tap to respond immediately',
+          body: "Tap to respond immediately",
           data: {
-            type: 'sos_alert',
-            sos_id: sos_id ?? '',
+            type: "sos_alert",
+            sos_id: sos_id ?? "",
             patient_id,
             patient_name: patientName,
-            location_lat: location?.lat?.toString() ?? '',
-            location_lon: location?.lon?.toString() ?? '',
+            location_lat: location?.lat?.toString() ?? "",
+            location_lon: location?.lon?.toString() ?? "",
           },
-          priority: 'high',
-          channelId: 'sos',
-          categoryIdentifier: 'SOS_ALERT',
-        }));
+          priority: "high",
+          channelId: "sos",
+          categoryIdentifier: "SOS_ALERT",
+        }))
 
         try {
-          await fetch('https://exp.host/--/api/v2/push/send', {
-            method: 'POST',
+          await fetch("https://exp.host/--/api/v2/push/send", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-              'Accept-Encoding': 'gzip, deflate',
+              "Content-Type": "application/json",
+              Accept: "application/json",
+              "Accept-Encoding": "gzip, deflate",
             },
             body: JSON.stringify(messages),
-          });
+          })
         } catch (err) {
-          console.error('Expo push failed:', err);
+          console.error("Expo push failed:", err)
         }
       }
     }
 
-    return NextResponse.json({ sent, failed, recipients: sentTo });
+    return NextResponse.json({ sent, failed, recipients: sentTo })
   } catch (err) {
-    console.error('SOS route error:', err);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error("SOS route error:", err)
+    return NextResponse.json({ error: "Internal server error" }, {
+      status: 500,
+    })
   }
 }

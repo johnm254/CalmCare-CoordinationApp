@@ -1,139 +1,245 @@
 // Meds tab — medication schedule + offline "Taken" check-in.
+
 // CR-MED-04: one tap per dose slot; uniqueness enforced in SQLite + server.
+
 // CR-MED-12: works fully offline; writes go to local DB first, then outbox.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react"
+
 import {
-  View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  ActivityIndicator, RefreshControl,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from 'expo-router';
-import { colors, fonts, radius, spacing } from '../../lib/theme';
-import { useAuth } from '../_layout';
-import { initializeDB, getTodaysDoses, confirmDose, getAdherence } from '../../db/offline';
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+  RefreshControl,
+} from "react-native"
+
+import { SafeAreaView } from "react-native-safe-area-context"
+
+import { useFocusEffect } from "expo-router"
+
+import { colors, fonts, radius, spacing } from "../../lib/theme"
+
+import { useAuth } from "../_layout"
+
+import {
+  initializeDB,
+  getTodaysDoses,
+  confirmDose,
+  getAdherence,
+} from "../../db/offline"
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
 function PillIcon({ color = colors.teal }: { color?: string }) {
   return (
-    <View style={{ width: 32, height: 32, alignItems: 'center', justifyContent: 'center' }}>
-      <View style={{ width: 20, height: 10, borderRadius: 5, backgroundColor: color, marginBottom: 2 }} />
-      <View style={{ width: 20, height: 10, borderRadius: 5, backgroundColor: color, opacity: 0.5 }} />
+    <View
+      style={{
+        width: 32,
+        height: 32,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <View
+        style={{
+          width: 20,
+          height: 10,
+          borderRadius: 5,
+          backgroundColor: color,
+          marginBottom: 2,
+        }}
+      />
+      <View
+        style={{
+          width: 20,
+          height: 10,
+          borderRadius: 5,
+          backgroundColor: color,
+          opacity: 0.5,
+        }}
+      />
     </View>
-  );
+  )
 }
 
 function CheckIcon() {
   return (
-    <View style={{ width: 16, height: 16, alignItems: 'center', justifyContent: 'center' }}>
-      <View style={{ position: 'absolute', width: 10, height: 2, backgroundColor: colors.bg, borderRadius: 1, transform: [{ rotate: '40deg' }, { translateX: -1 }] }} />
-      <View style={{ position: 'absolute', width: 6, height: 2, backgroundColor: colors.bg, borderRadius: 1, transform: [{ rotate: '-50deg' }, { translateX: 3 }, { translateY: 2 }] }} />
+    <View
+      style={{
+        width: 16,
+        height: 16,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <View
+        style={{
+          position: "absolute",
+          width: 10,
+          height: 2,
+          backgroundColor: colors.bg,
+          borderRadius: 1,
+          transform: [{ rotate: "40deg" }, { translateX: -1 }],
+        }}
+      />
+      <View
+        style={{
+          position: "absolute",
+          width: 6,
+          height: 2,
+          backgroundColor: colors.bg,
+          borderRadius: 1,
+          transform: [
+            { rotate: "-50deg" },
+            { translateX: 3 },
+            { translateY: 2 },
+          ],
+        }}
+      />
     </View>
-  );
+  )
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface DoseSlot {
-  scheduleId: string;
-  medicationId: string;
-  medicationName: string;
-  dose: string;
-  scheduledFor: string;
-  time: string;
-  status: 'pending' | 'taken' | 'snoozed' | 'missed';
+  scheduleId: string
+
+  medicationId: string
+
+  medicationName: string
+
+  dose: string
+
+  scheduledFor: string
+
+  time: string
+
+  status: "pending" | "taken" | "snoozed" | "missed"
 }
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
 
 export default function MedsScreen() {
-  const { session } = useAuth();
-  const [doses, setDoses] = useState<DoseSlot[]>([]);
-  const [adherence, setAdherence] = useState<Record<string, number>>({});
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [takingId, setTakingId] = useState<string | null>(null);
-  const [dbReady, setDbReady] = useState(false);
+  const { session } = useAuth()
+
+  const [doses, setDoses] = useState<DoseSlot[]>([])
+
+  const [adherence, setAdherence] = useState<Record<string, number>>({})
+
+  const [loading, setLoading] = useState(true)
+
+  const [refreshing, setRefreshing] = useState(false)
+
+  const [takingId, setTakingId] = useState<string | null>(null)
+
+  const [dbReady, setDbReady] = useState(false)
 
   useEffect(() => {
-    initializeDB().then(() => setDbReady(true)).catch(console.error);
-  }, []);
+    initializeDB()
+      .then(() => setDbReady(true))
+      .catch(console.error)
+  }, [])
 
   const loadDoses = useCallback(async () => {
-    if (!session?.user || !dbReady) return;
-    const patientId = session.user.id;
-    const today = await getTodaysDoses(patientId);
-    setDoses(today);
+    if (!session?.user || !dbReady) return
+
+    const patientId = session.user.id
+
+    const today = await getTodaysDoses(patientId)
+
+    setDoses(today)
 
     // Load adherence for each unique medication
-    const medIds = [...new Set(today.map((d) => d.medicationId))];
-    const adh: Record<string, number> = {};
+
+    const medIds = [...new Set(today.map((d) => d.medicationId))]
+
+    const adh: Record<string, number> = {}
+
     for (const id of medIds) {
-      adh[id] = await getAdherence(patientId, id, 30);
+      adh[id] = await getAdherence(patientId, id, 30)
     }
-    setAdherence(adh);
-  }, [session, dbReady]);
+
+    setAdherence(adh)
+  }, [session, dbReady])
 
   useFocusEffect(
     useCallback(() => {
-      setLoading(true);
-      loadDoses().finally(() => setLoading(false));
+      setLoading(true)
+
+      loadDoses().finally(() => setLoading(false))
     }, [loadDoses]),
-  );
+  )
 
   async function handleTaken(slot: DoseSlot) {
-    if (!session?.user || takingId) return;
-    const key = `${slot.scheduleId}-${slot.scheduledFor}`;
-    setTakingId(key);
+    if (!session?.user || takingId) return
+
+    const key = `${slot.scheduleId}-${slot.scheduledFor}`
+
+    setTakingId(key)
+
     try {
       const result = await confirmDose({
         medicationId: slot.medicationId,
+
         scheduleId: slot.scheduleId,
+
         patientId: session.user.id,
+
         scheduledFor: slot.scheduledFor,
-        confirmedVia: 'app',
+
+        confirmedVia: "app",
+
         confirmedBy: session.user.id,
-      });
+      })
+
       if (result.alreadyTaken) {
         // Update local state to show taken without reloading
+
         setDoses((prev) =>
           prev.map((d) =>
-            d.scheduleId === slot.scheduleId && d.scheduledFor === slot.scheduledFor
-              ? { ...d, status: 'taken' }
+            d.scheduleId === slot.scheduleId &&
+            d.scheduledFor === slot.scheduledFor
+              ? { ...d, status: "taken" }
               : d,
           ),
-        );
+        )
       } else if (result.success) {
         setDoses((prev) =>
           prev.map((d) =>
-            d.scheduleId === slot.scheduleId && d.scheduledFor === slot.scheduledFor
-              ? { ...d, status: 'taken' }
+            d.scheduleId === slot.scheduleId &&
+            d.scheduledFor === slot.scheduledFor
+              ? { ...d, status: "taken" }
               : d,
           ),
-        );
+        )
       }
     } finally {
-      setTakingId(null);
+      setTakingId(null)
     }
   }
 
-  const pending = doses.filter((d) => d.status === 'pending');
-  const taken = doses.filter((d) => d.status === 'taken');
-  const missed = doses.filter((d) => d.status === 'missed');
+  const pending = doses.filter((d) => d.status === "pending")
+
+  const taken = doses.filter((d) => d.status === "taken")
+
+  const missed = doses.filter((d) => d.status === "missed")
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safe} edges={['bottom']}>
+      <SafeAreaView style={styles.safe} edges={["bottom"]}>
         <View style={styles.centered}>
           <ActivityIndicator color={colors.teal} size="large" />
         </View>
       </SafeAreaView>
-    );
+    )
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['bottom']}>
+    <SafeAreaView style={styles.safe} edges={["bottom"]}>
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.container}
@@ -141,7 +247,11 @@ export default function MedsScreen() {
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={async () => { setRefreshing(true); await loadDoses(); setRefreshing(false); }}
+            onRefresh={async () => {
+              setRefreshing(true)
+              await loadDoses()
+              setRefreshing(false)
+            }}
             tintColor={colors.teal}
           />
         }
@@ -149,7 +259,8 @@ export default function MedsScreen() {
         {/* Disclaimer — CR-MED-11 */}
         <View style={styles.disclaimer}>
           <Text style={styles.disclaimerText}>
-            Your reminders follow the schedule your clinician entered. Duara never changes your dose.
+            Your reminders follow the schedule your clinician entered. Duara
+            never changes your dose.
           </Text>
         </View>
 
@@ -186,7 +297,9 @@ export default function MedsScreen() {
         {/* Missed */}
         {missed.length > 0 && (
           <View style={styles.section}>
-            <Text style={[styles.sectionLabel, { color: colors.emergency }]}>MISSED</Text>
+            <Text style={[styles.sectionLabel, { color: colors.emergency }]}>
+              MISSED
+            </Text>
             {missed.map((slot) => (
               <DoseCard
                 key={`${slot.scheduleId}-${slot.scheduledFor}`}
@@ -201,45 +314,60 @@ export default function MedsScreen() {
           <View style={styles.empty}>
             <PillIcon color={colors.textMuted} />
             <Text style={styles.emptyTitle}>No doses scheduled today</Text>
-            <Text style={styles.emptyBody}>Your clinician will add medication schedules here.</Text>
+            <Text style={styles.emptyBody}>
+              Your clinician will add medication schedules here.
+            </Text>
           </View>
         )}
       </ScrollView>
     </SafeAreaView>
-  );
+  )
 }
 
 // ─── Dose card ────────────────────────────────────────────────────────────────
 
 function DoseCard({
   slot,
+
   adherencePct,
+
   onTaken,
+
   loading,
 }: {
-  slot: DoseSlot;
-  adherencePct?: number;
-  onTaken?: () => void;
-  loading?: boolean;
+  slot: DoseSlot
+
+  adherencePct?: number
+
+  onTaken?: () => void
+
+  loading?: boolean
 }) {
-  const isTaken = slot.status === 'taken';
-  const isMissed = slot.status === 'missed';
+  const isTaken = slot.status === "taken"
+
+  const isMissed = slot.status === "missed"
 
   const cardBorderColor = isTaken
     ? colors.success
     : isMissed
-    ? colors.emergency
-    : colors.border;
+      ? colors.emergency
+      : colors.border
 
   return (
     <View style={[styles.card, { borderColor: cardBorderColor }]}>
       <View style={styles.cardLeft}>
-        <PillIcon color={isTaken ? colors.success : isMissed ? colors.emergency : colors.teal} />
+        <PillIcon
+          color={
+            isTaken ? colors.success : isMissed ? colors.emergency : colors.teal
+          }
+        />
         <View style={styles.cardInfo}>
           <Text style={styles.medName}>{slot.medicationName}</Text>
           <Text style={styles.medDose}>{slot.dose}</Text>
-          {typeof adherencePct === 'number' && (
-            <Text style={styles.adherence}>30-day adherence: {adherencePct}%</Text>
+          {typeof adherencePct === "number" && (
+            <Text style={styles.adherence}>
+              30-day adherence: {adherencePct}%
+            </Text>
           )}
         </View>
       </View>
@@ -255,8 +383,15 @@ function DoseCard({
             <Text style={styles.takenBadgeText}>Taken</Text>
           </View>
         ) : isMissed ? (
-          <View style={[styles.takenBadge, { backgroundColor: colors.emergencyDim }]}>
-            <Text style={[styles.takenBadgeText, { color: colors.emergency }]}>Missed</Text>
+          <View
+            style={[
+              styles.takenBadge,
+              { backgroundColor: colors.emergencyDim },
+            ]}
+          >
+            <Text style={[styles.takenBadgeText, { color: colors.emergency }]}>
+              Missed
+            </Text>
           </View>
         ) : (
           <TouchableOpacity
@@ -266,102 +401,178 @@ function DoseCard({
             accessibilityLabel={`Mark ${slot.medicationName} as taken`}
             accessibilityRole="button"
           >
-            {loading
-              ? <ActivityIndicator size="small" color={colors.bg} />
-              : <Text style={styles.takenBtnText}>Taken</Text>
-            }
+            {loading ? (
+              <ActivityIndicator size="small" color={colors.bg} />
+            ) : (
+              <Text style={styles.takenBtnText}>Taken</Text>
+            )}
           </TouchableOpacity>
         )}
       </View>
     </View>
-  );
+  )
 }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
+
   scroll: { flex: 1 },
+
   container: { padding: spacing.xl, paddingBottom: spacing.xxxl },
-  centered: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+
+  centered: { flex: 1, alignItems: "center", justifyContent: "center" },
 
   disclaimer: {
     backgroundColor: colors.amberDim,
+
     borderRadius: radius.md,
+
     borderWidth: 1,
+
     borderColor: colors.amber,
+
     padding: spacing.md,
+
     marginBottom: spacing.xl,
   },
+
   disclaimerText: {
     fontSize: fonts.sm,
+
     color: colors.amber,
+
     lineHeight: 18,
-    textAlign: 'center',
+
+    textAlign: "center",
   },
 
   section: { marginBottom: spacing.xl },
+
   sectionLabel: {
     fontSize: fonts.xs,
-    fontWeight: '700',
+
+    fontWeight: "700",
+
     color: colors.textSecondary,
+
     letterSpacing: 1.2,
+
     marginBottom: spacing.md,
   },
 
   card: {
     backgroundColor: colors.bgCard,
+
     borderRadius: radius.lg,
+
     borderWidth: 1,
+
     padding: spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+
+    flexDirection: "row",
+
+    alignItems: "center",
+
+    justifyContent: "space-between",
+
     marginBottom: spacing.md,
   },
-  cardLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, flex: 1 },
+
+  cardLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    flex: 1,
+  },
+
   cardInfo: { flex: 1 },
-  medName: { fontSize: fonts.md, fontWeight: '700', color: colors.text, marginBottom: 2 },
+
+  medName: {
+    fontSize: fonts.md,
+    fontWeight: "700",
+    color: colors.text,
+    marginBottom: 2,
+  },
+
   medDose: { fontSize: fonts.sm, color: colors.textSecondary, marginBottom: 2 },
+
   adherence: { fontSize: fonts.xs, color: colors.textMuted },
 
-  cardRight: { alignItems: 'flex-end', gap: spacing.sm },
+  cardRight: { alignItems: "flex-end", gap: spacing.sm },
+
   timeBadge: {
     backgroundColor: colors.bgCardAlt,
+
     borderRadius: radius.full,
+
     paddingHorizontal: spacing.md,
+
     paddingVertical: 3,
   },
-  timeBadgeText: { fontSize: fonts.xs, color: colors.textSecondary, fontWeight: '600' },
+
+  timeBadgeText: {
+    fontSize: fonts.xs,
+    color: colors.textSecondary,
+    fontWeight: "600",
+  },
 
   // CR-MED-04: amber "Taken" button (≥ 48px touch target)
+
   takenBtn: {
     backgroundColor: colors.amber,
+
     borderRadius: radius.full,
+
     paddingHorizontal: spacing.lg,
+
     paddingVertical: spacing.sm,
+
     minHeight: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
+
+    alignItems: "center",
+
+    justifyContent: "center",
   },
-  takenBtnText: { color: colors.bg, fontWeight: '700', fontSize: fonts.sm },
+
+  takenBtnText: { color: colors.bg, fontWeight: "700", fontSize: fonts.sm },
 
   takenBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+
+    alignItems: "center",
+
     gap: 4,
+
     backgroundColor: colors.successDim,
+
     borderRadius: radius.full,
+
     paddingHorizontal: spacing.md,
+
     paddingVertical: 4,
   },
-  takenBadgeText: { color: colors.success, fontWeight: '700', fontSize: fonts.sm },
+
+  takenBadgeText: {
+    color: colors.success,
+    fontWeight: "700",
+    fontSize: fonts.sm,
+  },
 
   empty: {
-    alignItems: 'center',
+    alignItems: "center",
+
     paddingVertical: spacing.xxxl,
+
     gap: spacing.md,
   },
-  emptyTitle: { fontSize: fonts.lg, fontWeight: '700', color: colors.text },
-  emptyBody: { fontSize: fonts.sm, color: colors.textSecondary, textAlign: 'center' },
-});
+
+  emptyTitle: { fontSize: fonts.lg, fontWeight: "700", color: colors.text },
+
+  emptyBody: {
+    fontSize: fonts.sm,
+    color: colors.textSecondary,
+    textAlign: "center",
+  },
+})

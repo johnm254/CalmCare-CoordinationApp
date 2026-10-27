@@ -1,13 +1,20 @@
 type Props = {
-  patientAddress: string;
-  hospitalName: string;
-  hospitalAddress: string;
-  patientLat: number;
-  patientLon: number;
-  hospitalLat: number;
-  hospitalLon: number;
-  onClose: () => void;
-};
+  patientAddress: string
+
+  hospitalName: string
+
+  hospitalAddress: string
+
+  patientLat: number
+
+  patientLon: number
+
+  hospitalLat: number
+
+  hospitalLon: number
+
+  onClose: () => void
+}
 
 function ExternalLinkIcon() {
   return (
@@ -25,31 +32,45 @@ function ExternalLinkIcon() {
       <polyline points="15 3 21 3 21 9" />
       <line x1="10" y1="14" x2="21" y2="3" />
     </svg>
-  );
+  )
 }
 
 function RouteCard({
   step,
+
   title,
+
   address,
+
   distance,
+
   mapsUrl,
 }: {
-  step: 1 | 2;
-  title: string;
-  address: string;
-  distance: string;
-  mapsUrl: string;
+  step: 1 | 2
+
+  title: string
+
+  address: string
+
+  distance: string
+
+  mapsUrl: string
 }) {
   return (
     <div
       style={{
         background: "#12272D",
+
         border: "1px solid rgba(255,255,255,0.08)",
+
         borderRadius: 20,
+
         padding: "18px 16px",
+
         display: "flex",
+
         flexDirection: "column",
+
         gap: 12,
       }}
     >
@@ -58,14 +79,23 @@ function RouteCard({
         <span
           style={{
             width: 28,
+
             height: 28,
+
             borderRadius: "50%",
+
             background: step === 1 ? "#3DD6B5" : "#2f7f79",
+
             color: step === 1 ? "#062A24" : "#3DD6B5",
+
             display: "grid",
+
             placeItems: "center",
+
             fontWeight: 800,
+
             fontSize: 13,
+
             flexShrink: 0,
           }}
         >
@@ -82,7 +112,13 @@ function RouteCard({
       </p>
 
       {/* Distance + Maps button */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           {/* Map pin icon */}
           <svg
@@ -108,14 +144,23 @@ function RouteCard({
           rel="noopener noreferrer"
           style={{
             display: "inline-flex",
+
             alignItems: "center",
+
             gap: 6,
+
             background: "#3DD6B5",
+
             color: "#062A24",
+
             borderRadius: 999,
+
             padding: "8px 14px",
+
             fontWeight: 800,
+
             fontSize: 13,
+
             textDecoration: "none",
           }}
         >
@@ -124,32 +169,47 @@ function RouteCard({
         </a>
       </div>
     </div>
-  );
+  )
 }
 
 export default function CaregiverDirections({
   patientAddress,
+
   hospitalName,
+
   hospitalAddress,
+
   patientLat,
+
   patientLon,
+
   hospitalLat,
+
   hospitalLon,
+
   onClose,
 }: Props) {
-  const patientMapsUrl = `https://maps.google.com/?q=${patientLat},${patientLon}`;
-  const hospitalMapsUrl = `https://maps.google.com/?q=${hospitalLat},${hospitalLon}`;
+  const patientMapsUrl = `https://maps.google.com/?q=${patientLat},${patientLon}`
+
+  const hospitalMapsUrl = `https://maps.google.com/?q=${hospitalLat},${hospitalLon}`
 
   return (
     /* Full-screen dark overlay */
+
     <div
       style={{
         position: "fixed",
+
         inset: 0,
+
         background: "rgba(3,22,22,0.96)",
+
         zIndex: 1000,
+
         display: "flex",
+
         flexDirection: "column",
+
         overflowY: "auto",
       }}
     >
@@ -157,13 +217,21 @@ export default function CaregiverDirections({
       <div
         style={{
           display: "flex",
+
           alignItems: "center",
+
           justifyContent: "space-between",
+
           padding: "24px 20px 16px",
+
           borderBottom: "1px solid rgba(255,255,255,0.08)",
+
           position: "sticky",
+
           top: 0,
+
           background: "rgba(3,22,22,0.96)",
+
           zIndex: 2,
         }}
       >
@@ -181,15 +249,18 @@ export default function CaregiverDirections({
           >
             <polygon points="3 11 22 2 13 21 11 13 3 11" />
           </svg>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "#EAF4F1" }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 22,
+              fontWeight: 800,
+              color: "#EAF4F1",
+            }}
+          >
             Directions
           </h1>
         </div>
-        <button
-          className="icon-button"
-          onClick={onClose}
-          aria-label="Close"
-        >
+        <button className="icon-button" onClick={onClose} aria-label="Close">
           <svg
             width="20"
             height="20"
@@ -210,9 +281,13 @@ export default function CaregiverDirections({
       <div
         style={{
           flex: 1,
+
           display: "flex",
+
           flexDirection: "column",
+
           gap: 14,
+
           padding: "20px 20px 0",
         }}
       >
@@ -235,13 +310,18 @@ export default function CaregiverDirections({
         <p
           style={{
             margin: "4px 0 0",
+
             fontSize: 12,
+
             color: "#86A3A1",
+
             lineHeight: 1.6,
+
             textAlign: "center",
           }}
         >
-          Distances are straight-line estimates. Open in Maps for live traffic routing.
+          Distances are straight-line estimates. Open in Maps for live traffic
+          routing.
         </p>
       </div>
 
@@ -270,5 +350,5 @@ export default function CaregiverDirections({
         </button>
       </div>
     </div>
-  );
+  )
 }

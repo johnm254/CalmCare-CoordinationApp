@@ -1,15 +1,19 @@
-import { useState } from "react";
+import { useState } from "react"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function Toggle({
   on,
+
   onChange,
+
   id,
 }: {
-  on: boolean;
-  onChange: (v: boolean) => void;
-  id?: string;
+  on: boolean
+
+  onChange: (v: boolean) => void
+
+  id?: string
 }) {
   return (
     <button
@@ -21,50 +25,69 @@ function Toggle({
     >
       <i />
     </button>
-  );
+  )
 }
 
 function SectionCard({
   title,
+
   children,
 }: {
-  title?: string;
-  children: React.ReactNode;
+  title?: string
+
+  children: React.ReactNode
 }) {
   return (
     <section className="card" style={{ marginBottom: 0 }}>
       {title && (
-        <h2 style={{ fontSize: 16, fontWeight: 800, margin: "0 0 16px", color: "#EAF4F1" }}>
+        <h2
+          style={{
+            fontSize: 16,
+            fontWeight: 800,
+            margin: "0 0 16px",
+            color: "#EAF4F1",
+          }}
+        >
           {title}
         </h2>
       )}
       {children}
     </section>
-  );
+  )
 }
 
 function PermissionRow({
   label,
+
   description,
+
   on,
+
   onChange,
+
   labelColor,
 }: {
-  label: string;
-  description?: string;
-  on: boolean;
-  onChange: (v: boolean) => void;
-  labelColor?: string;
+  label: string
+
+  description?: string
+
+  on: boolean
+
+  onChange: (v: boolean) => void
+
+  labelColor?: string
 }) {
   return (
     <div className="permission">
       <span>
-        <strong style={labelColor ? { color: labelColor } : undefined}>{label}</strong>
+        <strong style={labelColor ? { color: labelColor } : undefined}>
+          {label}
+        </strong>
         {description && <small>{description}</small>}
       </span>
       <Toggle on={on} onChange={onChange} />
     </div>
-  );
+  )
 }
 
 // ─── Sub-sections ─────────────────────────────────────────────────────────────
@@ -76,27 +99,57 @@ function ProfileSection() {
         <div
           style={{
             width: 56,
+
             height: 56,
+
             borderRadius: "50%",
+
             background: "#183239",
+
             color: "#3DD6B5",
+
             display: "grid",
+
             placeItems: "center",
+
             fontWeight: 800,
+
             fontSize: 22,
+
             flexShrink: 0,
           }}
         >
           A
         </div>
         <div style={{ flex: 1 }}>
-          <strong style={{ display: "block", fontSize: 16, color: "#EAF4F1", fontWeight: 800 }}>
+          <strong
+            style={{
+              display: "block",
+              fontSize: 16,
+              color: "#EAF4F1",
+              fontWeight: 800,
+            }}
+          >
             Amina Wanjiku
           </strong>
-          <span style={{ fontSize: 13, color: "#9DB6B4", display: "block", marginTop: 2 }}>
+          <span
+            style={{
+              fontSize: 13,
+              color: "#9DB6B4",
+              display: "block",
+              marginTop: 2,
+            }}
+          >
             +254 700 000 000
           </span>
-          <span style={{ fontSize: 13, color: "#9DB6B4", display: "block", marginTop: 1 }}>
+          <span
+            style={{
+              fontSize: 13,
+              color: "#9DB6B4",
+              display: "block",
+              marginTop: 1,
+            }}
+          >
             English
           </span>
         </div>
@@ -108,23 +161,30 @@ function ProfileSection() {
         Edit profile
       </button>
     </SectionCard>
-  );
+  )
 }
 
 function DevicesSection() {
-  const [strapConnected] = useState(true);
-  const [batteryPct] = useState(72);
-  const [fwState, setFwState] = useState<"idle" | "checking" | "uptodate">("idle");
-  const [healthSync, setHealthSync] = useState(false);
+  const [strapConnected] = useState(true)
+
+  const [batteryPct] = useState(72)
+
+  const [fwState, setFwState] = useState<"idle" | "checking" | "uptodate">(
+    "idle",
+  )
+
+  const [healthSync, setHealthSync] = useState(false)
 
   const batteryColor =
-    batteryPct < 20 ? "#FF6B6B" : batteryPct < 40 ? "#F5A623" : "#3DD6B5";
+    batteryPct < 20 ? "#FF6B6B" : batteryPct < 40 ? "#F5A623" : "#3DD6B5"
 
   const handleFwCheck = () => {
-    if (fwState !== "idle") return;
-    setFwState("checking");
-    setTimeout(() => setFwState("uptodate"), 2000);
-  };
+    if (fwState !== "idle") return
+
+    setFwState("checking")
+
+    setTimeout(() => setFwState("uptodate"), 2000)
+  }
 
   return (
     <SectionCard title="My devices">
@@ -133,15 +193,25 @@ function DevicesSection() {
         <div
           style={{
             display: "flex",
+
             alignItems: "center",
+
             gap: 8,
+
             padding: "10px 14px",
+
             borderRadius: 12,
+
             background: "rgba(255,107,107,0.12)",
+
             border: "1px solid rgba(255,107,107,0.3)",
+
             marginBottom: 14,
+
             color: "#FF6B6B",
+
             fontSize: 13,
+
             fontWeight: 700,
           }}
         >
@@ -168,15 +238,25 @@ function DevicesSection() {
         <div
           style={{
             display: "flex",
+
             alignItems: "center",
+
             gap: 8,
+
             padding: "10px 14px",
+
             borderRadius: 12,
+
             background: "rgba(245,166,35,0.1)",
+
             border: "1px solid rgba(245,166,35,0.25)",
+
             marginBottom: 14,
+
             color: "#F5A623",
+
             fontSize: 13,
+
             fontWeight: 700,
           }}
         >
@@ -202,10 +282,15 @@ function DevicesSection() {
       <div
         style={{
           display: "flex",
+
           alignItems: "flex-start",
+
           gap: 13,
+
           paddingBottom: 16,
+
           borderBottom: "1px solid rgba(255,255,255,0.08)",
+
           marginBottom: 16,
         }}
       >
@@ -213,12 +298,19 @@ function DevicesSection() {
         <div
           style={{
             width: 44,
+
             height: 44,
+
             borderRadius: 14,
+
             background: "#183239",
+
             color: "#3DD6B5",
+
             display: "grid",
+
             placeItems: "center",
+
             flexShrink: 0,
           }}
         >
@@ -242,40 +334,70 @@ function DevicesSection() {
             <span
               style={{
                 width: 8,
+
                 height: 8,
+
                 borderRadius: "50%",
+
                 background: strapConnected ? "#3DD6B5" : "#4F6866",
+
                 flexShrink: 0,
               }}
             />
-            <strong style={{ fontSize: 14, color: "#EAF4F1" }}>Mojo Strap A</strong>
+            <strong style={{ fontSize: 14, color: "#EAF4F1" }}>
+              Mojo Strap A
+            </strong>
           </div>
-          <span style={{ fontSize: 12, color: "#9DB6B4", display: "block", marginTop: 2 }}>
+          <span
+            style={{
+              fontSize: 12,
+              color: "#9DB6B4",
+              display: "block",
+              marginTop: 2,
+            }}
+          >
             Firmware v1.2.3
           </span>
 
           {/* Battery bar */}
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              marginTop: 8,
+            }}
+          >
             <div
               style={{
                 height: 6,
+
                 width: 60,
+
                 borderRadius: 3,
+
                 background: "rgba(255,255,255,0.1)",
+
                 overflow: "hidden",
               }}
             >
               <div
                 style={{
                   height: "100%",
+
                   width: `${batteryPct}%`,
+
                   background: batteryColor,
+
                   borderRadius: 3,
+
                   transition: "width 0.3s",
                 }}
               />
             </div>
-            <span style={{ fontSize: 12, color: batteryColor, fontWeight: 700 }}>
+            <span
+              style={{ fontSize: 12, color: batteryColor, fontWeight: 700 }}
+            >
               {batteryPct}%
             </span>
           </div>
@@ -288,8 +410,11 @@ function DevicesSection() {
         onClick={handleFwCheck}
         style={{
           width: "100%",
+
           height: 44,
+
           marginBottom: 10,
+
           opacity: fwState === "checking" ? 0.7 : 1,
         }}
       >
@@ -315,7 +440,10 @@ function DevicesSection() {
         )}
       </button>
 
-      <button className="button outline" style={{ width: "100%", height: 44, marginBottom: 20 }}>
+      <button
+        className="button outline"
+        style={{ width: "100%", height: 44, marginBottom: 20 }}
+      >
         <svg
           width={16}
           height={16}
@@ -336,10 +464,15 @@ function DevicesSection() {
       <h3
         style={{
           fontSize: 12,
+
           fontWeight: 800,
+
           textTransform: "uppercase",
+
           letterSpacing: "0.07em",
+
           color: "#3DD6B5",
+
           margin: "0 0 12px",
         }}
       >
@@ -348,22 +481,37 @@ function DevicesSection() {
 
       {[
         { name: "BP Cuff", status: "Not paired" },
+
         { name: "Glucose Meter", status: "Not paired" },
+
         { name: "Weight Scale", status: "Not paired" },
-      ].map(device => (
+      ].map((device) => (
         <div
           key={device.name}
           style={{
             display: "flex",
+
             alignItems: "center",
+
             justifyContent: "space-between",
+
             padding: "11px 0",
+
             borderTop: "1px solid rgba(255,255,255,0.08)",
           }}
         >
           <div>
-            <strong style={{ fontSize: 14, color: "#EAF4F1" }}>{device.name}</strong>
-            <span style={{ fontSize: 12, color: "#9DB6B4", display: "block", marginTop: 2 }}>
+            <strong style={{ fontSize: 14, color: "#EAF4F1" }}>
+              {device.name}
+            </strong>
+            <span
+              style={{
+                fontSize: 12,
+                color: "#9DB6B4",
+                display: "block",
+                marginTop: 2,
+              }}
+            >
               {device.status}
             </span>
           </div>
@@ -380,17 +528,24 @@ function DevicesSection() {
       <div
         style={{
           marginTop: 16,
+
           padding: "14px",
+
           borderRadius: 14,
+
           background: "#0B1A1F",
+
           border: "1px solid rgba(255,255,255,0.08)",
         }}
       >
         <div
           style={{
             display: "flex",
+
             alignItems: "flex-start",
+
             justifyContent: "space-between",
+
             gap: 12,
           }}
         >
@@ -401,21 +556,31 @@ function DevicesSection() {
             <p
               style={{
                 margin: "4px 0 6px",
+
                 fontSize: 12,
+
                 color: "#9DB6B4",
+
                 lineHeight: 1.5,
               }}
             >
-              Sync BP, glucose, and weight from your health apps. Requires device testing.
+              Sync BP, glucose, and weight from your health apps. Requires
+              device testing.
             </p>
             <span
               style={{
                 display: "inline-block",
+
                 fontSize: 11,
+
                 color: "#4F6866",
+
                 background: "#12272D",
+
                 padding: "3px 10px",
+
                 borderRadius: 99,
+
                 fontWeight: 700,
               }}
             >
@@ -426,28 +591,43 @@ function DevicesSection() {
         </div>
       </div>
     </SectionCard>
-  );
+  )
 }
 
 function LocationSection({ navigate }: { navigate?: (s: string) => void }) {
-  const [shareAlerts, setShareAlerts] = useState(true);
-  const [bgLocation, setBgLocation] = useState(false);
+  const [shareAlerts, setShareAlerts] = useState(true)
+
+  const [bgLocation, setBgLocation] = useState(false)
 
   return (
     <SectionCard title="Location settings">
       <div
         style={{
           display: "flex",
+
           alignItems: "center",
+
           justifyContent: "space-between",
+
           paddingBottom: 14,
+
           borderBottom: "1px solid rgba(255,255,255,0.08)",
+
           marginBottom: 4,
         }}
       >
         <div>
-          <strong style={{ fontSize: 14, color: "#EAF4F1" }}>Home address</strong>
-          <span style={{ fontSize: 13, color: "#9DB6B4", display: "block", marginTop: 2 }}>
+          <strong style={{ fontSize: 14, color: "#EAF4F1" }}>
+            Home address
+          </strong>
+          <span
+            style={{
+              fontSize: 13,
+              color: "#9DB6B4",
+              display: "block",
+              marginTop: 2,
+            }}
+          >
             12 Westlands Road, Nairobi
           </span>
         </div>
@@ -473,24 +653,29 @@ function LocationSection({ navigate }: { navigate?: (s: string) => void }) {
         onChange={setBgLocation}
       />
     </SectionCard>
-  );
+  )
 }
 
 function PrivacySection() {
-  const [showHistory, setShowHistory] = useState(false);
-  const [toast, setToast] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [showHistory, setShowHistory] = useState(false)
+
+  const [toast, setToast] = useState(false)
+
+  const [confirmDelete, setConfirmDelete] = useState(false)
 
   const handleExport = () => {
-    setToast(true);
-    setTimeout(() => setToast(false), 3000);
-  };
+    setToast(true)
+
+    setTimeout(() => setToast(false), 3000)
+  }
 
   const accessHistory = [
     { actor: "Dr. Mwangi", action: "viewed Vitals", date: "Oct 26" },
+
     { actor: "Contact A", action: "viewed Events", date: "Oct 24" },
+
     { actor: "Caregiver B", action: "viewed Schedule", date: "Oct 22" },
-  ];
+  ]
 
   return (
     <>
@@ -498,7 +683,7 @@ function PrivacySection() {
         <button
           className="button outline"
           style={{ width: "100%", height: 44, marginBottom: 10 }}
-          onClick={() => setShowHistory(v => !v)}
+          onClick={() => setShowHistory((v) => !v)}
         >
           {showHistory ? "Hide access history" : "View access history"}
         </button>
@@ -507,8 +692,11 @@ function PrivacySection() {
           <div
             style={{
               marginBottom: 14,
+
               borderRadius: 14,
+
               overflow: "hidden",
+
               border: "1px solid rgba(255,255,255,0.08)",
             }}
           >
@@ -517,17 +705,26 @@ function PrivacySection() {
                 key={i}
                 style={{
                   padding: "12px 14px",
+
                   borderBottom:
                     i < accessHistory.length - 1
                       ? "1px solid rgba(255,255,255,0.06)"
                       : "none",
+
                   background: "#0B1A1F",
                 }}
               >
                 <strong style={{ fontSize: 13, color: "#EAF4F1" }}>
                   {row.actor} {row.action}
                 </strong>
-                <span style={{ fontSize: 12, color: "#9DB6B4", display: "block", marginTop: 2 }}>
+                <span
+                  style={{
+                    fontSize: 12,
+                    color: "#9DB6B4",
+                    display: "block",
+                    marginTop: 2,
+                  }}
+                >
                   {row.date}
                 </span>
               </div>
@@ -557,28 +754,41 @@ function PrivacySection() {
         <div
           style={{
             position: "absolute",
+
             inset: 0,
+
             background: "rgba(0,0,0,0.75)",
+
             display: "flex",
+
             alignItems: "flex-end",
+
             padding: 20,
+
             zIndex: 50,
           }}
         >
           <div
             style={{
               background: "#12272D",
+
               border: "1px solid rgba(255,255,255,0.08)",
+
               borderRadius: 24,
+
               padding: "24px 20px",
+
               width: "100%",
             }}
           >
             <h2
               style={{
                 fontSize: 18,
+
                 fontWeight: 800,
+
                 color: "#EAF4F1",
+
                 margin: "0 0 10px",
               }}
             >
@@ -587,8 +797,11 @@ function PrivacySection() {
             <p
               style={{
                 color: "#9DB6B4",
+
                 fontSize: 14,
+
                 lineHeight: 1.6,
+
                 margin: "0 0 22px",
               }}
             >
@@ -633,13 +846,15 @@ function PrivacySection() {
         </div>
       )}
     </>
-  );
+  )
 }
 
 function NotificationsSection() {
-  const [medReminders, setMedReminders] = useState(true);
-  const [careUpdates, setCareUpdates] = useState(true);
-  const [lockScreen, setLockScreen] = useState(false);
+  const [medReminders, setMedReminders] = useState(true)
+
+  const [careUpdates, setCareUpdates] = useState(true)
+
+  const [lockScreen, setLockScreen] = useState(false)
 
   return (
     <SectionCard title="Notifications">
@@ -662,32 +877,57 @@ function NotificationsSection() {
         labelColor={lockScreen ? "#FF6B6B" : undefined}
       />
     </SectionCard>
-  );
+  )
 }
 
 function AppInfoSection() {
   return (
     <SectionCard>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          marginBottom: 16,
+        }}
+      >
         <div
           style={{
             width: 40,
+
             height: 40,
+
             borderRadius: 12,
+
             background: "#3DD6B5",
+
             color: "#062A24",
+
             display: "grid",
+
             placeItems: "center",
+
             fontWeight: 800,
+
             fontSize: 16,
+
             flexShrink: 0,
           }}
         >
           M
         </div>
         <div>
-          <strong style={{ fontSize: 14, color: "#EAF4F1" }}>Mojo v1.0.0</strong>
-          <span style={{ fontSize: 12, color: "#9DB6B4", display: "block", marginTop: 1 }}>
+          <strong style={{ fontSize: 14, color: "#EAF4F1" }}>
+            Mojo v1.0.0
+          </strong>
+          <span
+            style={{
+              fontSize: 12,
+              color: "#9DB6B4",
+              display: "block",
+              marginTop: 1,
+            }}
+          >
             Stage 7 prototype
           </span>
         </div>
@@ -703,20 +943,30 @@ function AppInfoSection() {
       <div
         style={{
           display: "flex",
+
           gap: 16,
+
           justifyContent: "center",
+
           paddingTop: 10,
         }}
       >
         <button
           style={{
             background: "none",
+
             border: "none",
+
             color: "#3DD6B5",
+
             fontSize: 13,
+
             fontWeight: 700,
+
             cursor: "pointer",
+
             fontFamily: "inherit",
+
             textDecoration: "underline",
           }}
         >
@@ -725,12 +975,19 @@ function AppInfoSection() {
         <button
           style={{
             background: "none",
+
             border: "none",
+
             color: "#3DD6B5",
+
             fontSize: 13,
+
             fontWeight: 700,
+
             cursor: "pointer",
+
             fontFamily: "inherit",
+
             textDecoration: "underline",
           }}
         >
@@ -738,11 +995,18 @@ function AppInfoSection() {
         </button>
       </div>
     </SectionCard>
-  );
+  )
 }
 
 // ─── Root component ───────────────────────────────────────────────────────────
-export default function MeScreen({ back, navigate }: { back: () => void; navigate?: (s: string) => void }) {
+
+export default function MeScreen({
+  back,
+  navigate,
+}: {
+  back: () => void
+  navigate?: (s: string) => void
+}) {
   return (
     <div className="phone dark scroll-phone" style={{ position: "relative" }}>
       <header className="subhead">
@@ -773,5 +1037,5 @@ export default function MeScreen({ back, navigate }: { back: () => void; navigat
         <AppInfoSection />
       </main>
     </div>
-  );
+  )
 }
