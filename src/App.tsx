@@ -8,7 +8,8 @@ import StitchVitals from "./components/StitchVitals";
 type IconName =
   | "home" | "pulse" | "users" | "file" | "bell" | "shield" | "pill"
   | "mic" | "check" | "arrow" | "plus" | "camera" | "image" | "close"
-  | "upload" | "doc" | "trash" | "map" | "locate" | "heart" | "clock" | "power";
+  | "upload" | "doc" | "trash" | "map" | "locate" | "heart" | "clock" | "power"
+  | "phone";
 
 function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
   const paths: Record<IconName, React.ReactNode> = {
@@ -34,6 +35,7 @@ function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
     heart: <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>,
     clock: <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,
     power: <><path d="M12 2v8"/><path d="M4.93 4.93a10 10 0 1 0 14.14 0"/></>,
+    phone: <><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 2.11 4.18 2 2 0 0 1 4.09 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></>,
   };
   return (
     <svg
@@ -142,7 +144,7 @@ function PatientHome({
       confirmed_at:   now,
       status:         "taken",
       confirmed_via:  "app",
-    }).catch(() => undefined);
+    }).then(() => undefined);
   };
 
   return (
@@ -589,7 +591,143 @@ function Insights({ back }: { back: () => void }) {
   );
 }
 
+// CR-CG-02: caregiver emergency alert — name and time first, calm styling,
+// action buttons: reached / not reached / call / directions / nearest hospital.
 function CaregiverScreen() {
+  const [alertActive, setAlertActive] = useState(false);
+  const [responded, setResponded] = useState<"reached" | "not_reached" | null>(null);
+  const alertTime = "20:07 EAT";
+  const patientLat = -1.2921;
+  const patientLon = 36.8219;
+  const providerPhone = "999";
+
+  const handleResponse = async (type: "reached" | "not_reached") => {
+    setResponded(type);
+    // Insert sos_response row (alertId and sosEventId are demo placeholders)
+    await supabase.from("sos_responses").insert({
+      sos_event_id: "00000000-0000-0000-0000-000000000000",
+      responder_id: (await supabase.auth.getUser()).data.user?.id,
+      response_type: type,
+    }).then(() => undefined);
+  };
+
+  if (alertActive && !responded) {
+    // CR-CG-02: full-screen alert — calm, name and time first, no alarm capitals
+    return (
+      <div className="phone dark scroll-phone" style={{ background: "#0B1F1E" }}>
+        <div style={{ padding: "20px 20px 0", display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{
+            background: "#E24B4A", color: "#fff", borderRadius: 99,
+            padding: "3px 10px", fontSize: 11, fontWeight: 700, letterSpacing: ".04em",
+          }}>
+            SOS
+          </span>
+          <span style={{ color: "#9DB6B4", fontSize: 13 }}>{alertTime}</span>
+        </div>
+        <main style={{ padding: "16px 20px", display: "flex", flexDirection: "column", gap: 16 }}>
+          <div>
+            <h1 style={{ fontSize: 24, fontWeight: 800, color: "#EAF4F1", margin: "0 0 4px" }}>
+              Amina Wanjiku pressed SOS
+            </h1>
+            <p style={{ fontSize: 14, color: "#9DB6B4", margin: 0 }}>
+              Please check she is safe. Tap to respond.
+            </p>
+          </div>
+
+          <div style={{ background: "#112928", borderRadius: 16, padding: "14px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Icon name="locate" />
+              <span style={{ color: "#9DB6B4", fontSize: 13 }}>Last known location</span>
+            </div>
+            <span style={{ color: "#EAF4F1", fontSize: 14, fontWeight: 600 }}>
+              Westlands, Nairobi (-1.2921, 36.8219)
+            </span>
+            <a
+              href={`https://maps.google.com/?q=${patientLat},${patientLon}`}
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                background: "#2F7F79", color: "#EAF4F1", borderRadius: 99,
+                padding: "8px 14px", fontSize: 13, fontWeight: 700,
+                textDecoration: "none", display: "inline-block", width: "fit-content",
+              }}
+            >
+              Directions to Amina
+            </a>
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <button
+              style={{
+                background: "#3DD6B5", color: "#062A24", border: 0, borderRadius: 99,
+                padding: "14px", fontSize: 16, fontWeight: 800, cursor: "pointer",
+              }}
+              onClick={() => handleResponse("reached")}
+            >
+              I have reached her
+            </button>
+            <button
+              style={{
+                background: "transparent", color: "#EAF4F1", border: "1.5px solid #3DD6B5",
+                borderRadius: 99, padding: "14px", fontSize: 15, fontWeight: 700, cursor: "pointer",
+              }}
+              onClick={() => handleResponse("not_reached")}
+            >
+              I cannot reach her
+            </button>
+            <div style={{ display: "flex", gap: 10 }}>
+              <a
+                href="tel:+254700000000"
+                style={{
+                  flex: 1, background: "#112928", color: "#EAF4F1", borderRadius: 99,
+                  padding: "12px", fontSize: 14, fontWeight: 700, textDecoration: "none",
+                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+                }}
+              >
+                <Icon name="phone" /> Call her
+              </a>
+              <a
+                href={`tel:${providerPhone}`}
+                style={{
+                  flex: 1, background: "#E24B4A", color: "#fff", borderRadius: 99,
+                  padding: "12px", fontSize: 14, fontWeight: 700, textDecoration: "none",
+                  display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6,
+                }}
+              >
+                <Icon name="phone" /> Ambulance
+              </a>
+            </div>
+          </div>
+
+          <p style={{ fontSize: 11, color: "#4F6866", textAlign: "center", margin: "4px 0 0" }}>
+            Telling us you cannot reach her keeps the escalation running.
+          </p>
+        </main>
+      </div>
+    );
+  }
+
+  if (alertActive && responded) {
+    return (
+      <div className="phone dark" style={{ background: "#0B1F1E", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 32 }}>
+        <span style={{ fontSize: 48 }}>
+          {responded === "reached" ? "✓" : "→"}
+        </span>
+        <p style={{ color: "#EAF4F1", fontSize: 18, fontWeight: 700, textAlign: "center", margin: 0 }}>
+          {responded === "reached"
+            ? "Good. Escalation stopped."
+            : "Logged. Escalation continues until someone reaches her."}
+        </p>
+        <button
+          style={{ background: "#2F7F79", color: "#fff", border: 0, borderRadius: 99, padding: "12px 24px", fontSize: 15, fontWeight: 700, cursor: "pointer", marginTop: 8 }}
+          onClick={() => { setAlertActive(false); setResponded(null); }}
+        >
+          Back to overview
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="phone light caregiver">
       <header className="care-head">
@@ -602,7 +740,6 @@ function CaregiverScreen() {
         </span>
       </header>
       <main className="mobile-content">
-        {/* Patient avatar */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 0" }}>
           <img
             src="https://i.pravatar.cc/150?img=5"
@@ -612,7 +749,7 @@ function CaregiverScreen() {
           />
           <div>
             <strong style={{ display: "block", fontSize: 16 }}>Amina Wanjiku</strong>
-            <span style={{ fontSize: 13, color: "#4F6866" }}>Patient · epilepsy care</span>
+            <span style={{ fontSize: 13, color: "#4F6866" }}>Patient</span>
           </div>
         </div>
 
@@ -624,6 +761,15 @@ function CaregiverScreen() {
           <p>
             You will be notified instantly, with live location, if an SOS is sent to your Circle.
           </p>
+          <button
+            style={{
+              marginTop: 12, background: "#E24B4A", color: "#fff", border: 0,
+              borderRadius: 99, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer",
+            }}
+            onClick={() => setAlertActive(true)}
+          >
+            Demo: simulate SOS
+          </button>
         </section>
         <section className="card">
           <h2>What you can see</h2>

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 export default function StitchVitals({ back }: { back: () => void }) {
   const [isRecording, setIsRecording] = useState(false);
@@ -6,6 +7,9 @@ export default function StitchVitals({ back }: { back: () => void }) {
   const [limitsVisible, setLimitsVisible] = useState(true);
   const [sedentaryActive, setSedentaryActive] = useState(true);
   const [liveBpm, setLiveBpm] = useState(71);
+  // CR-ADD-01: rhythm classification and notifications gated behind this flag.
+  // Off in Release 1 — only the ECG trace and save status are shown to patients.
+  const [ecgRhythmEnabled, setEcgRhythmEnabled] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -32,6 +36,15 @@ export default function StitchVitals({ back }: { back: () => void }) {
     }, 1000);
     return () => clearInterval(interval);
   }, [isRecording]);
+
+  useEffect(() => {
+    supabase
+      .from("feature_flags")
+      .select("enabled")
+      .eq("flag_name", "release2_ecg_rhythm")
+      .single()
+      .then(({ data }) => setEcgRhythmEnabled(data?.enabled === true));
+  }, []);
 
   const startRecording = () => {
     if (isRecording) return;
@@ -263,14 +276,25 @@ export default function StitchVitals({ back }: { back: () => void }) {
                         <span>QTc: 412 ms (Clean)</span>
                       </div>
                     </div>
-                    <div className="p-3 rounded-lg bg-surface-container">
-                      <span className="text-on-surface-variant block" style={{ fontSize: 12 }}>Device Classification</span>
-                      <div className="flex items-center gap-1.5 mt-2">
-                        <span className="h-2 w-2 rounded-full bg-secondary"></span>
-                        <span className="text-secondary truncate" style={{ fontSize: 16, fontWeight: 600 }}>Normal Sinus</span>
+                    {ecgRhythmEnabled ? (
+                      <div className="p-3 rounded-lg bg-surface-container">
+                        <span className="text-on-surface-variant block" style={{ fontSize: 12 }}>Device Classification</span>
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <span className="h-2 w-2 rounded-full bg-secondary"></span>
+                          <span className="text-secondary truncate" style={{ fontSize: 16, fontWeight: 600 }}>Normal Sinus</span>
+                        </div>
+                        <span className="text-on-surface-variant mt-1 block" style={{ fontSize: 11, fontWeight: 700 }}>Zero Ectopic Beats</span>
                       </div>
-                      <span className="text-on-surface-variant mt-1 block" style={{ fontSize: 11, fontWeight: 700 }}>Zero Ectopic Beats</span>
-                    </div>
+                    ) : (
+                      <div className="p-3 rounded-lg bg-surface-container">
+                        <span className="text-on-surface-variant block" style={{ fontSize: 12 }}>ECG status</span>
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <span className="h-2 w-2 rounded-full bg-secondary"></span>
+                          <span className="text-secondary truncate" style={{ fontSize: 16, fontWeight: 600 }}>Saved</span>
+                        </div>
+                        <span className="text-on-surface-variant mt-1 block" style={{ fontSize: 11 }}>Your clinician will review</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* ECG Waveform */}
@@ -317,6 +341,11 @@ export default function StitchVitals({ back }: { back: () => void }) {
                     )}
                   </div>
                 </div>
+
+                {/* CR-PAT-04 / CR-ADD-01: required disclaimer on every ECG screen */}
+                <p className="mt-3 text-on-surface-variant" style={{ fontSize: 12, lineHeight: 1.5 }}>
+                  A wrist ECG is a rhythm check, not a replacement for a hospital ECG.
+                </p>
 
                 {/* Archive */}
                 <div className="mt-4 pt-3">
@@ -542,7 +571,7 @@ export default function StitchVitals({ back }: { back: () => void }) {
                 <table className="w-full text-left text-on-surface" style={{ fontSize: 12 }}>
                   <thead>
                     <tr className="text-on-surface-variant bg-surface-container">
-                      {["Timestamp", "HR / Pulse", "Rhythm State", "Skin Conductance", "Motion Accel", "Sync Integrity"].map(h => (
+                      {["Timestamp", "HR / Pulse", ...(ecgRhythmEnabled ? ["Rhythm State"] : []), "Skin Conductance", "Motion Accel", "Sync Integrity"].map(h => (
                         <th key={h} className="py-2.5 px-4 uppercase" style={{ fontSize: 11, fontWeight: 700 }}>{h}</th>
                       ))}
                     </tr>
@@ -551,15 +580,17 @@ export default function StitchVitals({ back }: { back: () => void }) {
                     {[
                       { ts: "14:24:02 UTC", hr: "71 BPM", hrClass: "text-secondary font-semibold", rhythm: "Normal Sinus", rhythmClass: "bg-secondary-container text-on-secondary-container", sc: "2.4 μS (Nominal)", ma: "0.02g (Stationary)", sync: "100% Pkt Verified", syncClass: "text-secondary font-bold", rowClass: "" },
                       { ts: "14:22:15 UTC", hr: "73 BPM", hrClass: "font-semibold", rhythm: "Normal Sinus", rhythmClass: "bg-secondary-container text-on-secondary-container", sc: "2.6 μS (Nominal)", ma: "0.14g (Gentle walk)", sync: "100% Pkt Verified", syncClass: "text-secondary font-bold", rowClass: "bg-surface-container/30" },
-                      { ts: "14:15:00 UTC", hr: "88 BPM", hrClass: "font-semibold", rhythm: "Mild Elevation", rhythmClass: "bg-surface-container-highest text-secondary", sc: "3.1 μS (Warmup)", ma: "0.68g (Active Stride)", sync: "100% Pkt Verified", syncClass: "text-secondary font-bold", rowClass: "" },
+                      { ts: "14:15:00 UTC", hr: "88 BPM", hrClass: "font-semibold", rhythm: "Heart rate above your usual range", rhythmClass: "bg-surface-container-highest text-secondary", sc: "3.1 μS (Warmup)", ma: "0.68g (Active Stride)", sync: "100% Pkt Verified", syncClass: "text-secondary font-bold", rowClass: "" },
                       { ts: "14:00:12 UTC", hr: "69 BPM", hrClass: "font-semibold", rhythm: "Normal Sinus", rhythmClass: "bg-secondary-container text-on-secondary-container", sc: "2.1 μS (Basal)", ma: "0.01g (Resting)", sync: "Buffered Local Cache", syncClass: "text-secondary font-bold", rowClass: "bg-surface-container/30" },
                     ].map((row) => (
                       <tr key={row.ts} className={`hover:bg-surface-container/60 transition-colors ${row.rowClass}`}>
                         <td className="py-3 px-4 font-semibold" style={{ fontSize: 13 }}>{row.ts}</td>
                         <td className={`py-3 px-4 ${row.hrClass}`}>{row.hr}</td>
-                        <td className="py-3 px-4">
-                          <span className={`px-2 py-0.5 rounded-full ${row.rhythmClass}`} style={{ fontSize: 11, fontWeight: 700 }}>{row.rhythm}</span>
-                        </td>
+                        {ecgRhythmEnabled && (
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-0.5 rounded-full ${row.rhythmClass}`} style={{ fontSize: 11, fontWeight: 700 }}>{row.rhythm}</span>
+                          </td>
+                        )}
                         <td className="py-3 px-4 text-on-surface-variant">{row.sc}</td>
                         <td className="py-3 px-4 text-on-surface-variant">{row.ma}</td>
                         <td className={`py-3 px-4 text-right ${row.syncClass}`} style={{ fontSize: 11 }}>{row.sync}</td>
