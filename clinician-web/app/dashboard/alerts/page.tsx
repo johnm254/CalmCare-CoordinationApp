@@ -15,7 +15,7 @@ interface SosEvent {
   status: string;
   dispatch_ref: string | null;
   notes: string | null;
-  profiles: { full_name: string | null } | null;
+  profiles: { full_name: string | null }[] | null;
 }
 
 interface MetricAlert {
@@ -26,7 +26,7 @@ interface MetricAlert {
   threshold: number;
   created_at: string;
   acknowledged_at: string | null;
-  profiles: { full_name: string | null } | null;
+  profiles: { full_name: string | null }[] | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -205,7 +205,7 @@ function SosEventsTab({
   return (
     <div className="space-y-4">
       {events.map((ev) => {
-        const name = ev.profiles?.full_name ?? 'Unknown patient';
+        const name = ((ev.profiles as any)?.[0]?.full_name ?? (ev.profiles as any)?.full_name) ?? 'Unknown patient';
         const isSaving = saving === ev.id;
         const isSavingNote = saving === ev.id + '-note';
         const isNoteOpen = noteOpen === ev.id;
@@ -348,7 +348,7 @@ function MetricAlertsTab({
   }
 
   function MetricRow({ alert }: { alert: MetricAlert }) {
-    const name = alert.profiles?.full_name ?? 'Unknown';
+    const name = ((alert.profiles as any)?.[0]?.full_name ?? (alert.profiles as any)?.full_name) ?? 'Unknown';
     const isSaving = saving === alert.id;
     const metricLabel = alert.metric.replace(/_/g, ' ');
 
