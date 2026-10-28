@@ -54,7 +54,7 @@ export async function PATCH(req: NextRequest) {
   const user = await requireAdmin()
   if (!user) return NextResponse.json({ error: "Forbidden" }, { status: 403 })
 
-  const body = (await req.json()) as { key: string enabled: boolean }
+  const body = (await req.json()) as { key: string; enabled: boolean }
   if (!body?.key || typeof body.enabled !== "boolean") {
     return NextResponse.json({ error: "Invalid body" }, { status: 400 })
   }

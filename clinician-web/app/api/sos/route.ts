@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
       sos_id?: string
       patient_id: string
       recipient_ids: string[]
-      location?: { lat: number lon: number } | null
+      location?: { lat: number; lon: number } | null
     }
 
     if (

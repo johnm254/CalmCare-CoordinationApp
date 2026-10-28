@@ -25,7 +25,7 @@ type VerificationRow = {
   notes: string | null
   created_at: string
   verified_at: string | null
-  profiles: { full_name: string | null email: string | null } | null
+  profiles: { full_name: string | null; email: string | null } | null
 }
 
 function StatCard({

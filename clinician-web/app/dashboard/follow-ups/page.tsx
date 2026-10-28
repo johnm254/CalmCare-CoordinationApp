@@ -49,7 +49,7 @@ function DueDateLabel({ dateStr }: { dateStr: string }) {
 }
 
 function StatusPill({ status }: { status: string }) {
-  const map: Record<string, { bg: string text: string label: string }> = {
+  const map: Record<string, { bg: string; text: string; label: string }> = {
     open: {
       bg: "bg-[rgba(244,184,96,0.10)]",
       text: "text-[#F4B860]",

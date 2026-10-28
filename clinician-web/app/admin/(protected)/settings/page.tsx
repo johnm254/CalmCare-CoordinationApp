@@ -25,7 +25,7 @@ const TABLES = [
   "alerts",
 ]
 
-const FLAG_META: Record<string, { label: string sub: string }> = {
+const FLAG_META: Record<string, { label: string; sub: string }> = {
   live_dispatch: {
     label: "Live dispatch",
     sub: "Send real ambulance requests (disables sandbox mode)",
