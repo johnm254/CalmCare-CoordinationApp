@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { createClient } from '../../../../lib/supabase-server';
 import { logAccess } from '../../../../lib/audit';
+import PreferredHospital from './PreferredHospital';
 
 function EventTypeBadge({ type }: { type: string }) {
   if (type === 'seizure')
@@ -60,7 +61,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
   await logAccess(supabase, params.id, 'viewed_patient', 'profiles', params.id);
 
   // Fetch all patient data in parallel
-  const [profileRes, eventsRes, medsRes, followupsRes] = await Promise.all([
+  const [profileRes, eventsRes, medsRes, followupsRes, prefRes] = await Promise.all([
     supabase.from('profiles').select('id, full_name, email').eq('id', params.id).single(),
     supabase.from('events').select('*').eq('patient_id', params.id).order('occurred_at', { ascending: false }).limit(20),
     supabase.from('medications').select('*').eq('patient_id', params.id).eq('active', true),
@@ -71,12 +72,19 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
       .eq('clinician_id', user!.id)
       .neq('status', 'completed')
       .order('due_at', { ascending: true }),
+    supabase
+      .from('clinician_patient_preferences')
+      .select('preferred_hospital_name')
+      .eq('clinician_id', user!.id)
+      .eq('patient_id', params.id)
+      .maybeSingle(),
   ]);
 
   const profile = profileRes.data;
   const events = eventsRes.data ?? [];
   const medications = medsRes.data ?? [];
   const followups = followupsRes.data ?? [];
+  const preferredHospitalName: string | null = prefRes.data?.preferred_hospital_name ?? null;
 
   if (!profile) notFound();
 
@@ -368,6 +376,38 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             })}
           </div>
         )}
+      </div>
+
+      {/* Bottom row: ECG link + Preferred Hospital */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        {/* ECG Recordings card */}
+        <Link href={`${baseHref}/ecg`}>
+          <div className="bg-[#14122A] border border-[#2E2B50] hover:border-[#8B5CF6]/40 rounded-2xl p-5 transition-colors group cursor-pointer">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-[rgba(34,200,122,0.10)] flex items-center justify-center">
+                  <svg className="w-5 h-5 text-[#22C87A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                  </svg>
+                </div>
+                <div>
+                  <p className="text-[#F5F0FF] font-semibold text-sm">ECG Recordings</p>
+                  <p className="text-[#9B96C0] text-xs mt-0.5">View wrist ECG strips and mark reviewed</p>
+                </div>
+              </div>
+              <svg className="w-4 h-4 text-[#504C78] group-hover:text-[#8B5CF6] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
+        </Link>
+
+        {/* Preferred Hospital */}
+        <PreferredHospital
+          clinicianId={user!.id}
+          patientId={params.id}
+          initialName={preferredHospitalName}
+        />
       </div>
     </div>
   );

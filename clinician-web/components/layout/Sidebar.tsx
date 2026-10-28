@@ -2,12 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { createClient } from '../../lib/supabase-browser';
 
 const NAV_ITEMS = [
   {
     label: 'Dashboard', href: '/dashboard',
     icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>,
+  },
+  {
+    label: 'Alerts', href: '/dashboard/alerts',
+    icon: <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>,
   },
   {
     label: 'Patients', href: '/dashboard/patients',
@@ -45,6 +50,35 @@ interface Props {
 export default function Sidebar({ profile }: Props) {
   const pathname = usePathname();
   const router = useRouter();
+  const [activeSosCount, setActiveSosCount] = useState(0);
+
+  useEffect(() => {
+    async function fetchSosCount() {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: links } = await supabase
+        .from('clinician_links')
+        .select('patient_id')
+        .eq('clinician_id', user.id)
+        .not('verified_at', 'is', null);
+
+      const patientIds = (links ?? []).map((l: { patient_id: string }) => l.patient_id);
+      if (patientIds.length === 0) return;
+
+      const { count } = await supabase
+        .from('sos_events')
+        .select('id', { count: 'exact', head: true })
+        .in('patient_id', patientIds)
+        .eq('status', 'active');
+
+      setActiveSosCount(count ?? 0);
+    }
+    fetchSosCount();
+  }, []);
 
   function isActive(href: string) {
     if (href === '/dashboard') return pathname === '/dashboard';
@@ -98,7 +132,10 @@ export default function Sidebar({ profile }: Props) {
                   : 'text-[#9B96C0] hover:bg-[#14122A] hover:text-[#F5F0FF] border-transparent'
               }`}>
                 {item.icon}
-                <span className="font-medium text-sm">{item.label}</span>
+                <span className="font-medium text-sm flex-1">{item.label}</span>
+                {item.href === '/dashboard/alerts' && activeSosCount > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-[#EF4444] flex-shrink-0 animate-pulse" aria-label={`${activeSosCount} active SOS`} />
+                )}
               </div>
             </Link>
           ))}
