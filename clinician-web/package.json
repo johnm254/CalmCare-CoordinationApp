@@ -1,7 +1,7 @@
 {
-  "name": "mojo-clinician-web",
+  "name": "project-epi-clinician-web",
   "version": "0.1.0",
-  "description": "Mojo - Clinician Dashboard",
+  "description": "Project Epi - Clinician Dashboard",
   "private": true,
   "scripts": {
     "dev": "next dev",
