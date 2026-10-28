@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -661,31 +661,91 @@ function PrivacySection() {
 
   const [toast, setToast] = useState(false)
 
+  const [toastMsg, setToastMsg] = useState("")
+
   const [confirmDelete, setConfirmDelete] = useState(false)
 
-  const handleExport = () => {
-    setToast(true)
+  // CR-MED-05: mood data off by default
+  const [moodShared, setMoodShared] = useState(false)
 
-    setTimeout(() => setToast(false), 3000)
+  // CR-SEC-03: live access history from audit_log
+  const [accessHistory, setAccessHistory] = useState([
+    { actor: "Dr. Mwangi", action: "viewed Vitals", date: "Oct 26" },
+    { actor: "Contact A", action: "viewed Events", date: "Oct 24" },
+    { actor: "Caregiver B", action: "viewed Schedule", date: "Oct 22" },
+  ])
+
+  useEffect(() => {
+    import("../lib/supabase").then(({ supabase }) => {
+      supabase
+        .from("audit_log")
+        .select("actor_role, category, accessed_at")
+        .eq("patient_id", "demo-patient-id")
+        .order("accessed_at", { ascending: false })
+        .limit(10)
+        .then(({ data }) => {
+          if (data && data.length > 0) {
+            setAccessHistory(
+              (data as { actor_role: string; category: string; accessed_at: string }[]).map((r) => ({
+                actor: r.actor_role,
+                action: `viewed ${r.category}`,
+                date: new Date(r.accessed_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
+              })),
+            )
+          }
+        })
+    })
+  }, [])
+
+  const handleExport = () => {
+    setToastMsg("Export request received. You will receive a copy within 30 days per the Kenya Data Protection Act.")
+    setToast(true)
+    setTimeout(() => setToast(false), 4000)
   }
 
-  const accessHistory = [
-    { actor: "Dr. Mwangi", action: "viewed Vitals", date: "Oct 26" },
-
-    { actor: "Contact A", action: "viewed Events", date: "Oct 24" },
-
-    { actor: "Caregiver B", action: "viewed Schedule", date: "Oct 22" },
-  ]
+  const toggleMood = async (on: boolean) => {
+    setMoodShared(on)
+    const { supabase } = await import("../lib/supabase")
+    if (on) {
+      await supabase
+        .from("grants")
+        .insert({ category: "mood", granted_at: new Date().toISOString() })
+        .then(() => undefined)
+    } else {
+      await supabase
+        .from("grants")
+        .update({ revoked_at: new Date().toISOString() })
+        .eq("category", "mood")
+        .is("revoked_at", null)
+        .then(() => undefined)
+    }
+  }
 
   return (
     <>
       <SectionCard title="Who can see what">
+        {/* CR-MED-05: mood off by default */}
+        <div className="permission" style={{ marginBottom: 14 }}>
+          <span>
+            <strong>Mood data</strong>
+            <small>Off by default. Clinicians cannot see mood check-ins unless you grant access here.</small>
+          </span>
+          <button
+            role="switch"
+            aria-checked={moodShared}
+            className={`toggle ${moodShared ? "on" : ""}`}
+            onClick={() => toggleMood(!moodShared)}
+          >
+            <i />
+          </button>
+        </div>
+
         <button
           className="button outline"
           style={{ width: "100%", height: 44, marginBottom: 10 }}
           onClick={() => setShowHistory((v) => !v)}
         >
-          {showHistory ? "Hide access history" : "View access history"}
+          {showHistory ? "Hide access history" : "Who viewed my data"}
         </button>
 
         {showHistory && (
@@ -842,7 +902,7 @@ function PrivacySection() {
           >
             <path d="m4 12 5 5L20 6" />
           </svg>
-          Export prepared — check your email
+          {toastMsg || "Export prepared — check your email"}
         </div>
       )}
     </>

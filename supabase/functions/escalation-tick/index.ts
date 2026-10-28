@@ -155,6 +155,16 @@ Deno.serve(async (req) => {
       if (alert.state === "raised") {
         await escalate(supabase, alert, 1, "notify_contacts", "push")
 
+        // CR-LOC-01 backend: ensure location_shares row exists for the 4-hour window
+        const sosEvt = alert.sos_events?.[0]
+        if (sosEvt?.id) {
+          await supabase.from("location_shares").upsert({
+            patient_id:  alert.patient_id,
+            alert_id:    alert.id,
+            expires_at:  new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
+          }, { onConflict: "alert_id" })
+        }
+
         await supabase
 
           .from("alerts")
@@ -319,11 +329,12 @@ async function escalate(
 
     body = `Please confirm ${patientName} is safe. Paramedics will be called at ${dispatchAt} if no one responds.`
   } else if (action === "call_paramedics") {
-    // Step 4 — after dispatch
+    // Step 4 — after dispatch; CR-SOS-02: include dispatch reference
+    const dispatchRef = `MJ-${alert.id.slice(0, 8).toUpperCase()}`
 
     title = `Paramedics called for ${patientName}`
 
-    body = "No one responded. Emergency services have been contacted."
+    body = `No one responded. Emergency services have been contacted. Reference: ${dispatchRef}.`
   } else {
     // crisis_line
 
@@ -426,6 +437,20 @@ async function sendDispatch(
 
   const locationStr = location ? `${location.lat}, ${location.lon}` : "unknown"
 
+  // CR-SOS-06: nearest ER facility lookup to include in dispatch payload
+  let nearestHospital: { id: string; name: string; phone: string; distance_km: number } | null = null
+  if (location) {
+    const { data: erRow } = await supabase.rpc("nearest_er_facility", {
+      p_lat: location.lat,
+      p_lon: location.lon,
+    })
+    if (erRow && (erRow as any[]).length > 0) {
+      nearestHospital = (erRow as any[])[0]
+    }
+  }
+
+  const dispatchRef = `MJ-${alert.id.slice(0, 8).toUpperCase()}`
+
   // Playbook Step 3 script: location first, repeated once
 
   const script =
@@ -459,6 +484,16 @@ async function sendDispatch(
       callback_phone: callbackPhone,
 
       alert_id: alert.id,
+
+      dispatch_ref: dispatchRef,
+
+      nearest_hospital_id:   nearestHospital?.id ?? null,
+
+      nearest_hospital_name: nearestHospital?.name ?? null,
+
+      nearest_hospital_phone: nearestHospital?.phone ?? null,
+
+      nearest_hospital_km:   nearestHospital?.distance_km ?? null,
 
       source: "mojo_sos",
 

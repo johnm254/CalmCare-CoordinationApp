@@ -1,10 +1,10 @@
-import { useState } from "react"
+import React, { useState } from "react"
 
 import { supabase } from "../lib/supabase"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Section = "system-health" | "clinician-verification" | "emergency-routing" | "hospital-directory" | "device-inventory" | "users-orgs" | "audit-log"
+type Section = "system-health" | "clinician-verification" | "emergency-routing" | "hospital-directory" | "device-inventory" | "users-orgs" | "audit-log" | "crisis-resources" | "dpa-requests"
 
 interface FeatureFlag {
   flag_name: string
@@ -2832,6 +2832,306 @@ function UsersOrgs() {
   )
 }
 
+// ─── Crisis Resources ─────────────────────────────────────────────────────────
+
+interface CrisisResource {
+  id: string
+  country: string
+  name: string
+  phone: string
+  language: string
+  active: boolean
+}
+
+function CrisisResources() {
+  const [resources, setResources] = useState<CrisisResource[]>([
+    { id: "1", country: "KE", name: "Befrienders Kenya", phone: "0800 723 253", language: "en", active: true },
+    { id: "2", country: "KE", name: "Mathare Hospital Crisis Line", phone: "+254 20 3568 000", language: "sw", active: true },
+    { id: "3", country: "UG", name: "Mental Health Uganda", phone: "0800 212 121", language: "en", active: true },
+  ])
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({ country: "KE", name: "", phone: "", language: "en" })
+  const [saving, setSaving] = useState(false)
+  const [toast, setToast] = useState("")
+
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 3000) }
+
+  const toggleActive = async (id: string) => {
+    const next = resources.map(r => r.id === id ? { ...r, active: !r.active } : r)
+    setResources(next)
+    const row = next.find(r => r.id === id)
+    await supabase.from("crisis_resources").update({ active: row?.active }).eq("id", id)
+    showToast("Updated")
+  }
+
+  const deleteRow = async (id: string) => {
+    setResources(r => r.filter(x => x.id !== id))
+    await supabase.from("crisis_resources").delete().eq("id", id)
+    showToast("Deleted")
+  }
+
+  const saveNew = async () => {
+    if (!form.name || !form.phone) return
+    setSaving(true)
+    const { data, error } = await supabase.from("crisis_resources").insert({
+      country: form.country, name: form.name, phone: form.phone, language: form.language, active: true,
+    }).select().single()
+    setSaving(false)
+    if (!error && data) {
+      setResources(r => [...r, data as CrisisResource])
+      setForm({ country: "KE", name: "", phone: "", language: "en" })
+      setShowForm(false)
+      showToast("Resource added")
+    } else {
+      const newRow: CrisisResource = { id: Date.now().toString(), ...form, active: true }
+      setResources(r => [...r, newRow])
+      setForm({ country: "KE", name: "", phone: "", language: "en" })
+      setShowForm(false)
+      showToast("Resource added (offline)")
+    }
+  }
+
+  const labelStyle: React.CSSProperties = { fontSize: 11, fontWeight: 700, color: "#4F6866", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 4, display: "block" }
+  const inputStyle: React.CSSProperties = { width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,.12)", background: "#16333b", color: "#fff", fontSize: 13, outline: "none", boxSizing: "border-box" }
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
+        <div>
+          <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "#fff" }}>Crisis Resources</h2>
+          <p style={{ margin: "4px 0 0", fontSize: 13, color: "#9DB6B4" }}>Hotlines shown to patients during and after an SOS event.</p>
+        </div>
+        <button onClick={() => setShowForm(s => !s)} style={{ background: "#3DD6B5", color: "#0A2E35", border: 0, borderRadius: 10, padding: "9px 18px", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+          + Add resource
+        </button>
+      </div>
+
+      {showForm && (
+        <div style={{ background: "#16333b", borderRadius: 14, padding: 20, marginBottom: 20, border: "1px solid rgba(255,255,255,.1)" }}>
+          <h3 style={{ margin: "0 0 16px", fontSize: 15, fontWeight: 700, color: "#fff" }}>New crisis resource</h3>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14, marginBottom: 14 }}>
+            <div>
+              <label style={labelStyle}>Country code</label>
+              <select value={form.country} onChange={e => setForm(f => ({ ...f, country: e.target.value }))} style={inputStyle}>
+                <option value="KE">Kenya (KE)</option>
+                <option value="UG">Uganda (UG)</option>
+                <option value="TZ">Tanzania (TZ)</option>
+                <option value="RW">Rwanda (RW)</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Language</label>
+              <select value={form.language} onChange={e => setForm(f => ({ ...f, language: e.target.value }))} style={inputStyle}>
+                <option value="en">English</option>
+                <option value="sw">Kiswahili</option>
+                <option value="lg">Luganda</option>
+              </select>
+            </div>
+            <div>
+              <label style={labelStyle}>Organisation name</label>
+              <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="e.g. Befrienders Kenya" style={inputStyle} />
+            </div>
+            <div>
+              <label style={labelStyle}>Phone / short code</label>
+              <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+254 ..." style={inputStyle} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button onClick={saveNew} disabled={saving || !form.name || !form.phone} style={{ background: "#3DD6B5", color: "#0A2E35", border: 0, borderRadius: 8, padding: "8px 18px", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: !form.name || !form.phone ? 0.5 : 1 }}>
+              {saving ? "Saving…" : "Save"}
+            </button>
+            <button onClick={() => setShowForm(false)} style={{ background: "transparent", color: "#9DB6B4", border: "1px solid rgba(255,255,255,.12)", borderRadius: 8, padding: "8px 16px", fontSize: 13, cursor: "pointer" }}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      <div style={{ background: "#16333b", borderRadius: 14, overflow: "hidden", border: "1px solid rgba(255,255,255,.08)" }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+          <thead>
+            <tr style={{ borderBottom: "1px solid rgba(255,255,255,.08)" }}>
+              {["Country", "Organisation", "Phone", "Language", "Active", ""].map(h => (
+                <th key={h} style={{ padding: "11px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#4F6866", textTransform: "uppercase", letterSpacing: ".05em" }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {resources.map(r => (
+              <tr key={r.id} style={{ borderBottom: "1px solid rgba(255,255,255,.05)" }}>
+                <td style={{ padding: "12px 16px", color: "#9DB6B4", fontWeight: 700 }}>{r.country}</td>
+                <td style={{ padding: "12px 16px", color: "#fff" }}>{r.name}</td>
+                <td style={{ padding: "12px 16px", color: "#3DD6B5", fontFamily: "monospace" }}>{r.phone}</td>
+                <td style={{ padding: "12px 16px", color: "#9DB6B4" }}>{r.language.toUpperCase()}</td>
+                <td style={{ padding: "12px 16px" }}>
+                  <button onClick={() => toggleActive(r.id)} style={{ background: r.active ? "#DDF3EE" : "rgba(255,255,255,.06)", color: r.active ? "#0A5D50" : "#9DB6B4", border: 0, borderRadius: 99, padding: "3px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                    {r.active ? "Active" : "Off"}
+                  </button>
+                </td>
+                <td style={{ padding: "12px 16px" }}>
+                  <button onClick={() => deleteRow(r.id)} style={{ background: "transparent", color: "#E24B4A", border: 0, fontSize: 18, cursor: "pointer", lineHeight: 1 }} title="Delete">×</button>
+                </td>
+              </tr>
+            ))}
+            {resources.length === 0 && (
+              <tr><td colSpan={6} style={{ padding: 32, textAlign: "center", color: "#4F6866" }}>No crisis resources yet. Add the first one above.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {toast && <Toast msg={toast} onDone={() => setToast("")} />}
+    </div>
+  )
+}
+
+// ─── DPA Requests ─────────────────────────────────────────────────────────────
+
+interface DpaRequest {
+  id: string
+  created_at: string
+  patient_name: string
+  patient_email: string
+  request_type: "export" | "delete" | "rectify" | "restrict"
+  status: "pending" | "approved" | "rejected"
+  reject_reason?: string
+}
+
+function DpaRequests() {
+  const [requests, setRequests] = useState<DpaRequest[]>([
+    { id: "dpq-001", created_at: "2026-10-20T09:14:00Z", patient_name: "Amina Wanjiku", patient_email: "amina@example.com", request_type: "export", status: "pending" },
+    { id: "dpq-002", created_at: "2026-10-22T11:30:00Z", patient_name: "James Kamau", patient_email: "james@example.com", request_type: "delete", status: "pending" },
+    { id: "dpq-003", created_at: "2026-10-15T08:00:00Z", patient_name: "Grace Njeri", patient_email: "grace@example.com", request_type: "export", status: "approved" },
+  ])
+  const [rejectTarget, setRejectTarget] = useState<string | null>(null)
+  const [rejectReason, setRejectReason] = useState("")
+  const [toast, setToast] = useState("")
+
+  const showToast = (msg: string) => { setToast(msg); setTimeout(() => setToast(""), 3000) }
+
+  const approve = async (id: string) => {
+    setRequests(r => r.map(x => x.id === id ? { ...x, status: "approved" } : x))
+    await supabase.from("dpa_requests").update({ status: "approved", resolved_at: new Date().toISOString() }).eq("id", id)
+    showToast("Request approved — data package will be generated within 30 days.")
+  }
+
+  const reject = async (id: string) => {
+    if (!rejectReason.trim()) return
+    setRequests(r => r.map(x => x.id === id ? { ...x, status: "rejected", reject_reason: rejectReason } : x))
+    await supabase.from("dpa_requests").update({ status: "rejected", reject_reason: rejectReason, resolved_at: new Date().toISOString() }).eq("id", id)
+    setRejectTarget(null)
+    setRejectReason("")
+    showToast("Request rejected and patient notified.")
+  }
+
+  const typeBadge = (t: DpaRequest["request_type"]) => {
+    const map = { export: ["#E8F0FE", "#1A56DB", "Export"], delete: ["#FDE3E3", "#9B1C1C", "Delete"], rectify: ["#FEF3C7", "#92400E", "Rectify"], restrict: ["#EDE9FE", "#5B21B6", "Restrict"] } as const
+    const [bg, col, label] = map[t]
+    return <span style={{ background: bg, color: col, borderRadius: 99, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>{label}</span>
+  }
+
+  const statusBadge = (s: DpaRequest["status"]) => {
+    const map = { pending: ["#FFF8E1", "#B45309", "Pending"], approved: ["#DDF3EE", "#0A5D50", "Approved"], rejected: ["#FDE3E3", "#9B1C1C", "Rejected"] } as const
+    const [bg, col, label] = map[s]
+    return <span style={{ background: bg, color: col, borderRadius: 99, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>{label}</span>
+  }
+
+  const pending = requests.filter(r => r.status === "pending")
+  const resolved = requests.filter(r => r.status !== "pending")
+
+  return (
+    <div>
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: "#fff" }}>DPA Requests</h2>
+        <p style={{ margin: "4px 0 0", fontSize: 13, color: "#9DB6B4" }}>Kenya Data Protection Act — patient data rights requests. Must be resolved within 30 days.</p>
+      </div>
+
+      <div style={{ display: "flex", gap: 14, marginBottom: 24 }}>
+        {[["Pending", pending.length, "#F5A623"], ["Resolved", resolved.length, "#3DD6B5"]].map(([label, count, color]) => (
+          <div key={label as string} style={{ background: "#16333b", borderRadius: 12, padding: "14px 20px", minWidth: 120, border: "1px solid rgba(255,255,255,.08)" }}>
+            <div style={{ fontSize: 26, fontWeight: 800, color: color as string }}>{count}</div>
+            <div style={{ fontSize: 12, color: "#9DB6B4", marginTop: 2 }}>{label}</div>
+          </div>
+        ))}
+      </div>
+
+      {pending.length > 0 && (
+        <>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "#F5A623", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 12 }}>Awaiting action</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 28 }}>
+            {pending.map(req => (
+              <div key={req.id} style={{ background: "#16333b", borderRadius: 12, padding: "16px 20px", border: "1px solid rgba(245,166,35,.2)" }}>
+                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12 }}>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 6 }}>
+                      {typeBadge(req.request_type)}
+                      <span style={{ fontSize: 13, fontWeight: 700, color: "#fff" }}>{req.patient_name}</span>
+                      <span style={{ fontSize: 12, color: "#9DB6B4" }}>{req.patient_email}</span>
+                    </div>
+                    <div style={{ fontSize: 12, color: "#4F6866" }}>
+                      Received {new Date(req.created_at).toLocaleDateString("en-KE", { day: "numeric", month: "short", year: "numeric" })} · Ref: {req.id}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                    <button onClick={() => approve(req.id)} style={{ background: "#3DD6B5", color: "#0A2E35", border: 0, borderRadius: 8, padding: "7px 16px", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>Approve</button>
+                    <button onClick={() => { setRejectTarget(req.id); setRejectReason("") }} style={{ background: "transparent", color: "#E24B4A", border: "1px solid rgba(226,75,74,.4)", borderRadius: 8, padding: "7px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Reject</button>
+                  </div>
+                </div>
+                {rejectTarget === req.id && (
+                  <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid rgba(255,255,255,.08)" }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "#4F6866", display: "block", marginBottom: 6, textTransform: "uppercase" }}>Rejection reason (sent to patient)</label>
+                    <textarea
+                      value={rejectReason}
+                      onChange={e => setRejectReason(e.target.value)}
+                      rows={2}
+                      placeholder="e.g. Legal hold prevents deletion at this time…"
+                      style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid rgba(255,255,255,.12)", background: "#0A2E35", color: "#fff", fontSize: 13, resize: "vertical", boxSizing: "border-box", outline: "none" }}
+                    />
+                    <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                      <button onClick={() => reject(req.id)} disabled={!rejectReason.trim()} style={{ background: "#E24B4A", color: "#fff", border: 0, borderRadius: 8, padding: "7px 16px", fontWeight: 700, fontSize: 12, cursor: "pointer", opacity: !rejectReason.trim() ? 0.5 : 1 }}>Confirm reject</button>
+                      <button onClick={() => setRejectTarget(null)} style={{ background: "transparent", color: "#9DB6B4", border: "1px solid rgba(255,255,255,.12)", borderRadius: 8, padding: "7px 14px", fontSize: 12, cursor: "pointer" }}>Cancel</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {resolved.length > 0 && (
+        <>
+          <h3 style={{ fontSize: 13, fontWeight: 700, color: "#9DB6B4", textTransform: "uppercase", letterSpacing: ".05em", marginBottom: 12 }}>Resolved</h3>
+          <div style={{ background: "#16333b", borderRadius: 14, overflow: "hidden", border: "1px solid rgba(255,255,255,.08)" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid rgba(255,255,255,.08)" }}>
+                  {["Patient", "Type", "Received", "Status"].map(h => (
+                    <th key={h} style={{ padding: "10px 16px", textAlign: "left", fontSize: 11, fontWeight: 700, color: "#4F6866", textTransform: "uppercase", letterSpacing: ".05em" }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {resolved.map(req => (
+                  <tr key={req.id} style={{ borderBottom: "1px solid rgba(255,255,255,.05)" }}>
+                    <td style={{ padding: "11px 16px" }}>
+                      <div style={{ color: "#fff", fontWeight: 600 }}>{req.patient_name}</div>
+                      <div style={{ color: "#4F6866", fontSize: 11 }}>{req.patient_email}</div>
+                    </td>
+                    <td style={{ padding: "11px 16px" }}>{typeBadge(req.request_type)}</td>
+                    <td style={{ padding: "11px 16px", color: "#9DB6B4", fontSize: 12 }}>{new Date(req.created_at).toLocaleDateString("en-KE", { day: "numeric", month: "short" })}</td>
+                    <td style={{ padding: "11px 16px" }}>{statusBadge(req.status)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+
+      {toast && <Toast msg={toast} onDone={() => setToast("")} />}
+    </div>
+  )
+}
+
 function AuditLog({
   flags,
 
@@ -3148,6 +3448,10 @@ export default function AdminPortal({ back }: { back: () => void }) {
     { id: "users-orgs", label: "Users & organisations", icon: "◎" },
 
     { id: "audit-log", label: "Audit log & flags", icon: "≡" },
+
+    { id: "crisis-resources", label: "Crisis resources", icon: "✛" },
+
+    { id: "dpa-requests", label: "DPA requests", icon: "⚖" },
   ]
 
   return (
@@ -3311,6 +3615,8 @@ export default function AdminPortal({ back }: { back: () => void }) {
         {activeSection === "audit-log" && (
           <AuditLog flags={flags} setFlags={setFlags} />
         )}
+        {activeSection === "crisis-resources" && <CrisisResources />}
+        {activeSection === "dpa-requests" && <DpaRequests />}
       </main>
     </div>
   )

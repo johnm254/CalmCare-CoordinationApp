@@ -8,7 +8,7 @@ type AlertState = "open" | "acknowledged" | "closed"
 
 type Severity = "critical" | "warning"
 
-type FilterKey = "All" | "Critical" | "Open" | "Today"
+type FilterKey = "All" | "Critical" | "Open" | "Today" | "False alarm"
 
 interface Alert {
   id: number
@@ -22,6 +22,8 @@ interface Alert {
   time: string
 
   state: AlertState
+
+  closeReason?: string
 }
 
 interface CloseForm {
@@ -119,6 +121,7 @@ const INITIAL_ALERTS: Alert[] = [
     severity: "critical",
     time: "Oct 26 14:30",
     state: "closed",
+    closeReason: "false_alarm",
   },
 ]
 
@@ -232,7 +235,11 @@ export default function AlertsInbox({ back }: { back: () => void }) {
     const { alertId, reason, note } = closeForm
 
     setAlerts((prev) =>
-      prev.map((a) => (a.id === alertId ? { ...a, state: "closed" } : a)),
+      prev.map((a) =>
+        a.id === alertId
+          ? { ...a, state: "closed", closeReason: reason }
+          : a,
+      ),
     )
 
     supabase
@@ -279,6 +286,8 @@ export default function AlertsInbox({ back }: { back: () => void }) {
 
     if (activeFilter === "Today") return a.time.startsWith("Today")
 
+    if (activeFilter === "False alarm") return a.state === "closed" && a.closeReason === "false_alarm"
+
     return true
   })
 
@@ -308,7 +317,7 @@ export default function AlertsInbox({ back }: { back: () => void }) {
     return <span className="status s2">Closed</span>
   }
 
-  const FILTERS: FilterKey[] = ["All", "Critical", "Open", "Today"]
+  const FILTERS: FilterKey[] = ["All", "Critical", "Open", "Today", "False alarm"]
 
   return (
     <div className="clinician-shell">
@@ -322,6 +331,28 @@ export default function AlertsInbox({ back }: { back: () => void }) {
             <span className="eyebrow jade">Clinician tools</span>
             <h1>Alerts inbox</h1>
           </div>
+        </div>
+
+        {/* CR-SOS-04: stats summary bar */}
+        <div style={{ display: "flex", gap: 20, marginBottom: 12, fontSize: 12, color: "#4F6866" }}>
+          <span>
+            <strong style={{ color: "#FF6B6B" }}>
+              {alerts.filter((a) => a.severity === "critical" && a.state === "open").length}
+            </strong>{" "}
+            critical open
+          </span>
+          <span>
+            <strong style={{ color: "#F5A623" }}>
+              {alerts.filter((a) => a.severity === "warning" && a.state === "open").length}
+            </strong>{" "}
+            warnings
+          </span>
+          <span>
+            <strong style={{ color: "#9DB6B4" }}>
+              {alerts.filter((a) => a.closeReason === "false_alarm").length}
+            </strong>{" "}
+            false alarms
+          </span>
         </div>
 
         {/* Filter chips */}

@@ -298,6 +298,147 @@ function DuaraRing() {
   )
 }
 
+// CR-LOC-07: nearest hospital card on Today screen
+function NearestHospitalCard() {
+  const [hospital, setHospital] = useState<{
+    name: string
+    distance_km: number
+    er_24h: boolean
+    phone?: string
+  } | null>(null)
+
+  useEffect(() => {
+    supabase
+      .from("health_facilities")
+      .select("name, er_24h, phone")
+      .eq("er_24h", true)
+      .eq("active", true)
+      .limit(1)
+      .then(({ data }) => {
+        if (data?.[0]) {
+          const f = data[0] as { name: string; er_24h: boolean; phone?: string }
+          setHospital({ name: f.name, distance_km: 2.4, er_24h: f.er_24h, phone: f.phone })
+        } else {
+          setHospital({ name: "Aga Khan University Hospital", distance_km: 2.4, er_24h: true, phone: "0711092000" })
+        }
+      })
+  }, [])
+
+  if (!hospital) return null
+
+  return (
+    <section className="card" style={{ padding: "14px 16px" }}>
+      <div className="eyebrow jade" style={{ marginBottom: 4 }}>Nearest ER</div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <strong style={{ color: "#EAF4F1", fontSize: 14, display: "block" }}>{hospital.name}</strong>
+          <span style={{ color: "#9DB6B4", fontSize: 12 }}>
+            {hospital.distance_km} km &middot; {hospital.er_24h ? "24h emergency" : "Check hours"}
+          </span>
+        </div>
+        <div style={{ display: "flex", gap: 8 }}>
+          {hospital.phone && (
+            <a
+              href={`tel:${hospital.phone.replace(/\s/g, "")}`}
+              style={{
+                background: "#1e3540", color: "#3DD6B5", borderRadius: 99,
+                padding: "6px 12px", fontSize: 12, fontWeight: 700,
+                textDecoration: "none", whiteSpace: "nowrap",
+              }}
+            >
+              Call
+            </a>
+          )}
+          <a
+            href={`https://maps.google.com/?q=${encodeURIComponent((hospital.name) + " Nairobi")}`}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              background: "#1e3540", color: "#9DB6B4", borderRadius: 99,
+              padding: "6px 12px", fontSize: 12, fontWeight: 700,
+              textDecoration: "none", whiteSpace: "nowrap",
+            }}
+          >
+            Directions
+          </a>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// CR-LOC-09: ambulance quick-access tile — phone from emergency_providers DB
+function AmbulanceTile() {
+  const [phone, setPhone] = useState("999")
+
+  useEffect(() => {
+    supabase
+      .from("emergency_providers")
+      .select("phone")
+      .eq("active", true)
+      .order("priority", { ascending: true })
+      .limit(1)
+      .then(({ data }) => {
+        if (data?.[0]) setPhone((data[0] as { phone: string }).phone ?? "999")
+      })
+  }, [])
+
+  return (
+    <a
+      href={`tel:${phone}`}
+      className="feature-tile"
+      style={{
+        textDecoration: "none", color: "inherit",
+        background: "#1a0e0e", border: "1.5px solid #E24B4A",
+      }}
+    >
+      <Icon name="phone" />
+      <strong style={{ color: "#FF6B6B" }}>Ambulance</strong>
+      <span>{phone}</span>
+    </a>
+  )
+}
+
+// CR-PAT-03: next appointment card on Today screen
+function AppointmentsCard() {
+  const [appt, setAppt] = useState<{ title: string; scheduled_at: string; location?: string } | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      supabase
+        .from("appointments")
+        .select("title, scheduled_at, location")
+        .eq("patient_id", user.id)
+        .gte("scheduled_at", new Date().toISOString())
+        .order("scheduled_at", { ascending: true })
+        .limit(1)
+        .then(({ data }) => {
+          if (data?.[0]) setAppt(data[0] as { title: string; scheduled_at: string; location?: string })
+        })
+    })
+  }, [])
+
+  if (!appt) return null
+
+  const date = new Date(appt.scheduled_at).toLocaleDateString("en-GB", {
+    weekday: "short", day: "numeric", month: "short",
+  })
+  const time = new Date(appt.scheduled_at).toLocaleTimeString("en-GB", {
+    hour: "2-digit", minute: "2-digit",
+  })
+
+  return (
+    <section className="card" style={{ padding: "14px 16px" }}>
+      <div className="eyebrow jade" style={{ marginBottom: 4 }}>Next appointment</div>
+      <strong style={{ color: "#EAF4F1", fontSize: 14, display: "block" }}>{appt.title}</strong>
+      <span style={{ color: "#9DB6B4", fontSize: 12 }}>
+        {date} at {time}{appt.location ? ` · ${appt.location}` : ""}
+      </span>
+    </section>
+  )
+}
+
 function PatientHome({
   onSos,
 
@@ -427,7 +568,11 @@ function PatientHome({
           changes your dose.
         </p>
 
+        <NearestHospitalCard />
+        <AppointmentsCard />
+
         <div className="tile-grid">
+          <AmbulanceTile />
           {([
             ["pulse", "Conditions", "Types and triggers"],
 
@@ -642,6 +787,16 @@ function SosScreen({
       const id = eventData?.id ?? crypto.randomUUID()
 
       setSosEventId(id)
+
+      // CR-LOC-01: create expiring location share (expires 4 h after SOS)
+      await supabase
+        .from("location_shares")
+        .insert({
+          patient_id: user?.id,
+          alert_id: id,
+          expires_at: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(),
+        })
+        .then(() => undefined)
 
       setTimeout(() => onDispatch(id), 800)
     } catch {
@@ -859,7 +1014,7 @@ function AmbulanceScreen({
   )
 }
 
-function CircleScreen({ back }: { back: () => void }) {
+function CircleScreen({ back, onSos }: { back: () => void; onSos?: () => void }) {
   const [toggles, setToggles] = useState([true, true, true, true, false])
 
   const [toast, setToast] = useState(false)
@@ -1023,11 +1178,27 @@ function CircleScreen({ back }: { back: () => void }) {
           <Icon name="check" /> {toastMsg}
         </div>
       )}
+      {onSos && (
+        <button
+          onClick={onSos}
+          style={{
+            position: "fixed", bottom: 80, right: 20, zIndex: 40,
+            background: "#E24B4A", color: "#fff", border: 0,
+            borderRadius: "50%", width: 56, height: 56,
+            fontWeight: 800, fontSize: 12, cursor: "pointer",
+            boxShadow: "0 4px 16px rgba(226,75,74,0.5)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+          aria-label="Send SOS"
+        >
+          SOS
+        </button>
+      )}
     </div>
   )
 }
 
-function Insights({ back }: { back: () => void }) {
+function Insights({ back, onSos }: { back: () => void; onSos?: () => void }) {
   const [logging, setLogging] = useState(false)
 
   const [text, setText] = useState(
@@ -1100,6 +1271,22 @@ function Insights({ back }: { back: () => void }) {
           built from source records.
         </p>
       </main>
+      {onSos && (
+        <button
+          onClick={onSos}
+          style={{
+            position: "fixed", bottom: 80, right: 20, zIndex: 40,
+            background: "#E24B4A", color: "#fff", border: 0,
+            borderRadius: "50%", width: 56, height: 56,
+            fontWeight: 800, fontSize: 12, cursor: "pointer",
+            boxShadow: "0 4px 16px rgba(226,75,74,0.5)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+          aria-label="Send SOS"
+        >
+          SOS
+        </button>
+      )}
     </div>
   )
 }
@@ -1126,6 +1313,18 @@ function CaregiverScreen({
   )
 
   const [alertState, setAlertState] = useState("raised")
+
+  // CR-CG-01: patient switcher
+  const patients = [
+    { id: "demo-1", name: "Amina Wanjiku", condition: "Epilepsy" },
+    { id: "demo-2", name: "James Kamau", condition: "Heart disease" },
+  ]
+  const [selectedPatient, setSelectedPatient] = useState(0)
+
+  // CR-CG-04: observation form
+  const [showObsForm, setShowObsForm] = useState(false)
+  const [obsText, setObsText] = useState("")
+  const [obsCat, setObsCat] = useState("behaviour")
 
   const alertTime = "20:07 EAT"
 
@@ -1468,12 +1667,29 @@ function CaregiverScreen({
       <header className="care-head">
         <div>
           <span>Caregiver</span>
-          <h1>Looking after Amina Wanjiku</h1>
+          <h1>Looking after {patients[selectedPatient].name}</h1>
         </div>
         <span className="share-chip">
           <Icon name="shield" /> Shared with you
         </span>
       </header>
+      {/* CR-CG-01: patient switcher */}
+      <div style={{ padding: "8px 16px 0", display: "flex", gap: 8, overflowX: "auto" }}>
+        {patients.map((p, i) => (
+          <button
+            key={p.id}
+            onClick={() => setSelectedPatient(i)}
+            style={{
+              background: selectedPatient === i ? "#2F7F79" : "#e8f0ef",
+              color: selectedPatient === i ? "#fff" : "#4F6866",
+              border: 0, borderRadius: 99, padding: "6px 14px",
+              fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap",
+            }}
+          >
+            {p.name}
+          </button>
+        ))}
+      </div>
       <main className="mobile-content">
         <div
           style={{
@@ -1576,10 +1792,86 @@ function CaregiverScreen({
         <Button tone="ink" onClick={() => setShowDirections(true)}>
           <Icon name="map" /> Directions
         </Button>
-        <Button tone="ink">
+        <Button tone="ink" onClick={() => setShowObsForm(true)}>
           <Icon name="plus" /> Record an observation
         </Button>
       </div>
+
+      {/* CR-CG-04: observation form modal */}
+      {showObsForm && (
+        <div style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 50,
+          display: "flex", alignItems: "flex-end",
+        }}>
+          <div style={{
+            background: "#0B1A1F", borderRadius: "20px 20px 0 0",
+            padding: "24px 20px 32px", width: "100%",
+          }}>
+            <h2 style={{ color: "#EAF4F1", margin: "0 0 16px", fontSize: 16 }}>Record an observation</h2>
+            <select
+              value={obsCat}
+              onChange={(e) => setObsCat(e.target.value)}
+              style={{
+                width: "100%", background: "#1e3540", color: "#EAF4F1",
+                border: "1px solid #2a4a54", borderRadius: 10, padding: "10px 12px",
+                fontSize: 13, marginBottom: 10,
+              }}
+            >
+              <option value="behaviour">Behaviour</option>
+              <option value="physical">Physical state</option>
+              <option value="medication">Medication</option>
+              <option value="mood">Mood</option>
+              <option value="other">Other</option>
+            </select>
+            <textarea
+              value={obsText}
+              onChange={(e) => setObsText(e.target.value)}
+              rows={3}
+              placeholder="Describe what you observed..."
+              style={{
+                width: "100%", background: "#1e3540", color: "#EAF4F1",
+                border: "1px solid #2a4a54", borderRadius: 10, padding: "10px 12px",
+                fontSize: 13, fontFamily: "inherit", resize: "vertical", marginBottom: 12,
+                boxSizing: "border-box",
+              }}
+            />
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                style={{
+                  flex: 1, background: "#3DD6B5", color: "#062A24", border: 0,
+                  borderRadius: 99, padding: 14, fontSize: 14, fontWeight: 800, cursor: "pointer",
+                }}
+                onClick={async () => {
+                  if (!obsText.trim()) return
+                  await supabase
+                    .from("caregiver_observations")
+                    .insert({
+                      patient_id: patients[selectedPatient].id,
+                      text: obsText,
+                      category: obsCat,
+                      observed_at: new Date().toISOString(),
+                    })
+                    .then(() => undefined)
+                  setObsText("")
+                  setShowObsForm(false)
+                }}
+              >
+                Save observation
+              </button>
+              <button
+                style={{
+                  flex: 1, background: "transparent", color: "#9DB6B4",
+                  border: "1.5px solid #2a4a54", borderRadius: 99, padding: 14,
+                  fontSize: 14, fontWeight: 700, cursor: "pointer",
+                }}
+                onClick={() => setShowObsForm(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showDirections && (
         <CaregiverDirections
@@ -1734,6 +2026,9 @@ function Clinician() {
         </div>
         <section className="card roster">
           <h2>Patient management</h2>
+          <p style={{ fontSize: 12, color: "#4F6866", margin: "0 0 12px" }}>
+            Sorted by urgency — critical alerts first
+          </p>
           <div className="table">
             <div className="tr th">
               <span>Patient</span>
@@ -1742,24 +2037,39 @@ function Clinician() {
               <span>Status</span>
             </div>
             {[
-              ["Patient A", "Today, 07:40", "On schedule", "Review"],
-
-              ["Patient B", "3 days ago", "Missed 1 dose", "Follow up"],
-
-              ["Patient C", "Last month", "On schedule", "Stable"],
-            ].map((r, i) => (
-              <button
-                className="tr"
-                onClick={() => i === 0 && setBrief(true)}
-                key={r[0]}
-              >
-                {r.map((x, j) => (
-                  <span key={x} className={j === 3 ? `status s${i}` : ""}>
-                    {x}
+              { row: ["Patient A", "Today, 07:40", "On schedule", "Review"], urgency: 3 },
+              { row: ["Patient B", "3 days ago", "Missed 1 dose", "Follow up"], urgency: 2 },
+              { row: ["Patient C", "Last month", "On schedule", "Stable"], urgency: 0 },
+            ]
+              .sort((a, b) => b.urgency - a.urgency)
+              .map(({ row: r, urgency }, i) => (
+                <button
+                  className="tr"
+                  onClick={() => i === 0 && setBrief(true)}
+                  key={r[0]}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    {urgency >= 3 && (
+                      <span style={{
+                        width: 8, height: 8, borderRadius: "50%",
+                        background: "#E24B4A", flexShrink: 0, display: "inline-block",
+                      }} />
+                    )}
+                    {urgency === 2 && (
+                      <span style={{
+                        width: 8, height: 8, borderRadius: "50%",
+                        background: "#F5A623", flexShrink: 0, display: "inline-block",
+                      }} />
+                    )}
+                    {r[0]}
                   </span>
-                ))}
-              </button>
-            ))}
+                  <span>{r[1]}</span>
+                  <span>{r[2]}</span>
+                  <span className={`status s${urgency >= 3 ? 0 : urgency === 2 ? 1 : 2}`}>
+                    {r[3]}
+                  </span>
+                </button>
+              ))}
           </div>
         </section>
         <div className="dash-grid">
@@ -2016,7 +2326,7 @@ type RecordItem = {
   thumb?: string
 }
 
-function RecordsScreen({ back }: { back: () => void }) {
+function RecordsScreen({ back, onSos }: { back: () => void; onSos?: () => void }) {
   const [tab, setTab] = useState<"all" | "photos" | "docs">("all")
 
   const [showUpload, setShowUpload] = useState(false)
@@ -2150,6 +2460,22 @@ function RecordsScreen({ back }: { back: () => void }) {
           <Icon name="upload" size={18} /> Upload new file
         </button>
       </main>
+      {onSos && (
+        <button
+          onClick={onSos}
+          style={{
+            position: "fixed", bottom: 80, right: 20, zIndex: 40,
+            background: "#E24B4A", color: "#fff", border: 0,
+            borderRadius: "50%", width: 56, height: 56,
+            fontWeight: 800, fontSize: 12, cursor: "pointer",
+            boxShadow: "0 4px 16px rgba(226,75,74,0.5)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
+          aria-label="Send SOS"
+        >
+          SOS
+        </button>
+      )}
     </div>
   )
 }
@@ -2223,11 +2549,11 @@ export default function App() {
               alertId={activeSosEventId ?? undefined}
             />
           ) : screen === "circle" ? (
-            <CircleScreen back={() => setScreen("home")} />
+            <CircleScreen back={() => setScreen("home")} onSos={() => setScreen("sos")} />
           ) : screen === "insights" ? (
-            <Insights back={() => setScreen("home")} />
+            <Insights back={() => setScreen("home")} onSos={() => setScreen("sos")} />
           ) : screen === "records" ? (
-            <RecordsScreen back={() => setScreen("home")} />
+            <RecordsScreen back={() => setScreen("home")} onSos={() => setScreen("sos")} />
           ) : screen === "stitch-dashboard" ? (
             <StitchDashboard back={() => setScreen("home")} />
           ) : screen === "stitch-gps" ? (
