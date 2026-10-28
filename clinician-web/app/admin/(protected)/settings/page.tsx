@@ -93,7 +93,7 @@ function InfoRow({
 }: {
   label: string
   value: string
-  badge?: { text: string color: string }
+  badge?: { text: string; color: string }
 }) {
   return (
     <div className="flex items-center justify-between py-2.5 border-b border-[#2E2B50] last:border-0">
@@ -114,7 +114,7 @@ function InfoRow({
   )
 }
 
-type TableStatus = { name: string ok: boolean | null }
+type TableStatus = { name: string; ok: boolean | null }
 
 export default function AdminSettingsPage() {
   const [tableStatuses, setTableStatuses] = useState<TableStatus[]>(

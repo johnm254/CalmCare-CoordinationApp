@@ -116,7 +116,7 @@ export const MOCK_MEDICATIONS: Record<string, Array<{
   id: string
   name: string
   dose: string
-  schedule: { time: string days: string[] }
+  schedule: { time: string; days: string[] }
   adherence_rate: number
 }>> = {
   "pat-001": [

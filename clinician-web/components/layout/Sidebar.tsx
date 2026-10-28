@@ -164,7 +164,7 @@ const ADMIN_NAV_ITEMS = [
 ]
 
 interface Props {
-  profile: { id: string full_name: string | null role: string }
+  profile: { id: string; full_name: string | null; role: string }
 }
 
 export default function Sidebar({ profile }: Props) {

@@ -1,9 +1,6 @@
 {
-  "buildCommand": "pnpm build",
-  "outputDirectory": "dist",
-  "installCommand": "pnpm install",
-  "framework": "vite",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "buildCommand": "cd clinician-web && npm install && npm run build",
+  "outputDirectory": "clinician-web/.next",
+  "installCommand": "cd clinician-web && npm install",
+  "framework": "nextjs"
 }

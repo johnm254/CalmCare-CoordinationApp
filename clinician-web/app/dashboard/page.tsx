@@ -3,7 +3,7 @@ import { createClient } from "../../lib/supabase-server"
 import SeizureChart from "./SeizureChart"
 
 function StatusPill({ status }: { status: string }) {
-  const map: Record<string, { bg: string text: string label: string }> = {
+  const map: Record<string, { bg: string; text: string; label: string }> = {
     review: {
       bg: "bg-[rgba(239,68,68,0.10)]",
       text: "text-[#EF4444]",

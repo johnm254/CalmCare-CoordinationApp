@@ -18,7 +18,7 @@ interface AlertRule {
   active: boolean
 }
 
-const METRICS: { value: string label: string unit: string }[] = [
+const METRICS: { value: string; label: string; unit: string }[] = [
   { value: "heart_rate", label: "Heart rate", unit: "bpm" },
   { value: "spo2", label: "SpO2", unit: "%" },
   { value: "skin_temp", label: "Skin temperature", unit: "°C" },
@@ -31,14 +31,14 @@ const METRICS: { value: string label: string unit: string }[] = [
   { value: "sleep_quality", label: "Sleep quality", unit: "/5" },
 ]
 
-const OPERATORS: { value: Operator label: string }[] = [
+const OPERATORS: { value: Operator; label: string }[] = [
   { value: ">", label: ">" },
   { value: "<", label: "<" },
   { value: ">=", label: ">=" },
   { value: "<=", label: "<=" },
 ]
 
-const DURATIONS: { value: number label: string }[] = [
+const DURATIONS: { value: number; label: string }[] = [
   { value: 0, label: "Immediately" },
   { value: 30, label: "30 s" },
   { value: 60, label: "1 min" },

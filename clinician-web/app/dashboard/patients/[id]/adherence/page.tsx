@@ -22,7 +22,7 @@ interface MedSummary {
 }
 
 function buildMedSummaries(
-  medications: { id: string name: string }[],
+  medications: { id: string; name: string }[],
   events: DoseEvent[],
 ): MedSummary[] {
   return medications.map((med) => {
@@ -47,7 +47,7 @@ function buildMedSummaries(
 
 function buildHourlyMissed(
   events: DoseEvent[],
-): { hour: number count: number }[] {
+): { hour: number; count: number }[] {
   const counts: Record<number, number> = {}
   events
     .filter((e) => e.status === "missed")
@@ -61,7 +61,7 @@ function buildHourlyMissed(
   }))
 }
 
-function AdherenceBar({ pct, colorClass }: { pct: number colorClass: string }) {
+function AdherenceBar({ pct, colorClass }: { pct: number; colorClass: string }) {
   return (
     <div className="flex items-center gap-3">
       <div className="flex-1 bg-[#1C1A35] rounded-full h-2 overflow-hidden">
@@ -77,7 +77,7 @@ function AdherenceBar({ pct, colorClass }: { pct: number colorClass: string }) {
   )
 }
 
-function HourlyChart({ data }: { data: { hour: number count: number }[] }) {
+function HourlyChart({ data }: { data: { hour: number; count: number }[] }) {
   const max = Math.max(...data.map((d) => d.count), 1)
   const barWidth = 14
   const chartHeight = 60

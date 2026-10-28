@@ -7,7 +7,7 @@ import { createClient } from "../../lib/supabase-browser"
 export default function AdminHeader({
   profile,
 }: {
-  profile: { full_name: string | null email: string | null }
+  profile: { full_name: string | null; email: string | null }
 }) {
   const [showDropdown, setShowDropdown] = useState(false)
   const router = useRouter()
