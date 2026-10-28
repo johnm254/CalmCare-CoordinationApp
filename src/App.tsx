@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react"
-
+import { BrowserRouter, Routes, Route, Navigate, useNavigate as useRNav } from "react-router-dom"
 import { supabase } from "./lib/supabase"
-
 import { getCopy } from "./i18n/catalogue"
-
 import { logAccess } from "./lib/audit"
+import LoginPage from "./pages/LoginPage"
+import { AuthProvider } from "./lib/auth"
 
 import StitchDashboard from "./components/StitchDashboard"
 
@@ -2480,109 +2480,95 @@ function RecordsScreen({ back, onSos }: { back: () => void; onSos?: () => void }
   )
 }
 
-export default function App() {
-  const [role, setRole] =
-    useState<"patient" | "caregiver" | "clinician" | "admin">("patient")
+// ─── Portal wrappers (routed) ────────────────────────────────────────────────
 
+function PatientPortal() {
   const [screen, setScreen] = useState("home")
-
-  const [state, setState] = useState("Default")
-
   const [activeSosEventId, setActiveSosEventId] = useState<string | null>(null)
-
-  // Register push token on mount.
-
-  // On web this is a no-op; in the Expo mobile app replace this with:
-
-  //   const token = await Notifications.getExpoPushTokenAsync();
-
-  //   await supabase.from("push_tokens").upsert({ user_id: userId, token: token.data, platform: "ios" });
+  const nav = (s: string) => setScreen(s)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return
-
-      // Web push token registration would go here (requires VAPID setup)
-
-      // For now log so developers can see it's wired
-
-      console.debug("[push] would register token for user", user.id)
+      if (user) console.debug("[push] would register token for user", user.id)
     })
   }, [])
 
-  const navigate = (s: string) => setScreen(s)
-
   return (
-    <div className={`app ${state === "Large text" ? "large-text" : ""}`}>
-      <div className="preview-tools">
-        <div className="role-switch">
-          {["patient", "caregiver", "clinician", "admin"].map((r) => (
-            <button
-              key={r}
-              className={role === r ? "active" : ""}
-              onClick={() => {
-                setRole(r as typeof role)
-
-                setScreen("home")
-              }}
-            >
-              {r}
-            </button>
-          ))}
-        </div>
-        <StateBar state={state} setState={setState} />
-      </div>
-      <StatusBanner state={state} />
-      <div className="stage">
-        {role === "patient" ? (
-          screen === "sos" ? (
-            <SosScreen
-              back={() => setScreen("home")}
-              onDispatch={(id) => {
-                setActiveSosEventId(id)
-                setScreen("ambulance")
-              }}
-            />
-          ) : screen === "ambulance" ? (
-            <AmbulanceScreen
-              onCancel={() => setScreen("home")}
-              alertId={activeSosEventId ?? undefined}
-            />
-          ) : screen === "circle" ? (
-            <CircleScreen back={() => setScreen("home")} onSos={() => setScreen("sos")} />
-          ) : screen === "insights" ? (
-            <Insights back={() => setScreen("home")} onSos={() => setScreen("sos")} />
-          ) : screen === "records" ? (
-            <RecordsScreen back={() => setScreen("home")} onSos={() => setScreen("sos")} />
-          ) : screen === "stitch-dashboard" ? (
-            <StitchDashboard back={() => setScreen("home")} />
-          ) : screen === "stitch-gps" ? (
-            <StitchGPS back={() => setScreen("home")} />
-          ) : screen === "stitch-meds" ? (
-            <StitchMedications back={() => setScreen("home")} />
-          ) : screen === "stitch-vitals" ? (
-            <StitchVitals back={() => setScreen("home")} />
-          ) : screen === "onboarding" ? (
-            <OnboardingScreen onComplete={() => setScreen("home")} />
-          ) : screen === "saved-places" ? (
-            <SavedPlaces back={() => setScreen("me")} />
-          ) : screen === "me" ? (
-            <MeScreen back={() => setScreen("home")} navigate={navigate} />
-          ) : (
-            <PatientHome
-              onSos={() => setScreen("sos")}
-              navigate={navigate}
-              activeTab={screen}
-            />
-          )
-        ) : role === "caregiver" ? (
-          <CaregiverScreen activeSosEventId={activeSosEventId} />
-        ) : role === "admin" ? (
-          <AdminPortal back={() => setRole("clinician")} />
-        ) : (
-          <Clinician />
-        )}
-      </div>
+    <div className="portal-center">
+      {screen === "sos" ? (
+        <SosScreen
+          back={() => setScreen("home")}
+          onDispatch={(id) => { setActiveSosEventId(id); setScreen("ambulance") }}
+        />
+      ) : screen === "ambulance" ? (
+        <AmbulanceScreen onCancel={() => setScreen("home")} alertId={activeSosEventId ?? undefined} />
+      ) : screen === "circle" ? (
+        <CircleScreen back={() => setScreen("home")} onSos={() => setScreen("sos")} />
+      ) : screen === "insights" ? (
+        <Insights back={() => setScreen("home")} onSos={() => setScreen("sos")} />
+      ) : screen === "records" ? (
+        <RecordsScreen back={() => setScreen("home")} onSos={() => setScreen("sos")} />
+      ) : screen === "stitch-dashboard" ? (
+        <StitchDashboard back={() => setScreen("home")} />
+      ) : screen === "stitch-gps" ? (
+        <StitchGPS back={() => setScreen("home")} />
+      ) : screen === "stitch-meds" ? (
+        <StitchMedications back={() => setScreen("home")} />
+      ) : screen === "stitch-vitals" ? (
+        <StitchVitals back={() => setScreen("home")} />
+      ) : screen === "onboarding" ? (
+        <OnboardingScreen onComplete={() => setScreen("home")} />
+      ) : screen === "saved-places" ? (
+        <SavedPlaces back={() => setScreen("me")} />
+      ) : screen === "me" ? (
+        <MeScreen back={() => setScreen("home")} navigate={nav} />
+      ) : (
+        <PatientHome onSos={() => setScreen("sos")} navigate={nav} activeTab={screen} />
+      )}
     </div>
+  )
+}
+
+function CaregiverPortal() {
+  return (
+    <div className="portal-center">
+      <CaregiverScreen />
+    </div>
+  )
+}
+
+function ClinicianPortal() {
+  return (
+    <div className="portal-full">
+      <Clinician />
+    </div>
+  )
+}
+
+// ─── Root app with router ─────────────────────────────────────────────────────
+
+function AdminPortalWrapper() {
+  const routerNav = useRNav()
+  return (
+    <div className="portal-full">
+      <AdminPortal back={() => routerNav("/clinician")} />
+    </div>
+  )
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/patient/*" element={<PatientPortal />} />
+          <Route path="/caregiver/*" element={<CaregiverPortal />} />
+          <Route path="/clinician/*" element={<ClinicianPortal />} />
+          <Route path="/admin/*" element={<AdminPortalWrapper />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
