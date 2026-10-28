@@ -10,6 +10,8 @@ import {
   Animated,
   Image,
   useWindowDimensions,
+  Modal,
+  Linking,
 } from "react-native"
 
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
@@ -35,6 +37,8 @@ import {
 } from "../../lib/supabase"
 
 import { getWeather, iconUrl, type WeatherData } from "../../lib/weather"
+
+const LOG_EVENT_OPTIONS = ["Seizure", "Headache", "Dizziness", "Other"] as const
 
 const GRID_ITEMS = [
   {
@@ -296,6 +300,16 @@ export default function HomeScreen() {
 
   const [streakDays, setStreakDays] = useState(0)
 
+  const [hasActiveAlert, setHasActiveAlert] = useState(false)
+
+  const [lastSyncedMinutes, setLastSyncedMinutes] = useState<number | null>(
+    null,
+  )
+
+  const [logModalVisible, setLogModalVisible] = useState(false)
+
+  const [loggingEvent, setLoggingEvent] = useState<string | null>(null)
+
   const pulseAnim = useRef(new Animated.Value(0.5)).current
 
   const sosScale = useRef(new Animated.Value(1)).current
@@ -392,6 +406,48 @@ export default function HomeScreen() {
 
         setStreakDays(Math.max(0, days))
       })
+
+    // Check for open SOS alerts
+
+    supabase
+
+      .from("sos_events")
+
+      .select("id")
+
+      .eq("patient_id", uid)
+
+      .not("status", "in", '("resolved","cancelled")')
+
+      .limit(1)
+
+      .then(({ data }) => {
+        setHasActiveAlert((data ?? []).length > 0)
+      })
+
+    // Last synced: most recent event timestamp
+
+    supabase
+
+      .from("events")
+
+      .select("occurred_at")
+
+      .eq("patient_id", uid)
+
+      .order("occurred_at", { ascending: false })
+
+      .limit(1)
+
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const mins = Math.floor(
+            (Date.now() - new Date(data[0].occurred_at).getTime()) / 60_000,
+          )
+
+          setLastSyncedMinutes(Math.max(0, mins))
+        }
+      })
   }, [session])
 
   async function handleTaken(med: Medication) {
@@ -402,6 +458,32 @@ export default function HomeScreen() {
     setTakenId(med.id)
 
     await logMedicationTaken(med.id, session.user.id)
+  }
+
+  async function handleLogEvent(eventType: string) {
+    if (!session?.user) return
+
+    setLoggingEvent(eventType)
+
+    try {
+      await supabase.from("events").insert({
+        patient_id: session.user.id,
+
+        logged_by: session.user.id,
+
+        event_type: eventType.toLowerCase(),
+
+        severity: "mild",
+
+        occurred_at: new Date().toISOString(),
+
+        details: {},
+      })
+    } finally {
+      setLoggingEvent(null)
+
+      setLogModalVisible(false)
+    }
   }
 
   function onSosPressIn() {
@@ -469,6 +551,14 @@ export default function HomeScreen() {
               <Text style={styles.heroName}>
                 {firstName || "Your care, your control"}
               </Text>
+              {lastSyncedMinutes !== null && (
+                <Text style={styles.lastSynced}>
+                  Last synced:{" "}
+                  {lastSyncedMinutes < 1
+                    ? "just now"
+                    : `${lastSyncedMinutes} min ago`}
+                </Text>
+              )}
             </View>
           </View>
           <TouchableOpacity style={styles.bellBtn} onPress={() => {}}>
@@ -479,6 +569,21 @@ export default function HomeScreen() {
             />
           </TouchableOpacity>
         </Animated.View>
+
+        {/* ── Active alert banner ─────────────────────────────────────────── */}
+        {hasActiveAlert && (
+          <TouchableOpacity
+            style={styles.alertBanner}
+            onPress={() => router.push("/sos")}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="alert-circle" size={18} color="#fff" />
+            <Text style={styles.alertBannerText}>
+              Active alert — tap to view
+            </Text>
+            <Ionicons name="chevron-forward" size={16} color="#fff" />
+          </TouchableOpacity>
+        )}
 
         {/* ── Health banner ───────────────────────────────────────────────── */}
         <Animated.View style={slot(1)}>
@@ -574,6 +679,34 @@ export default function HomeScreen() {
             </View>
           ) : null}
         </Animated.View>
+
+        {/* ── Nearest hospital card ──────────────────────────────────────── */}
+        <View style={styles.hospitalCard}>
+          <View style={styles.hospitalIconWrap}>
+            <Ionicons name="medkit" size={22} color={colors.emergency} />
+          </View>
+          <View style={styles.hospitalInfo}>
+            <Text style={styles.hospitalLabel}>Nearest hospital</Text>
+            <Text style={styles.hospitalName}>Kenyatta National Hospital</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.callBtn}
+            onPress={() => Linking.openURL("tel:+254202726300")}
+            activeOpacity={0.85}
+          >
+            <Ionicons name="call" size={18} color="#fff" />
+          </TouchableOpacity>
+        </View>
+
+        {/* ── Quick log button ────────────────────────────────────────────── */}
+        <TouchableOpacity
+          style={styles.quickLogBtn}
+          onPress={() => setLogModalVisible(true)}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="add-circle-outline" size={16} color={colors.teal} />
+          <Text style={styles.quickLogBtnText}>Log event</Text>
+        </TouchableOpacity>
 
         {/* ── 2×2 Quick access grid ─────────────────────────────────────── */}
         <Animated.View style={[styles.grid, slot(5)]}>
@@ -687,6 +820,47 @@ export default function HomeScreen() {
           </Animated.View>
         )}
       </ScrollView>
+
+      {/* ── Log event modal ─────────────────────────────────────────────── */}
+      <Modal
+        visible={logModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setLogModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <Text style={styles.modalTitle}>Log event</Text>
+            {LOG_EVENT_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option}
+                style={styles.modalOption}
+                onPress={() => handleLogEvent(option)}
+                disabled={loggingEvent === option}
+                activeOpacity={0.8}
+              >
+                {loggingEvent === option ? (
+                  <ActivityIndicator
+                    size="small"
+                    color={colors.teal}
+                    style={{ marginRight: spacing.md }}
+                  />
+                ) : (
+                  <View style={styles.modalOptionDot} />
+                )}
+                <Text style={styles.modalOptionText}>{option}</Text>
+              </TouchableOpacity>
+            ))}
+            <TouchableOpacity
+              style={styles.modalCancelBtn}
+              onPress={() => setLogModalVisible(false)}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.modalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   )
 }
@@ -722,6 +896,146 @@ const styles = StyleSheet.create({
   greeting: { fontSize: fonts.sm, color: colors.textSecondary },
 
   heroName: { fontSize: fonts.md, fontWeight: "700", color: colors.text },
+
+  lastSynced: {
+    fontSize: fonts.xs,
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+
+  alertBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    backgroundColor: colors.emergency,
+    borderRadius: radius.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+
+  alertBannerText: {
+    flex: 1,
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: fonts.base,
+  },
+
+  hospitalCard: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+  },
+
+  hospitalIconWrap: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: colors.emergencyDim,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+
+  hospitalInfo: { flex: 1 },
+
+  hospitalLabel: {
+    fontSize: fonts.xs,
+    color: colors.textSecondary,
+    marginBottom: 2,
+  },
+
+  hospitalName: { fontSize: fonts.md, fontWeight: "700", color: colors.text },
+
+  callBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: colors.emergency,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+
+  quickLogBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.teal,
+    borderRadius: radius.full,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xl,
+    alignSelf: "flex-start",
+  },
+
+  quickLogBtnText: {
+    color: colors.teal,
+    fontWeight: "700",
+    fontSize: fonts.sm,
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
+  },
+
+  modalSheet: {
+    backgroundColor: colors.bgCard,
+    borderTopLeftRadius: radius.xxl,
+    borderTopRightRadius: radius.xxl,
+    padding: spacing.xl,
+    paddingBottom: 36,
+    gap: spacing.sm,
+  },
+
+  modalTitle: {
+    fontSize: fonts.lg,
+    fontWeight: "800",
+    color: colors.text,
+    marginBottom: spacing.sm,
+    textAlign: "center",
+  },
+
+  modalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    backgroundColor: colors.bgCardAlt,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+  },
+
+  modalOptionDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.teal,
+  },
+
+  modalOptionText: {
+    fontSize: fonts.md,
+    fontWeight: "600",
+    color: colors.text,
+  },
+
+  modalCancelBtn: {
+    alignItems: "center",
+    paddingVertical: spacing.lg,
+    marginTop: spacing.sm,
+  },
+
+  modalCancelText: {
+    fontSize: fonts.md,
+    color: colors.textSecondary,
+    fontWeight: "600",
+  },
 
   bellBtn: {
     width: 40,

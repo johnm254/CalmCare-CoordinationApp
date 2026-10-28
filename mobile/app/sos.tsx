@@ -47,7 +47,7 @@ const TOTAL_SECONDS = 5
 
 type SosChannel = "push" | "sms" | "queued"
 
-type SosState = "counting" | "sending" | "sent" | "queued"
+type SosState = "counting" | "sending" | "sent" | "escalated" | "queued"
 
 export default function SOSScreen() {
   const { session, profile } = useAuth()
@@ -65,6 +65,10 @@ export default function SOSScreen() {
   )
 
   const [smsError, setSmsError] = useState(false)
+
+  const [sentAt, setSentAt] = useState<Date | null>(null)
+
+  const [paramedicTime, setParamedicTime] = useState<string | null>(null)
 
   const borderAnim = useRef(new Animated.Value(1)).current
 
@@ -159,6 +163,21 @@ export default function SOSScreen() {
     return () => clearInterval(interval)
   }, [])
 
+  // T+2 and T+4 escalation timers — only run after a successful push send.
+
+  useEffect(() => {
+    if (sosState !== "sent" || channel !== "push" || !sentAt) return
+
+    // At T+4 show "Paramedics have been called"
+    const t4 = setTimeout(() => {
+      setSosState("escalated")
+    }, 4 * 60 * 1000)
+
+    return () => {
+      clearTimeout(t4)
+    }
+  }, [sosState, channel, sentAt])
+
   async function doSend() {
     if (!session?.user) return
 
@@ -175,6 +194,16 @@ export default function SOSScreen() {
         session.user.id,
         contacts.map((c) => c.member_id),
         location,
+      )
+
+      const now = new Date()
+
+      setSentAt(now)
+
+      const t4Date = new Date(now.getTime() + 4 * 60 * 1000)
+
+      setParamedicTime(
+        t4Date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       )
 
       setChannel("push")
@@ -253,13 +282,16 @@ export default function SOSScreen() {
 
   const isSent = sosState === "sent"
 
+  const isEscalated = sosState === "escalated"
+
   const isQueued = sosState === "queued"
 
-  const circleColor = isSent
-    ? colors.success
-    : isQueued
-      ? colors.amber
-      : colors.emergency
+  const circleColor =
+    isSent || isEscalated
+      ? colors.success
+      : isQueued
+        ? colors.amber
+        : colors.emergency
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -289,7 +321,7 @@ export default function SOSScreen() {
           <View
             style={[
               styles.circleBg,
-              isSent && styles.circleBgSent,
+              (isSent || isEscalated) && styles.circleBgSent,
               isQueued && styles.circleBgQueued,
             ]}
           >
@@ -299,7 +331,7 @@ export default function SOSScreen() {
             <View style={styles.circleCenter}>
               {isSending ? (
                 <ActivityIndicator color={colors.emergency} size="large" />
-              ) : isSent ? (
+              ) : isSent || isEscalated ? (
                 <>
                   <Text
                     style={[
@@ -310,7 +342,11 @@ export default function SOSScreen() {
                     ✓
                   </Text>
                   <Text style={[styles.sentLabel, { color: colors.success }]}>
-                    {channel === "sms" ? "SMS Sent" : "Alert Sent"}
+                    {isEscalated
+                      ? "Paramedics Called"
+                      : channel === "sms"
+                        ? "SMS Sent"
+                        : "Alert Sent"}
                   </Text>
                 </>
               ) : isQueued ? (
@@ -351,9 +387,35 @@ export default function SOSScreen() {
           </>
         )}
         {isSent && channel === "push" && (
-          <Text style={styles.subtext}>
-            Your emergency contacts have been alerted.
-          </Text>
+          <>
+            <Text style={styles.subtext}>
+              Your emergency contacts have been alerted.
+            </Text>
+            {paramedicTime && (
+              <Text
+                style={[
+                  styles.subtext,
+                  { color: colors.amber, marginTop: -spacing.md },
+                ]}
+              >
+                No response yet. Paramedics will be called at {paramedicTime}{" "}
+                if no one confirms you are safe.
+              </Text>
+            )}
+          </>
+        )}
+        {isEscalated && (
+          <>
+            <Text style={[styles.heading, { color: colors.emergency }]}>
+              Paramedics have been called
+            </Text>
+            <Text style={styles.subtext}>
+              Emergency services have been dispatched for you.
+              {contacts.length > 0
+                ? ` ${contacts[0].full_name} has been told.`
+                : ""}
+            </Text>
+          </>
         )}
         {isSent && channel === "sms" && (
           <Text style={styles.subtext}>
@@ -387,15 +449,19 @@ export default function SOSScreen() {
           <StatusRow
             title="Push alert"
             sub="Online path"
-            badge={isOnlineIndicator(channel, isSent) ? "Sent" : "Ready"}
-            badgeGreen={isOnlineIndicator(channel, isSent)}
+            badge={
+              isOnlineIndicator(channel, isSent) || isEscalated
+                ? "Sent"
+                : "Ready"
+            }
+            badgeGreen={isOnlineIndicator(channel, isSent) || isEscalated}
           />
           <View style={styles.divider} />
           <StatusRow
             title="SMS fallback"
             sub="No internet path"
-            badge={channel === "sms" && isSent ? "Sent" : "Ready"}
-            badgeGreen={channel === "sms" && isSent}
+            badge={channel === "sms" && (isSent || isEscalated) ? "Sent" : "Ready"}
+            badgeGreen={channel === "sms" && (isSent || isEscalated)}
           />
           <View style={styles.divider} />
           <StatusRow
@@ -416,7 +482,7 @@ export default function SOSScreen() {
             <Text style={styles.sendNowBtnText}>Send now</Text>
           </TouchableOpacity>
         )}
-        {(isSent || isQueued) && (
+        {(isSent || isEscalated || isQueued) && (
           <TouchableOpacity
             style={styles.doneBtn}
             onPress={() => router.back()}

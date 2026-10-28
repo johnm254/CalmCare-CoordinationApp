@@ -84,11 +84,15 @@ export async function scheduleMedicationReminder(
       identifier: notifId,
 
       content: {
-        title: "Time for your medication",
+        title: "Medication reminder",
 
-        body: `${params.time} — ${params.medicationName}`,
+        body: `Time for your ${params.time} dose`,
 
-        data: { scheduleId: params.scheduleId, time: params.time },
+        data: {
+          scheduleId: params.scheduleId,
+          time: params.time,
+          medicationName: params.medicationName,
+        },
 
         sound: "default",
 
