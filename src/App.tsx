@@ -223,58 +223,6 @@ function Button({
   )
 }
 
-function StateBar({
-  state,
-  setState,
-}: {
-  state: string
-  setState: (s: string) => void
-}) {
-  const states = [
-    "Default",
-    "Offline",
-    "Syncing",
-    "Empty",
-    "Error",
-    "Large text",
-  ]
-
-  return (
-    <div className="statebar" aria-label="Preview states">
-      {states.map((s) => (
-        <button
-          className={state === s ? "active" : ""}
-          onClick={() => setState(s)}
-          key={s}
-        >
-          {s}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-function StatusBanner({ state }: { state: string }) {
-  if (state === "Default" || state === "Large text") return null
-
-  const copy: Record<string, string> = {
-    Offline: "Saved on this device, will sync",
-
-    Syncing: "Syncing securely…",
-
-    Empty: "Nothing here yet",
-
-    Error: "We couldn't refresh. Your saved data is safe.",
-  }
-
-  return (
-    <div className={`status-banner ${state.toLowerCase()}`}>
-      <span>{state === "Syncing" ? "↻" : state === "Error" ? "!" : "✓"}</span>
-      {copy[state]}
-    </div>
-  )
-}
-
 function DuaraRing() {
   return (
     <svg
