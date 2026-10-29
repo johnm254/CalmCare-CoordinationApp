@@ -22,7 +22,11 @@
         "ACCESS_FINE_LOCATION",
         "ACCESS_COARSE_LOCATION",
         "SEND_SMS",
-        "READ_SMS"
+        "READ_SMS",
+        "android.permission.USE_BIOMETRIC",
+        "android.permission.USE_FINGERPRINT",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
       ],
       "package": "com.duara.app",
       "config": {
@@ -35,23 +39,17 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.duara.app"
     },
-    "updates": {
-      "url": "https://u.expo.dev/9246ff32-9bc9-4291-bdbc-d601a5b86145",
-      "enabled": true,
-      "checkAutomatically": "NEVER",
-      "fallbackToCacheTimeout": 0
-    },
     "runtimeVersion": "1.0.0",
     "extra": {
       "router": {
         "origin": false
       },
       "eas": {
-        "projectId": "9246ff32-9bc9-4291-bdbc-d601a5b86145"
+        "projectId": "dbbecdaf-3e0e-4b75-8437-6e27cbc15917"
       }
     },
     "scheme": "duara",
-    "owner": "jocularjohny",
+    "owner": "chainforge",
     "plugins": [
       "expo-secure-store",
       "expo-local-authentication",
