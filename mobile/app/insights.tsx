@@ -311,7 +311,7 @@ export default function InsightsScreen() {
             <WaveformIcon />
           </View>
           <Text style={styles.cardBody}>
-            Say what happened and Duara turns it into a log you can edit. Saved
+            Say what happened and Mojo turns it into a log you can edit. Saved
             on this device first, syncs later.
           </Text>
         </View>
@@ -333,7 +333,7 @@ export default function InsightsScreen() {
 
         {/* Disclaimer */}
         <Text style={styles.disclaimer}>
-          Duara never diagnoses or changes your medication. Summaries are drafts
+          Mojo never diagnoses or changes your medication. Summaries are drafts
           built from what you and your Circle logged.
         </Text>
       </ScrollView>

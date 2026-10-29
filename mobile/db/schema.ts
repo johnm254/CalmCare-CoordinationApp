@@ -1,4 +1,4 @@
-// Local SQLite schema for Duara offline-first storage.
+// Local SQLite schema for Mojo offline-first storage.
 // Mirrors the Supabase schema; dose_events replaces medication_logs (view alias kept).
 
 export interface Profile {

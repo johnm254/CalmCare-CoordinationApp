@@ -236,7 +236,7 @@ function LanguageSheet({
         ))}
         <Text style={opt.note}>
           More languages coming soon. Help us translate at
-          duara.health/translate
+          mojo.health/translate
         </Text>
       </View>
     </Sheet>
@@ -390,7 +390,7 @@ function PinSheet({
           <View style={{ flex: 1 }}>
             <Text style={pin.infoTitle}>App lock</Text>
             <Text style={pin.infoText}>
-              Require Face ID, fingerprint, or PIN when opening Duara. Your data
+              Require Face ID, fingerprint, or PIN when opening Mojo. Your data
               stays private even if someone else has your phone.
             </Text>
           </View>
@@ -401,7 +401,7 @@ function PinSheet({
           </Text>
         </View>
         <Text style={pin.tip}>
-          Tip: Enable your phone's screen lock to protect Duara immediately. Go
+          Tip: Enable your phone's screen lock to protect Mojo immediately. Go
           to Settings → Security.
         </Text>
         <TouchableOpacity
@@ -887,7 +887,7 @@ const del = StyleSheet.create({
   cancelText: { fontSize: fonts.sm, color: colors.teal, fontWeight: "600" },
 })
 
-// ─── Epi Strap modal ──────────────────────────────────────────────────────────
+// ─── Mojo Strap modal ──────────────────────────────────────────────────────────
 
 function EpiStrapSheet({
   visible,
@@ -897,7 +897,7 @@ function EpiStrapSheet({
   onClose: () => void
 }) {
   return (
-    <Sheet visible={visible} onClose={onClose} title="Epi Strap">
+    <Sheet visible={visible} onClose={onClose} title="Mojo Strap">
       <View style={{ gap: spacing.lg }}>
         <View style={dev.deviceCard}>
           <View style={dev.strapIcon}>
@@ -905,7 +905,7 @@ function EpiStrapSheet({
             <View style={dev.strapBand} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={dev.deviceName}>Epi Strap</Text>
+            <Text style={dev.deviceName}>Mojo Strap</Text>
             <View style={dev.statusRow}>
               <View
                 style={[dev.statusDot, { backgroundColor: colors.textMuted }]}
@@ -916,7 +916,7 @@ function EpiStrapSheet({
         </View>
         <View style={dev.infoCard}>
           <Text style={dev.infoText}>
-            The Epi Strap automatically detects seizure patterns and sends a
+            The Mojo Strap automatically detects seizure patterns and sends a
             silent SOS if you're unresponsive. Requires Bluetooth.
           </Text>
         </View>
@@ -926,7 +926,7 @@ function EpiStrapSheet({
 
             "Hold the strap button for 3 seconds until it flashes",
 
-            'Tap "Pair device" and select Epi Strap from the list',
+            'Tap "Pair device" and select Mojo Strap from the list',
           ].map((step, i) => (
             <View key={i} style={dev.step}>
               <View style={dev.stepNum}>
@@ -1380,7 +1380,7 @@ export default function MeScreen() {
     } catch {
       Alert.alert(
         "Error",
-        "Could not process request. Contact support@duara.health",
+        "Could not process request. Contact support@mojo.health",
       )
     } finally {
       setDeleting(false)
@@ -1453,7 +1453,7 @@ export default function MeScreen() {
         {/* Safety statement */}
         <View style={s.safetyCard}>
           <Text style={s.safetyText}>
-            Duara helps you and your care team watch trends. It does not
+            Mojo helps you and your care team watch trends. It does not
             diagnose or treat any condition. In an emergency, press SOS or call
             emergency services.
           </Text>
@@ -1621,7 +1621,7 @@ export default function MeScreen() {
                 }}
               />
             }
-            label="Epi Strap"
+            label="Mojo Strap"
             value="Not paired"
             onPress={() => setOpenModal("strap")}
           />
@@ -1757,7 +1757,7 @@ export default function MeScreen() {
           <Text style={s.signOutText}>Sign out</Text>
         </TouchableOpacity>
 
-        <Text style={s.version}>Duara v1.0 · Project Epi</Text>
+        <Text style={s.version}>Mojo v1.0</Text>
       </ScrollView>
 
       {/* Modals */}

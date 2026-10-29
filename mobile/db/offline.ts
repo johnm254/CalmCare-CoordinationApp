@@ -16,9 +16,9 @@ import * as Crypto from "expo-crypto"
 
 import { CREATE_TABLES_SQL } from "./schema"
 
-const DB_NAME = "duara.db"
+const DB_NAME = "mojo.db"
 
-const KEY_STORE_KEY = "duara_db_key"
+const KEY_STORE_KEY = "mojo_db_key"
 
 let _db: SQLite.SQLiteDatabase | null = null
 

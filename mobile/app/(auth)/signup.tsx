@@ -168,7 +168,7 @@ export default function SignupScreen() {
             </View>
             <Text style={styles.heroHeading}>Create account</Text>
             <Text style={styles.tagline}>
-              Join Duara to manage your epilepsy care
+              Join Mojo to manage your health care
             </Text>
           </View>
 

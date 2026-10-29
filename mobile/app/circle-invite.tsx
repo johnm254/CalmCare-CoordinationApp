@@ -1,6 +1,6 @@
 // Care Circle invite screen — add a contact by email (app user) or phone (SMS only).
 
-// Supports two modes: link existing Duara user, or add SMS-only contact.
+// Supports two modes: link existing Mojo user, or add SMS-only contact.
 
 import { useState } from "react"
 
@@ -92,7 +92,7 @@ export default function CircleInviteScreen() {
 
         if (!existing) {
           setError(
-            "No Duara account found for that email. Ask them to sign up first, or use the SMS option.",
+            "No Mojo account found for that email. Ask them to sign up first, or use the SMS option.",
           )
 
           setLoading(false)
@@ -178,7 +178,7 @@ export default function CircleInviteScreen() {
                   mode === "email" && styles.modeBtnTextActive,
                 ]}
               >
-                Duara app user
+                Mojo app user
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -202,7 +202,7 @@ export default function CircleInviteScreen() {
 
           <Text style={styles.modeHint}>
             {mode === "email"
-              ? "They must already have a Duara account. They will see alerts and updates in the app."
+              ? "They must already have a Mojo account. They will see alerts and updates in the app."
               : "They receive SOS alerts by SMS only. They do not need the app."}
           </Text>
 

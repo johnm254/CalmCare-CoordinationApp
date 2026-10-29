@@ -239,7 +239,7 @@ export default function LoginScreen() {
                 opacity: titleOp,
               }}
             >
-              <Text style={styles.brandName}>duara</Text>
+              <Text style={styles.brandName}>mojo</Text>
               <Text style={styles.tagline}>Care · Connect · Protect</Text>
             </Animated.View>
           </View>

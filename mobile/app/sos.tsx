@@ -36,6 +36,7 @@ import { useAuth } from "./_layout"
 import {
   getEmergencyContacts,
   sendSos,
+  supabase,
   type CareCircleMember,
 } from "../lib/supabase"
 
@@ -47,7 +48,7 @@ const TOTAL_SECONDS = 5
 
 type SosChannel = "push" | "sms" | "queued"
 
-type SosState = "counting" | "sending" | "sent" | "escalated" | "queued"
+type SosState = "counting" | "sending" | "sent" | "escalated" | "queued" | "cancelled"
 
 export default function SOSScreen() {
   const { session, profile } = useAuth()
@@ -69,6 +70,8 @@ export default function SOSScreen() {
   const [sentAt, setSentAt] = useState<Date | null>(null)
 
   const [paramedicTime, setParamedicTime] = useState<string | null>(null)
+
+  const [sosEventId, setSosEventId] = useState<string | null>(null)
 
   const borderAnim = useRef(new Animated.Value(1)).current
 
@@ -190,11 +193,13 @@ export default function SOSScreen() {
       networkState.isInternetReachable !== false
 
     if (isOnline) {
-      await sendSos(
+      const eventId = await sendSos(
         session.user.id,
         contacts.map((c) => c.member_id),
         location,
       )
+
+      setSosEventId(eventId)
 
       const now = new Date()
 
@@ -224,7 +229,7 @@ export default function SOSScreen() {
 
       const name = profile?.full_name ?? "Your contact"
 
-      let body = `🚨 ${name} needs help (SOS from Duara).`
+      let body = `🚨 ${name} needs help (SOS from Mojo).`
 
       if (location) {
         body += ` Location: https://maps.google.com/?q=${location.lat},${location.lon}`
@@ -276,6 +281,19 @@ export default function SOSScreen() {
     }
   }
 
+  async function handleFalseAlarm() {
+    if (sosEventId && session?.user) {
+      try {
+        await supabase
+          .from("sos_events")
+          .update({ status: "cancelled" })
+          .eq("id", sosEventId)
+          .eq("patient_id", session.user.id)
+      } catch {}
+    }
+    setSosState("cancelled")
+  }
+
   const isCounting = sosState === "counting"
 
   const isSending = sosState === "sending"
@@ -286,19 +304,23 @@ export default function SOSScreen() {
 
   const isQueued = sosState === "queued"
 
+  const isCancelled = sosState === "cancelled"
+
   const circleColor =
-    isSent || isEscalated
-      ? colors.success
-      : isQueued
-        ? colors.amber
-        : colors.emergency
+    isCancelled
+      ? colors.teal
+      : isSent || isEscalated
+        ? colors.success
+        : isQueued
+          ? colors.amber
+          : colors.emergency
 
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.topRow}>
-          <Text style={styles.duaraLabel}>DUARA</Text>
+          <Text style={styles.duaraLabel}>MOJO</Text>
           <View style={styles.sosLabelRow}>
             <View style={[styles.redDot, { backgroundColor: circleColor }]} />
             <Text style={[styles.sosLabelText, { color: circleColor }]}>
@@ -323,6 +345,7 @@ export default function SOSScreen() {
               styles.circleBg,
               (isSent || isEscalated) && styles.circleBgSent,
               isQueued && styles.circleBgQueued,
+              isCancelled && styles.circleBgSent,
             ]}
           >
             <Animated.View
@@ -331,6 +354,20 @@ export default function SOSScreen() {
             <View style={styles.circleCenter}>
               {isSending ? (
                 <ActivityIndicator color={colors.emergency} size="large" />
+              ) : isCancelled ? (
+                <>
+                  <Text
+                    style={[
+                      styles.countdownNum,
+                      { color: colors.teal, fontSize: 64 },
+                    ]}
+                  >
+                    ✓
+                  </Text>
+                  <Text style={[styles.sentLabel, { color: colors.teal }]}>
+                    Cancelled
+                  </Text>
+                </>
               ) : isSent || isEscalated ? (
                 <>
                   <Text
@@ -343,10 +380,10 @@ export default function SOSScreen() {
                   </Text>
                   <Text style={[styles.sentLabel, { color: colors.success }]}>
                     {isEscalated
-                      ? "Paramedics Called"
+                      ? "Paramedics called"
                       : channel === "sms"
-                        ? "SMS Sent"
-                        : "Alert Sent"}
+                        ? "SMS sent"
+                        : "Alert sent"}
                   </Text>
                 </>
               ) : isQueued ? (
@@ -380,16 +417,17 @@ export default function SOSScreen() {
         {/* Message */}
         {isCounting && (
           <>
-            <Text style={styles.heading}>Sending SOS...</Text>
+            <Text style={styles.heading}>SOS is being sent</Text>
             <Text style={styles.subtext}>
-              Your emergency contacts will be alerted with your location.
+              Your SOS contact will be alerted with your location. Tap{" "}
+              <Text style={{ fontWeight: "700" }}>"I'm OK"</Text> to cancel.
             </Text>
           </>
         )}
         {isSent && channel === "push" && (
           <>
             <Text style={styles.subtext}>
-              Your emergency contacts have been alerted.
+              SOS sent.{contacts.length > 0 ? ` We've told ${contacts[0].full_name}.` : " Your SOS contact has been alerted."}
             </Text>
             {paramedicTime && (
               <Text
@@ -398,8 +436,9 @@ export default function SOSScreen() {
                   { color: colors.amber, marginTop: -spacing.md },
                 ]}
               >
-                No response yet. Paramedics will be called at {paramedicTime}{" "}
-                if no one confirms you are safe.
+                Still need help? We'll call paramedics at {paramedicTime} unless
+                you tap{" "}
+                <Text style={{ fontWeight: "700" }}>"I'm OK"</Text>.
               </Text>
             )}
           </>
@@ -410,16 +449,29 @@ export default function SOSScreen() {
               Paramedics have been called
             </Text>
             <Text style={styles.subtext}>
-              Emergency services have been dispatched for you.
+              Paramedics have been called to your location.
               {contacts.length > 0
                 ? ` ${contacts[0].full_name} has been told.`
                 : ""}
             </Text>
           </>
         )}
+        {isCancelled && (
+          <>
+            <Text style={[styles.heading, { color: colors.teal }]}>
+              SOS cancelled
+            </Text>
+            <Text style={styles.subtext}>
+              {contacts.length > 0
+                ? `${contacts[0].full_name} has been told you're OK. Nothing else is needed.`
+                : "Your SOS contact has been told you're OK. Nothing else is needed."}
+            </Text>
+          </>
+        )}
         {isSent && channel === "sms" && (
           <Text style={styles.subtext}>
-            SMS sent. Contacts alerted{location ? " with your location" : ""}.
+            SMS sent. Your contact has been alerted
+            {location ? " with your location" : ""}.
           </Text>
         )}
         {isQueued && (
@@ -428,7 +480,7 @@ export default function SOSScreen() {
               No signal
             </Text>
             <Text style={styles.subtext}>
-              Your SOS has not been sent yet. Duara will send it automatically
+              Your SOS has not been sent yet. Mojo will send it automatically
               as soon as a signal is available.
             </Text>
           </>
@@ -482,7 +534,16 @@ export default function SOSScreen() {
             <Text style={styles.sendNowBtnText}>Send now</Text>
           </TouchableOpacity>
         )}
-        {(isSent || isEscalated || isQueued) && (
+        {isSent && (
+          <TouchableOpacity
+            style={styles.falseAlarmBtn}
+            onPress={handleFalseAlarm}
+            activeOpacity={0.85}
+          >
+            <Text style={styles.falseAlarmBtnText}>I'm OK — false alarm</Text>
+          </TouchableOpacity>
+        )}
+        {(isEscalated || isQueued || isCancelled) && (
           <TouchableOpacity
             style={styles.doneBtn}
             onPress={() => router.back()}
@@ -497,7 +558,7 @@ export default function SOSScreen() {
             onPress={() => router.back()}
             activeOpacity={0.85}
           >
-            <Text style={styles.cancelBtnText}>Cancel, I am okay</Text>
+            <Text style={styles.cancelBtnText}>I'm OK — cancel</Text>
           </TouchableOpacity>
         )}
       </View>
@@ -727,6 +788,19 @@ const styles = StyleSheet.create({
   },
 
   sendNowBtnText: { color: "#fff", fontWeight: "800", fontSize: fonts.md },
+
+  falseAlarmBtn: {
+    width: "100%",
+    backgroundColor: colors.teal,
+
+    borderRadius: radius.xl,
+    paddingVertical: spacing.lg,
+
+    alignItems: "center",
+    marginBottom: spacing.md,
+  },
+
+  falseAlarmBtnText: { color: "#000", fontWeight: "800", fontSize: fonts.md },
 
   doneBtn: {
     width: "100%",

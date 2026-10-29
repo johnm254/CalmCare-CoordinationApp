@@ -259,7 +259,7 @@ export default function MedsScreen() {
         {/* Disclaimer — CR-MED-11 */}
         <View style={styles.disclaimer}>
           <Text style={styles.disclaimerText}>
-            Your reminders follow the schedule your clinician entered. Duara
+            Your reminders follow the schedule your clinician entered. Mojo
             never changes your dose.
           </Text>
         </View>

@@ -232,7 +232,7 @@ function SplashOverlay({ exiting }: { exiting: boolean }) {
           opacity: titleOp,
         }}
       >
-        <Text style={splashStyles.brand}>duara</Text>
+        <Text style={splashStyles.brand}>mojo</Text>
       </Animated.View>
       <Animated.Text style={[splashStyles.tagline, { opacity: tagOp }]}>
         Care · Connect · Protect
