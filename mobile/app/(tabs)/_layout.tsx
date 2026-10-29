@@ -181,7 +181,7 @@ function MeIcon({ active }: { active: boolean }) {
 
 // ─── Custom tab bar label with active pill ────────────────────────────────────
 
-function TabLabel({ label, active }: { label: string active: boolean }) {
+function TabLabel({ label, active }: { label: string; active: boolean }) {
   return (
     <Text
       style={{

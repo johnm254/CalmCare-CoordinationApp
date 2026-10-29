@@ -177,7 +177,7 @@ function ConcentricRings({
 
 // ── Health banner ──────────────────────────────────────────────────────────────
 
-function HealthBanner({ name, streak }: { name: string streak: number }) {
+function HealthBanner({ name, streak }: { name: string; streak: number }) {
   const pulseAnim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {

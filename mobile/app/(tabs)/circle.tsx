@@ -29,7 +29,7 @@ import {
   type GrantKey,
 } from "../../lib/supabase"
 
-const GRANT_LABELS: { key: GrantKey label: string sub: string }[] = [
+const GRANT_LABELS: { key: GrantKey; label: string; sub: string }[] = [
   {
     key: "emergency_alerts",
     label: "Emergency alerts",

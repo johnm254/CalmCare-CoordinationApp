@@ -205,7 +205,7 @@ function LogEventModal({
     }
   }
 
-  const eventTypes: { key: EventType label: string }[] = [
+  const eventTypes: { key: EventType; label: string }[] = [
     { key: "seizure", label: "Seizure" },
 
     { key: "missed_dose", label: "Missed dose" },
@@ -213,7 +213,7 @@ function LogEventModal({
     { key: "other", label: "Other" },
   ]
 
-  const severities: { key: Severity label: string }[] = [
+  const severities: { key: Severity; label: string }[] = [
     { key: "mild", label: "Mild" },
 
     { key: "moderate", label: "Moderate" },

@@ -31,7 +31,7 @@ export type WeatherData = {
 }
 
 // WMO weather code → OWM icon code + description
-function wmoToMeta(code: number, isDay = true): { icon: string desc: string } {
+function wmoToMeta(code: number, isDay = true): { icon: string; desc: string } {
   const d = isDay ? "d" : "n"
   if (code === 0) return { icon: `01${d}`, desc: "Clear sky" }
   if (code === 1) return { icon: `02${d}`, desc: "Mainly clear" }

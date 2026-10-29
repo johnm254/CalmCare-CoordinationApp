@@ -70,7 +70,7 @@ function formatAuditAction(action: string, actorRole: string | null): string {
 
 // ─── Icon badge ───────────────────────────────────────────────────────────────
 
-function IconBadge({ bg, children }: { bg: string children: React.ReactNode }) {
+function IconBadge({ bg, children }: { bg: string; children: React.ReactNode }) {
   return <View style={[ic.badge, { backgroundColor: bg }]}>{children}</View>
 }
 
@@ -514,7 +514,7 @@ function AccessibilitySheet({
   fontSize: FontSize
   onSelectFont: (s: FontSize) => void
 }) {
-  const sizes: { key: FontSize label: string preview: number }[] = [
+  const sizes: { key: FontSize; label: string; preview: number }[] = [
     { key: "small", label: "Small", preview: 13 },
 
     { key: "medium", label: "Medium", preview: 16 },

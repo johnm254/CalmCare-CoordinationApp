@@ -39,7 +39,7 @@ export type Medication = {
 
   dose: string
 
-  schedule: { time: string days: string[] }
+  schedule: { time: string; days: string[] }
 
   active: boolean
 }
@@ -438,7 +438,7 @@ export async function sendSos(
 
   emergencyContactIds: string[],
 
-  location?: { lat: number lon: number } | null,
+  location?: { lat: number; lon: number } | null,
 ): Promise<string> {
   const sosId = crypto.randomUUID()
 

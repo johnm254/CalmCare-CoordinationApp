@@ -309,7 +309,7 @@ export default function SosAlertScreen() {
 
 function tryParseLocation(
   raw: string | null,
-): { lat: number lon: number } | null {
+): { lat: number; lon: number } | null {
   if (!raw) return null
   try {
     const p = JSON.parse(raw)

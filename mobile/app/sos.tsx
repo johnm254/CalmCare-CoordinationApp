@@ -60,7 +60,7 @@ export default function SOSScreen() {
 
   const [contacts, setContacts] = useState<CareCircleMember[]>([])
 
-  const [location, setLocation] = useState<{ lat: number lon: number } | null>(
+  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(
     null,
   )
 
@@ -90,7 +90,7 @@ export default function SOSScreen() {
             accuracy: Location.Accuracy.Balanced,
           })
 
-            .then((loc: { coords: { latitude: number longitude: number } }) =>
+            .then((loc: { coords: { latitude: number; longitude: number } }) =>
               setLocation({
                 lat: loc.coords.latitude,
                 lon: loc.coords.longitude,

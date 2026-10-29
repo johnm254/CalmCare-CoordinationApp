@@ -93,7 +93,7 @@ type SosEvent = {
   longitude: number | null
 }
 
-type Coord = { latitude: number longitude: number }
+type Coord = { latitude: number; longitude: number }
 
 export default function MapScreen() {
   const { session } = useAuth()
