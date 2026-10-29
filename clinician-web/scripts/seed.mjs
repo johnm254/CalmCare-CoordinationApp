@@ -1,7 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = 'https://rtlhckntjrhdhbaqzxoy.supabase.co';
-const SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ0bGhja250anJoZGhiYXF6eG95Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc5MTk2Njk3OSwiZXhwIjoyMTA3NTQyOTc5fQ.TFAaHaQ_TWzlzZHUQxsDsBLl_t6mxfUEgLA_bIhIVMA';
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://rtlhckntjrhdhbaqzxoy.supabase.co';
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+if (!SERVICE_KEY) {
+  console.error('❌  Set SUPABASE_SERVICE_ROLE_KEY env var first (never commit this key)');
+  process.exit(1);
+}
 const CLINICIAN_ID = '3cb5fe51-d813-461d-a394-acd1a782d26f';
 
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
