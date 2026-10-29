@@ -23,7 +23,7 @@ export interface SyncResult {
   success: boolean
   pushedCount: number
   pulledCount: number
-  errors: Array<{ entry: string error: string }>
+  errors: Array<{ entry: string; error: string }>
   lastSync: string
 }
 
@@ -72,7 +72,7 @@ export async function syncData(deviceId: string): Promise<SyncResult> {
 
 async function pushOutbox() {
   const successful: string[] = []
-  const errors: Array<{ entry: string error: string }> = []
+  const errors: Array<{ entry: string; error: string }> = []
 
   const entries = await getUnsyncedEntries()
   for (const entry of entries) {
@@ -115,12 +115,12 @@ async function pushEntry(entry: {
 
 async function pullChanges(userId: string, deviceId: string) {
   const count: string[] = []
-  const errors: Array<{ entry: string error: string }> = []
+  const errors: Array<{ entry: string; error: string }> = []
 
   const syncState = await getSyncState(deviceId)
   const lastSync = syncState?.last_sync
 
-  const tables: Array<{ name: string filter: Record<string, string> }> = [
+  const tables: Array<{ name: string; filter: Record<string, string> }> = [
     { name: "medications", filter: { patient_id: userId } },
     { name: "medication_schedules", filter: {} },
     { name: "dose_events", filter: { patient_id: userId } },
@@ -233,7 +233,7 @@ async function retrySosQueue(userId: string) {
 
 async function rescheduleNotifications(userId: string) {
   try {
-    const meds = await queryAll<{ id: string name: string }>("medications", {
+    const meds = await queryAll<{ id: string; name: string }>("medications", {
       patient_id: userId,
     })
     const medMap = Object.fromEntries(meds.map((m) => [m.id, m.name]))

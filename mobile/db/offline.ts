@@ -256,7 +256,7 @@ export async function markOutboxError(
 
 export async function getSyncState(
   deviceId: string,
-): Promise<{ last_sync?: string sync_token?: string } | null> {
+): Promise<{ last_sync?: string; sync_token?: string } | null> {
   const d = await db()
 
   return d.getFirstAsync(
@@ -304,7 +304,7 @@ export async function confirmDose(params: {
   confirmedVia: "app" | "strap" | "caregiver"
 
   confirmedBy?: string
-}): Promise<{ success: boolean alreadyTaken: boolean }> {
+}): Promise<{ success: boolean; alreadyTaken: boolean }> {
   const d = await db()
 
   // Check uniqueness before insert (mirrors the UNIQUE DB constraint)
@@ -476,7 +476,7 @@ export async function getAdherence(
     .toISOString()
     .split("T")[0]
 
-  const row = await d.getFirstAsync<{ total: number taken: number }>(
+  const row = await d.getFirstAsync<{ total: number; taken: number }>(
     `SELECT
        COUNT(*) as total,
        SUM(CASE WHEN status = 'taken' THEN 1 ELSE 0 END) as taken
@@ -503,7 +503,7 @@ export async function enqueueSosOffline(params: {
     full_name: string
   }>
 
-  location: { lat: number lon: number } | null
+  location: { lat: number; lon: number } | null
 
   channel: "sms" | "queued"
 }): Promise<string> {

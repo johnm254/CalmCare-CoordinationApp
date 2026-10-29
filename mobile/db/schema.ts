@@ -149,7 +149,7 @@ export interface SOSEvent {
   patient_id: string
   sent_at: string
   channel: "push" | "sms" | "queued"
-  location?: { latitude: number longitude: number }
+  location?: { latitude: number; longitude: number }
   recipients: string[]
   status: "sent" | "failed" | "queued" | "retrying"
   created_at: string
