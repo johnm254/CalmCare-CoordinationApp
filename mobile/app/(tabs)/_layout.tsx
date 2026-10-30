@@ -156,6 +156,63 @@ function CareIcon({ active }: { active: boolean }) {
   )
 }
 
+function MoodIcon({ active }: { active: boolean }) {
+  const c = active ? colors.teal : colors.tabInactive
+
+  return (
+    <View
+      style={{
+        width: 24,
+        height: 24,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {/* Face circle */}
+      <View
+        style={{
+          width: 22,
+          height: 22,
+          borderRadius: 11,
+          borderWidth: 2,
+          borderColor: c,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {/* Eyes */}
+        <View
+          style={{
+            flexDirection: "row",
+            gap: 5,
+            marginBottom: 2,
+            marginTop: -2,
+          }}
+        >
+          <View
+            style={{ width: 3, height: 3, borderRadius: 1.5, backgroundColor: c }}
+          />
+          <View
+            style={{ width: 3, height: 3, borderRadius: 1.5, backgroundColor: c }}
+          />
+        </View>
+        {/* Mouth — curved arc approximated with a View */}
+        <View
+          style={{
+            width: 8,
+            height: 4,
+            borderBottomLeftRadius: 4,
+            borderBottomRightRadius: 4,
+            borderWidth: 2,
+            borderTopWidth: 0,
+            borderColor: c,
+          }}
+        />
+      </View>
+    </View>
+  )
+}
+
 function MeIcon({ active }: { active: boolean }) {
   const c = active ? colors.teal : colors.tabInactive
 
@@ -384,6 +441,30 @@ export default function TabsLayout() {
                 <CareIcon active={focused} />
               </View>
               <TabLabel label="Care" active={focused} />
+            </View>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="mood"
+        options={{
+          title: "Mood",
+
+          tabBarIcon: ({ focused }) => (
+            <View style={{ alignItems: "center" }}>
+              <View
+                style={{
+                  padding: 6,
+                  borderRadius: 12,
+
+                  backgroundColor: focused
+                    ? `rgba(139,92,246,0.15)`
+                    : "transparent",
+                }}
+              >
+                <MoodIcon active={focused} />
+              </View>
+              <TabLabel label="Mood" active={focused} />
             </View>
           ),
         }}
