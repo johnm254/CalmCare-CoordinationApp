@@ -310,6 +310,11 @@ export default function HomeScreen() {
 
   const [loggingEvent, setLoggingEvent] = useState<string | null>(null)
 
+  const [nearestHospital, setNearestHospital] = useState<{
+    name: string
+    phone: string | null
+  } | null>(null)
+
   const pulseAnim = useRef(new Animated.Value(0.5)).current
 
   const sosScale = useRef(new Animated.Value(1)).current
@@ -449,6 +454,30 @@ export default function HomeScreen() {
         }
       })
   }, [session])
+
+  useEffect(() => {
+    import("expo-location").then((Location) => {
+      Location.requestForegroundPermissionsAsync().then(({ status }) => {
+        if (status !== "granted") return
+        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+          .then(({ coords }) => {
+            supabase
+              .rpc("nearest_er_facility", {
+                lat: coords.latitude,
+                lon: coords.longitude,
+              })
+              .single()
+              .then(({ data }) => {
+                if (data) {
+                  setNearestHospital({ name: data.name, phone: data.phone ?? null })
+                }
+              })
+              .catch(() => {})
+          })
+          .catch(() => {})
+      })
+    })
+  }, [])
 
   async function handleTaken(med: Medication) {
     if (!session?.user || takenId) return
@@ -705,11 +734,19 @@ export default function HomeScreen() {
           </View>
           <View style={styles.hospitalInfo}>
             <Text style={styles.hospitalLabel}>Nearest hospital</Text>
-            <Text style={styles.hospitalName}>Kenyatta National Hospital</Text>
+            <Text style={styles.hospitalName}>
+              {nearestHospital?.name ?? "Kenyatta National Hospital"}
+            </Text>
           </View>
           <TouchableOpacity
             style={styles.callBtn}
-            onPress={() => Linking.openURL("tel:+254202726300")}
+            onPress={() =>
+              Linking.openURL(
+                nearestHospital?.phone
+                  ? `tel:${nearestHospital.phone}`
+                  : "tel:+254202726300",
+              )
+            }
             activeOpacity={0.85}
           >
             <Ionicons name="call" size={18} color="#fff" />

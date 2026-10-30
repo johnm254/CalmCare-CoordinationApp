@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { router } from "expo-router"
 import { colors, fonts, radius, spacing } from "../../lib/theme"
 import { supabase } from "../../lib/supabase"
 import { useAuth } from "../_layout"
@@ -286,6 +287,13 @@ export default function MoodScreen() {
               >
                 <Text style={styles.crisisCallText}>Call now</Text>
               </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.crisisSosBtn}
+                onPress={() => router.push("/sos")}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.crisisSosBtnText}>Medical emergency — Start SOS</Text>
+              </TouchableOpacity>
             </View>
           )}
         </ScrollView>
@@ -456,6 +464,15 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     paddingVertical: spacing.md,
     alignItems: "center",
+    marginBottom: spacing.sm,
   },
   crisisCallText: { color: "#fff", fontWeight: "800", fontSize: fonts.base },
+  crisisSosBtn: {
+    borderWidth: 1.5,
+    borderColor: colors.emergency,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.md,
+    alignItems: "center",
+  },
+  crisisSosBtnText: { color: colors.emergency, fontWeight: "700", fontSize: fonts.sm },
 })

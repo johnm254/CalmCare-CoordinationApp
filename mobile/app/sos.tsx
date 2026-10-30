@@ -522,6 +522,17 @@ export default function SOSScreen() {
             badge={String(contacts.length)}
             badgeTeal
           />
+          {location && (
+            <>
+              <View style={styles.divider} />
+              <View style={styles.locationRow}>
+                <Text style={styles.locationLabel}>Location shared</Text>
+                <Text style={styles.locationCoords}>
+                  {location.lat.toFixed(4)}, {location.lon.toFixed(4)}
+                </Text>
+              </View>
+            </>
+          )}
         </View>
 
         {/* Actions */}
@@ -774,6 +785,24 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: colors.border,
     marginVertical: spacing.xs,
+  },
+
+  locationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: spacing.sm,
+  },
+  locationLabel: {
+    fontSize: fonts.sm,
+    color: colors.textSecondary,
+    fontWeight: "600",
+  },
+  locationCoords: {
+    fontSize: fonts.xs,
+    color: colors.teal,
+    fontWeight: "600",
+    fontVariant: ["tabular-nums"],
   },
 
   sendNowBtn: {
