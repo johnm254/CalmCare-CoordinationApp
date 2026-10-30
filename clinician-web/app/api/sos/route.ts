@@ -9,6 +9,13 @@ const supabaseAdmin = createClient(
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const AT_API_KEY  = process.env.AT_API_KEY ?? '';
+const AT_USERNAME = process.env.AT_USERNAME ?? 'sandbox';
+const AT_SENDER_ID = process.env.AT_SENDER_ID ?? '';
+const AT_BASE_URL = AT_USERNAME === 'sandbox'
+  ? 'https://api.sandbox.africastalking.com/version1/messaging'
+  : 'https://api.africastalking.com/version1/messaging';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -42,10 +49,10 @@ export async function POST(request: NextRequest) {
 
     const patientName = patientProfile.full_name ?? 'Your patient';
 
-    // Fetch recipient profiles
+    // Fetch recipient profiles (phone required for AT SMS — store in E.164: +254XXXXXXXXX)
     const { data: recipientProfiles, error: recipientsError } = await supabaseAdmin
       .from('profiles')
-      .select('id, full_name, email')
+      .select('id, full_name, email, phone')
       .in('id', recipient_ids);
 
     if (recipientsError) {
@@ -199,7 +206,44 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ sent, failed, recipients: sentTo });
+    // ── Africa's Talking SMS ──────────────────────────────────────────────────
+    let smsSent = 0;
+    let smsFailed = 0;
+    const smsSandbox = AT_USERNAME === 'sandbox';
+
+    if (AT_API_KEY) {
+      const phoneNumbers = (recipients as Array<{ phone?: string | null }>)
+        .map((r) => r.phone)
+        .filter((p): p is string => Boolean(p))
+        .join(',');
+
+      if (phoneNumbers) {
+        const locPart = location
+          ? ` Location: https://maps.google.com/?q=${location.lat},${location.lon}`
+          : '';
+        const smsText = `URGENT: ${patientName} needs help. SOS from Mojo. Call 999 immediately.${locPart}`;
+
+        const params = new URLSearchParams({ username: AT_USERNAME, to: phoneNumbers, message: smsText });
+        if (AT_SENDER_ID) params.set('from', AT_SENDER_ID);
+
+        try {
+          const atRes = await fetch(AT_BASE_URL, {
+            method: 'POST',
+            headers: { apiKey: AT_API_KEY, Accept: 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params.toString(),
+          });
+          const atJson = await atRes.json() as { SMSMessageData?: { Recipients?: Array<{ status: string }> } };
+          const delivered = atJson.SMSMessageData?.Recipients ?? [];
+          smsSent = delivered.filter((r) => r.status === 'Success').length;
+          smsFailed = delivered.length - smsSent;
+        } catch (err) {
+          console.error('AT SMS failed:', err);
+          smsFailed = phoneNumbers.split(',').length;
+        }
+      }
+    }
+
+    return NextResponse.json({ sent, failed, recipients: sentTo, sms: { sent: smsSent, failed: smsFailed, sandbox: smsSandbox } });
   } catch (err) {
     console.error('SOS route error:', err);
     return NextResponse.json(

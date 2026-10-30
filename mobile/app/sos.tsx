@@ -229,12 +229,10 @@ export default function SOSScreen() {
 
       const name = profile?.full_name ?? "Your contact"
 
-      let body = `🚨 ${name} needs help (SOS from Mojo).`
+      let body = `URGENT: ${name} needs help. SOS from Mojo. Call 999 immediately.`
 
       if (location) {
         body += ` Location: https://maps.google.com/?q=${location.lat},${location.lon}`
-      } else {
-        body += " No GPS available."
       }
 
       try {
