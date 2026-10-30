@@ -106,6 +106,55 @@ const en = {
   sos_cancel: "I'm OK — cancel",
   sos_done: 'Done',
   sos_paramedics: (time: string) => `Paramedics alerted — ETA shown at ${time}`,
+
+  // ── SOS screen — additional labels
+  sos_counting_heading: 'SOS is being sent',
+  sos_counting_sub_pre: 'Your care circle will be alerted with your location. Tap ',
+  sos_counting_ok: '"I\'m OK"',
+  sos_counting_sub_post: ' to cancel.',
+  sos_countdown_label: 'seconds',
+  sos_cancelled_label: 'Cancelled',
+  sos_paramedics_label: 'Paramedics called',
+  sos_sms_sent_label: 'SMS sent',
+  sos_alert_sent_label: 'Alert sent',
+  sos_queued_label: 'Queued',
+  sos_escalated_heading: 'Paramedics have been called',
+  sos_cancelled_heading: 'SOS cancelled',
+  sos_sent_push_sub: (name?: string) =>
+    name ? `SOS sent. We've told ${name}.` : 'SOS sent. Your care circle has been alerted.',
+  sos_escalate_warning: (time: string) =>
+    `Still need help? We'll call paramedics at ${time} unless you tap "I'm OK".`,
+  sos_escalated_sub: (name?: string) =>
+    name
+      ? `Paramedics have been called to your location. ${name} has been told.`
+      : 'Paramedics have been called to your location.',
+  sos_cancelled_sub: (name?: string) =>
+    name
+      ? `${name} has been told you're OK. Nothing else is needed.`
+      : "Your care circle has been told you're OK. Nothing else is needed.",
+  sos_sent_sms_sub: (hasLoc: boolean) =>
+    hasLoc
+      ? 'SMS sent. Your contact has been alerted with your location.'
+      : 'SMS sent. Your contact has been alerted.',
+
+  // ── SOS Alert screen (caregiver view)
+  sos_alert_tag: 'SOS ALERT',
+  sos_alert_close: 'Close',
+  sos_alert_ago: (mins: number) => mins < 1 ? 'just now' : mins === 1 ? '1 minute ago' : `${mins} minutes ago`,
+  sos_alert_needs_help: 'needs immediate help',
+  sos_alert_loc_title: 'Location shared',
+  sos_alert_loc_sub: 'Tap for turn-by-turn directions',
+  sos_alert_get_directions: 'Get Directions',
+  sos_alert_no_location: 'No location available',
+  sos_alert_nearest_hospital: 'Nearest hospital',
+  sos_alert_call: 'Call',
+  sos_alert_on_way: (name: string) => `${name} is on their way`,
+  sos_alert_also_responded: (name: string) => `${name} also responded`,
+  sos_alert_respond_btn: "I'm on my way",
+  sos_alert_responded: (name: string) => `You responded — ${name} is on the way`,
+  sos_alert_emergency: 'Call 999 / 112 — Ambulance',
+  sos_alert_disclaimer: (name: string) =>
+    `Your response is shown to ${name} and all their emergency contacts immediately.`,
 } as const
 
 // All Swahili values marked // review_needed — requires clinical Swahili translator sign-off
@@ -210,6 +259,39 @@ const sw: Record<keyof typeof en, string | ((...args: any[]) => string)> = {
   sos_cancel: 'Niko sawa — ghairi', // review_needed
   sos_done: 'Imekamilika', // review_needed
   sos_paramedics: (time: string) => `Madaktari wamearifiwa — ETA inaonyeshwa saa ${time}`, // review_needed
+  sos_counting_heading: 'SOS inatumwa', // review_needed
+  sos_counting_sub_pre: 'Mzunguko wako utaarifiwa na mahali ulipo. Gusa ', // review_needed
+  sos_counting_ok: '"Niko sawa"', // review_needed
+  sos_counting_sub_post: ' kughairi.', // review_needed
+  sos_countdown_label: 'sekunde', // review_needed
+  sos_cancelled_label: 'Imeghairiwa', // review_needed
+  sos_paramedics_label: 'Madaktari wameitwa', // review_needed
+  sos_sms_sent_label: 'SMS imetumwa', // review_needed
+  sos_alert_sent_label: 'Tahadhari imetumwa', // review_needed
+  sos_queued_label: 'Imepangwa', // review_needed
+  sos_escalated_heading: 'Madaktari wameitwa', // review_needed
+  sos_cancelled_heading: 'SOS imeghairiwa', // review_needed
+  sos_sent_push_sub: (name?: string) => name ? `SOS imetumwa. Tumemwambia ${name}.` : 'SOS imetumwa. Mzunguko wako umearifiwa.', // review_needed
+  sos_escalate_warning: (time: string) => `Bado unahitaji msaada? Tutawapigia madaktari saa ${time} bila kupiga "Niko sawa".`, // review_needed
+  sos_escalated_sub: (name?: string) => name ? `Madaktari wameitwa mahali ulipo. ${name} amearifiwa.` : 'Madaktari wameitwa mahali ulipo.', // review_needed
+  sos_cancelled_sub: (name?: string) => name ? `${name} amearifiwa uko sawa. Hakuna kingine kinachohitajika.` : 'Mzunguko wako umearifiwa uko sawa. Hakuna kingine kinachohitajika.', // review_needed
+  sos_sent_sms_sub: (hasLoc: boolean) => hasLoc ? 'SMS imetumwa. Mwasiliani wako amearifiwa na mahali ulipo.' : 'SMS imetumwa. Mwasiliani wako amearifiwa.', // review_needed
+  sos_alert_tag: 'TAHADHARI YA SOS', // review_needed
+  sos_alert_close: 'Funga', // review_needed
+  sos_alert_ago: (mins: number) => mins < 1 ? 'sasa hivi' : mins === 1 ? 'dakika 1 iliyopita' : `dakika ${mins} zilizopita`, // review_needed
+  sos_alert_needs_help: 'anahitaji msaada wa haraka', // review_needed
+  sos_alert_loc_title: 'Mahali pameshirikiwa', // review_needed
+  sos_alert_loc_sub: 'Gusa kwa maelekezo ya hatua kwa hatua', // review_needed
+  sos_alert_get_directions: 'Pata Maelekezo', // review_needed
+  sos_alert_no_location: 'Mahali haipatikani', // review_needed
+  sos_alert_nearest_hospital: 'Hospitali iliyo karibu', // review_needed
+  sos_alert_call: 'Piga simu', // review_needed
+  sos_alert_on_way: (name: string) => `${name} anakuja`, // review_needed
+  sos_alert_also_responded: (name: string) => `${name} pia alijibu`, // review_needed
+  sos_alert_respond_btn: 'Ninakuja', // review_needed
+  sos_alert_responded: (name: string) => `Ulijibu — ${name} anakuja`, // review_needed
+  sos_alert_emergency: 'Piga simu 999 / 112 — Ambulensi', // review_needed
+  sos_alert_disclaimer: (name: string) => `Jibu lako linaonyeshwa kwa ${name} na anayewasiliana naye mara moja.`, // review_needed
 }
 
 const catalogs = { en, sw }

@@ -33,6 +33,8 @@ import { colors, fonts, radius, spacing } from "../lib/theme"
 
 import { useAuth } from "./_layout"
 
+import { useTranslation } from "../lib/i18n-context"
+
 import {
   getEmergencyContacts,
   sendSos,
@@ -52,6 +54,7 @@ type SosState = "counting" | "sending" | "sent" | "escalated" | "queued" | "canc
 
 export default function SOSScreen() {
   const { session, profile } = useAuth()
+  const { t } = useTranslation()
 
   const [seconds, setSeconds] = useState(TOTAL_SECONDS)
 
@@ -354,58 +357,29 @@ export default function SOSScreen() {
                 <ActivityIndicator color={colors.emergency} size="large" />
               ) : isCancelled ? (
                 <>
-                  <Text
-                    style={[
-                      styles.countdownNum,
-                      { color: colors.teal, fontSize: 64 },
-                    ]}
-                  >
-                    ✓
-                  </Text>
-                  <Text style={[styles.sentLabel, { color: colors.teal }]}>
-                    Cancelled
-                  </Text>
+                  <Text style={[styles.countdownNum, { color: colors.teal, fontSize: 64 }]}>✓</Text>
+                  <Text style={[styles.sentLabel, { color: colors.teal }]}>{t("sos_cancelled_label")}</Text>
                 </>
               ) : isSent || isEscalated ? (
                 <>
-                  <Text
-                    style={[
-                      styles.countdownNum,
-                      { color: colors.success, fontSize: 64 },
-                    ]}
-                  >
-                    ✓
-                  </Text>
+                  <Text style={[styles.countdownNum, { color: colors.success, fontSize: 64 }]}>✓</Text>
                   <Text style={[styles.sentLabel, { color: colors.success }]}>
                     {isEscalated
-                      ? "Paramedics called"
+                      ? t("sos_paramedics_label")
                       : channel === "sms"
-                        ? "SMS sent"
-                        : "Alert sent"}
+                        ? t("sos_sms_sent_label")
+                        : t("sos_alert_sent_label")}
                   </Text>
                 </>
               ) : isQueued ? (
                 <>
-                  <Text
-                    style={[
-                      styles.countdownNum,
-                      { color: colors.amber, fontSize: 56 },
-                    ]}
-                  >
-                    !
-                  </Text>
-                  <Text style={[styles.sentLabel, { color: colors.amber }]}>
-                    Queued
-                  </Text>
+                  <Text style={[styles.countdownNum, { color: colors.amber, fontSize: 56 }]}>!</Text>
+                  <Text style={[styles.sentLabel, { color: colors.amber }]}>{t("sos_queued_label")}</Text>
                 </>
               ) : (
                 <>
-                  <Text
-                    style={[styles.countdownNum, { color: colors.emergency }]}
-                  >
-                    {seconds}
-                  </Text>
-                  <Text style={styles.countdownLabel}>seconds</Text>
+                  <Text style={[styles.countdownNum, { color: colors.emergency }]}>{seconds}</Text>
+                  <Text style={styles.countdownLabel}>{t("sos_countdown_label")}</Text>
                 </>
               )}
             </View>
@@ -415,28 +389,22 @@ export default function SOSScreen() {
         {/* Message */}
         {isCounting && (
           <>
-            <Text style={styles.heading}>SOS is being sent</Text>
+            <Text style={styles.heading}>{t("sos_counting_heading")}</Text>
             <Text style={styles.subtext}>
-              Your SOS contact will be alerted with your location. Tap{" "}
-              <Text style={{ fontWeight: "700" }}>"I'm OK"</Text> to cancel.
+              {t("sos_counting_sub_pre")}
+              <Text style={{ fontWeight: "700" }}>{t("sos_counting_ok")}</Text>
+              {t("sos_counting_sub_post")}
             </Text>
           </>
         )}
         {isSent && channel === "push" && (
           <>
             <Text style={styles.subtext}>
-              SOS sent.{contacts.length > 0 ? ` We've told ${contacts[0].full_name}.` : " Your SOS contact has been alerted."}
+              {t("sos_sent_push_sub", contacts[0]?.full_name)}
             </Text>
             {paramedicTime && (
-              <Text
-                style={[
-                  styles.subtext,
-                  { color: colors.amber, marginTop: -spacing.md },
-                ]}
-              >
-                Still need help? We'll call paramedics at {paramedicTime} unless
-                you tap{" "}
-                <Text style={{ fontWeight: "700" }}>"I'm OK"</Text>.
+              <Text style={[styles.subtext, { color: colors.amber, marginTop: -spacing.md }]}>
+                {t("sos_escalate_warning", paramedicTime)}
               </Text>
             )}
           </>
@@ -444,79 +412,57 @@ export default function SOSScreen() {
         {isEscalated && (
           <>
             <Text style={[styles.heading, { color: colors.emergency }]}>
-              Paramedics have been called
+              {t("sos_escalated_heading")}
             </Text>
             <Text style={styles.subtext}>
-              Paramedics have been called to your location.
-              {contacts.length > 0
-                ? ` ${contacts[0].full_name} has been told.`
-                : ""}
+              {t("sos_escalated_sub", contacts[0]?.full_name)}
             </Text>
           </>
         )}
         {isCancelled && (
           <>
             <Text style={[styles.heading, { color: colors.teal }]}>
-              SOS cancelled
+              {t("sos_cancelled_heading")}
             </Text>
             <Text style={styles.subtext}>
-              {contacts.length > 0
-                ? `${contacts[0].full_name} has been told you're OK. Nothing else is needed.`
-                : "Your SOS contact has been told you're OK. Nothing else is needed."}
+              {t("sos_cancelled_sub", contacts[0]?.full_name)}
             </Text>
           </>
         )}
         {isSent && channel === "sms" && (
-          <Text style={styles.subtext}>
-            SMS sent. Your contact has been alerted
-            {location ? " with your location" : ""}.
-          </Text>
+          <Text style={styles.subtext}>{t("sos_sent_sms_sub", !!location)}</Text>
         )}
         {isQueued && (
           <>
-            <Text style={[styles.heading, { color: colors.amber }]}>
-              No signal
-            </Text>
-            <Text style={styles.subtext}>
-              Your SOS has not been sent yet. Mojo will send it automatically
-              as soon as a signal is available.
-            </Text>
+            <Text style={[styles.heading, { color: colors.amber }]}>{t("sos_queued_title")}</Text>
+            <Text style={styles.subtext}>{t("sos_queued_sub")}</Text>
           </>
         )}
         {smsError && (
-          <Text
-            style={[
-              styles.subtext,
-              { color: colors.amber, marginTop: -spacing.md },
-            ]}
-          >
-            SMS failed — alert queued for retry.
+          <Text style={[styles.subtext, { color: colors.amber, marginTop: -spacing.md }]}>
+            {t("sos_sms_error")}
           </Text>
         )}
 
         {/* Status card */}
         <View style={styles.statusCard}>
           <StatusRow
-            title="Push alert"
-            sub="Online path"
-            badge={
-              isOnlineIndicator(channel, isSent) || isEscalated
-                ? "Sent"
-                : "Ready"
-            }
+            title={t("sos_push_alert")}
+            sub={t("sos_push_sub")}
+            badge={isOnlineIndicator(channel, isSent) || isEscalated ? t("sos_status_sent") : t("sos_status_ready")}
             badgeGreen={isOnlineIndicator(channel, isSent) || isEscalated}
           />
           <View style={styles.divider} />
           <StatusRow
-            title="SMS fallback"
-            sub="No internet path"
-            badge={channel === "sms" && (isSent || isEscalated) ? "Sent" : "Ready"}
+            title={t("sos_sms_fallback")}
+            sub={t("sos_sms_sub")}
+            badge={channel === "sms" && (isSent || isEscalated) ? t("sos_status_sent") : t("sos_status_ready")}
             badgeGreen={channel === "sms" && (isSent || isEscalated)}
           />
           <View style={styles.divider} />
           <StatusRow
-            title="Emergency contacts"
-            sub="First to respond is shown to all"
+            title={t("sos_contacts")}
+            sub={t("sos_contacts_sub")}
             badge={String(contacts.length)}
             badgeTeal
           />
@@ -524,7 +470,7 @@ export default function SOSScreen() {
             <>
               <View style={styles.divider} />
               <View style={styles.locationRow}>
-                <Text style={styles.locationLabel}>Location shared</Text>
+                <Text style={styles.locationLabel}>{t("sos_location_shared")}</Text>
                 <Text style={styles.locationCoords}>
                   {location.lat.toFixed(4)}, {location.lon.toFixed(4)}
                 </Text>
@@ -535,39 +481,23 @@ export default function SOSScreen() {
 
         {/* Actions */}
         {isCounting && (
-          <TouchableOpacity
-            style={styles.sendNowBtn}
-            onPress={handleSendNow}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.sendNowBtnText}>Send now</Text>
+          <TouchableOpacity style={styles.sendNowBtn} onPress={handleSendNow} activeOpacity={0.85}>
+            <Text style={styles.sendNowBtnText}>{t("sos_send_now")}</Text>
           </TouchableOpacity>
         )}
         {isSent && (
-          <TouchableOpacity
-            style={styles.falseAlarmBtn}
-            onPress={handleFalseAlarm}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.falseAlarmBtnText}>I'm OK — false alarm</Text>
+          <TouchableOpacity style={styles.falseAlarmBtn} onPress={handleFalseAlarm} activeOpacity={0.85}>
+            <Text style={styles.falseAlarmBtnText}>{t("sos_false_alarm")}</Text>
           </TouchableOpacity>
         )}
         {(isEscalated || isQueued || isCancelled) && (
-          <TouchableOpacity
-            style={styles.doneBtn}
-            onPress={() => router.back()}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.doneBtnText}>Done</Text>
+          <TouchableOpacity style={styles.doneBtn} onPress={() => router.back()} activeOpacity={0.85}>
+            <Text style={styles.doneBtnText}>{t("sos_done")}</Text>
           </TouchableOpacity>
         )}
         {isCounting && (
-          <TouchableOpacity
-            style={styles.cancelBtn}
-            onPress={() => router.back()}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.cancelBtnText}>I'm OK — cancel</Text>
+          <TouchableOpacity style={styles.cancelBtn} onPress={() => router.back()} activeOpacity={0.85}>
+            <Text style={styles.cancelBtnText}>{t("sos_cancel")}</Text>
           </TouchableOpacity>
         )}
       </View>

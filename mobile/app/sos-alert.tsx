@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { useLocalSearchParams, router } from "expo-router"
 import { colors, fonts, radius, spacing } from "../lib/theme"
 import { useAuth } from "./_layout"
+import { useTranslation } from "../lib/i18n-context"
 import {
   respondToSos,
   getSosDetails,
@@ -35,6 +36,7 @@ function timeSince(iso: string): string {
 
 export default function SosAlertScreen() {
   const { session, profile } = useAuth()
+  const { t } = useTranslation()
   const {
     sosId,
     alertId,
@@ -181,13 +183,10 @@ export default function SosAlertScreen() {
         <View style={styles.topBar}>
           <View style={styles.sosTag}>
             <View style={styles.sosDot} />
-            <Text style={styles.sosTagText}>SOS ALERT</Text>
+            <Text style={styles.sosTagText}>{t("sos_alert_tag")}</Text>
           </View>
-          <TouchableOpacity
-            onPress={() => router.back()}
-            accessibilityRole="button"
-          >
-            <Text style={styles.closeText}>Close</Text>
+          <TouchableOpacity onPress={() => router.back()} accessibilityRole="button">
+            <Text style={styles.closeText}>{t("sos_alert_close")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -206,7 +205,10 @@ export default function SosAlertScreen() {
           <View style={{ flex: 1 }}>
             <Text style={styles.patientName}>{patientName}</Text>
             <Text style={styles.patientSub}>
-              {sentAt ? timeSince(sentAt) : "Just now"} · needs immediate help
+              {sentAt
+                ? t("sos_alert_ago", Math.floor((Date.now() - new Date(sentAt).getTime()) / 60000))
+                : t("sos_alert_ago", 0)}{" "}
+              · {t("sos_alert_needs_help")}
             </Text>
           </View>
         </View>
@@ -229,13 +231,11 @@ export default function SosAlertScreen() {
               />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.locationTitle}>Location shared</Text>
-              <Text style={styles.locationSub}>Tap for turn-by-turn directions</Text>
+              <Text style={styles.locationTitle}>{t("sos_alert_loc_title")}</Text>
+              <Text style={styles.locationSub}>{t("sos_alert_loc_sub")}</Text>
             </View>
             <View style={[styles.chip, { borderColor: colors.emergency }]}>
-              <Text style={[styles.chipText, { color: colors.emergency }]}>
-                Get Directions
-              </Text>
+              <Text style={[styles.chipText, { color: colors.emergency }]}>{t("sos_alert_get_directions")}</Text>
             </View>
           </TouchableOpacity>
         ) : (
@@ -250,7 +250,7 @@ export default function SosAlertScreen() {
                 }}
               />
             </View>
-            <Text style={styles.locationTitle}>No location available</Text>
+            <Text style={styles.locationTitle}>{t("sos_alert_no_location")}</Text>
           </View>
         )}
 
@@ -260,7 +260,7 @@ export default function SosAlertScreen() {
             <View style={styles.hospitalIconDot} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.hospitalLabel}>Nearest hospital</Text>
+            <Text style={styles.hospitalLabel}>{t("sos_alert_nearest_hospital")}</Text>
             <Text style={styles.hospitalName}>
               {nearestHospital?.name ?? "Kenyatta National Hospital"}
             </Text>
@@ -277,7 +277,7 @@ export default function SosAlertScreen() {
             accessibilityRole="button"
             accessibilityLabel="Call nearest hospital"
           >
-            <Text style={styles.callHospBtnText}>Call</Text>
+            <Text style={styles.callHospBtnText}>{t("sos_alert_call")}</Text>
           </TouchableOpacity>
         </View>
 
@@ -286,10 +286,8 @@ export default function SosAlertScreen() {
           <View style={styles.responderBanner}>
             <View style={styles.responderBannerDot} />
             <Text style={styles.responderBannerText}>
-              <Text style={{ fontWeight: "800" }}>
-                {firstResponder.full_name}
-              </Text>{" "}
-              is on their way · {timeSince(firstResponder.responded_at)}
+              {t("sos_alert_on_way", firstResponder.full_name)}{" "}
+              · {t("sos_alert_ago", Math.floor((Date.now() - new Date(firstResponder.responded_at).getTime()) / 60000))}
             </Text>
           </View>
         )}
@@ -299,7 +297,7 @@ export default function SosAlertScreen() {
           <View style={styles.otherResponders}>
             {otherResponders.map((r) => (
               <Text key={r.responder_id} style={styles.otherResponderText}>
-                {r.full_name} also responded
+                {t("sos_alert_also_responded", r.full_name)}
               </Text>
             ))}
           </View>
@@ -319,7 +317,7 @@ export default function SosAlertScreen() {
                 }}
               />
               <Text style={styles.respondedText}>
-                You responded — {profile?.full_name ?? "You"} is on the way
+                {t("sos_alert_responded", profile?.full_name ?? "You")}
               </Text>
             </View>
           ) : (
@@ -332,7 +330,7 @@ export default function SosAlertScreen() {
               {responding ? (
                 <ActivityIndicator color="#000" size="small" />
               ) : (
-                <Text style={styles.respondBtnText}>I'm on my way</Text>
+                <Text style={styles.respondBtnText}>{t("sos_alert_respond_btn")}</Text>
               )}
             </TouchableOpacity>
           )}
@@ -343,16 +341,11 @@ export default function SosAlertScreen() {
             accessibilityRole="button"
             accessibilityLabel="Call 999 or 112 for emergency services"
           >
-            <Text style={styles.callEmergencyText}>
-              Call 999 / 112 — Ambulance
-            </Text>
+            <Text style={styles.callEmergencyText}>{t("sos_alert_emergency")}</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.disclaimer}>
-          Your response is shown to {patientName} and all their emergency
-          contacts immediately.
-        </Text>
+        <Text style={styles.disclaimer}>{t("sos_alert_disclaimer", patientName)}</Text>
       </ScrollView>
     </SafeAreaView>
   )
