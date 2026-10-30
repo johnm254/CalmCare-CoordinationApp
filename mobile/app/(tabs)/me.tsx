@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from "react"
+﻿import { useEffect, useState, useCallback, useRef } from "react"
 
 import {
   View,
@@ -10,6 +10,7 @@ import {
   Switch,
   TextInput,
   ActivityIndicator,
+  Animated,
   Linking,
   Alert,
   Platform,
@@ -889,65 +890,256 @@ const del = StyleSheet.create({
 
 // ─── Mojo Strap modal ──────────────────────────────────────────────────────────
 
+type StrapPhase = "idle" | "scanning" | "pairing" | "connected"
+
+interface MockDevice {
+  id: string
+  name: string
+  rssi: number
+}
+
+const MOCK_STRAP_DEVICES: MockDevice[] = [
+  { id: "M1:A2:B3:C4:D5:01", name: "Mojo Strap", rssi: -52 },
+  { id: "M1:A2:B3:C4:D5:02", name: "Mojo Strap (2)", rssi: -71 },
+]
+
+function rssiLabel(rssi: number) {
+  if (rssi > -60) return "Strong"
+  if (rssi > -75) return "Good"
+  return "Weak"
+}
+
 function EpiStrapSheet({
   visible,
   onClose,
+  flagEnabled,
+  onConnected,
+  onDisconnected,
 }: {
   visible: boolean
   onClose: () => void
+  flagEnabled: boolean
+  onConnected: () => void
+  onDisconnected: () => void
 }) {
+  const [phase, setPhase] = useState<StrapPhase>("idle")
+  const [foundDevices, setFoundDevices] = useState<MockDevice[]>([])
+  const [selectedDevice, setSelectedDevice] = useState<MockDevice | null>(null)
+  const [connectedDevice, setConnectedDevice] = useState<MockDevice | null>(null)
+  const scanTimers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const pulseAnim = useRef(new Animated.Value(0)).current
+
+  useEffect(() => {
+    if (!visible && phase !== "connected") {
+      setPhase("idle")
+      setFoundDevices([])
+      setSelectedDevice(null)
+      scanTimers.current.forEach(clearTimeout)
+      scanTimers.current = []
+    }
+  }, [visible])
+
+  useEffect(() => {
+    if (phase === "scanning") {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 0.2, duration: 700, useNativeDriver: true }),
+        ]),
+      ).start()
+    } else {
+      pulseAnim.stopAnimation()
+      pulseAnim.setValue(0)
+    }
+  }, [phase])
+
+  function startScan() {
+    setPhase("scanning")
+    setFoundDevices([])
+    scanTimers.current.push(
+      setTimeout(() => setFoundDevices([MOCK_STRAP_DEVICES[0]]), 900),
+      setTimeout(() => setFoundDevices(MOCK_STRAP_DEVICES), 1800),
+    )
+  }
+
+  function selectDevice(device: MockDevice) {
+    scanTimers.current.forEach(clearTimeout)
+    setSelectedDevice(device)
+    setPhase("pairing")
+    scanTimers.current.push(
+      setTimeout(() => {
+        setPhase("connected")
+        setConnectedDevice(device)
+        onConnected()
+      }, 2200),
+    )
+  }
+
+  function forgetDevice() {
+    setPhase("idle")
+    setFoundDevices([])
+    setSelectedDevice(null)
+    setConnectedDevice(null)
+    onDisconnected()
+  }
+
+  const dotColor =
+    phase === "connected"
+      ? colors.success
+      : phase === "scanning" || phase === "pairing"
+        ? colors.amber
+        : colors.textMuted
+
   return (
     <Sheet visible={visible} onClose={onClose} title="Mojo Strap">
       <View style={{ gap: spacing.lg }}>
+        {!flagEnabled && (
+          <View style={dev.earlyBanner}>
+            <Text style={dev.earlyBannerText}>
+              Early access — strap pairing not active in this build
+            </Text>
+          </View>
+        )}
+
+        {/* Device identity card */}
         <View style={dev.deviceCard}>
           <View style={dev.strapIcon}>
-            <View style={dev.strapBody} />
-            <View style={dev.strapBand} />
+            <View style={[dev.strapBody, phase === "connected" && { borderColor: colors.success, backgroundColor: colors.successDim }]} />
+            <View style={[dev.strapBand, phase === "connected" && { borderColor: colors.success }]} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={dev.deviceName}>Mojo Strap</Text>
+            <Text style={dev.deviceName}>
+              {phase === "connected" && connectedDevice ? connectedDevice.name : "Mojo Strap"}
+            </Text>
             <View style={dev.statusRow}>
-              <View
-                style={[dev.statusDot, { backgroundColor: colors.textMuted }]}
-              />
-              <Text style={dev.statusText}>Not paired</Text>
+              <View style={[dev.statusDot, { backgroundColor: dotColor }]} />
+              <Text style={dev.statusText}>
+                {phase === "idle" ? "Not paired"
+                  : phase === "scanning" ? "Scanning..."
+                  : phase === "pairing" ? `Pairing with ${selectedDevice?.name}...`
+                  : "Connected"}
+              </Text>
             </View>
           </View>
-        </View>
-        <View style={dev.infoCard}>
-          <Text style={dev.infoText}>
-            The Mojo Strap automatically detects seizure patterns and sends a
-            silent SOS if you're unresponsive. Requires Bluetooth.
-          </Text>
-        </View>
-        <View style={dev.stepsCard}>
-          {[
-            "Make sure Bluetooth is on",
-
-            "Hold the strap button for 3 seconds until it flashes",
-
-            'Tap "Pair device" and select Mojo Strap from the list',
-          ].map((step, i) => (
-            <View key={i} style={dev.step}>
-              <View style={dev.stepNum}>
-                <Text style={dev.stepNumText}>{i + 1}</Text>
-              </View>
-              <Text style={dev.stepText}>{step}</Text>
+          {phase === "connected" && (
+            <View style={{ alignItems: "flex-end", gap: 2 }}>
+              <Text style={dev.mockStat}>87% batt</Text>
+              <Text style={dev.mockStat}>72 bpm</Text>
             </View>
-          ))}
+          )}
         </View>
-        <TouchableOpacity
-          style={dev.pairBtn}
-          activeOpacity={0.85}
-          onPress={() =>
-            Alert.alert(
-              "Bluetooth required",
-              "Enable Bluetooth in Settings and try again.",
-            )
-          }
-        >
-          <Text style={dev.pairBtnText}>Pair device</Text>
-        </TouchableOpacity>
+
+        {/* ── IDLE ─────────────────────────────────────── */}
+        {phase === "idle" && (
+          <>
+            <View style={dev.infoCard}>
+              <Text style={dev.infoText}>
+                The Mojo Strap automatically detects seizure patterns and sends a
+                silent SOS if you are unresponsive. Requires Bluetooth.
+              </Text>
+            </View>
+            <View style={dev.stepsCard}>
+              {[
+                "Make sure Bluetooth is on",
+                "Hold the strap button for 3 seconds until it flashes",
+                'Tap "Scan for devices" below',
+              ].map((step, i) => (
+                <View key={i} style={dev.step}>
+                  <View style={dev.stepNum}>
+                    <Text style={dev.stepNumText}>{i + 1}</Text>
+                  </View>
+                  <Text style={dev.stepText}>{step}</Text>
+                </View>
+              ))}
+            </View>
+            <TouchableOpacity style={dev.pairBtn} activeOpacity={0.85} onPress={startScan}>
+              <Text style={dev.pairBtnText}>Scan for devices</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {/* ── SCANNING ─────────────────────────────────── */}
+        {phase === "scanning" && (
+          <>
+            <View style={dev.scanRow}>
+              <Animated.View style={[dev.scanDot, { opacity: pulseAnim }]} />
+              <Animated.View style={[dev.scanDot, {
+                opacity: pulseAnim.interpolate({ inputRange: [0.2, 1], outputRange: [0.15, 0.6] }),
+                transform: [{ scale: 1.4 }],
+              }]} />
+              <Animated.View style={[dev.scanDot, {
+                opacity: pulseAnim.interpolate({ inputRange: [0.2, 1], outputRange: [0.08, 0.3] }),
+                transform: [{ scale: 1.9 }],
+              }]} />
+              <Text style={dev.scanningText}>Scanning for devices nearby...</Text>
+            </View>
+            {foundDevices.length > 0 && (
+              <View style={{ gap: spacing.sm }}>
+                <Text style={dev.foundLabel}>Devices found</Text>
+                {foundDevices.map((device) => (
+                  <View key={device.id} style={dev.deviceRow}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={dev.deviceRowName}>{device.name}</Text>
+                      <Text style={dev.deviceRowSub}>Signal: {rssiLabel(device.rssi)}</Text>
+                    </View>
+                    <TouchableOpacity
+                      style={dev.selectBtn}
+                      onPress={() => selectDevice(device)}
+                      activeOpacity={0.85}
+                    >
+                      <Text style={dev.selectBtnText}>Select</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
+            <TouchableOpacity
+              style={dev.cancelScanBtn}
+              onPress={() => { scanTimers.current.forEach(clearTimeout); setPhase("idle") }}
+              activeOpacity={0.85}
+            >
+              <Text style={dev.cancelScanText}>Cancel</Text>
+            </TouchableOpacity>
+          </>
+        )}
+
+        {/* ── PAIRING ──────────────────────────────────── */}
+        {phase === "pairing" && (
+          <View style={dev.pairingCard}>
+            <ActivityIndicator color={colors.teal} />
+            <Text style={dev.pairingText}>Pairing with {selectedDevice?.name}...</Text>
+            <Text style={dev.pairingSub}>This takes a few seconds</Text>
+          </View>
+        )}
+
+        {/* ── CONNECTED ────────────────────────────────── */}
+        {phase === "connected" && (
+          <>
+            <View style={dev.statsRow}>
+              <View style={dev.statCard}>
+                <Text style={dev.statVal}>87%</Text>
+                <Text style={dev.statLabel}>Battery</Text>
+              </View>
+              <View style={dev.statCard}>
+                <Text style={dev.statVal}>72</Text>
+                <Text style={dev.statLabel}>BPM</Text>
+              </View>
+              <View style={dev.statCard}>
+                <Text style={[dev.statVal, { color: colors.success }]}>On</Text>
+                <Text style={dev.statLabel}>SOS trigger</Text>
+              </View>
+            </View>
+            <View style={dev.infoCard}>
+              <Text style={dev.infoText}>
+                Strap is active. If you are unresponsive for more than 60 seconds
+                after a detected event, it will trigger an SOS automatically.
+              </Text>
+            </View>
+            <TouchableOpacity style={dev.forgetBtn} onPress={forgetDevice} activeOpacity={0.85}>
+              <Text style={dev.forgetBtnText}>Forget device</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </View>
     </Sheet>
   )
@@ -1135,6 +1327,105 @@ const dev = StyleSheet.create({
 
   pairBtnText: { color: "#000", fontWeight: "800", fontSize: fonts.md },
 
+  earlyBanner: {
+    backgroundColor: colors.amberDim,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.amber,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
+  earlyBannerText: { fontSize: fonts.xs, color: colors.amber, textAlign: "center" },
+
+  mockStat: { fontSize: fonts.xs, color: colors.textSecondary, fontWeight: "600" },
+
+  scanRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+    paddingVertical: spacing.md,
+  },
+  scanDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.teal,
+    position: "absolute",
+    left: 0,
+  },
+  scanningText: { fontSize: fonts.sm, color: colors.textSecondary, marginLeft: 28 },
+
+  foundLabel: {
+    fontSize: fonts.xs,
+    fontWeight: "700",
+    color: colors.textSecondary,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+  },
+  deviceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: colors.bgCardAlt,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    gap: spacing.md,
+  },
+  deviceRowName: { fontSize: fonts.base, fontWeight: "700", color: colors.text },
+  deviceRowSub: { fontSize: fonts.xs, color: colors.textSecondary, marginTop: 2 },
+  selectBtn: {
+    backgroundColor: colors.teal,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+  },
+  selectBtnText: { fontSize: fonts.sm, fontWeight: "700", color: "#000" },
+
+  cancelScanBtn: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.md,
+    alignItems: "center",
+  },
+  cancelScanText: { fontSize: fonts.sm, color: colors.textSecondary, fontWeight: "600" },
+
+  pairingCard: {
+    alignItems: "center",
+    gap: spacing.md,
+    paddingVertical: spacing.xl,
+    backgroundColor: colors.bgCardAlt,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  pairingText: { fontSize: fonts.base, fontWeight: "700", color: colors.text },
+  pairingSub: { fontSize: fonts.sm, color: colors.textSecondary },
+
+  statsRow: { flexDirection: "row", gap: spacing.sm },
+  statCard: {
+    flex: 1,
+    backgroundColor: colors.bgCardAlt,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.md,
+    alignItems: "center",
+    gap: 2,
+  },
+  statVal: { fontSize: fonts.lg, fontWeight: "800", color: colors.teal },
+  statLabel: { fontSize: fonts.xs, color: colors.textMuted, textAlign: "center" },
+
+  forgetBtn: {
+    borderWidth: 1.5,
+    borderColor: colors.emergency,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.md,
+    alignItems: "center",
+  },
+  forgetBtnText: { fontSize: fonts.sm, fontWeight: "700", color: colors.emergency },
+
   addonRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -1298,6 +1589,10 @@ export default function MeScreen() {
 
   const [loadingLog, setLoadingLog] = useState(false)
 
+  // Strap
+  const [strapConnected, setStrapConnected] = useState(false)
+  const [bleStrapEnabled, setBleStrapEnabled] = useState(true)
+
   const initials = (profile?.full_name ?? "U")
 
     .split(" ")
@@ -1312,6 +1607,14 @@ export default function MeScreen() {
     Location.getForegroundPermissionsAsync().then((r) =>
       setLocationStatus(r.status),
     )
+    supabase
+      .from("feature_flags")
+      .select("enabled")
+      .eq("name", "ble_strap")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data != null) setBleStrapEnabled(data.enabled)
+      })
   }, [])
 
   async function requestLocation() {
@@ -1648,7 +1951,7 @@ export default function MeScreen() {
               />
             }
             label="Mojo Strap"
-            value="Not paired"
+            value={strapConnected ? "Connected" : "Not paired"}
             onPress={() => setOpenModal("strap")}
           />
           <View style={s.divider} />
@@ -1830,6 +2133,9 @@ export default function MeScreen() {
       <EpiStrapSheet
         visible={openModal === "strap"}
         onClose={() => setOpenModal(null)}
+        flagEnabled={bleStrapEnabled}
+        onConnected={() => setStrapConnected(true)}
+        onDisconnected={() => setStrapConnected(false)}
       />
       <AddOnsSheet
         visible={openModal === "addons"}
