@@ -31,6 +31,24 @@ const en = {
   home_last_synced_just_now: 'Last synced: just now',
   home_last_synced_mins: (n: number) => `Last synced: ${n} min ago`,
   home_active_alert: 'Active alert — tap to view',
+  home_hero_fallback: 'Your care, your control',
+  home_banner_sub: (name: string) => name ? `Keep going, ${name}.` : "Keep going, you're doing great.",
+  home_weather_feels: (temp: number) => `Feels ${temp}°`,
+  home_weather_humidity: (h: number) => `${h}% humidity`,
+  home_weather_wind: (w: number) => `${w} km/h wind`,
+  home_weather_map: 'Map →',
+  home_event_seizure: 'Seizure',
+  home_event_headache: 'Headache',
+  home_event_dizziness: 'Dizziness',
+  home_event_other: 'Other',
+  home_grid_conditions: 'Conditions',
+  home_grid_conditions_sub: 'Types and triggers',
+  home_grid_circle: 'Care Circle',
+  home_grid_circle_sub: 'You decide who sees what',
+  home_grid_doctor: 'My Doctor',
+  home_grid_doctor_sub: 'Verified clinician link',
+  home_grid_records: 'Records',
+  home_grid_records_sub: 'Events, notes, reports',
 
   // ── Meds screen
   meds_disclaimer: 'Your reminders follow the schedule your clinician entered. Mojo never changes your dose.',
@@ -120,6 +138,24 @@ const sw: Record<keyof typeof en, string | ((...args: any[]) => string)> = {
   home_last_synced_just_now: 'Ilisawazishwa: sasa hivi', // review_needed
   home_last_synced_mins: (n: number) => `Ilisawazishwa: dakika ${n} zilizopita`, // review_needed
   home_active_alert: 'Tahadhari inayoendelea — gusa kuona', // review_needed
+  home_hero_fallback: 'Matibabu yako, udhibiti wako', // review_needed
+  home_banner_sub: (name: string) => name ? `Endelea, ${name}.` : 'Endelea, unafanya vizuri.', // review_needed
+  home_weather_feels: (temp: number) => `Inahisi ${temp}°`, // review_needed
+  home_weather_humidity: (h: number) => `${h}% unyevunyevu`, // review_needed
+  home_weather_wind: (w: number) => `${w} km/h upepo`, // review_needed
+  home_weather_map: 'Ramani →', // review_needed
+  home_event_seizure: 'Mshtuko', // review_needed
+  home_event_headache: 'Maumivu ya kichwa', // review_needed
+  home_event_dizziness: 'Kizunguzungu', // review_needed
+  home_event_other: 'Nyingine', // review_needed
+  home_grid_conditions: 'Hali za kiafya', // review_needed
+  home_grid_conditions_sub: 'Aina na visababishi', // review_needed
+  home_grid_circle: 'Mzunguko wa Matunzo', // review_needed
+  home_grid_circle_sub: 'Wewe unaamua nani anaona nini', // review_needed
+  home_grid_doctor: 'Daktari Wangu', // review_needed
+  home_grid_doctor_sub: 'Kiungo cha daktari kilichothibitishwa', // review_needed
+  home_grid_records: 'Rekodi', // review_needed
+  home_grid_records_sub: 'Matukio, maelezo, ripoti', // review_needed
 
   meds_disclaimer: 'Vikumbusho vyako vinafuata ratiba iliyowekwa na daktari wako. Mojo haibadilishi dozi yako.', // review_needed
   meds_adherence_title: 'UFUATAJI WA SIKU 30', // review_needed

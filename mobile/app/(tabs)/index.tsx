@@ -28,6 +28,8 @@ import { colors, fonts, radius, spacing } from "../../lib/theme"
 
 import { useAuth } from "../_layout"
 
+import { useTranslation } from "../../lib/i18n-context"
+
 import {
   getMedications,
   logMedicationTaken,
@@ -40,50 +42,44 @@ import { getWeather, iconUrl, type WeatherData } from "../../lib/weather"
 
 import * as Location from "expo-location"
 
-const LOG_EVENT_OPTIONS = ["Seizure", "Headache", "Dizziness", "Other"] as const
+const LOG_EVENT_OPTIONS = [
+  { value: "Seizure",   labelKey: "home_event_seizure"   as const },
+  { value: "Headache",  labelKey: "home_event_headache"  as const },
+  { value: "Dizziness", labelKey: "home_event_dizziness" as const },
+  { value: "Other",     labelKey: "home_event_other"     as const },
+]
 
 const GRID_ITEMS = [
   {
     icon: "flash",
     lib: "ion",
-
-    title: "Conditions",
-    subtitle: "Types and triggers",
+    titleKey: "home_grid_conditions" as const,
+    subtitleKey: "home_grid_conditions_sub" as const,
     route: "/records",
-
     color: "#F59E0B",
   },
-
   {
     icon: "people",
     lib: "ion",
-
-    title: "Care Circle",
-    subtitle: "You decide who sees what",
+    titleKey: "home_grid_circle" as const,
+    subtitleKey: "home_grid_circle_sub" as const,
     route: "/circle",
-
     color: "#8B5CF6",
   },
-
   {
     icon: "shield-checkmark",
     lib: "ion",
-
-    title: "My Doctor",
-    subtitle: "Verified clinician link",
+    titleKey: "home_grid_doctor" as const,
+    subtitleKey: "home_grid_doctor_sub" as const,
     route: "/circle",
-
     color: "#10B981",
   },
-
   {
     icon: "document-text",
     lib: "ion",
-
-    title: "Records",
-    subtitle: "Events, notes, reports",
+    titleKey: "home_grid_records" as const,
+    subtitleKey: "home_grid_records_sub" as const,
     route: "/records",
-
     color: "#3B82F6",
   },
 ]
@@ -180,6 +176,7 @@ function ConcentricRings({
 // ── Health banner ──────────────────────────────────────────────────────────────
 
 function HealthBanner({ name, streak }: { name: string; streak: number }) {
+  const { t } = useTranslation()
   const pulseAnim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
@@ -227,7 +224,7 @@ function HealthBanner({ name, streak }: { name: string; streak: number }) {
 
       <View style={styles.bannerContent}>
         <View>
-          <Text style={styles.bannerLabel}>SEIZURE-FREE STREAK</Text>
+          <Text style={styles.bannerLabel}>{t("home_streak_label")}</Text>
           <View
             style={{
               flexDirection: "row",
@@ -237,11 +234,9 @@ function HealthBanner({ name, streak }: { name: string; streak: number }) {
             }}
           >
             <Text style={styles.bannerStreak}>{streak}</Text>
-            <Text style={styles.bannerDays}>days</Text>
+            <Text style={styles.bannerDays}>{t("home_streak_days")}</Text>
           </View>
-          <Text style={styles.bannerSub}>
-            Keep going, {name || "you're doing great"}.
-          </Text>
+          <Text style={styles.bannerSub}>{t("home_banner_sub", name)}</Text>
         </View>
 
         {/* Heart rate visual */}
@@ -287,6 +282,7 @@ export default function HomeScreen() {
   const { width } = useWindowDimensions()
 
   const { profile, session } = useAuth()
+  const { t } = useTranslation()
 
   const [medications, setMedications] = useState<Medication[]>([])
 
@@ -539,7 +535,7 @@ export default function HomeScreen() {
   const hour = new Date().getHours()
 
   const greeting =
-    hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening"
+    hour < 12 ? t("home_greeting_morning") : hour < 18 ? t("home_greeting_afternoon") : t("home_greeting_evening")
 
   const firstName = profile?.full_name?.split(" ")[0] ?? ""
 
@@ -579,14 +575,13 @@ export default function HomeScreen() {
             <View>
               <Text style={styles.greeting}>{greeting}</Text>
               <Text style={styles.heroName}>
-                {firstName || "Your care, your control"}
+                {firstName || t("home_hero_fallback")}
               </Text>
               {lastSyncedMinutes !== null && (
                 <Text style={styles.lastSynced}>
-                  Last synced:{" "}
                   {lastSyncedMinutes < 1
-                    ? "just now"
-                    : `${lastSyncedMinutes} min ago`}
+                    ? t("home_last_synced_just_now")
+                    : t("home_last_synced_mins", lastSyncedMinutes)}
                 </Text>
               )}
             </View>
@@ -608,9 +603,7 @@ export default function HomeScreen() {
             activeOpacity={0.85}
           >
             <Ionicons name="alert-circle" size={18} color="#fff" />
-            <Text style={styles.alertBannerText}>
-              Active alert — tap to view
-            </Text>
+            <Text style={styles.alertBannerText}>{t("home_active_alert")}</Text>
             <Ionicons name="chevron-forward" size={16} color="#fff" />
           </TouchableOpacity>
         )}
@@ -628,15 +621,13 @@ export default function HomeScreen() {
               <Animated.View
                 style={[styles.pulseDot, { opacity: pulseAnim }]}
               />
-              <Text style={styles.protectedLabel}>PROTECTED</Text>
+              <Text style={styles.protectedLabel}>{t("home_protected")}</Text>
             </View>
-            <Text style={styles.cardTitle}>Your Circle is active</Text>
+            <Text style={styles.cardTitle}>{t("home_circle_active")}</Text>
             <Text style={styles.cardSub}>
               {circleCount > 0
-                ? `${circleCount} trusted contact${
-                    circleCount !== 1 ? "s" : ""
-                  } ready to be alerted.`
-                : "Trusted contacts are ready to be alerted the moment you need them."}
+                ? t("home_circle_sub_plural", circleCount)
+                : t("home_circle_sub_default")}
             </Text>
           </View>
         </Animated.View>
@@ -658,10 +649,8 @@ export default function HomeScreen() {
             >
               <View style={styles.sosBtnInner}>
                 <View>
-                  <Text style={styles.sosBtnTitle}>Hold to send SOS</Text>
-                  <Text style={styles.sosBtnSub}>
-                    Alerts your Circle with live location
-                  </Text>
+                  <Text style={styles.sosBtnTitle}>{t("home_sos_title")}</Text>
+                  <Text style={styles.sosBtnSub}>{t("home_sos_sub")}</Text>
                 </View>
                 <View style={styles.sosPowerWrap}>
                   <Ionicons name="power" size={26} color="#fff" />
@@ -688,7 +677,7 @@ export default function HomeScreen() {
               </View>
               <View style={styles.medInfo}>
                 <Text style={styles.medTime}>
-                  Next medication · {nextMed.schedule?.time ?? "—"}
+                  {t("home_next_med")} · {nextMed.schedule?.time ?? "—"}
                 </Text>
                 <Text style={styles.medName}>{nextMed.name}</Text>
                 <Text style={styles.medDose}>{nextMed.dose}</Text>
@@ -703,7 +692,7 @@ export default function HomeScreen() {
                 activeOpacity={0.85}
               >
                 <Text style={styles.takenBtnText}>
-                  {takenId === nextMed.id ? "✓ Done" : "Taken"}
+                  {takenId === nextMed.id ? t("home_taken_done") : t("home_taken")}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -722,8 +711,8 @@ export default function HomeScreen() {
             <Ionicons name="medical" size={18} color={colors.emergency} />
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={styles.ambulanceLabel}>Call ambulance</Text>
-            <Text style={styles.ambulanceNum}>999 / 112 — free, always on</Text>
+            <Text style={styles.ambulanceLabel}>{t("home_ambulance_label")}</Text>
+            <Text style={styles.ambulanceNum}>{t("home_ambulance_num")}</Text>
           </View>
           <Ionicons name="call" size={16} color={colors.emergency} />
         </TouchableOpacity>
@@ -734,7 +723,7 @@ export default function HomeScreen() {
             <Ionicons name="medkit" size={22} color={colors.emergency} />
           </View>
           <View style={styles.hospitalInfo}>
-            <Text style={styles.hospitalLabel}>Nearest hospital</Text>
+            <Text style={styles.hospitalLabel}>{t("home_nearest_hospital")}</Text>
             <Text style={styles.hospitalName}>
               {nearestHospital?.name ?? "Kenyatta National Hospital"}
             </Text>
@@ -761,14 +750,14 @@ export default function HomeScreen() {
           activeOpacity={0.85}
         >
           <Ionicons name="add-circle-outline" size={16} color={colors.teal} />
-          <Text style={styles.quickLogBtnText}>Log event</Text>
+          <Text style={styles.quickLogBtnText}>{t("home_log_event")}</Text>
         </TouchableOpacity>
 
         {/* ── 2×2 Quick access grid ─────────────────────────────────────── */}
         <Animated.View style={[styles.grid, slot(5)]}>
           {GRID_ITEMS.map((item) => (
             <TouchableOpacity
-              key={item.title}
+              key={item.titleKey}
               style={[styles.gridItem, { width: cardWidth }]}
               onPress={() => router.push(item.route as any)}
               activeOpacity={0.82}
@@ -785,8 +774,8 @@ export default function HomeScreen() {
                   color={item.color}
                 />
               </View>
-              <Text style={styles.gridTitle}>{item.title}</Text>
-              <Text style={styles.gridSub}>{item.subtitle}</Text>
+              <Text style={styles.gridTitle}>{t(item.titleKey)}</Text>
+              <Text style={styles.gridSub}>{t(item.subtitleKey)}</Text>
             </TouchableOpacity>
           ))}
         </Animated.View>
@@ -815,7 +804,7 @@ export default function HomeScreen() {
                     {weather.current.temp}°C
                   </Text>
                   <Text style={styles.weatherFeels}>
-                    Feels {weather.current.feels_like}°
+                    {t("home_weather_feels", weather.current.feels_like)}
                   </Text>
                 </View>
               </View>
@@ -828,7 +817,7 @@ export default function HomeScreen() {
                     color={colors.blue}
                   />
                   <Text style={styles.weatherStatTxt}>
-                    {weather.current.humidity}% humidity
+                    {t("home_weather_humidity", weather.current.humidity)}
                   </Text>
                 </View>
                 <View style={styles.weatherStat}>
@@ -838,11 +827,11 @@ export default function HomeScreen() {
                     color={colors.textMuted}
                   />
                   <Text style={styles.weatherStatTxt}>
-                    {weather.current.wind_kph} km/h wind
+                    {t("home_weather_wind", weather.current.wind_kph)}
                   </Text>
                 </View>
                 <TouchableOpacity onPress={() => router.push("/map" as any)}>
-                  <Text style={styles.weatherMapLink}>Map →</Text>
+                  <Text style={styles.weatherMapLink}>{t("home_weather_map")}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -886,16 +875,16 @@ export default function HomeScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
-            <Text style={styles.modalTitle}>Log event</Text>
+            <Text style={styles.modalTitle}>{t("home_log_event")}</Text>
             {LOG_EVENT_OPTIONS.map((option) => (
               <TouchableOpacity
-                key={option}
+                key={option.value}
                 style={styles.modalOption}
-                onPress={() => handleLogEvent(option)}
-                disabled={loggingEvent === option}
+                onPress={() => handleLogEvent(option.value)}
+                disabled={loggingEvent === option.value}
                 activeOpacity={0.8}
               >
-                {loggingEvent === option ? (
+                {loggingEvent === option.value ? (
                   <ActivityIndicator
                     size="small"
                     color={colors.teal}
@@ -904,7 +893,7 @@ export default function HomeScreen() {
                 ) : (
                   <View style={styles.modalOptionDot} />
                 )}
-                <Text style={styles.modalOptionText}>{option}</Text>
+                <Text style={styles.modalOptionText}>{t(option.labelKey)}</Text>
               </TouchableOpacity>
             ))}
             <TouchableOpacity
@@ -912,7 +901,7 @@ export default function HomeScreen() {
               onPress={() => setLogModalVisible(false)}
               activeOpacity={0.85}
             >
-              <Text style={styles.modalCancelText}>Cancel</Text>
+              <Text style={styles.modalCancelText}>{t("cancel")}</Text>
             </TouchableOpacity>
           </View>
         </View>
