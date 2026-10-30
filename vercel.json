@@ -1,6 +1,5 @@
 {
-  "buildCommand": "cd clinician-web && npm install && npm run build",
+  "buildCommand": "cd clinician-web && npm run build",
   "outputDirectory": "clinician-web/.next",
-  "installCommand": "cd clinician-web && npm install",
-  "framework": "nextjs"
+  "installCommand": "cd clinician-web && npm install"
 }
