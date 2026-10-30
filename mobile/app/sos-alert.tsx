@@ -62,6 +62,10 @@ export default function SosAlertScreen() {
   const [myResponse, setMyResponse] = useState(false)
   const [responding, setResponding] = useState(false)
   const [tick, setTick] = useState(0)
+  const [nearestHospital, setNearestHospital] = useState<{
+    name: string
+    phone: string | null
+  } | null>(null)
 
   const patientName = sosDetails?.patient_name ?? paramName ?? "Your contact"
   const sentAt = sosDetails?.sent_at
@@ -81,6 +85,24 @@ export default function SosAlertScreen() {
         setMyResponse(r.some((x) => x.responder_id === session.user!.id))
     })
   }, [sosId, session])
+
+  // Query nearest ER facility using the patient's location from the SOS event
+  useEffect(() => {
+    async function fetchHospital() {
+      const latNum = parseFloat(lat ?? "")
+      const lonNum = parseFloat(lon ?? "")
+      if (isNaN(latNum) || isNaN(lonNum)) return
+      try {
+        const { data } = await supabase.rpc("nearest_er_facility", {
+          lat: latNum,
+          lon: lonNum,
+        })
+        const row = data as { name: string; phone: string | null } | null
+        if (row?.name) setNearestHospital({ name: row.name, phone: row.phone ?? null })
+      } catch {}
+    }
+    fetchHospital()
+  }, [lat, lon])
 
   // Realtime — update responder list as others respond
   useEffect(() => {
@@ -129,7 +151,7 @@ export default function SosAlertScreen() {
     }
   }
 
-  function openLocation() {
+  function openDirections() {
     const latVal =
       lat ||
       (sosDetails?.location ? tryParseLocation(sosDetails.location)?.lat : null)
@@ -137,7 +159,8 @@ export default function SosAlertScreen() {
       lon ||
       (sosDetails?.location ? tryParseLocation(sosDetails.location)?.lon : null)
     if (latVal && lonVal) {
-      Linking.openURL(`https://maps.google.com/?q=${latVal},${lonVal}`)
+      // daddr opens turn-by-turn navigation from current location
+      Linking.openURL(`https://maps.google.com/maps?daddr=${latVal},${lonVal}`)
     }
   }
 
@@ -192,7 +215,7 @@ export default function SosAlertScreen() {
         {hasLocation ? (
           <TouchableOpacity
             style={styles.locationCard}
-            onPress={openLocation}
+            onPress={openDirections}
             activeOpacity={0.85}
           >
             <View style={styles.locationIcon}>
@@ -207,11 +230,11 @@ export default function SosAlertScreen() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={styles.locationTitle}>Location shared</Text>
-              <Text style={styles.locationSub}>Tap to open in Maps</Text>
+              <Text style={styles.locationSub}>Tap for turn-by-turn directions</Text>
             </View>
             <View style={[styles.chip, { borderColor: colors.emergency }]}>
               <Text style={[styles.chipText, { color: colors.emergency }]}>
-                Open Maps
+                Get Directions
               </Text>
             </View>
           </TouchableOpacity>
@@ -230,6 +253,33 @@ export default function SosAlertScreen() {
             <Text style={styles.locationTitle}>No location available</Text>
           </View>
         )}
+
+        {/* Nearest hospital */}
+        <View style={styles.hospitalCard}>
+          <View style={styles.hospitalIconWrap}>
+            <View style={styles.hospitalIconDot} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.hospitalLabel}>Nearest hospital</Text>
+            <Text style={styles.hospitalName}>
+              {nearestHospital?.name ?? "Kenyatta National Hospital"}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={styles.callHospBtn}
+            onPress={() =>
+              Linking.openURL(
+                nearestHospital?.phone
+                  ? `tel:${nearestHospital.phone}`
+                  : "tel:+254202726300",
+              )
+            }
+            accessibilityRole="button"
+            accessibilityLabel="Call nearest hospital"
+          >
+            <Text style={styles.callHospBtnText}>Call</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* First responder badge */}
         {firstResponder && (
@@ -291,9 +341,10 @@ export default function SosAlertScreen() {
             style={styles.callEmergencyBtn}
             onPress={() => Linking.openURL("tel:999")}
             accessibilityRole="button"
+            accessibilityLabel="Call 999 or 112 for emergency services"
           >
             <Text style={styles.callEmergencyText}>
-              Call 999 / 112 — Emergency Services
+              Call 999 / 112 — Ambulance
             </Text>
           </TouchableOpacity>
         </View>
@@ -480,16 +531,67 @@ const styles = StyleSheet.create({
   },
 
   callEmergencyBtn: {
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: "#3a0808",
+    borderWidth: 1.5,
+    borderColor: colors.emergency,
     borderRadius: radius.xl,
     paddingVertical: spacing.lg,
     alignItems: "center",
   },
   callEmergencyText: {
     fontSize: fonts.base,
+    color: colors.emergency,
+    fontWeight: "800",
+  },
+
+  hospitalCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+  },
+  hospitalIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#2a0808",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  hospitalIconDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: colors.emergency,
+    opacity: 0.7,
+  },
+  hospitalLabel: {
+    fontSize: fonts.xs,
     color: colors.textSecondary,
-    fontWeight: "600",
+    marginBottom: 2,
+  },
+  hospitalName: {
+    fontSize: fonts.base,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  callHospBtn: {
+    backgroundColor: colors.emergency,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    flexShrink: 0,
+  },
+  callHospBtnText: {
+    color: "#fff",
+    fontWeight: "800",
+    fontSize: fonts.sm,
   },
 
   disclaimer: {
