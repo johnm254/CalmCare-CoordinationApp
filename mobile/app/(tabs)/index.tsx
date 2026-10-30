@@ -38,6 +38,8 @@ import {
 
 import { getWeather, iconUrl, type WeatherData } from "../../lib/weather"
 
+import * as Location from "expo-location"
+
 const LOG_EVENT_OPTIONS = ["Seizure", "Headache", "Dizziness", "Other"] as const
 
 const GRID_ITEMS = [
@@ -456,27 +458,26 @@ export default function HomeScreen() {
   }, [session])
 
   useEffect(() => {
-    import("expo-location").then((Location) => {
-      Location.requestForegroundPermissionsAsync().then(({ status }) => {
+    async function fetchNearestHospital() {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync()
         if (status !== "granted") return
-        Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
-          .then(({ coords }) => {
-            supabase
-              .rpc("nearest_er_facility", {
-                lat: coords.latitude,
-                lon: coords.longitude,
-              })
-              .single()
-              .then(({ data }) => {
-                if (data) {
-                  setNearestHospital({ name: data.name, phone: data.phone ?? null })
-                }
-              })
-              .catch(() => {})
-          })
-          .catch(() => {})
-      })
-    })
+        const { coords } = await Location.getCurrentPositionAsync({
+          accuracy: Location.Accuracy.Balanced,
+        })
+        const { data } = await supabase.rpc("nearest_er_facility", {
+          lat: coords.latitude,
+          lon: coords.longitude,
+        })
+        const row = data as { name: string; phone: string | null } | null
+        if (row?.name) {
+          setNearestHospital({ name: row.name, phone: row.phone ?? null })
+        }
+      } catch {
+        // fall back to hardcoded KNH
+      }
+    }
+    fetchNearestHospital()
   }, [])
 
   async function handleTaken(med: Medication) {
