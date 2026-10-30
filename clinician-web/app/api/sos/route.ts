@@ -83,12 +83,11 @@ export async function POST(request: NextRequest) {
           <!-- Header -->
           <tr>
             <td style="background-color:#dc2626;padding:32px 40px;text-align:center;">
-              <p style="margin:0;font-size:40px;line-height:1;">🚨</p>
-              <h1 style="margin:12px 0 0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">
+              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:700;letter-spacing:-0.5px;">
                 SOS Alert
               </h1>
               <p style="margin:6px 0 0;color:#fecaca;font-size:14px;">
-                Duara Health — Emergency Notification
+                Mojo — Emergency Notification
               </p>
             </td>
           </tr>
@@ -117,7 +116,7 @@ export async function POST(request: NextRequest) {
               <table cellpadding="0" cellspacing="0">
                 <tr>
                   <td style="background-color:#dc2626;border-radius:8px;padding:14px 28px;">
-                    <span style="color:#ffffff;font-size:15px;font-weight:600;">Contact Emergency Services: 911</span>
+                    <span style="color:#ffffff;font-size:15px;font-weight:600;">Contact Emergency Services: 999 / 112</span>
                   </td>
                 </tr>
               </table>
@@ -127,7 +126,7 @@ export async function POST(request: NextRequest) {
           <tr>
             <td style="border-top:1px solid #f3f4f6;padding:24px 40px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#9ca3af;line-height:1.6;">
-                This alert was sent automatically by the Duara Health app.<br />
+                This alert was sent automatically by the Mojo app.<br />
                 You are receiving this because you are listed as an emergency contact.
               </p>
             </td>
@@ -149,9 +148,9 @@ export async function POST(request: NextRequest) {
       if (!recipient.email) { failed++; continue; }
       try {
         const { error: emailError } = await resend.emails.send({
-          from: 'Duara SOS <onboarding@resend.dev>',
+          from: 'Mojo SOS <onboarding@resend.dev>',
           to: recipient.email,
-          subject: `🚨 SOS Alert — ${patientName} needs help`,
+          subject: `SOS Alert — ${patientName} needs help`,
           html: emailHtml,
         });
         if (emailError) { failed++; } else { sent++; sentTo.push(recipient.email); }
@@ -169,7 +168,7 @@ export async function POST(request: NextRequest) {
         const messages = tokenRows.map((t: { token: string }) => ({
           to: t.token,
           sound: 'default',
-          title: `🚨 SOS — ${patientName} needs help`,
+          title: `SOS — ${patientName} needs help`,
           body: 'Tap to respond immediately',
           data: {
             type: 'sos_alert',

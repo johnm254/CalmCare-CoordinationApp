@@ -264,6 +264,35 @@ export default function MedsScreen() {
           </Text>
         </View>
 
+        {/* Adherence summary */}
+        {Object.keys(adherence).length > 0 && (
+          <View style={styles.adherenceCard}>
+            <Text style={styles.adherenceTitle}>30-DAY ADHERENCE</Text>
+            {Object.entries(adherence).map(([medId, pct]) => {
+              const med = doses.find((d) => d.medicationId === medId)
+              if (!med) return null
+              const color =
+                pct >= 80 ? colors.success : pct >= 50 ? colors.amber : colors.emergency
+              return (
+                <View key={medId} style={styles.adherenceRow}>
+                  <Text style={styles.adherenceMedName} numberOfLines={1}>
+                    {med.medicationName}
+                  </Text>
+                  <View style={styles.adherenceBarBg}>
+                    <View
+                      style={[
+                        styles.adherenceBarFill,
+                        { width: `${pct}%` as any, backgroundColor: color },
+                      ]}
+                    />
+                  </View>
+                  <Text style={[styles.adherencePct, { color }]}>{pct}%</Text>
+                </View>
+              )
+            })}
+          </View>
+        )}
+
         {/* Pending doses */}
         {pending.length > 0 && (
           <View style={styles.section}>
@@ -423,6 +452,58 @@ const styles = StyleSheet.create({
   container: { padding: spacing.xl, paddingBottom: spacing.xxxl },
 
   centered: { flex: 1, alignItems: "center", justifyContent: "center" },
+
+  adherenceCard: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    marginBottom: spacing.lg,
+    gap: spacing.md,
+  },
+
+  adherenceTitle: {
+    fontSize: fonts.xs,
+    fontWeight: "700",
+    color: colors.teal,
+    letterSpacing: 1.2,
+    marginBottom: 2,
+  },
+
+  adherenceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+
+  adherenceMedName: {
+    fontSize: fonts.xs,
+    color: colors.textSecondary,
+    width: 100,
+    flexShrink: 0,
+  },
+
+  adherenceBarBg: {
+    flex: 1,
+    height: 6,
+    backgroundColor: colors.bgCardAlt,
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+
+  adherenceBarFill: {
+    height: 6,
+    borderRadius: 3,
+  },
+
+  adherencePct: {
+    fontSize: fonts.xs,
+    fontWeight: "700",
+    width: 32,
+    textAlign: "right",
+    flexShrink: 0,
+  },
 
   disclaimer: {
     backgroundColor: colors.amberDim,

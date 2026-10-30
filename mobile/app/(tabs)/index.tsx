@@ -680,6 +680,24 @@ export default function HomeScreen() {
           ) : null}
         </Animated.View>
 
+        {/* ── Ambulance quick-dial ────────────────────────────────────────── */}
+        <TouchableOpacity
+          style={styles.ambulanceRow}
+          onPress={() => Linking.openURL("tel:999")}
+          activeOpacity={0.85}
+          accessibilityRole="button"
+          accessibilityLabel="Call ambulance 999 or 112"
+        >
+          <View style={styles.ambulanceIconWrap}>
+            <Ionicons name="medical" size={18} color={colors.emergency} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.ambulanceLabel}>Call ambulance</Text>
+            <Text style={styles.ambulanceNum}>999 / 112 — free, always on</Text>
+          </View>
+          <Ionicons name="call" size={16} color={colors.emergency} />
+        </TouchableOpacity>
+
         {/* ── Nearest hospital card ──────────────────────────────────────── */}
         <View style={styles.hospitalCard}>
           <View style={styles.hospitalIconWrap}>
@@ -918,6 +936,41 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "700",
     fontSize: fonts.base,
+  },
+
+  ambulanceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    backgroundColor: colors.emergencyDim,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.emergency + "40",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+
+  ambulanceIconWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.emergency + "20",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+
+  ambulanceLabel: {
+    fontSize: fonts.sm,
+    fontWeight: "700",
+    color: colors.emergency,
+  },
+
+  ambulanceNum: {
+    fontSize: fonts.xs,
+    color: colors.emergency,
+    opacity: 0.75,
+    marginTop: 1,
   },
 
   hospitalCard: {

@@ -47,7 +47,7 @@ function LinkInstructionsModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-start justify-between mb-5">
           <div>
             <h2 className="text-[#F5F0FF] font-bold text-lg">Link a patient</h2>
-            <p className="text-[#9B96C0] text-sm mt-1">Patients initiate the link from the Duara mobile app.</p>
+            <p className="text-[#9B96C0] text-sm mt-1">Patients initiate the link from the Mojo mobile app.</p>
           </div>
           <button onClick={onClose}
             className="w-8 h-8 rounded-lg bg-[#1C1A35] flex items-center justify-center text-[#9B96C0] hover:text-[#F5F0FF] transition-colors flex-shrink-0"
@@ -59,7 +59,7 @@ function LinkInstructionsModal({ onClose }: { onClose: () => void }) {
         </div>
         <div className="space-y-4">
           {[
-            { step: '1', text: 'Ask your patient to open the Duara mobile app and go to Care Circle.' },
+            { step: '1', text: 'Ask your patient to open the Mojo mobile app and go to Care Circle.' },
             { step: '2', text: 'They tap "Add clinician" and enter your registered email address.' },
             { step: '3', text: 'You will receive a notification. Accept the link in your dashboard under Patients.' },
             { step: '4', text: 'Once both parties confirm, the patient will appear in your patient list.' },
@@ -226,7 +226,7 @@ export default function PatientsPage() {
             </svg>
           </div>
           <p className="text-[#9B96C0] font-medium">{search ? 'No patients match that search.' : 'No patients linked yet.'}</p>
-          <p className="text-[#504C78] text-xs mt-1">Patients can link you from the Duara mobile app.</p>
+          <p className="text-[#504C78] text-xs mt-1">Patients can link you from the Mojo mobile app.</p>
         </div>
       ) : (
         <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl overflow-hidden">

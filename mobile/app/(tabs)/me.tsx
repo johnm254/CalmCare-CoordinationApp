@@ -1495,6 +1495,32 @@ export default function MeScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* Privacy */}
+        <SectionHeader title="PRIVACY" />
+        <View style={s.card}>
+          <View style={s.privacyRow}>
+            <View style={s.privacyDot} />
+            <View style={{ flex: 1 }}>
+              <Text style={s.rowLabel}>Mood data is private by default</Text>
+              <Text style={s.privacyBody}>
+                Only you and your linked doctor can see your mood logs. Caregivers
+                cannot access mood data unless you explicitly grant permission.
+              </Text>
+            </View>
+          </View>
+          <View style={s.divider} />
+          <View style={s.privacyRow}>
+            <View style={[s.privacyDot, { backgroundColor: colors.blue }]} />
+            <View style={{ flex: 1 }}>
+              <Text style={s.rowLabel}>Location is only shared during SOS</Text>
+              <Text style={s.privacyBody}>
+                Your GPS is never tracked in the background. It is only shared
+                with your Care Circle when you activate an SOS alert.
+              </Text>
+            </View>
+          </View>
+        </View>
+
         {/* Account */}
         <SectionHeader title="ACCOUNT" />
         <View style={s.card}>
@@ -2121,6 +2147,29 @@ const s = StyleSheet.create({
     color: colors.textMuted,
     textAlign: "center",
     paddingVertical: spacing.md,
+  },
+
+  privacyRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: spacing.md,
+    paddingVertical: spacing.sm,
+  },
+
+  privacyDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.teal,
+    marginTop: 4,
+    flexShrink: 0,
+  },
+
+  privacyBody: {
+    fontSize: fonts.sm,
+    color: colors.textSecondary,
+    lineHeight: 18,
+    marginTop: 3,
   },
 
   signOutBtn: {
