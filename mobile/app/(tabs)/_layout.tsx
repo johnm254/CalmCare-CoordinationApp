@@ -1,6 +1,18 @@
 import { Tabs, router } from "expo-router"
 
-import { TouchableOpacity, View, Text } from "react-native"
+import {
+  TouchableOpacity,
+  View,
+  Text,
+  Animated,
+  StyleSheet,
+} from "react-native"
+
+import { useRef, useEffect } from "react"
+
+import * as Haptics from "expo-haptics"
+
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { colors, fonts, radius } from "../../lib/theme"
 
@@ -308,8 +320,104 @@ function SOSHeaderButton() {
   )
 }
 
+// ─── Floating SOS action button ───────────────────────────────────────────────
+
+const TAB_BAR_HEIGHT = 72
+
+function SosFab() {
+  const insets = useSafeAreaInsets()
+  const pulse = useRef(new Animated.Value(1)).current
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1.18, duration: 900, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 1,    duration: 900, useNativeDriver: true }),
+      ]),
+    ).start()
+  }, [])
+
+  const bottom = TAB_BAR_HEIGHT + insets.bottom + 12
+
+  return (
+    <Animated.View
+      style={[fabStyles.ring, { bottom: bottom + 2, transform: [{ scale: pulse }] }]}
+      pointerEvents="none"
+    />
+  )
+}
+
+function SosFabButton() {
+  const insets = useSafeAreaInsets()
+  const scale = useRef(new Animated.Value(1)).current
+
+  function handlePressIn() {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+    Animated.spring(scale, { toValue: 0.92, useNativeDriver: true, tension: 260, friction: 12 }).start()
+  }
+
+  function handlePressOut() {
+    Animated.spring(scale, { toValue: 1, useNativeDriver: true, tension: 260, friction: 12 }).start()
+  }
+
+  const bottom = TAB_BAR_HEIGHT + insets.bottom + 12
+
+  return (
+    <Animated.View style={[fabStyles.fabWrap, { bottom, transform: [{ scale }] }]}>
+      <TouchableOpacity
+        onPress={() => router.push("/sos")}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        style={fabStyles.fab}
+        activeOpacity={1}
+        accessibilityLabel="SOS — press for emergency"
+        accessibilityRole="button"
+      >
+        <Text style={fabStyles.fabText}>SOS</Text>
+      </TouchableOpacity>
+    </Animated.View>
+  )
+}
+
+const fabStyles = StyleSheet.create({
+  ring: {
+    position: "absolute",
+    right: 20 - 10,
+    width: 56 + 20,
+    height: 56 + 20,
+    borderRadius: (56 + 20) / 2,
+    backgroundColor: "rgba(239,68,68,0.18)",
+    zIndex: 99,
+  },
+  fabWrap: {
+    position: "absolute",
+    right: 20,
+    zIndex: 100,
+  },
+  fab: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.emergency,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors.emergency,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.55,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  fabText: {
+    color: "#fff",
+    fontWeight: "900",
+    fontSize: 13,
+    letterSpacing: 1.2,
+  },
+})
+
 export default function TabsLayout() {
   return (
+    <View style={{ flex: 1 }}>
     <Tabs
       screenOptions={{
         headerShown: true,
@@ -498,5 +606,9 @@ export default function TabsLayout() {
       {/* Records accessible from Me tab */}
       <Tabs.Screen name="records" options={{ href: null }} />
     </Tabs>
+    {/* Persistent SOS FAB — pulse ring sits behind the button */}
+    <SosFab />
+    <SosFabButton />
+    </View>
   )
 }
