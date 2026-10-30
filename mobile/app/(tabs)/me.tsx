@@ -28,6 +28,8 @@ import { useAuth } from "../_layout"
 
 import { supabase } from "../../lib/supabase"
 
+import { useTranslation } from "../../lib/i18n-context"
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type ModalKey = "language" | "notifications" | "pin" | "accessibility" | "export" | "delete" | "strap" | "addons"
@@ -209,32 +211,49 @@ function LanguageSheet({
   onClose,
   selected,
   onSelect,
+  swahiliEnabled,
 }: {
   visible: boolean
   onClose: () => void
   selected: string
   onSelect: (k: string) => void
+  swahiliEnabled: boolean
 }) {
   return (
     <Sheet visible={visible} onClose={onClose} title="Language">
       <View style={{ gap: spacing.md }}>
-        {LANGUAGES.map((lang) => (
-          <TouchableOpacity
-            key={lang.key}
-            style={[opt.row, selected === lang.key && opt.rowActive]}
-            onPress={() => {
-              onSelect(lang.key)
-              onClose()
-            }}
-            activeOpacity={0.8}
-          >
-            <View style={{ flex: 1 }}>
-              <Text style={opt.label}>{lang.label}</Text>
-              <Text style={opt.sub}>{lang.native}</Text>
-            </View>
-            {selected === lang.key && <View style={opt.check} />}
-          </TouchableOpacity>
-        ))}
+        {LANGUAGES.map((lang) => {
+          const isSwahili = lang.key === "sw"
+          const disabled = isSwahili && !swahiliEnabled
+          return (
+            <TouchableOpacity
+              key={lang.key}
+              style={[
+                opt.row,
+                selected === lang.key && !disabled && opt.rowActive,
+                disabled && { opacity: 0.5 },
+              ]}
+              onPress={() => {
+                if (disabled) return
+                onSelect(lang.key)
+                onClose()
+              }}
+              activeOpacity={disabled ? 1 : 0.8}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={opt.label}>{lang.label}</Text>
+                <Text style={opt.sub}>{lang.native}</Text>
+              </View>
+              {disabled ? (
+                <View style={opt.comingSoonBadge}>
+                  <Text style={opt.comingSoonText}>Coming soon</Text>
+                </View>
+              ) : (
+                selected === lang.key && <View style={opt.check} />
+              )}
+            </TouchableOpacity>
+          )
+        })}
         <Text style={opt.note}>
           More languages coming soon. Help us translate at
           mojo.health/translate
@@ -1494,6 +1513,21 @@ const opt = StyleSheet.create({
     lineHeight: 16,
     paddingTop: spacing.sm,
   },
+
+  comingSoonBadge: {
+    backgroundColor: colors.amberDim,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.amber,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+  },
+
+  comingSoonText: {
+    fontSize: fonts.xs,
+    color: colors.amber,
+    fontWeight: "700",
+  },
 })
 
 // ─── Setting row ──────────────────────────────────────────────────────────────
@@ -1550,6 +1584,8 @@ function SectionHeader({ title }: { title: string }) {
 export default function MeScreen() {
   const { profile, session } = useAuth()
 
+  const { locale, setLocale } = useTranslation()
+
   // Modal
 
   const [openModal, setOpenModal] = useState<ModalKey | null>(null)
@@ -1561,7 +1597,9 @@ export default function MeScreen() {
 
   // Settings state
 
-  const [language, setLanguage] = useState<string>("en")
+  const [language, setLanguage] = useState<string>(locale)
+
+  const [swahiliEnabled, setSwahiliEnabled] = useState(false)
 
   const [notifMeds, setNotifMeds] = useState(true)
 
@@ -1614,6 +1652,14 @@ export default function MeScreen() {
       .maybeSingle()
       .then(({ data }) => {
         if (data != null) setBleStrapEnabled(data.enabled)
+      })
+    supabase
+      .from("feature_flags")
+      .select("enabled")
+      .eq("name", "swahili_ui")
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data != null) setSwahiliEnabled(data.enabled)
       })
   }, [])
 
@@ -2094,7 +2140,11 @@ export default function MeScreen() {
         visible={openModal === "language"}
         onClose={() => setOpenModal(null)}
         selected={language}
-        onSelect={setLanguage}
+        onSelect={(k) => {
+          setLanguage(k)
+          if (k === "en" || k === "sw") setLocale(k)
+        }}
+        swahiliEnabled={swahiliEnabled}
       />
       <NotificationsSheet
         visible={openModal === "notifications"}

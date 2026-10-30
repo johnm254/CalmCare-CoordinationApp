@@ -45,6 +45,8 @@ import {
   getExpoPushToken,
 } from "../lib/notifications"
 
+import { I18nProvider } from "../lib/i18n-context"
+
 // ── Auth context ──────────────────────────────────────────────────────────────
 
 interface AuthContextType {
@@ -904,6 +906,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
+      <I18nProvider>
       <AuthContext.Provider
         value={{ session, profile, isLoading: !initialized }}
       >
@@ -1066,6 +1069,7 @@ export default function RootLayout() {
           </Animated.View>
         )}
       </AuthContext.Provider>
+      </I18nProvider>
     </SafeAreaProvider>
   )
 }

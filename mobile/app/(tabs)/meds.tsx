@@ -31,6 +31,8 @@ import {
   getAdherence,
 } from "../../db/offline"
 
+import { useTranslation } from "../../lib/i18n-context"
+
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
 function PillIcon({ color = colors.teal }: { color?: string }) {
@@ -125,6 +127,8 @@ interface DoseSlot {
 
 export default function MedsScreen() {
   const { session } = useAuth()
+
+  const { t } = useTranslation()
 
   const [doses, setDoses] = useState<DoseSlot[]>([])
 
@@ -258,16 +262,13 @@ export default function MedsScreen() {
       >
         {/* Disclaimer — CR-MED-11 */}
         <View style={styles.disclaimer}>
-          <Text style={styles.disclaimerText}>
-            Your reminders follow the schedule your clinician entered. Mojo
-            never changes your dose.
-          </Text>
+          <Text style={styles.disclaimerText}>{t("meds_disclaimer")}</Text>
         </View>
 
         {/* Adherence summary */}
         {Object.keys(adherence).length > 0 && (
           <View style={styles.adherenceCard}>
-            <Text style={styles.adherenceTitle}>30-DAY ADHERENCE</Text>
+            <Text style={styles.adherenceTitle}>{t("meds_adherence_title")}</Text>
             {Object.entries(adherence).map(([medId, pct]) => {
               const med = doses.find((d) => d.medicationId === medId)
               if (!med) return null
@@ -296,7 +297,7 @@ export default function MedsScreen() {
         {/* Pending doses */}
         {pending.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>DUE TODAY</Text>
+            <Text style={styles.sectionLabel}>{t("meds_due_today")}</Text>
             {pending.map((slot) => (
               <DoseCard
                 key={`${slot.scheduleId}-${slot.scheduledFor}`}
@@ -312,7 +313,7 @@ export default function MedsScreen() {
         {/* Taken today */}
         {taken.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>TAKEN TODAY</Text>
+            <Text style={styles.sectionLabel}>{t("meds_taken_today")}</Text>
             {taken.map((slot) => (
               <DoseCard
                 key={`${slot.scheduleId}-${slot.scheduledFor}`}
@@ -327,7 +328,7 @@ export default function MedsScreen() {
         {missed.length > 0 && (
           <View style={styles.section}>
             <Text style={[styles.sectionLabel, { color: colors.emergency }]}>
-              MISSED
+              {t("meds_missed")}
             </Text>
             {missed.map((slot) => (
               <DoseCard
@@ -342,10 +343,8 @@ export default function MedsScreen() {
         {doses.length === 0 && (
           <View style={styles.empty}>
             <PillIcon color={colors.textMuted} />
-            <Text style={styles.emptyTitle}>No doses scheduled today</Text>
-            <Text style={styles.emptyBody}>
-              Your clinician will add medication schedules here.
-            </Text>
+            <Text style={styles.emptyTitle}>{t("meds_empty_title")}</Text>
+            <Text style={styles.emptyBody}>{t("meds_empty_body")}</Text>
           </View>
         )}
       </ScrollView>
@@ -372,6 +371,8 @@ function DoseCard({
 
   loading?: boolean
 }) {
+  const { t } = useTranslation()
+
   const isTaken = slot.status === "taken"
 
   const isMissed = slot.status === "missed"
@@ -395,7 +396,7 @@ function DoseCard({
           <Text style={styles.medDose}>{slot.dose}</Text>
           {typeof adherencePct === "number" && (
             <Text style={styles.adherence}>
-              30-day adherence: {adherencePct}%
+              {t("meds_adherence_label", adherencePct)}
             </Text>
           )}
         </View>
@@ -409,7 +410,7 @@ function DoseCard({
         {isTaken ? (
           <View style={styles.takenBadge}>
             <CheckIcon />
-            <Text style={styles.takenBadgeText}>Taken</Text>
+            <Text style={styles.takenBadgeText}>{t("meds_taken_badge")}</Text>
           </View>
         ) : isMissed ? (
           <View
@@ -419,7 +420,7 @@ function DoseCard({
             ]}
           >
             <Text style={[styles.takenBadgeText, { color: colors.emergency }]}>
-              Missed
+              {t("meds_missed_badge")}
             </Text>
           </View>
         ) : (
@@ -433,7 +434,7 @@ function DoseCard({
             {loading ? (
               <ActivityIndicator size="small" color={colors.bg} />
             ) : (
-              <Text style={styles.takenBtnText}>Taken</Text>
+              <Text style={styles.takenBtnText}>{t("meds_taken_btn")}</Text>
             )}
           </TouchableOpacity>
         )}

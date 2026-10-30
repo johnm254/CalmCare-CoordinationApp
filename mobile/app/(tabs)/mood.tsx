@@ -16,13 +16,14 @@ import { router } from "expo-router"
 import { colors, fonts, radius, spacing } from "../../lib/theme"
 import { supabase } from "../../lib/supabase"
 import { useAuth } from "../_layout"
+import { useTranslation } from "../../lib/i18n-context"
 
 const MOOD_OPTIONS = [
-  { score: 1, label: "Very low", color: "#EF4444" },
-  { score: 2, label: "Low", color: "#F97316" },
-  { score: 3, label: "Okay", color: "#F4B860" },
-  { score: 4, label: "Good", color: "#22C87A" },
-  { score: 5, label: "Great", color: "#00BFA6" },
+  { score: 1, labelKey: "mood_score_1" as const, color: "#EF4444" },
+  { score: 2, labelKey: "mood_score_2" as const, color: "#F97316" },
+  { score: 3, labelKey: "mood_score_3" as const, color: "#F4B860" },
+  { score: 4, labelKey: "mood_score_4" as const, color: "#22C87A" },
+  { score: 5, labelKey: "mood_score_5" as const, color: "#00BFA6" },
 ]
 
 type MoodLog = {
@@ -44,6 +45,7 @@ function formatDay(iso: string) {
 
 export default function MoodScreen() {
   const { session } = useAuth()
+  const { t } = useTranslation()
   const [selectedScore, setSelectedScore] = useState<number | null>(null)
   const [note, setNote] = useState("")
   const [noteFocused, setNoteFocused] = useState(false)
@@ -127,7 +129,7 @@ export default function MoodScreen() {
           showsVerticalScrollIndicator={false}
         >
           {/* Heading */}
-          <Text style={styles.heading}>How are you feeling today?</Text>
+          <Text style={styles.heading}>{t("mood_heading")}</Text>
 
           {/* Mood selector */}
           <View style={styles.moodRow}>
@@ -162,7 +164,7 @@ export default function MoodScreen() {
                       { color: active ? opt.color : colors.textMuted },
                     ]}
                   >
-                    {opt.label}
+                    {t(opt.labelKey)}
                   </Text>
                 </TouchableOpacity>
               )
@@ -175,7 +177,7 @@ export default function MoodScreen() {
           >
             <TextInput
               style={styles.input}
-              placeholder="Add a note (optional)"
+              placeholder={t("mood_note_placeholder")}
               placeholderTextColor={colors.textMuted}
               value={note}
               onChangeText={setNote}
@@ -199,7 +201,7 @@ export default function MoodScreen() {
                 ]}
               />
               <View>
-                <Text style={styles.confirmedTitle}>Mood logged</Text>
+                <Text style={styles.confirmedTitle}>{t("mood_logged_title")}</Text>
                 <Text style={styles.confirmedDate}>
                   {formatDate(loggedEntry.logged_at)}
                 </Text>
@@ -212,7 +214,7 @@ export default function MoodScreen() {
                 }}
                 style={styles.logAgainBtn}
               >
-                <Text style={styles.logAgainText}>Log again</Text>
+                <Text style={styles.logAgainText}>{t("mood_log_again")}</Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -234,24 +236,21 @@ export default function MoodScreen() {
                     !selectedScore && styles.btnDisabledText,
                   ]}
                 >
-                  Log mood
+                  {t("mood_log_btn")}
                 </Text>
               )}
             </TouchableOpacity>
           )}
 
           {/* Privacy note */}
-          <Text style={styles.privacyNote}>
-            Mood data is private by default — only you and your doctor can see
-            it. Caregivers cannot access mood logs.
-          </Text>
+          <Text style={styles.privacyNote}>{t("mood_privacy")}</Text>
 
           {/* 7-day history */}
-          <Text style={styles.sectionLabel}>Last 7 days</Text>
+          <Text style={styles.sectionLabel}>{t("mood_history_label")}</Text>
           {loadingHistory ? (
             <ActivityIndicator color={colors.teal} style={{ marginVertical: spacing.xl }} />
           ) : history.length === 0 ? (
-            <Text style={styles.emptyText}>No mood logs yet. Start tracking today.</Text>
+            <Text style={styles.emptyText}>{t("mood_history_empty")}</Text>
           ) : (
             <View style={styles.historyRow}>
               {history.map((log) => {
@@ -276,23 +275,23 @@ export default function MoodScreen() {
             <View style={styles.crisisCard}>
               <View style={styles.crisisHeader}>
                 <View style={styles.crisisDot} />
-                <Text style={styles.crisisTitle}>Feeling very low?</Text>
+                <Text style={styles.crisisTitle}>{t("mood_crisis_title")}</Text>
               </View>
-              <Text style={styles.crisisOrg}>Befrienders Kenya</Text>
-              <Text style={styles.crisisLine}>0800 723 253 (free, 24/7)</Text>
+              <Text style={styles.crisisOrg}>{t("mood_crisis_org")}</Text>
+              <Text style={styles.crisisLine}>{t("mood_crisis_line")}</Text>
               <TouchableOpacity
                 style={styles.crisisCallBtn}
                 onPress={() => Linking.openURL("tel:0800723253")}
                 activeOpacity={0.85}
               >
-                <Text style={styles.crisisCallText}>Call now</Text>
+                <Text style={styles.crisisCallText}>{t("mood_crisis_call")}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.crisisSosBtn}
                 onPress={() => router.push("/sos")}
                 activeOpacity={0.85}
               >
-                <Text style={styles.crisisSosBtnText}>Medical emergency — Start SOS</Text>
+                <Text style={styles.crisisSosBtnText}>{t("mood_crisis_sos")}</Text>
               </TouchableOpacity>
             </View>
           )}
