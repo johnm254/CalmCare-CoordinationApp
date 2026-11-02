@@ -30,6 +30,8 @@ import { supabase } from "../../lib/supabase"
 
 import { useTranslation } from "../../lib/i18n-context"
 
+import { scanForStraps, stopScan, connectToStrap, disconnectStrap, type ScanResult } from "../../lib/ble-strap"
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type ModalKey = "language" | "notifications" | "pin" | "accessibility" | "export" | "delete" | "strap" | "addons"
@@ -911,18 +913,8 @@ const del = StyleSheet.create({
 
 type StrapPhase = "idle" | "scanning" | "pairing" | "connected"
 
-interface MockDevice {
-  id: string
-  name: string
-  rssi: number
-}
-
-const MOCK_STRAP_DEVICES: MockDevice[] = [
-  { id: "M1:A2:B3:C4:D5:01", name: "Mojo Strap", rssi: -52 },
-  { id: "M1:A2:B3:C4:D5:02", name: "Mojo Strap (2)", rssi: -71 },
-]
-
-function rssiLabel(rssi: number) {
+function rssiLabel(rssi: number | null) {
+  if (rssi === null) return "Unknown"
   if (rssi > -60) return "Strong"
   if (rssi > -75) return "Good"
   return "Weak"
@@ -942,19 +934,17 @@ function EpiStrapSheet({
   onDisconnected: () => void
 }) {
   const [phase, setPhase] = useState<StrapPhase>("idle")
-  const [foundDevices, setFoundDevices] = useState<MockDevice[]>([])
-  const [selectedDevice, setSelectedDevice] = useState<MockDevice | null>(null)
-  const [connectedDevice, setConnectedDevice] = useState<MockDevice | null>(null)
-  const scanTimers = useRef<ReturnType<typeof setTimeout>[]>([])
+  const [foundDevices, setFoundDevices] = useState<ScanResult[]>([])
+  const [selectedDevice, setSelectedDevice] = useState<ScanResult | null>(null)
+  const [connectedDevice, setConnectedDevice] = useState<ScanResult | null>(null)
   const pulseAnim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
     if (!visible && phase !== "connected") {
+      stopScan()
       setPhase("idle")
       setFoundDevices([])
       setSelectedDevice(null)
-      scanTimers.current.forEach(clearTimeout)
-      scanTimers.current = []
     }
   }, [visible])
 
@@ -975,31 +965,52 @@ function EpiStrapSheet({
   function startScan() {
     setPhase("scanning")
     setFoundDevices([])
-    scanTimers.current.push(
-      setTimeout(() => setFoundDevices([MOCK_STRAP_DEVICES[0]]), 900),
-      setTimeout(() => setFoundDevices(MOCK_STRAP_DEVICES), 1800),
-    )
+    if (flagEnabled) {
+      scanForStraps((result) => setFoundDevices((prev) => [...prev.filter((d) => d.id !== result.id), result]), 15000)
+    } else {
+      setTimeout(() => setFoundDevices([{ id: "M1:A2:B3:C4:D5:01", name: "Mojo Strap", rssi: -52 }]), 900)
+      setTimeout(() => setFoundDevices([{ id: "M1:A2:B3:C4:D5:01", name: "Mojo Strap", rssi: -52 }, { id: "M1:A2:B3:C4:D5:02", name: "Mojo Strap (2)", rssi: -71 }]), 1800)
+    }
   }
 
-  function selectDevice(device: MockDevice) {
-    scanTimers.current.forEach(clearTimeout)
+  function selectDevice(device: ScanResult) {
     setSelectedDevice(device)
     setPhase("pairing")
-    scanTimers.current.push(
+    if (flagEnabled) {
+      connectToStrap(device.id, () => {}).then((success) => {
+        if (success) {
+          setPhase("connected")
+          setConnectedDevice(device)
+          onConnected()
+        } else {
+          setPhase("scanning")
+        }
+      })
+    } else {
       setTimeout(() => {
         setPhase("connected")
         setConnectedDevice(device)
         onConnected()
-      }, 2200),
-    )
+      }, 2200)
+    }
   }
 
   function forgetDevice() {
-    setPhase("idle")
-    setFoundDevices([])
-    setSelectedDevice(null)
-    setConnectedDevice(null)
-    onDisconnected()
+    if (flagEnabled) {
+      disconnectStrap().then(() => {
+        setPhase("idle")
+        setFoundDevices([])
+        setSelectedDevice(null)
+        setConnectedDevice(null)
+        onDisconnected()
+      })
+    } else {
+      setPhase("idle")
+      setFoundDevices([])
+      setSelectedDevice(null)
+      setConnectedDevice(null)
+      onDisconnected()
+    }
   }
 
   const dotColor =
@@ -1028,14 +1039,14 @@ function EpiStrapSheet({
           </View>
           <View style={{ flex: 1 }}>
             <Text style={dev.deviceName}>
-              {phase === "connected" && connectedDevice ? connectedDevice.name : "Mojo Strap"}
+              {phase === "connected" && connectedDevice ? (connectedDevice.name ?? "Unknown device") : "Mojo Strap"}
             </Text>
             <View style={dev.statusRow}>
               <View style={[dev.statusDot, { backgroundColor: dotColor }]} />
               <Text style={dev.statusText}>
                 {phase === "idle" ? "Not paired"
                   : phase === "scanning" ? "Scanning..."
-                  : phase === "pairing" ? `Pairing with ${selectedDevice?.name}...`
+                  : phase === "pairing" ? `Pairing with ${selectedDevice?.name ?? "Unknown device"}...`
                   : "Connected"}
               </Text>
             </View>
@@ -1098,7 +1109,7 @@ function EpiStrapSheet({
                 {foundDevices.map((device) => (
                   <View key={device.id} style={dev.deviceRow}>
                     <View style={{ flex: 1 }}>
-                      <Text style={dev.deviceRowName}>{device.name}</Text>
+                      <Text style={dev.deviceRowName}>{device.name ?? "Unknown device"}</Text>
                       <Text style={dev.deviceRowSub}>Signal: {rssiLabel(device.rssi)}</Text>
                     </View>
                     <TouchableOpacity
@@ -1114,7 +1125,7 @@ function EpiStrapSheet({
             )}
             <TouchableOpacity
               style={dev.cancelScanBtn}
-              onPress={() => { scanTimers.current.forEach(clearTimeout); setPhase("idle") }}
+              onPress={() => { stopScan(); setPhase("idle") }}
               activeOpacity={0.85}
             >
               <Text style={dev.cancelScanText}>Cancel</Text>
@@ -1126,7 +1137,7 @@ function EpiStrapSheet({
         {phase === "pairing" && (
           <View style={dev.pairingCard}>
             <ActivityIndicator color={colors.teal} />
-            <Text style={dev.pairingText}>Pairing with {selectedDevice?.name}...</Text>
+            <Text style={dev.pairingText}>Pairing with {selectedDevice?.name ?? "Unknown device"}...</Text>
             <Text style={dev.pairingSub}>This takes a few seconds</Text>
           </View>
         )}

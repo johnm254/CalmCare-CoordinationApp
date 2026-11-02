@@ -155,6 +155,84 @@ const en = {
   sos_alert_emergency: 'Call 999 / 112 — Ambulance',
   sos_alert_disclaimer: (name: string) =>
     `Your response is shown to ${name} and all their emergency contacts immediately.`,
+
+  // ── Appointments screen
+  appts_title: 'Appointments',
+  appts_empty_title: 'No upcoming appointments',
+  appts_empty_body: 'Your clinician will schedule appointments here.',
+  appts_request: 'Request appointment',
+  appts_notes_label: 'Notes',
+  appts_notes_placeholder: 'Reason for visit...',
+  appts_request_submit: 'Submit request',
+  appts_status_confirmed: 'Confirmed',
+  appts_status_pending: 'Pending',
+  appts_status_cancelled: 'Cancelled',
+
+  // ── Circle invite screen
+  circle_invite_title: 'Add to your Circle',
+  circle_invite_mode_email: 'Mojo user',
+  circle_invite_mode_sms: 'SMS only',
+  circle_invite_name_label: 'Name',
+  circle_invite_email_label: 'Email',
+  circle_invite_phone_label: 'Phone number',
+  circle_invite_relationship_label: 'Relationship',
+  circle_invite_emergency_label: 'Emergency contact',
+  circle_invite_emergency_sub: 'They receive your SOS alerts',
+  circle_invite_submit_email: 'Add to Circle',
+  circle_invite_submit_sms: 'Add & send SMS invite',
+  circle_invite_success: 'Added to your Circle',
+  circle_invite_not_found: 'No Mojo account found for that email.',
+
+  // ── Saved places screen
+  saved_places_title: 'Saved Places',
+  saved_places_sub: 'Named locations added to your SOS alert automatically.',
+  saved_places_empty_title: 'No saved places yet',
+  saved_places_empty_body: 'Add your home, work or any regular location.',
+  saved_places_add: 'Add place',
+  saved_places_use_current: 'Use current location',
+  saved_places_name_label: 'Place name',
+  saved_places_name_placeholder: 'e.g. Home',
+  saved_places_save: 'Save place',
+  saved_places_delete_confirm: 'Remove this place?',
+
+  // ── Circle observation screen
+  obs_title: 'Log observation',
+  obs_sub: 'Record what you witnessed. This is shared with the patient and their clinician.',
+  obs_type_label: 'Event type',
+  obs_duration_label: 'Duration (seconds)',
+  obs_duration_placeholder: 'e.g. 45',
+  obs_severity_label: 'Severity',
+  obs_notes_label: 'Notes',
+  obs_notes_placeholder: 'Describe what you observed...',
+  obs_submit: 'Submit observation',
+  obs_success: 'Observation logged',
+
+  // ── Insights screen
+  insights_title: 'AI Insights',
+  insights_live: 'Live data',
+  insights_empty_title: 'No insights yet.',
+  insights_empty_body: 'Log a few events to see patterns here.',
+  insights_this_week: 'THIS WEEK',
+  insights_see_logs: 'See the logs',
+  insights_voice_title: 'Log by voice',
+  insights_voice_offline: 'Works offline',
+  insights_voice_body: 'Tap the mic and type what happened. Voice transcription is coming soon.',
+  insights_brief_title: 'Visit brief is ready',
+  insights_brief_sub: 'Review it, then share with your clinician',
+  insights_brief_review: 'Review',
+  insights_disclaimer: 'Mojo never diagnoses or changes your medication. Summaries are drafts built from what you and your Circle logged.',
+  insights_note_modal_title: 'Log a note',
+  insights_note_modal_sub: 'Describe what happened. It will be saved as an event log.',
+  insights_note_placeholder: 'e.g. Felt dizzy for about 2 minutes after lunch…',
+  insights_note_save: 'Save note',
+  insights_note_saved_title: 'Saved',
+  insights_note_saved_body: 'Your note has been logged.',
+  insights_brief_modal_title: 'Visit brief',
+  insights_brief_modal_sub: 'A snapshot of your week to share with your clinician.',
+  insights_brief_week_events: 'Events this week',
+  insights_brief_med_checkins: 'Medication check-ins',
+  insights_brief_pattern: 'Pattern',
+  insights_brief_disclaimer: 'This is a draft. Review with your clinician before making any changes to your care plan.',
 } as const
 
 // All Swahili values marked // review_needed — requires clinical Swahili translator sign-off
@@ -292,6 +370,79 @@ const sw: Record<keyof typeof en, string | ((...args: any[]) => string)> = {
   sos_alert_responded: (name: string) => `Ulijibu — ${name} anakuja`, // review_needed
   sos_alert_emergency: 'Piga simu 999 / 112 — Ambulensi', // review_needed
   sos_alert_disclaimer: (name: string) => `Jibu lako linaonyeshwa kwa ${name} na anayewasiliana naye mara moja.`, // review_needed
+
+  appts_title: 'Miadi', // review_needed
+  appts_empty_title: 'Hakuna miadi inayokuja', // review_needed
+  appts_empty_body: 'Daktari wako atapanga miadi hapa.', // review_needed
+  appts_request: 'Omba miadi', // review_needed
+  appts_notes_label: 'Maelezo', // review_needed
+  appts_notes_placeholder: 'Sababu ya ziara...', // review_needed
+  appts_request_submit: 'Tuma ombi', // review_needed
+  appts_status_confirmed: 'Imethibitishwa', // review_needed
+  appts_status_pending: 'Inasubiri', // review_needed
+  appts_status_cancelled: 'Imeghairiwa', // review_needed
+
+  circle_invite_title: 'Ongeza kwenye Mzunguko wako', // review_needed
+  circle_invite_mode_email: 'Mtumiaji wa Mojo', // review_needed
+  circle_invite_mode_sms: 'SMS peke yake', // review_needed
+  circle_invite_name_label: 'Jina', // review_needed
+  circle_invite_email_label: 'Barua pepe', // review_needed
+  circle_invite_phone_label: 'Nambari ya simu', // review_needed
+  circle_invite_relationship_label: 'Uhusiano', // review_needed
+  circle_invite_emergency_label: 'Mwasiliani wa dharura', // review_needed
+  circle_invite_emergency_sub: 'Watapokea arifa za SOS', // review_needed
+  circle_invite_submit_email: 'Ongeza kwenye Mzunguko', // review_needed
+  circle_invite_submit_sms: 'Ongeza na tuma mwaliko wa SMS', // review_needed
+  circle_invite_success: 'Imeongezwa kwenye Mzunguko wako', // review_needed
+  circle_invite_not_found: 'Hakuna akaunti ya Mojo iliyopatikana kwa barua pepe hiyo.', // review_needed
+
+  saved_places_title: 'Maeneo Yaliyohifadhiwa', // review_needed
+  saved_places_sub: 'Maeneo yenye majina yaliyoongezwa kwa arifa yako ya SOS moja kwa moja.', // review_needed
+  saved_places_empty_title: 'Hakuna maeneo yaliyohifadhiwa bado', // review_needed
+  saved_places_empty_body: 'Ongeza nyumba yako, kazi au mahali popote unapokwenda mara kwa mara.', // review_needed
+  saved_places_add: 'Ongeza mahali', // review_needed
+  saved_places_use_current: 'Tumia mahali ulipo sasa', // review_needed
+  saved_places_name_label: 'Jina la mahali', // review_needed
+  saved_places_name_placeholder: 'mf. Nyumbani', // review_needed
+  saved_places_save: 'Hifadhi mahali', // review_needed
+  saved_places_delete_confirm: 'Ondoa mahali hapa?', // review_needed
+
+  obs_title: 'Rekodi uchunguzi', // review_needed
+  obs_sub: 'Rekodi ulichoshuhudia. Hii inashirikiwa na mgonjwa na daktari wao.', // review_needed
+  obs_type_label: 'Aina ya tukio', // review_needed
+  obs_duration_label: 'Muda (sekunde)', // review_needed
+  obs_duration_placeholder: 'mf. 45', // review_needed
+  obs_severity_label: 'Ukali', // review_needed
+  obs_notes_label: 'Maelezo', // review_needed
+  obs_notes_placeholder: 'Elezea ulichoshuhudia...', // review_needed
+  obs_submit: 'Tuma uchunguzi', // review_needed
+  obs_success: 'Uchunguzi umerekodiwa', // review_needed
+
+  insights_title: 'Maarifa ya AI', // review_needed
+  insights_live: 'Data halisi', // review_needed
+  insights_empty_title: 'Hakuna maarifa bado.', // review_needed
+  insights_empty_body: 'Rekodi matukio machache kuona mifumo hapa.', // review_needed
+  insights_this_week: 'WIKI HII', // review_needed
+  insights_see_logs: 'Angalia rekodi', // review_needed
+  insights_voice_title: 'Rekodi kwa sauti', // review_needed
+  insights_voice_offline: 'Inafanya kazi bila mtandao', // review_needed
+  insights_voice_body: 'Gusa maikrofoni na andika kilichotokea. Uandishi wa sauti unakuja hivi karibuni.', // review_needed
+  insights_brief_title: 'Muhtasari wa ziara uko tayari', // review_needed
+  insights_brief_sub: 'Ukaguzi, kisha ushiriki na daktari wako', // review_needed
+  insights_brief_review: 'Kagua', // review_needed
+  insights_disclaimer: 'Mojo haigundui au kubadilisha dawa yako. Muhtasari ni rasimu zilizojengwa kutoka ulichorekodia wewe na Mzunguko wako.', // review_needed
+  insights_note_modal_title: 'Rekodi maelezo', // review_needed
+  insights_note_modal_sub: 'Elezea kilichotokea. Itahifadhiwa kama rekodi ya tukio.', // review_needed
+  insights_note_placeholder: 'mf. Nilihisi kizunguzungu kwa takriban dakika 2 baada ya chakula cha mchana…', // review_needed
+  insights_note_save: 'Hifadhi maelezo', // review_needed
+  insights_note_saved_title: 'Imehifadhiwa', // review_needed
+  insights_note_saved_body: 'Maelezo yako yamerekodiwa.', // review_needed
+  insights_brief_modal_title: 'Muhtasari wa ziara', // review_needed
+  insights_brief_modal_sub: 'Picha ya wiki yako ya kushiriki na daktari wako.', // review_needed
+  insights_brief_week_events: 'Matukio wiki hii', // review_needed
+  insights_brief_med_checkins: 'Ukaguzi wa dawa', // review_needed
+  insights_brief_pattern: 'Mfumo', // review_needed
+  insights_brief_disclaimer: 'Hii ni rasimu. Kagua na daktari wako kabla ya kufanya mabadiliko yoyote kwenye mpango wako wa matunzo.', // review_needed
 }
 
 const catalogs = { en, sw }

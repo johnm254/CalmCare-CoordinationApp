@@ -25,6 +25,8 @@ import { useAuth } from "./_layout"
 
 import { getInsightsSummary, logEvent } from "../lib/supabase"
 
+import { useTranslation } from "../lib/i18n-context"
+
 type Insights = {
   this_week_events: number
 
@@ -202,6 +204,7 @@ function InsightEmptyIcon() {
 
 export default function InsightsScreen() {
   const { session } = useAuth()
+  const { t } = useTranslation()
 
   const [insights, setInsights] = useState<Insights | null>(null)
 
@@ -230,9 +233,9 @@ export default function InsightsScreen() {
       await logEvent(session.user.id, "patient_note", "mild", { note: voiceNote.trim() })
       setVoiceNote("")
       setShowVoiceModal(false)
-      Alert.alert("Saved", "Your note has been logged.")
+      Alert.alert(t('insights_note_saved_title'), t('insights_note_saved_body'))
     } catch {
-      Alert.alert("Error", "Could not save your note. Please try again.")
+      Alert.alert(t('error_generic'), t('error_generic'))
     } finally {
       setSavingNote(false)
     }
@@ -253,7 +256,7 @@ export default function InsightsScreen() {
           >
             <BackIcon />
           </TouchableOpacity>
-          <Text style={styles.title}>AI Insights</Text>
+          <Text style={styles.title}>{t('insights_title')}</Text>
           <View style={styles.liveBadge}>
             <View
               style={{
@@ -264,7 +267,7 @@ export default function InsightsScreen() {
                 marginRight: 5,
               }}
             />
-            <Text style={styles.liveBadgeText}>Live data</Text>
+            <Text style={styles.liveBadgeText}>{t('insights_live')}</Text>
           </View>
         </View>
 
@@ -280,9 +283,9 @@ export default function InsightsScreen() {
             <View style={styles.emptyIconWrap}>
               <InsightEmptyIcon />
             </View>
-            <Text style={styles.emptyText}>No insights yet.</Text>
+            <Text style={styles.emptyText}>{t('insights_empty_title')}</Text>
             <Text style={styles.emptySub}>
-              Log a few events to see patterns here.
+              {t('insights_empty_body')}
             </Text>
           </View>
         ) : (
@@ -292,7 +295,7 @@ export default function InsightsScreen() {
             <View style={styles.insightLeftBar} />
             <View style={styles.insightContent}>
               <View style={styles.weekBadge}>
-                <Text style={styles.weekBadgeText}>THIS WEEK</Text>
+                <Text style={styles.weekBadgeText}>{t('insights_this_week')}</Text>
               </View>
               <Text style={styles.insightHeading}>
                 You logged {insights.this_week_events} event
@@ -315,7 +318,7 @@ export default function InsightsScreen() {
                   style={styles.btnOutlined}
                   onPress={() => router.back()}
                 >
-                  <Text style={styles.btnOutlinedText}>See the logs</Text>
+                  <Text style={styles.btnOutlinedText}>{t('insights_see_logs')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -325,9 +328,9 @@ export default function InsightsScreen() {
         {/* Log by voice card */}
         <View style={styles.card}>
           <View style={styles.cardTopRow}>
-            <Text style={styles.cardTitle}>Log by voice</Text>
+            <Text style={styles.cardTitle}>{t('insights_voice_title')}</Text>
             <View style={styles.amberBadge}>
-              <Text style={styles.amberBadgeText}>Works offline</Text>
+              <Text style={styles.amberBadgeText}>{t('insights_voice_offline')}</Text>
             </View>
           </View>
           <View style={styles.micRow}>
@@ -343,7 +346,7 @@ export default function InsightsScreen() {
             <WaveformIcon />
           </View>
           <Text style={styles.cardBody}>
-            Tap the mic and type what happened. Voice transcription is coming soon.
+            {t('insights_voice_body')}
           </Text>
         </View>
 
@@ -351,9 +354,9 @@ export default function InsightsScreen() {
         <View style={styles.card}>
           <View style={styles.visitBriefRow}>
             <View style={styles.visitBriefInfo}>
-              <Text style={styles.cardTitle}>Visit brief is ready</Text>
+              <Text style={styles.cardTitle}>{t('insights_brief_title')}</Text>
               <Text style={styles.cardBodySub}>
-                Review it, then share with your clinician
+                {t('insights_brief_sub')}
               </Text>
             </View>
             <TouchableOpacity
@@ -361,7 +364,7 @@ export default function InsightsScreen() {
               onPress={() => setShowBriefModal(true)}
               activeOpacity={0.85}
             >
-              <Text style={styles.reviewBtnText}>Review</Text>
+              <Text style={styles.reviewBtnText}>{t('insights_brief_review')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -379,13 +382,13 @@ export default function InsightsScreen() {
           >
             <View style={styles.modalOverlay}>
               <View style={styles.modalSheet}>
-                <Text style={styles.modalTitle}>Log a note</Text>
+                <Text style={styles.modalTitle}>{t('insights_note_modal_title')}</Text>
                 <Text style={styles.modalSub}>
-                  Describe what happened. It will be saved as an event log.
+                  {t('insights_note_modal_sub')}
                 </Text>
                 <TextInput
                   style={styles.noteInput}
-                  placeholder="e.g. Felt dizzy for about 2 minutes after lunch…"
+                  placeholder={t('insights_note_placeholder')}
                   placeholderTextColor={colors.textMuted}
                   value={voiceNote}
                   onChangeText={setVoiceNote}
@@ -403,7 +406,7 @@ export default function InsightsScreen() {
                   >
                     {savingNote
                       ? <ActivityIndicator color="#000" size="small" />
-                      : <Text style={styles.modalBtnPrimaryText}>Save note</Text>
+                      : <Text style={styles.modalBtnPrimaryText}>{t('insights_note_save')}</Text>
                     }
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -411,7 +414,7 @@ export default function InsightsScreen() {
                     onPress={() => { setShowVoiceModal(false); setVoiceNote("") }}
                     activeOpacity={0.7}
                   >
-                    <Text style={styles.modalBtnOutlineText}>Cancel</Text>
+                    <Text style={styles.modalBtnOutlineText}>{t('cancel')}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -428,22 +431,22 @@ export default function InsightsScreen() {
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalSheet}>
-              <Text style={styles.modalTitle}>Visit brief</Text>
+              <Text style={styles.modalTitle}>{t('insights_brief_modal_title')}</Text>
               <Text style={styles.modalSub}>
-                A snapshot of your week to share with your clinician.
+                {t('insights_brief_modal_sub')}
               </Text>
               {insights ? (
                 <View style={styles.briefContent}>
                   <View style={styles.briefRow}>
-                    <Text style={styles.briefLabel}>Events this week</Text>
+                    <Text style={styles.briefLabel}>{t('insights_brief_week_events')}</Text>
                     <Text style={styles.briefValue}>{insights.this_week_events}</Text>
                   </View>
                   <View style={styles.briefRow}>
-                    <Text style={styles.briefLabel}>Medication check-ins</Text>
+                    <Text style={styles.briefLabel}>{t('insights_brief_med_checkins')}</Text>
                     <Text style={styles.briefValue}>{insights.med_checkins}</Text>
                   </View>
                   <View style={[styles.briefRow, { borderBottomWidth: 0 }]}>
-                    <Text style={styles.briefLabel}>Pattern</Text>
+                    <Text style={styles.briefLabel}>{t('insights_brief_pattern')}</Text>
                     <Text style={[styles.briefValue, { flex: 1, textAlign: "right" }]}>{insights.pattern}</Text>
                   </View>
                 </View>
@@ -451,14 +454,14 @@ export default function InsightsScreen() {
                 <Text style={styles.modalSub}>No data yet. Log a few events first.</Text>
               )}
               <Text style={styles.briefDisclaimer}>
-                This is a draft. Review with your clinician before making any changes to your care plan.
+                {t('insights_brief_disclaimer')}
               </Text>
               <TouchableOpacity
                 style={[styles.modalBtn, styles.modalBtnPrimary, { marginTop: spacing.md }]}
                 onPress={() => setShowBriefModal(false)}
                 activeOpacity={0.85}
               >
-                <Text style={styles.modalBtnPrimaryText}>Done</Text>
+                <Text style={styles.modalBtnPrimaryText}>{t('done')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -466,8 +469,7 @@ export default function InsightsScreen() {
 
         {/* Disclaimer */}
         <Text style={styles.disclaimer}>
-          Mojo never diagnoses or changes your medication. Summaries are drafts
-          built from what you and your Circle logged.
+          {t('insights_disclaimer')}
         </Text>
       </ScrollView>
     </SafeAreaView>

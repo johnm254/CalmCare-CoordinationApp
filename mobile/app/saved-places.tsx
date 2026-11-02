@@ -26,6 +26,8 @@ import { useAuth } from "./_layout"
 
 import { supabase } from "../lib/supabase"
 
+import { useTranslation } from "../lib/i18n-context"
+
 type SavedPlace = {
   id: string
   patient_id: string
@@ -37,6 +39,7 @@ type SavedPlace = {
 
 export default function SavedPlacesScreen() {
   const { session } = useAuth()
+  const { t } = useTranslation()
 
   const [places, setPlaces] = useState<SavedPlace[]>([])
   const [loading, setLoading] = useState(true)
@@ -190,7 +193,7 @@ export default function SavedPlacesScreen() {
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </TouchableOpacity>
-        <Text style={styles.title}>Saved Places</Text>
+        <Text style={styles.title}>{t('saved_places_title')}</Text>
         <View style={styles.headerSpacer} />
       </View>
 
@@ -206,9 +209,9 @@ export default function SavedPlacesScreen() {
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={
             <View style={styles.emptyState}>
-              <Text style={styles.emptyTitle}>No saved places yet.</Text>
+              <Text style={styles.emptyTitle}>{t('saved_places_empty_title')}</Text>
               <Text style={styles.emptySubtitle}>
-                Tap below to add your current location.
+                {t('saved_places_empty_body')}
               </Text>
             </View>
           }
@@ -253,15 +256,15 @@ export default function SavedPlacesScreen() {
       {/* Android inline label input */}
       {pendingCoords !== null && (
         <View style={styles.inlineLabelCard}>
-          <Text style={styles.inlineLabelHeading}>Label this place</Text>
+          <Text style={styles.inlineLabelHeading}>{t('saved_places_name_label')}</Text>
           <Text style={styles.inlineLabelSub}>
-            Give this location a name (e.g. Home, Work, School).
+            {t('saved_places_empty_body')}
           </Text>
           <TextInput
             style={styles.inlineLabelInput}
             value={labelInput}
             onChangeText={setLabelInput}
-            placeholder="Home"
+            placeholder={t('saved_places_name_placeholder')}
             placeholderTextColor={colors.textMuted}
             autoFocus
             returnKeyType="done"
@@ -276,7 +279,7 @@ export default function SavedPlacesScreen() {
               }}
               activeOpacity={0.8}
             >
-              <Text style={styles.inlineCancelBtnText}>Cancel</Text>
+              <Text style={styles.inlineCancelBtnText}>{t('cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[
@@ -287,7 +290,7 @@ export default function SavedPlacesScreen() {
               disabled={!labelInput.trim()}
               activeOpacity={0.85}
             >
-              <Text style={styles.inlineSaveBtnText}>Save place</Text>
+              <Text style={styles.inlineSaveBtnText}>{t('saved_places_save')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -304,7 +307,7 @@ export default function SavedPlacesScreen() {
           {adding ? (
             <ActivityIndicator color="#000" size="small" />
           ) : (
-            <Text style={styles.addBtnText}>Add current location</Text>
+            <Text style={styles.addBtnText}>{t('saved_places_use_current')}</Text>
           )}
         </TouchableOpacity>
       </View>

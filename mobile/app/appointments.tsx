@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { colors, fonts, radius, spacing } from "../lib/theme"
 import { supabase } from "../lib/supabase"
 import { useAuth } from "./_layout"
+import { useTranslation } from "../lib/i18n-context"
 
 type Appointment = {
   id: string
@@ -51,6 +52,7 @@ function formatDateTime(iso: string) {
 
 export default function AppointmentsScreen() {
   const { session } = useAuth()
+  const { t } = useTranslation()
   const userId = session?.user?.id
 
   const [appointments, setAppointments] = useState<Appointment[]>([])
@@ -110,8 +112,8 @@ export default function AppointmentsScreen() {
       await fetchAppointments()
     } catch {
       Alert.alert(
-        "Error",
-        "Could not submit appointment request. Please try again.",
+        t('error_generic'),
+        t('error_generic'),
       )
     } finally {
       setSubmitting(false)
@@ -129,13 +131,13 @@ export default function AppointmentsScreen() {
     <SafeAreaView style={styles.safe} edges={["bottom"]}>
       {/* Header row */}
       <View style={styles.headerRow}>
-        <Text style={styles.title}>Appointments</Text>
+        <Text style={styles.title}>{t('appts_title')}</Text>
         <TouchableOpacity
           style={styles.requestBtn}
           onPress={() => setShowModal(true)}
           activeOpacity={0.85}
         >
-          <Text style={styles.requestBtnText}>+ Request</Text>
+          <Text style={styles.requestBtnText}>+ {t('appts_request')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -151,10 +153,8 @@ export default function AppointmentsScreen() {
             <View style={styles.emptyCalLine} />
             <View style={[styles.emptyCalLine, { width: 28, marginTop: 4 }]} />
           </View>
-          <Text style={styles.emptyTitle}>No appointments scheduled</Text>
-          <Text style={styles.emptyDesc}>
-            {"Tap 'Request' to ask your clinician for a time."}
-          </Text>
+          <Text style={styles.emptyTitle}>{t('appts_empty_title')}</Text>
+          <Text style={styles.emptyDesc}>{t('appts_empty_body')}</Text>
         </View>
       ) : (
         <ScrollView
@@ -181,7 +181,7 @@ export default function AppointmentsScreen() {
                 </View>
                 <View style={[styles.statusBadge, { backgroundColor: statusBg }]}>
                   <Text style={[styles.statusText, { color: statusColor }]}>
-                    {appt.status.charAt(0).toUpperCase() + appt.status.slice(1)}
+                    {appt.status === 'confirmed' ? t('appts_status_confirmed') : appt.status === 'pending' ? t('appts_status_pending') : t('appts_status_cancelled')}
                   </Text>
                 </View>
               </View>
@@ -203,9 +203,9 @@ export default function AppointmentsScreen() {
           >
             <View style={styles.modalSheet}>
               <View style={styles.modalHandle} />
-              <Text style={styles.modalTitle}>Request appointment</Text>
+              <Text style={styles.modalTitle}>{t('appts_request')}</Text>
               <Text style={styles.modalSub}>
-                Your clinician will confirm a time.
+                {t('appts_empty_body')}
               </Text>
 
               <Text style={styles.fieldLabel}>Preferred date</Text>
@@ -246,7 +246,7 @@ export default function AppointmentsScreen() {
                 />
               </View>
 
-              <Text style={styles.fieldLabel}>Reason for appointment</Text>
+              <Text style={styles.fieldLabel}>{t('appts_notes_label')}</Text>
               <View
                 style={[
                   styles.inputWrapper,
@@ -256,7 +256,7 @@ export default function AppointmentsScreen() {
               >
                 <TextInput
                   style={[styles.input, { width: "100%" }]}
-                  placeholder="Briefly describe the reason..."
+                  placeholder={t('appts_notes_placeholder')}
                   placeholderTextColor={colors.textMuted}
                   value={reqReason}
                   onChangeText={setReqReason}
@@ -286,7 +286,7 @@ export default function AppointmentsScreen() {
                       !reqDate.trim() && styles.btnDisabledText,
                     ]}
                   >
-                    Submit request
+                    {t('appts_request_submit')}
                   </Text>
                 )}
               </TouchableOpacity>
@@ -295,7 +295,7 @@ export default function AppointmentsScreen() {
                 onPress={resetModal}
                 style={styles.cancelRow}
               >
-                <Text style={styles.cancelText}>Cancel</Text>
+                <Text style={styles.cancelText}>{t('cancel')}</Text>
               </TouchableOpacity>
             </View>
           </KeyboardAvoidingView>

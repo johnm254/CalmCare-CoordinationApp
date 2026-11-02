@@ -16,6 +16,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 import { colors, fonts, radius, spacing } from "../lib/theme"
 import { supabase } from "../lib/supabase"
 import { useAuth } from "./_layout"
+import { useTranslation } from "../lib/i18n-context"
 
 const SEIZURE_TYPES = [
   "Tonic-clonic",
@@ -27,6 +28,7 @@ const SEIZURE_TYPES = [
 
 export default function CircleObservationScreen() {
   const { session } = useAuth()
+  const { t } = useTranslation()
   const { patientId } = useLocalSearchParams<{ patientId: string }>()
 
   const [duration, setDuration] = useState("")
@@ -53,13 +55,13 @@ export default function CircleObservationScreen() {
         notes: notes.trim() || null,
       })
       if (error) throw error
-      Alert.alert("Saved", "Observation recorded successfully.", [
-        { text: "OK", onPress: () => router.back() },
+      Alert.alert(t('obs_success'), t('obs_success'), [
+        { text: t('done'), onPress: () => router.back() },
       ])
     } catch {
       Alert.alert(
-        "Error",
-        "Could not save observation. Please try again.",
+        t('error_generic'),
+        t('error_generic'),
       )
     } finally {
       setSaving(false)
@@ -77,19 +79,19 @@ export default function CircleObservationScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.heading}>Record observation</Text>
+          <Text style={styles.heading}>{t('obs_title')}</Text>
           <Text style={styles.subheading}>
-            Log what you observed during the seizure episode.
+            {t('obs_sub')}
           </Text>
 
           {/* Duration */}
-          <Text style={styles.fieldLabel}>Duration (seconds)</Text>
+          <Text style={styles.fieldLabel}>{t('obs_duration_label')}</Text>
           <View
             style={[styles.inputWrapper, durationFocused && styles.inputFocused]}
           >
             <TextInput
               style={styles.input}
-              placeholder="e.g. 45"
+              placeholder={t('obs_duration_placeholder')}
               placeholderTextColor={colors.textMuted}
               value={duration}
               onChangeText={setDuration}
@@ -101,7 +103,7 @@ export default function CircleObservationScreen() {
           </View>
 
           {/* Seizure type */}
-          <Text style={styles.fieldLabel}>Seizure type</Text>
+          <Text style={styles.fieldLabel}>{t('obs_type_label')}</Text>
           <View style={styles.chipGrid}>
             {SEIZURE_TYPES.map((type) => {
               const active = seizureType === type
@@ -162,7 +164,7 @@ export default function CircleObservationScreen() {
           </View>
 
           {/* Notes */}
-          <Text style={styles.fieldLabel}>Notes (optional)</Text>
+          <Text style={styles.fieldLabel}>{t('obs_notes_label')}</Text>
           <View
             style={[
               styles.notesWrapper,
@@ -171,7 +173,7 @@ export default function CircleObservationScreen() {
           >
             <TextInput
               style={styles.notesInput}
-              placeholder="Describe what you observed..."
+              placeholder={t('obs_notes_placeholder')}
               placeholderTextColor={colors.textMuted}
               value={notes}
               onChangeText={(t) => setNotes(t.slice(0, 500))}
@@ -203,7 +205,7 @@ export default function CircleObservationScreen() {
                   !canSave && styles.btnDisabledText,
                 ]}
               >
-                Save observation
+                {t('obs_submit')}
               </Text>
             )}
           </TouchableOpacity>
@@ -212,7 +214,7 @@ export default function CircleObservationScreen() {
             onPress={() => router.back()}
             style={styles.cancelRow}
           >
-            <Text style={styles.cancelText}>Cancel</Text>
+            <Text style={styles.cancelText}>{t('cancel')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

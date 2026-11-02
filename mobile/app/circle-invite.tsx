@@ -26,6 +26,8 @@ import { useAuth } from "./_layout"
 
 import { addCareCircleMember, findProfileByEmail } from "../lib/supabase"
 
+import { useTranslation } from "../lib/i18n-context"
+
 type Mode = "email" | "sms"
 
 const RELATIONSHIPS = [
@@ -40,6 +42,7 @@ const RELATIONSHIPS = [
 
 export default function CircleInviteScreen() {
   const { session } = useAuth()
+  const { t } = useTranslation()
 
   const [mode, setMode] = useState<Mode>("email")
 
@@ -91,9 +94,7 @@ export default function CircleInviteScreen() {
         const existing = await findProfileByEmail(email.trim())
 
         if (!existing) {
-          setError(
-            "No Mojo account found for that email. Ask them to sign up first, or use the SMS option.",
-          )
+          setError(t('circle_invite_not_found'))
 
           setLoading(false)
 
@@ -119,7 +120,7 @@ export default function CircleInviteScreen() {
 
       router.back()
     } catch (e: unknown) {
-      setError("Could not add contact. Please try again.")
+      setError(t('error_generic'))
     } finally {
       setLoading(false)
     }
@@ -154,7 +155,7 @@ export default function CircleInviteScreen() {
                 }}
               />
             </TouchableOpacity>
-            <Text style={styles.title}>Add to Circle</Text>
+            <Text style={styles.title}>{t('circle_invite_title')}</Text>
             <View style={{ width: 32 }} />
           </View>
 
@@ -178,7 +179,7 @@ export default function CircleInviteScreen() {
                   mode === "email" && styles.modeBtnTextActive,
                 ]}
               >
-                Mojo app user
+                {t('circle_invite_mode_email')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -195,7 +196,7 @@ export default function CircleInviteScreen() {
                   mode === "sms" && styles.modeBtnTextActive,
                 ]}
               >
-                SMS only
+                {t('circle_invite_mode_sms')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -209,14 +210,14 @@ export default function CircleInviteScreen() {
           {/* Form */}
           <View style={styles.form}>
             <FormField
-              label="Name"
+              label={t('circle_invite_name_label')}
               value={displayName}
               onChange={setDisplayName}
               placeholder="Full name"
             />
             {mode === "email" && (
               <FormField
-                label="Email"
+                label={t('circle_invite_email_label')}
                 value={email}
                 onChange={setEmail}
                 placeholder="their@email.com"
@@ -225,7 +226,7 @@ export default function CircleInviteScreen() {
               />
             )}
             <FormField
-              label="Phone (for SOS SMS)"
+              label={t('circle_invite_phone_label')}
               value={phone}
               onChange={setPhone}
               placeholder="+254 7XX XXX XXX"
@@ -233,7 +234,7 @@ export default function CircleInviteScreen() {
             />
 
             {/* Relationship picker */}
-            <Text style={styles.fieldLabel}>Relationship</Text>
+            <Text style={styles.fieldLabel}>{t('circle_invite_relationship_label')}</Text>
             <View style={styles.chipRow}>
               {RELATIONSHIPS.map((r) => (
                 <TouchableOpacity
@@ -268,9 +269,9 @@ export default function CircleInviteScreen() {
                 {isEmergency && <View style={styles.emergencyCheckInner} />}
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={styles.emergencyLabel}>Emergency contact</Text>
+                <Text style={styles.emergencyLabel}>{t('circle_invite_emergency_label')}</Text>
                 <Text style={styles.emergencySub}>
-                  They receive SOS alerts immediately
+                  {t('circle_invite_emergency_sub')}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -287,7 +288,7 @@ export default function CircleInviteScreen() {
             {loading ? (
               <ActivityIndicator color="#000" size="small" />
             ) : (
-              <Text style={styles.submitBtnText}>Add to my Circle</Text>
+              <Text style={styles.submitBtnText}>{mode === "email" ? t('circle_invite_submit_email') : t('circle_invite_submit_sms')}</Text>
             )}
           </TouchableOpacity>
         </ScrollView>
