@@ -130,7 +130,26 @@ export default function DpaRequestsPage() {
 
   async function updateStatus(id: string, status: 'processing' | 'completed') {
     setActionLoading(id);
-    await supabase.from('dpa_requests').update({ status }).eq('id', id);
+    if (status === 'completed') {
+      // Trigger the Edge Function so export/delete actually runs server-side
+      try {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+        const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+        await fetch(`${supabaseUrl}/functions/v1/dpa-export-delete`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${anonKey}`,
+          },
+          body: JSON.stringify({ request_id: id }),
+        });
+      } catch {
+        // If the function call fails, fall back to a plain status update
+        await supabase.from('dpa_requests').update({ status }).eq('id', id);
+      }
+    } else {
+      await supabase.from('dpa_requests').update({ status }).eq('id', id);
+    }
     setActionLoading(null);
     fetchRequests();
   }
