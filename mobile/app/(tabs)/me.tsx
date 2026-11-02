@@ -1868,6 +1868,29 @@ export default function MeScreen() {
               </Text>
             </View>
           </View>
+          <View style={s.divider} />
+          <TouchableOpacity
+            style={s.row}
+            onPress={() => router.push("/saved-places")}
+            activeOpacity={0.75}
+          >
+            <IconBadge bg="rgba(59,130,246,0.10)">
+              <View
+                style={{
+                  width: 14,
+                  height: 14,
+                  borderRadius: 7,
+                  borderWidth: 2,
+                  borderColor: colors.blue,
+                }}
+              />
+            </IconBadge>
+            <View style={s.rowText}>
+              <Text style={s.rowLabel}>Saved places</Text>
+              <Text style={s.rowSub}>Home, work, school — used to pre-fill SOS location</Text>
+            </View>
+            <View style={s.chevron} />
+          </TouchableOpacity>
         </View>
 
         {/* Account */}
@@ -2415,6 +2438,8 @@ const s = StyleSheet.create({
   rowText: { flex: 1 },
 
   rowLabel: { fontSize: fonts.base, color: colors.text, fontWeight: "500" },
+
+  rowSub: { fontSize: fonts.sm, color: colors.textMuted, marginTop: 2 },
 
   rowValue: {
     fontSize: fonts.sm,

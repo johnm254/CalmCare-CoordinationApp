@@ -10,6 +10,8 @@ import {
 import { router } from "expo-router"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { colors, fonts, radius, spacing } from "../../lib/theme"
+import { supabase } from "../../lib/supabase"
+import { useAuth } from "../_layout"
 
 const CONSENT_ITEMS = [
   {
@@ -62,7 +64,17 @@ const CONSENT_ITEMS = [
   },
 ]
 
+const CONSENT_PURPOSE_MAP: Record<string, { purpose: string; copy_id: string }> = {
+  health:    { purpose: "welcome",         copy_id: "CON-01" },
+  location:  { purpose: "location",        copy_id: "CON-02" },
+  caregiver: { purpose: "sos_contact",     copy_id: "CON-03" },
+  mood:      { purpose: "medical_details", copy_id: "CON-04" },
+  emergency: { purpose: "sos_contact",     copy_id: "CON-05" },
+  kenya_dpa: { purpose: "stop_sharing",    copy_id: "CON-07" },
+}
+
 export default function ConsentScreen() {
+  const { session } = useAuth()
   const [toggles, setToggles] = useState<Record<string, boolean>>({
     health: false,
     location: false,
@@ -80,8 +92,22 @@ export default function ConsentScreen() {
     setToggles((prev) => ({ ...prev, [id]: !prev[id] }))
   }
 
-  function handleContinue() {
+  async function handleContinue() {
     if (!allRequiredOn) return
+
+    if (session) {
+      const inserts = Object.entries(CONSENT_PURPOSE_MAP).map(([id, { purpose, copy_id }]) =>
+        supabase.from("consent_log").insert({
+          patient_id:   session.user.id,
+          purpose,
+          granted:      toggles[id],
+          copy_id,
+          copy_version: "v1",
+        })
+      )
+      await Promise.allSettled(inserts)
+    }
+
     router.replace("/(tabs)")
   }
 

@@ -41,6 +41,17 @@ export default function LoginPage() {
 
       if (authError) {
         setError(mapAuthError(authError.message));
+        // best-effort: record failed attempt for lockout tracking
+        try {
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('email', email)
+            .maybeSingle();
+          if (profileData?.id) {
+            await supabase.rpc('record_failed_login', { clinician_uuid: profileData.id });
+          }
+        } catch {}
         return;
       }
       if (!data.user) {
@@ -83,6 +94,14 @@ export default function LoginPage() {
         }
       }
 
+      // Check clinician lockout
+      const { data: lockData } = await supabase.rpc('is_clinician_locked', { clinician_uuid: data.user.id });
+      if (lockData === true) {
+        await supabase.auth.signOut();
+        setError('Your account is temporarily locked due to too many failed attempts. Try again in 15 minutes.');
+        return;
+      }
+
       // Check MFA assurance level
       const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aalData) {
@@ -93,6 +112,7 @@ export default function LoginPage() {
         }
       }
 
+      try { await supabase.rpc('reset_failed_login', { clinician_uuid: data.user.id }); } catch {}
       router.push('/dashboard');
       router.refresh();
     } catch {

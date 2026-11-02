@@ -279,6 +279,26 @@ export async function getCareCircle(
   }))
 }
 
+export type LinkedPatient = {
+  patient_id: string
+  full_name: string | null
+  relationship: string
+}
+
+export async function getLinkedPatients(caregiverId: string): Promise<LinkedPatient[]> {
+  const { data } = await supabase
+    .from("care_circle")
+    .select("patient_id, relationship, profiles!care_circle_patient_id_fkey(full_name)")
+    .eq("member_id", caregiverId)
+    .eq("contact_status", "accepted")
+  if (!data) return []
+  return data.map((row: any) => ({
+    patient_id: row.patient_id,
+    full_name: row.profiles?.full_name ?? null,
+    relationship: row.relationship,
+  }))
+}
+
 export async function getGrantsForMember(
   patientId: string,
   granteeId: string,
@@ -498,6 +518,28 @@ export async function sendSos(
     } catch {
       /* non-fatal */
     }
+  }
+
+  // CR-LOC-01: time-limited location share (expires 4 h after SOS sent)
+
+  try {
+    const expiresAt = new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString()
+
+    await supabase.from("location_shares").insert({
+      patient_id: patientId,
+
+      alert_id: alertId,
+
+      shared_with: emergencyContactIds,
+
+      expires_at: expiresAt,
+
+      lat: location?.lat ?? null,
+
+      lng: location?.lon ?? null,
+    })
+  } catch {
+    /* non-fatal */
   }
 
   const apiUrl = process.env.EXPO_PUBLIC_API_URL

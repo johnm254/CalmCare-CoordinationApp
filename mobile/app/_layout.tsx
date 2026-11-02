@@ -55,15 +55,25 @@ interface AuthContextType {
   profile: Profile | null
 
   isLoading: boolean
+
+  activePatientId: string | null
+
+  setActivePatientId: (id: string) => void
 }
 
 export const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   isLoading: true,
+  activePatientId: null,
+  setActivePatientId: () => {},
 })
 
 export function useAuth() {
+  return useContext(AuthContext)
+}
+
+export function useActivePatient() {
   return useContext(AuthContext)
 }
 
@@ -523,6 +533,8 @@ export default function RootLayout() {
 
   const [initialized, setInitialized] = useState(false)
 
+  const [activePatientId, setActivePatientId] = useState<string | null>(null)
+
   // Splash + biometric
 
   const [splashDone, setSplashDone] = useState(false)
@@ -776,6 +788,8 @@ export default function RootLayout() {
 
         setProfile(p)
 
+        if (p?.role === "patient") setActivePatientId(p.id)
+
         getExpoPushToken().then((token) => {
           if (token && session.user)
             registerPushToken(session.user.id, token).catch(() => {})
@@ -794,6 +808,8 @@ export default function RootLayout() {
         const p = await getProfile(session.user.id)
 
         setProfile(p)
+
+        if (p?.role === "patient") setActivePatientId(p.id)
 
         getExpoPushToken().then((token) => {
           if (token && session?.user)
@@ -908,7 +924,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <I18nProvider>
       <AuthContext.Provider
-        value={{ session, profile, isLoading: !initialized }}
+        value={{ session, profile, isLoading: !initialized, activePatientId, setActivePatientId }}
       >
         <StatusBar style="light" backgroundColor={colors.bg} />
 

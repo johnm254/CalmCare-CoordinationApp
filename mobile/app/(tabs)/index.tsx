@@ -313,6 +313,8 @@ export default function HomeScreen() {
     phone: string | null
   } | null>(null)
 
+  const [latestMoodScore, setLatestMoodScore] = useState<number | null>(null)
+
   const pulseAnim = useRef(new Animated.Value(0.5)).current
 
   const sosScale = useRef(new Animated.Value(1)).current
@@ -451,6 +453,16 @@ export default function HomeScreen() {
           setLastSyncedMinutes(Math.max(0, mins))
         }
       })
+
+    supabase
+      .from("mood_logs")
+      .select("score")
+      .eq("patient_id", uid)
+      .order("logged_at", { ascending: false })
+      .limit(1)
+      .then(({ data }) => {
+        if (data && data.length > 0) setLatestMoodScore(data[0].score)
+      })
   }, [session])
 
   useEffect(() => {
@@ -545,6 +557,8 @@ export default function HomeScreen() {
     .join("")
     .slice(0, 2)
     .toUpperCase()
+
+  const showCrisisCard = latestMoodScore !== null && latestMoodScore <= 2
 
   const nextMed = medications[0]
 
@@ -863,6 +877,25 @@ export default function HomeScreen() {
               )}
             </TouchableOpacity>
           </Animated.View>
+        )}
+
+        {/* ── Crisis resource card ───────────────────────────────────────────── */}
+        {showCrisisCard && (
+          <View style={styles.crisisCard}>
+            <View style={styles.crisisHeader}>
+              <View style={styles.crisisDot} />
+              <Text style={styles.crisisTitle}>Feeling overwhelmed?</Text>
+            </View>
+            <Text style={styles.crisisOrg}>Befrienders Kenya</Text>
+            <Text style={styles.crisisLine}>0800 723 253 · Free · 24/7</Text>
+            <TouchableOpacity
+              style={styles.crisisCallBtn}
+              onPress={() => Linking.openURL("tel:0800723253")}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.crisisCallText}>{"Call now — it's free"}</Text>
+            </TouchableOpacity>
+          </View>
         )}
       </ScrollView>
 
@@ -1498,4 +1531,59 @@ const styles = StyleSheet.create({
   forecastHigh: { fontSize: fonts.sm, color: colors.text, fontWeight: "700" },
 
   forecastLow: { fontSize: fonts.xs, color: colors.textMuted },
+
+  crisisCard: {
+    backgroundColor: "rgba(239,68,68,0.06)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(239,68,68,0.25)",
+    padding: 16,
+    marginBottom: 16,
+  },
+
+  crisisHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 6,
+  },
+
+  crisisDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#EF4444",
+  },
+
+  crisisTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#EF4444",
+  },
+
+  crisisOrg: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: "#F5F0FF",
+    marginBottom: 2,
+  },
+
+  crisisLine: {
+    fontSize: 13,
+    color: "#9B96C0",
+    marginBottom: 14,
+  },
+
+  crisisCallBtn: {
+    backgroundColor: "#EF4444",
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: "center",
+  },
+
+  crisisCallText: {
+    color: "#fff",
+    fontWeight: "800",
+    fontSize: 14,
+  },
 })

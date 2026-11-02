@@ -232,7 +232,12 @@ export default function SOSScreen() {
 
       const name = profile?.full_name ?? "Your contact"
 
-      let body = `URGENT: ${name} needs help. SOS from Mojo. Call 999 immediately.`
+      const time = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+
+      let body = `Mojo SOS: ${name} needs help (sent ${time}). Reply 1 = yes, 2 = no.`
 
       if (location) {
         body += ` Location: https://maps.google.com/?q=${location.lat},${location.lon}`

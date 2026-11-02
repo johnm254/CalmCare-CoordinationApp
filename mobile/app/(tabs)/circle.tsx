@@ -25,8 +25,10 @@ import {
   getGrantsForMember,
   setGrant,
   removeCareCircleMember,
+  getLinkedPatients,
   type CareCircleMember,
   type GrantKey,
+  type LinkedPatient,
 } from "../../lib/supabase"
 
 const GRANT_LABELS: { key: GrantKey; label: string; sub: string }[] = [
@@ -84,7 +86,7 @@ function ChevronIcon({ open }: { open: boolean }) {
 }
 
 export default function CircleScreen() {
-  const { session } = useAuth()
+  const { profile, session, activePatientId, setActivePatientId } = useAuth()
 
   const [contacts, setContacts] = useState<ContactWithGrants[]>([])
 
@@ -93,6 +95,12 @@ export default function CircleScreen() {
   const [loading, setLoading] = useState(true)
 
   const [saving, setSaving] = useState<string | null>(null)
+
+  const [linkedPatients, setLinkedPatients] = useState<LinkedPatient[]>([])
+
+  const [showPicker, setShowPicker] = useState(false)
+
+  const isCaregiver = profile?.role === "caregiver"
 
   const loadCircle = useCallback(async () => {
     if (!session?.user) return
@@ -122,6 +130,18 @@ export default function CircleScreen() {
     useCallback(() => {
       loadCircle()
     }, [loadCircle]),
+  )
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!session?.user || !isCaregiver) return
+      getLinkedPatients(session.user.id).then((patients) => {
+        setLinkedPatients(patients)
+        if (patients.length > 0 && !activePatientId) {
+          setActivePatientId(patients[0].patient_id)
+        }
+      })
+    }, [session, isCaregiver]),
   )
 
   async function toggleGrant(contact: ContactWithGrants, key: GrantKey) {
@@ -159,6 +179,44 @@ export default function CircleScreen() {
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
+        {isCaregiver && (
+          <View style={styles.caregiverBanner}>
+            <Text style={styles.caregiverBannerLabel}>Viewing care for:</Text>
+            <TouchableOpacity
+              style={styles.patientPickerBtn}
+              onPress={() => setShowPicker(true)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.patientPickerName}>
+                {linkedPatients.find(p => p.patient_id === activePatientId)?.full_name ?? "Select patient"}
+              </Text>
+              <Text style={styles.patientPickerChevron}>▾</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {isCaregiver && showPicker && (
+          <View style={styles.pickerDropdown}>
+            {linkedPatients.map((p) => (
+              <TouchableOpacity
+                key={p.patient_id}
+                style={[
+                  styles.pickerItem,
+                  activePatientId === p.patient_id && styles.pickerItemActive,
+                ]}
+                onPress={() => {
+                  setActivePatientId(p.patient_id)
+                  setShowPicker(false)
+                }}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.pickerItemName}>{p.full_name ?? "Unknown"}</Text>
+                <Text style={styles.pickerItemRel}>{p.relationship}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
+
         <Text style={styles.title}>Care Circle</Text>
         <Text style={styles.description}>
           You decide who sees what. Changes take effect immediately.
@@ -492,4 +550,72 @@ const styles = StyleSheet.create({
   },
 
   inviteBtnText: { color: "#000", fontWeight: "700", fontSize: fonts.md },
+
+  caregiverBanner: {
+    backgroundColor: "rgba(139,92,246,0.08)",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(139,92,246,0.20)",
+    padding: 14,
+    marginBottom: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  caregiverBannerLabel: {
+    fontSize: 12,
+    color: "#9B96C0",
+    fontWeight: "600",
+  },
+
+  patientPickerBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  patientPickerName: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#F5F0FF",
+  },
+
+  patientPickerChevron: {
+    fontSize: 12,
+    color: "#8B5CF6",
+  },
+
+  pickerDropdown: {
+    backgroundColor: "#14122A",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#2E2B50",
+    marginBottom: 12,
+    overflow: "hidden",
+  },
+
+  pickerItem: {
+    padding: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: "#2E2B50",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+
+  pickerItemActive: {
+    backgroundColor: "rgba(139,92,246,0.08)",
+  },
+
+  pickerItemName: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#F5F0FF",
+  },
+
+  pickerItemRel: {
+    fontSize: 12,
+    color: "#9B96C0",
+  },
 })
