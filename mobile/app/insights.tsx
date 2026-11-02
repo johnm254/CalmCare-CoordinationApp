@@ -8,6 +8,11 @@ import {
   StyleSheet,
   ActivityIndicator,
   Animated,
+  Modal,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
 } from "react-native"
 
 import { router } from "expo-router"
@@ -18,7 +23,7 @@ import { colors, fonts, radius, spacing } from "../lib/theme"
 
 import { useAuth } from "./_layout"
 
-import { getInsightsSummary } from "../lib/supabase"
+import { getInsightsSummary, logEvent } from "../lib/supabase"
 
 type Insights = {
   this_week_events: number
@@ -202,6 +207,12 @@ export default function InsightsScreen() {
 
   const [loading, setLoading] = useState(true)
 
+  const [showVoiceModal, setShowVoiceModal] = useState(false)
+  const [voiceNote, setVoiceNote] = useState("")
+  const [savingNote, setSavingNote] = useState(false)
+
+  const [showBriefModal, setShowBriefModal] = useState(false)
+
   useEffect(() => {
     if (!session?.user) return
 
@@ -211,6 +222,21 @@ export default function InsightsScreen() {
       setLoading(false)
     })
   }, [session])
+
+  async function handleSaveVoiceNote() {
+    if (!session?.user || !voiceNote.trim()) return
+    setSavingNote(true)
+    try {
+      await logEvent(session.user.id, "patient_note", "mild", { note: voiceNote.trim() })
+      setVoiceNote("")
+      setShowVoiceModal(false)
+      Alert.alert("Saved", "Your note has been logged.")
+    } catch {
+      Alert.alert("Error", "Could not save your note. Please try again.")
+    } finally {
+      setSavingNote(false)
+    }
+  }
 
   return (
     <SafeAreaView style={styles.safe}>
@@ -305,14 +331,19 @@ export default function InsightsScreen() {
             </View>
           </View>
           <View style={styles.micRow}>
-            <View style={styles.micBtn}>
+            <TouchableOpacity
+              style={styles.micBtn}
+              onPress={() => setShowVoiceModal(true)}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Log a note"
+            >
               <MicrophoneIcon />
-            </View>
+            </TouchableOpacity>
             <WaveformIcon />
           </View>
           <Text style={styles.cardBody}>
-            Say what happened and Mojo turns it into a log you can edit. Saved
-            on this device first, syncs later.
+            Tap the mic and type what happened. Voice transcription is coming soon.
           </Text>
         </View>
 
@@ -325,11 +356,113 @@ export default function InsightsScreen() {
                 Review it, then share with your clinician
               </Text>
             </View>
-            <TouchableOpacity style={styles.reviewBtn}>
+            <TouchableOpacity
+              style={styles.reviewBtn}
+              onPress={() => setShowBriefModal(true)}
+              activeOpacity={0.85}
+            >
               <Text style={styles.reviewBtnText}>Review</Text>
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* ── Voice note modal ── */}
+        <Modal
+          visible={showVoiceModal}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setShowVoiceModal(false)}
+        >
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalSheet}>
+                <Text style={styles.modalTitle}>Log a note</Text>
+                <Text style={styles.modalSub}>
+                  Describe what happened. It will be saved as an event log.
+                </Text>
+                <TextInput
+                  style={styles.noteInput}
+                  placeholder="e.g. Felt dizzy for about 2 minutes after lunch…"
+                  placeholderTextColor={colors.textMuted}
+                  value={voiceNote}
+                  onChangeText={setVoiceNote}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                  autoFocus
+                />
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={[styles.modalBtn, styles.modalBtnPrimary, !voiceNote.trim() && styles.modalBtnDisabled]}
+                    onPress={handleSaveVoiceNote}
+                    disabled={savingNote || !voiceNote.trim()}
+                    activeOpacity={0.85}
+                  >
+                    {savingNote
+                      ? <ActivityIndicator color="#000" size="small" />
+                      : <Text style={styles.modalBtnPrimaryText}>Save note</Text>
+                    }
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.modalBtn, styles.modalBtnOutline]}
+                    onPress={() => { setShowVoiceModal(false); setVoiceNote("") }}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.modalBtnOutlineText}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </KeyboardAvoidingView>
+        </Modal>
+
+        {/* ── Visit brief modal ── */}
+        <Modal
+          visible={showBriefModal}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setShowBriefModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalSheet}>
+              <Text style={styles.modalTitle}>Visit brief</Text>
+              <Text style={styles.modalSub}>
+                A snapshot of your week to share with your clinician.
+              </Text>
+              {insights ? (
+                <View style={styles.briefContent}>
+                  <View style={styles.briefRow}>
+                    <Text style={styles.briefLabel}>Events this week</Text>
+                    <Text style={styles.briefValue}>{insights.this_week_events}</Text>
+                  </View>
+                  <View style={styles.briefRow}>
+                    <Text style={styles.briefLabel}>Medication check-ins</Text>
+                    <Text style={styles.briefValue}>{insights.med_checkins}</Text>
+                  </View>
+                  <View style={[styles.briefRow, { borderBottomWidth: 0 }]}>
+                    <Text style={styles.briefLabel}>Pattern</Text>
+                    <Text style={[styles.briefValue, { flex: 1, textAlign: "right" }]}>{insights.pattern}</Text>
+                  </View>
+                </View>
+              ) : (
+                <Text style={styles.modalSub}>No data yet. Log a few events first.</Text>
+              )}
+              <Text style={styles.briefDisclaimer}>
+                This is a draft. Review with your clinician before making any changes to your care plan.
+              </Text>
+              <TouchableOpacity
+                style={[styles.modalBtn, styles.modalBtnPrimary, { marginTop: spacing.md }]}
+                onPress={() => setShowBriefModal(false)}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.modalBtnPrimaryText}>Done</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
 
         {/* Disclaimer */}
         <Text style={styles.disclaimer}>
@@ -608,5 +741,121 @@ const styles = StyleSheet.create({
 
     marginTop: spacing.md,
     paddingHorizontal: spacing.md,
+  },
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
+  },
+
+  modalSheet: {
+    backgroundColor: colors.bgCard,
+    borderTopLeftRadius: radius.xl,
+    borderTopRightRadius: radius.xl,
+    padding: spacing.xl,
+    paddingBottom: spacing.xxxl,
+  },
+
+  modalTitle: {
+    fontSize: fonts.lg,
+    fontWeight: "700",
+    color: colors.text,
+    marginBottom: spacing.xs,
+  },
+
+  modalSub: {
+    fontSize: fonts.sm,
+    color: colors.textSecondary,
+    lineHeight: 20,
+    marginBottom: spacing.lg,
+  },
+
+  noteInput: {
+    backgroundColor: colors.inputBg,
+    borderRadius: radius.md,
+    borderWidth: 1.5,
+    borderColor: colors.inputBorder,
+    color: colors.text,
+    fontSize: fonts.base,
+    padding: spacing.md,
+    minHeight: 100,
+    marginBottom: spacing.lg,
+  },
+
+  modalActions: {
+    flexDirection: "row",
+    gap: spacing.md,
+  },
+
+  modalBtn: {
+    flex: 1,
+    paddingVertical: spacing.md,
+    borderRadius: radius.lg,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  modalBtnPrimary: {
+    backgroundColor: colors.teal,
+  },
+
+  modalBtnDisabled: {
+    backgroundColor: colors.bgCardAlt,
+  },
+
+  modalBtnPrimaryText: {
+    color: "#000",
+    fontWeight: "700",
+    fontSize: fonts.base,
+  },
+
+  modalBtnOutline: {
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+
+  modalBtnOutlineText: {
+    color: colors.textSecondary,
+    fontWeight: "600",
+    fontSize: fonts.base,
+  },
+
+  briefContent: {
+    backgroundColor: colors.bg,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: spacing.md,
+    overflow: "hidden",
+  },
+
+  briefRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+
+  briefLabel: {
+    fontSize: fonts.sm,
+    color: colors.textSecondary,
+    flex: 1,
+  },
+
+  briefValue: {
+    fontSize: fonts.sm,
+    color: colors.text,
+    fontWeight: "600",
+  },
+
+  briefDisclaimer: {
+    fontSize: fonts.xs,
+    color: colors.textMuted,
+    lineHeight: 18,
+    textAlign: "center",
   },
 })
