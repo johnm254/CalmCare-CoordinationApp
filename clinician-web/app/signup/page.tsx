@@ -18,9 +18,9 @@ function StrengthBar({ password }: { password: string }) {
   // 0 = empty, 1-2 = weak (red), 3 = fair (amber), 4-5 = strong (green)
   const color =
     password.length === 0
-      ? '#2E2B50'
+      ? '#1E1B38'
       : passing <= 2
-      ? '#EF4444'
+      ? '#F43F5E'
       : passing === 3
       ? '#F4B860'
       : '#22C87A';
@@ -32,14 +32,14 @@ function StrengthBar({ password }: { password: string }) {
           <div
             key={i}
             className="h-1.5 flex-1 rounded-full transition-colors duration-300"
-            style={{ backgroundColor: password.length > 0 && i <= passing ? color : '#2E2B50' }}
+            style={{ backgroundColor: password.length > 0 && i <= passing ? color : '#1E1B38' }}
           />
         ))}
       </div>
       {password.length > 0 && errors.length > 0 && (
         <ul className="space-y-0.5">
           {errors.map((err) => (
-            <li key={err} className="text-xs text-[#EF4444] flex items-center gap-1.5">
+            <li key={err} className="text-xs text-[#F43F5E] flex items-center gap-1.5">
               <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 12 12" fill="currentColor">
                 <path d="M6 0a6 6 0 100 12A6 6 0 006 0zm.75 8.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM5.25 4.5a.75.75 0 011.5 0v2a.75.75 0 01-1.5 0v-2z" />
               </svg>
@@ -137,33 +137,33 @@ export default function SignUpPage() {
   }
 
   const inputClass =
-    'w-full bg-[#14122A] border border-[#2E2B50] rounded-xl px-4 py-3.5 text-[#F5F0FF] placeholder:text-[#504C78] focus:border-[#8B5CF6] focus:outline-none focus:ring-2 focus:ring-[#8B5CF6]/20 text-sm transition-colors disabled:opacity-50';
+    'w-full bg-[#0C0A1E] border border-[#1E1B38] rounded-xl px-4 py-3.5 text-[#EDE8FF] placeholder:text-[#504875] focus:border-[#7B35FA] focus:outline-none focus:ring-2 focus:ring-[#7B35FA]/20 text-sm transition-colors disabled:opacity-50';
 
   return (
-    <div className="min-h-screen bg-[#09090F] flex">
+    <div className="min-h-screen bg-[#04030D] flex">
       {/* Left panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-[#07060E] border-r border-[#2E2B50] flex-col items-center justify-center px-12 py-16 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-[#030210] border-r border-[#1E1B38] flex-col items-center justify-center px-12 py-16 relative overflow-hidden">
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(139,92,246,0.07) 0%, transparent 70%)' }}
+          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(123,53,250,0.07) 0%, transparent 70%)' }}
         />
         <div className="relative z-10 flex flex-col items-center text-center max-w-sm w-full">
           <div className="relative mb-2">
-            <div className="w-14 h-14 rounded-full border-2 border-[#8B5CF6] opacity-20 absolute inset-0" />
-            <div className="absolute rounded-full border-2 border-[#8B5CF6] opacity-50" style={{ inset: 10 }} />
-            <div className="absolute rounded-full bg-[#8B5CF6]" style={{ inset: 20 }} />
+            <div className="w-14 h-14 rounded-full border-2 border-[#7B35FA] opacity-20 absolute inset-0" />
+            <div className="absolute rounded-full border-2 border-[#7B35FA] opacity-50" style={{ inset: 10 }} />
+            <div className="absolute rounded-full bg-[#7B35FA]" style={{ inset: 20 }} />
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-14 h-14 relative" aria-hidden="true">
-              <circle cx="48" cy="48" r="10" fill="#8B5CF6" />
-              <circle cx="48" cy="48" r="26" fill="none" stroke="#8B5CF6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
-              <circle cx="48" cy="48" r="42" fill="none" stroke="#8B5CF6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
+              <circle cx="48" cy="48" r="10" fill="#7B35FA" />
+              <circle cx="48" cy="48" r="26" fill="none" stroke="#7B35FA" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
+              <circle cx="48" cy="48" r="42" fill="none" stroke="#7B35FA" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
             </svg>
           </div>
-          <h1 className="text-[#F5F0FF] font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>Duara</h1>
-          <p className="text-[#8B5CF6] text-sm mt-2 tracking-wide font-medium">Clinician & Nurse Portal</p>
+          <h1 className="text-[#EDE8FF] font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>Duara</h1>
+          <p className="text-[#7B35FA] text-sm mt-2 tracking-wide font-medium">Clinician & Nurse Portal</p>
 
           <div className="mt-10 w-full space-y-6">
-            <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl p-5 text-left">
-              <p className="text-[#F5F0FF] font-semibold text-sm mb-2">Registration process</p>
+            <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-5 text-left">
+              <p className="text-[#EDE8FF] font-semibold text-sm mb-2">Registration process</p>
               <ol className="space-y-2.5">
                 {[
                   'Submit your details and licence number',
@@ -171,8 +171,8 @@ export default function SignUpPage() {
                   'Receive email confirmation to activate your account',
                   'Set up two-factor authentication',
                 ].map((step, i) => (
-                  <li key={i} className="flex items-start gap-3 text-[#9B96C0] text-xs">
-                    <span className="w-5 h-5 rounded-full bg-[rgba(139,92,246,0.10)] border border-[#8B5CF6]/30 flex items-center justify-center text-[#8B5CF6] font-bold flex-shrink-0 text-xs">
+                  <li key={i} className="flex items-start gap-3 text-[#9490BF] text-xs">
+                    <span className="w-5 h-5 rounded-full bg-[rgba(123,53,250,0.10)] border border-[#7B35FA]/30 flex items-center justify-center text-[#7B35FA] font-bold flex-shrink-0 text-xs">
                       {i + 1}
                     </span>
                     {step}
@@ -186,8 +186,8 @@ export default function SignUpPage() {
                 'Patient-controlled consent & data access',
                 'HIPAA-aligned data handling',
               ].map((b) => (
-                <li key={b} className="flex items-center gap-3 text-[#9B96C0] text-sm">
-                  <svg className="w-4 h-4 text-[#8B5CF6] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li key={b} className="flex items-center gap-3 text-[#9490BF] text-sm">
+                  <svg className="w-4 h-4 text-[#7B35FA] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   {b}
@@ -199,26 +199,26 @@ export default function SignUpPage() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#09090F] overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#04030D] overflow-y-auto">
         {/* Mobile logo */}
         <div className="flex lg:hidden flex-col items-center mb-8">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-12 h-12" aria-hidden="true">
-            <circle cx="48" cy="48" r="10" fill="#8B5CF6" />
-            <circle cx="48" cy="48" r="26" fill="none" stroke="#8B5CF6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
-            <circle cx="48" cy="48" r="42" fill="none" stroke="#8B5CF6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
+            <circle cx="48" cy="48" r="10" fill="#7B35FA" />
+            <circle cx="48" cy="48" r="26" fill="none" stroke="#7B35FA" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
+            <circle cx="48" cy="48" r="42" fill="none" stroke="#7B35FA" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
           </svg>
-          <p className="text-[#F5F0FF] font-extrabold text-2xl mt-2">Duara</p>
-          <p className="text-[#8B5CF6] text-xs mt-1">Clinician & Nurse Portal</p>
+          <p className="text-[#EDE8FF] font-extrabold text-2xl mt-2">Duara</p>
+          <p className="text-[#7B35FA] text-xs mt-1">Clinician & Nurse Portal</p>
         </div>
 
         <div className="w-full max-w-md">
-          <h2 className="text-[#F5F0FF] font-bold mb-1" style={{ fontSize: '28px' }}>Create your account</h2>
-          <p className="text-[#9B96C0] text-sm mb-8">Register as a clinician or nurse to access patient dashboards.</p>
+          <h2 className="text-[#EDE8FF] font-bold mb-1" style={{ fontSize: '28px' }}>Create your account</h2>
+          <p className="text-[#9490BF] text-sm mb-8">Register as a clinician or nurse to access patient dashboards.</p>
 
           <form onSubmit={handleSignUp} className="space-y-5" noValidate>
             {/* Full name */}
             <div>
-              <label htmlFor="full-name" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="full-name" className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-2">
                 Full name
               </label>
               <input
@@ -237,7 +237,7 @@ export default function SignUpPage() {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="email" className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-2">
                 Email address
               </label>
               <input
@@ -256,7 +256,7 @@ export default function SignUpPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="password" className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-2">
                 Password
               </label>
               <div className="relative">
@@ -276,7 +276,7 @@ export default function SignUpPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#504C78] hover:text-[#9B96C0] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#504875] hover:text-[#9490BF] transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   tabIndex={-1}
                 >
@@ -300,7 +300,7 @@ export default function SignUpPage() {
 
             {/* Confirm password */}
             <div>
-              <label htmlFor="confirm-password" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="confirm-password" className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-2">
                 Confirm password
               </label>
               <div className="relative">
@@ -319,7 +319,7 @@ export default function SignUpPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#504C78] hover:text-[#9B96C0] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#504875] hover:text-[#9490BF] transition-colors"
                   aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
                   tabIndex={-1}
                 >
@@ -337,7 +337,7 @@ export default function SignUpPage() {
                 </button>
               </div>
               {confirmPassword.length > 0 && confirmPassword !== password && (
-                <p className="mt-1.5 text-xs text-[#EF4444]">Passwords do not match</p>
+                <p className="mt-1.5 text-xs text-[#F43F5E]">Passwords do not match</p>
               )}
               {confirmPassword.length > 0 && confirmPassword === password && password.length > 0 && (
                 <p className="mt-1.5 text-xs text-[#22C87A]">Passwords match</p>
@@ -346,7 +346,7 @@ export default function SignUpPage() {
 
             {/* Cadre */}
             <div>
-              <label htmlFor="cadre" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="cadre" className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-2">
                 Cadre
               </label>
               <select
@@ -367,7 +367,7 @@ export default function SignUpPage() {
 
             {/* Registering body */}
             <div>
-              <label htmlFor="registering-body" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="registering-body" className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-2">
                 Registering body
               </label>
               <select
@@ -388,7 +388,7 @@ export default function SignUpPage() {
 
             {/* Licence number */}
             <div>
-              <label htmlFor="licence-number" className="block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="licence-number" className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-2">
                 Licence number
               </label>
               <input
@@ -407,16 +407,16 @@ export default function SignUpPage() {
             {error && (
               <div
                 role="alert"
-                className="bg-[rgba(239,68,68,0.10)] border border-[#EF4444]/40 rounded-xl px-4 py-3"
+                className="bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/40 rounded-xl px-4 py-3"
               >
-                <p className="text-[#EF4444] text-sm">{error}</p>
+                <p className="text-[#F43F5E] text-sm">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#8B5CF6] text-[#09090F] font-bold rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
+              className="w-full bg-[#7B35FA] text-[#04030D] font-bold rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -430,9 +430,9 @@ export default function SignUpPage() {
             </button>
           </form>
 
-          <p className="text-center text-[#504C78] text-xs mt-8">
+          <p className="text-center text-[#504875] text-xs mt-8">
             Already registered?{' '}
-            <Link href="/login" className="text-[#9B96C0] font-medium hover:text-[#8B5CF6] transition-colors">
+            <Link href="/login" className="text-[#9490BF] font-medium hover:text-[#7B35FA] transition-colors">
               Sign in
             </Link>
           </p>

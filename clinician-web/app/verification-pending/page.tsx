@@ -6,10 +6,10 @@ function PendingIcon() {
   return (
     <div className="relative w-24 h-24 flex items-center justify-center" aria-hidden="true">
       <svg viewBox="0 0 96 96" fill="none" className="absolute inset-0 w-full h-full">
-        <circle cx="48" cy="48" r="44" stroke="#8B5CF6" strokeOpacity=".12" strokeWidth="4" />
-        <circle cx="48" cy="48" r="32" stroke="#8B5CF6" strokeOpacity=".25" strokeWidth="4" />
-        <circle cx="48" cy="48" r="20" stroke="#8B5CF6" strokeOpacity=".5" strokeWidth="4" />
-        <circle cx="48" cy="48" r="8" fill="#8B5CF6" />
+        <circle cx="48" cy="48" r="44" stroke="#7B35FA" strokeOpacity=".12" strokeWidth="4" />
+        <circle cx="48" cy="48" r="32" stroke="#7B35FA" strokeOpacity=".25" strokeWidth="4" />
+        <circle cx="48" cy="48" r="20" stroke="#7B35FA" strokeOpacity=".5" strokeWidth="4" />
+        <circle cx="48" cy="48" r="8" fill="#7B35FA" />
       </svg>
     </div>
   );
@@ -17,8 +17,8 @@ function PendingIcon() {
 
 function RejectedIcon() {
   return (
-    <div className="w-24 h-24 rounded-full bg-[rgba(239,68,68,0.10)] border-2 border-[#EF4444]/30 flex items-center justify-center" aria-hidden="true">
-      <svg className="w-10 h-10 text-[#EF4444]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="w-24 h-24 rounded-full bg-[rgba(244,63,94,0.10)] border-2 border-[#F43F5E]/30 flex items-center justify-center" aria-hidden="true">
+      <svg className="w-10 h-10 text-[#F43F5E]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
       </svg>
     </div>
@@ -59,10 +59,10 @@ export default async function VerificationPendingPage() {
   const effectiveStatus = isExpired ? 'expired' : status;
 
   return (
-    <div className="min-h-screen bg-[#09090F] flex flex-col items-center justify-center px-6 py-16">
+    <div className="min-h-screen bg-[#04030D] flex flex-col items-center justify-center px-6 py-16">
       <div
         className="fixed inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(139,92,246,0.05) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(123,53,250,0.05) 0%, transparent 70%)' }}
         aria-hidden="true"
       />
 
@@ -70,34 +70,34 @@ export default async function VerificationPendingPage() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-10 h-10" aria-label="Duara logo">
-            <circle cx="48" cy="48" r="10" fill="#8B5CF6" />
-            <circle cx="48" cy="48" r="26" fill="none" stroke="#8B5CF6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
-            <circle cx="48" cy="48" r="42" fill="none" stroke="#8B5CF6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
+            <circle cx="48" cy="48" r="10" fill="#7B35FA" />
+            <circle cx="48" cy="48" r="26" fill="none" stroke="#7B35FA" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
+            <circle cx="48" cy="48" r="42" fill="none" stroke="#7B35FA" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
           </svg>
-          <p className="text-[#F5F0FF] font-extrabold text-xl mt-2">Duara</p>
+          <p className="text-[#EDE8FF] font-extrabold text-xl mt-2">Duara</p>
         </div>
 
-        <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl p-10 flex flex-col items-center text-center">
+        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-10 flex flex-col items-center text-center">
           {effectiveStatus === 'pending' && (
             <>
               <PendingIcon />
-              <h1 className="text-[#F5F0FF] font-bold text-2xl mt-6 mb-3">Verification in progress</h1>
-              <p className="text-[#9B96C0] text-sm leading-relaxed mb-2">
+              <h1 className="text-[#EDE8FF] font-bold text-2xl mt-6 mb-3">Verification in progress</h1>
+              <p className="text-[#9490BF] text-sm leading-relaxed mb-2">
                 Your licence is being verified by our team. This usually takes 1–2 business days.
               </p>
-              <p className="text-[#9B96C0] text-sm leading-relaxed">
+              <p className="text-[#9490BF] text-sm leading-relaxed">
                 You will receive an email once your account is approved.
               </p>
-              <div className="mt-6 bg-[rgba(139,92,246,0.07)] border border-[#8B5CF6]/20 rounded-xl px-5 py-4 w-full text-left">
-                <p className="text-[#8B5CF6] text-xs font-semibold uppercase tracking-widest mb-2">What happens next</p>
+              <div className="mt-6 bg-[rgba(123,53,250,0.07)] border border-[#7B35FA]/20 rounded-xl px-5 py-4 w-full text-left">
+                <p className="text-[#7B35FA] text-xs font-semibold uppercase tracking-widest mb-2">What happens next</p>
                 <ul className="space-y-1.5">
                   {[
                     'Our team reviews your licence with the registering body',
                     'You receive an approval email',
                     'Sign in and complete MFA setup to access the portal',
                   ].map((item, i) => (
-                    <li key={i} className="text-[#9B96C0] text-xs flex items-start gap-2">
-                      <span className="text-[#8B5CF6] mt-0.5">•</span>
+                    <li key={i} className="text-[#9490BF] text-xs flex items-start gap-2">
+                      <span className="text-[#7B35FA] mt-0.5">•</span>
                       {item}
                     </li>
                   ))}
@@ -109,16 +109,16 @@ export default async function VerificationPendingPage() {
           {effectiveStatus === 'rejected' && (
             <>
               <RejectedIcon />
-              <h1 className="text-[#F5F0FF] font-bold text-2xl mt-6 mb-3">Verification unsuccessful</h1>
+              <h1 className="text-[#EDE8FF] font-bold text-2xl mt-6 mb-3">Verification unsuccessful</h1>
               {notes ? (
-                <div className="mb-4 bg-[rgba(239,68,68,0.07)] border border-[#EF4444]/20 rounded-xl px-5 py-4 w-full text-left">
-                  <p className="text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-1">Reason provided</p>
-                  <p className="text-[#F5F0FF] text-sm">{notes}</p>
+                <div className="mb-4 bg-[rgba(244,63,94,0.07)] border border-[#F43F5E]/20 rounded-xl px-5 py-4 w-full text-left">
+                  <p className="text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-1">Reason provided</p>
+                  <p className="text-[#EDE8FF] text-sm">{notes}</p>
                 </div>
               ) : null}
-              <p className="text-[#9B96C0] text-sm leading-relaxed">
+              <p className="text-[#9490BF] text-sm leading-relaxed">
                 Please contact{' '}
-                <a href="mailto:support@duara.health" className="text-[#8B5CF6] hover:underline">
+                <a href="mailto:support@duara.health" className="text-[#7B35FA] hover:underline">
                   support@duara.health
                 </a>{' '}
                 or re-apply with corrected details.
@@ -129,10 +129,10 @@ export default async function VerificationPendingPage() {
           {effectiveStatus === 'expired' && (
             <>
               <ExpiredIcon />
-              <h1 className="text-[#F5F0FF] font-bold text-2xl mt-6 mb-3">Licence expired</h1>
-              <p className="text-[#9B96C0] text-sm leading-relaxed">
+              <h1 className="text-[#EDE8FF] font-bold text-2xl mt-6 mb-3">Licence expired</h1>
+              <p className="text-[#9490BF] text-sm leading-relaxed">
                 Your licence on record has expired. Please renew your licence with your registering body, then contact{' '}
-                <a href="mailto:support@duara.health" className="text-[#8B5CF6] hover:underline">
+                <a href="mailto:support@duara.health" className="text-[#7B35FA] hover:underline">
                   support@duara.health
                 </a>{' '}
                 to update your record.
@@ -145,9 +145,9 @@ export default async function VerificationPendingPage() {
           </div>
         </div>
 
-        <p className="text-center text-[#504C78] text-xs mt-6">
+        <p className="text-center text-[#504875] text-xs mt-6">
           Wrong account?{' '}
-          <a href="/login" className="text-[#9B96C0] hover:text-[#8B5CF6] transition-colors font-medium">
+          <a href="/login" className="text-[#9490BF] hover:text-[#7B35FA] transition-colors font-medium">
             Sign in with a different email
           </a>
         </p>

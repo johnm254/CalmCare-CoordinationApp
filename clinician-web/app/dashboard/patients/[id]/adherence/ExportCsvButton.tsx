@@ -34,7 +34,7 @@ export default function ExportCsvButton({ rows, filename }: Props) {
     <button
       type="button"
       onClick={handleExport}
-      className="border border-[#2E2B50] text-[#9B96C0] text-sm font-medium px-4 py-2 rounded-xl hover:bg-[#1C1A35] hover:text-[#F5F0FF] transition-colors flex items-center gap-2"
+      className="border border-[#1E1B38] text-[#9490BF] text-sm font-medium px-4 py-2 rounded-xl hover:bg-[#131029] hover:text-[#EDE8FF] transition-colors flex items-center gap-2"
     >
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

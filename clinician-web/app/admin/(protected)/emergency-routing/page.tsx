@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '../../../../lib/supabase-browser';
@@ -42,8 +42,8 @@ const ADAPTER_LABELS: Record<string, string> = {
 };
 
 const ADAPTER_STYLES: Record<string, string> = {
-  phone_call: 'text-[#22C87A] bg-[rgba(34,200,122,0.10)] border-[#22C87A]/20',
-  api: 'text-[#8B5CF6] bg-[rgba(139,92,246,0.10)] border-[#8B5CF6]/20',
+  phone_call: 'text-[#22C87A] bg-[rgba(0,217,126,0.10)] border-[#22C87A]/20',
+  api: 'text-[#7B35FA] bg-[rgba(123,53,250,0.10)] border-[#7B35FA]/20',
   call_centre: 'text-[#F4B860] bg-[rgba(244,184,96,0.10)] border-[#F4B860]/20',
 };
 
@@ -53,7 +53,7 @@ function Toggle({ checked, onChange, disabled }: { checked: boolean; onChange: (
       type="button"
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex w-10 h-5 rounded-full transition-colors disabled:opacity-50 ${checked ? 'bg-[#22C87A]' : 'bg-[#2E2B50]'}`}
+      className={`relative inline-flex w-10 h-5 rounded-full transition-colors disabled:opacity-50 ${checked ? 'bg-[#22C87A]' : 'bg-[#1E1B38]'}`}
     >
       <span
         className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`}
@@ -211,8 +211,8 @@ export default function EmergencyRoutingPage() {
   }
 
   const inputCls =
-    'w-full bg-[#09090F] border border-[#2E2B50] rounded-xl px-4 py-2.5 text-[#F5F0FF] placeholder:text-[#504C78] focus:border-[#8B5CF6] focus:outline-none text-sm';
-  const labelCls = 'block text-[#9B96C0] text-xs font-semibold uppercase tracking-widest mb-1.5';
+    'w-full bg-[#04030D] border border-[#1E1B38] rounded-xl px-4 py-2.5 text-[#EDE8FF] placeholder:text-[#504875] focus:border-[#7B35FA] focus:outline-none text-sm';
+  const labelCls = 'block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-1.5';
 
   function ProviderFormFields({
     form,
@@ -229,7 +229,7 @@ export default function EmergencyRoutingPage() {
       setForm({ ...form, [field]: value });
     }
     return (
-      <div className="px-6 py-5 bg-[#1C1A35] border-b border-[#2E2B50]">
+      <div className="px-6 py-5 bg-[#131029] border-b border-[#1E1B38]">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
           <div>
             <label className={labelCls}>Region</label>
@@ -262,13 +262,13 @@ export default function EmergencyRoutingPage() {
         </div>
         <div className="flex items-center gap-3 mb-4">
           <Toggle checked={form.active} onChange={(v) => set('active', v)} />
-          <span className="text-[#9B96C0] text-sm">Active</span>
+          <span className="text-[#9490BF] text-sm">Active</span>
         </div>
         <div className="flex gap-3">
-          <button type="button" onClick={onCancel} className="px-5 py-2 rounded-xl border border-[#2E2B50] text-[#9B96C0] text-sm font-semibold hover:bg-[#2E2B50] transition-colors">
+          <button type="button" onClick={onCancel} className="px-5 py-2 rounded-xl border border-[#1E1B38] text-[#9490BF] text-sm font-semibold hover:bg-[#1E1B38] transition-colors">
             Cancel
           </button>
-          <button type="button" disabled={saving || !form.region || !form.name} onClick={onSave} className="px-5 py-2 rounded-xl bg-[#8B5CF6] text-[#09090F] text-sm font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50">
+          <button type="button" disabled={saving || !form.region || !form.name} onClick={onSave} className="px-5 py-2 rounded-xl bg-[#7B35FA] text-[#04030D] text-sm font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50">
             {saving ? 'Saving…' : 'Save'}
           </button>
         </div>
@@ -281,14 +281,14 @@ export default function EmergencyRoutingPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#F5F0FF]">Emergency Routing</h1>
-          <p className="text-[#9B96C0] text-sm mt-0.5">
+          <h1 className="text-2xl font-bold text-[#EDE8FF]">Emergency Routing</h1>
+          <p className="text-[#9490BF] text-sm mt-0.5">
             Configure ambulance dispatch providers by region and adapter type.
           </p>
         </div>
         <button
           onClick={() => { setShowAddForm(true); setEditId(null); }}
-          className="flex items-center gap-2 bg-[#8B5CF6] text-[#09090F] font-bold px-4 py-2.5 rounded-xl text-sm hover:bg-[#00A896] transition-colors"
+          className="flex items-center gap-2 bg-[#7B35FA] text-[#04030D] font-bold px-4 py-2.5 rounded-xl text-sm hover:bg-[#00A896] transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -298,7 +298,7 @@ export default function EmergencyRoutingPage() {
       </div>
 
       {/* Sandbox/Live toggle card */}
-      <div className={`border rounded-2xl px-5 py-5 mb-6 ${liveDispatch ? 'bg-[rgba(34,200,122,0.06)] border-[#22C87A]/30' : 'bg-[rgba(239,68,68,0.06)] border-[#EF4444]/30'}`}>
+      <div className={`border rounded-2xl px-5 py-5 mb-6 ${liveDispatch ? 'bg-[rgba(0,217,126,0.06)] border-[#22C87A]/30' : 'bg-[rgba(244,63,94,0.06)] border-[#F43F5E]/30'}`}>
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -319,34 +319,34 @@ export default function EmergencyRoutingPage() {
                 </>
               )}
             </div>
-            <p className="text-[#9B96C0] text-xs max-w-lg">
+            <p className="text-[#9490BF] text-xs max-w-lg">
               {liveDispatch
                 ? 'Real ambulance calls are enabled. Disable sandbox mode to stop real dispatches.'
                 : 'Switching to LIVE mode will send real ambulance calls. This requires a signed provider agreement. Confirm with a second admin.'}
             </p>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">
-            <span className="text-[#9B96C0] text-sm">{flagLoading ? '…' : liveDispatch ? 'Live' : 'Sandbox'}</span>
+            <span className="text-[#9490BF] text-sm">{flagLoading ? '…' : liveDispatch ? 'Live' : 'Sandbox'}</span>
             <Toggle checked={liveDispatch} onChange={toggleLiveDispatch} disabled={flagLoading || flagSaving} />
           </div>
         </div>
 
         {/* Live confirm prompt */}
         {showLiveConfirm && (
-          <div className="mt-4 pt-4 border-t border-[#EF4444]/20">
-            <p className="text-[#EF4444] text-sm font-semibold mb-3">
+          <div className="mt-4 pt-4 border-t border-[#F43F5E]/20">
+            <p className="text-[#F43F5E] text-sm font-semibold mb-3">
               Are you sure? This will route real SOS activations to emergency services.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowLiveConfirm(false)}
-                className="px-4 py-2 rounded-xl border border-[#2E2B50] text-[#9B96C0] text-sm font-semibold hover:bg-[#1C1A35] transition-colors"
+                className="px-4 py-2 rounded-xl border border-[#1E1B38] text-[#9490BF] text-sm font-semibold hover:bg-[#131029] transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={() => toggleLiveDispatch(true)}
-                className="px-4 py-2 rounded-xl bg-[#EF4444] text-white text-sm font-bold hover:bg-red-500 transition-colors"
+                className="px-4 py-2 rounded-xl bg-[#F43F5E] text-white text-sm font-bold hover:bg-red-500 transition-colors"
               >
                 Yes, enable LIVE mode
               </button>
@@ -356,22 +356,22 @@ export default function EmergencyRoutingPage() {
       </div>
 
       {error && (
-        <div className="mb-4 bg-[rgba(239,68,68,0.10)] border border-[#EF4444]/30 text-[#EF4444] rounded-xl px-5 py-3 text-sm">
+        <div className="mb-4 bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/30 text-[#F43F5E] rounded-xl px-5 py-3 text-sm">
           {error}
         </div>
       )}
 
       {testResult && (
-        <div className={`mb-4 border rounded-xl px-5 py-3 text-sm ${testResult.ok ? 'bg-[rgba(34,200,122,0.08)] border-[#22C87A]/30 text-[#22C87A]' : 'bg-[rgba(239,68,68,0.08)] border-[#EF4444]/30 text-[#EF4444]'}`}>
+        <div className={`mb-4 border rounded-xl px-5 py-3 text-sm ${testResult.ok ? 'bg-[rgba(0,217,126,0.08)] border-[#22C87A]/30 text-[#22C87A]' : 'bg-[rgba(244,63,94,0.08)] border-[#F43F5E]/30 text-[#F43F5E]'}`}>
           Test call result: {testResult.msg}
         </div>
       )}
 
       {/* Add form */}
       {showAddForm && (
-        <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl overflow-hidden mb-4">
-          <div className="px-6 py-3 bg-[#09090F] border-b border-[#2E2B50]">
-            <span className="text-[#9B96C0] text-xs font-semibold uppercase tracking-widest">New provider</span>
+        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl overflow-hidden mb-4">
+          <div className="px-6 py-3 bg-[#04030D] border-b border-[#1E1B38]">
+            <span className="text-[#9490BF] text-xs font-semibold uppercase tracking-widest">New provider</span>
           </div>
           <ProviderFormFields
             form={addForm}
@@ -383,10 +383,10 @@ export default function EmergencyRoutingPage() {
       )}
 
       {/* Providers table */}
-      <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl overflow-hidden">
-        <div className="grid grid-cols-[1fr_1fr_120px_70px_80px_80px_140px] px-6 py-3 bg-[#09090F] border-b border-[#2E2B50]">
+      <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-[1fr_1fr_120px_70px_80px_80px_140px] px-6 py-3 bg-[#04030D] border-b border-[#1E1B38]">
           {['Region', 'Name', 'Adapter', 'Priority', 'Active', 'Sandbox', ''].map((h) => (
-            <span key={h} className="text-[#504C78] text-xs font-semibold uppercase tracking-wider">
+            <span key={h} className="text-[#504875] text-xs font-semibold uppercase tracking-wider">
               {h}
             </span>
           ))}
@@ -394,22 +394,22 @@ export default function EmergencyRoutingPage() {
 
         {loading ? (
           <div className="py-20 text-center">
-            <div className="inline-block w-6 h-6 border-2 border-[#8B5CF6] border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-[#9B96C0] text-sm">Loading providers…</p>
+            <div className="inline-block w-6 h-6 border-2 border-[#7B35FA] border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-[#9490BF] text-sm">Loading providers…</p>
           </div>
         ) : providers.length === 0 ? (
           <div className="py-20 text-center">
-            <svg className="w-10 h-10 text-[#2E2B50] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-10 h-10 text-[#1E1B38] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
             </svg>
-            <p className="text-[#9B96C0] text-sm font-medium">No emergency providers configured.</p>
-            <p className="text-[#504C78] text-xs mt-1">Add providers to route SOS events by region.</p>
+            <p className="text-[#9490BF] text-sm font-medium">No emergency providers configured.</p>
+            <p className="text-[#504875] text-xs mt-1">Add providers to route SOS events by region.</p>
           </div>
         ) : (
           providers.map((p) => (
             <div key={p.id}>
               {editId === p.id ? (
-                <div className="border-b border-[#2E2B50]">
+                <div className="border-b border-[#1E1B38]">
                   <ProviderFormFields
                     form={editForm}
                     setForm={setEditForm}
@@ -418,20 +418,20 @@ export default function EmergencyRoutingPage() {
                   />
                 </div>
               ) : (
-                <div className="grid grid-cols-[1fr_1fr_120px_70px_80px_80px_140px] px-6 py-4 border-b border-[#2E2B50] last:border-0 items-center hover:bg-[#1C1A35] transition-colors">
-                  <p className="text-[#F5F0FF] text-sm font-semibold">{p.region}</p>
-                  <p className="text-[#9B96C0] text-sm">{p.name}</p>
+                <div className="grid grid-cols-[1fr_1fr_120px_70px_80px_80px_140px] px-6 py-4 border-b border-[#1E1B38] last:border-0 items-center hover:bg-[#131029] transition-colors">
+                  <p className="text-[#EDE8FF] text-sm font-semibold">{p.region}</p>
+                  <p className="text-[#9490BF] text-sm">{p.name}</p>
                   <span className={`inline-flex items-center text-xs font-semibold border rounded-full px-2.5 py-0.5 w-fit ${ADAPTER_STYLES[p.adapter_type] ?? ''}`}>
                     {ADAPTER_LABELS[p.adapter_type] ?? p.adapter_type}
                   </span>
-                  <p className="text-[#F5F0FF] text-sm font-mono">{p.priority}</p>
+                  <p className="text-[#EDE8FF] text-sm font-mono">{p.priority}</p>
                   <div>
                     {p.active ? (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#22C87A] bg-[rgba(34,200,122,0.10)] border border-[#22C87A]/20 rounded-full px-2.5 py-0.5">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#22C87A] bg-[rgba(0,217,126,0.10)] border border-[#22C87A]/20 rounded-full px-2.5 py-0.5">
                         <span className="w-1.5 h-1.5 rounded-full bg-[#22C87A]" />On
                       </span>
                     ) : (
-                      <span className="text-xs text-[#504C78]">Off</span>
+                      <span className="text-xs text-[#504875]">Off</span>
                     )}
                   </div>
                   <div>
@@ -440,7 +440,7 @@ export default function EmergencyRoutingPage() {
                         Sandbox
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#EF4444] bg-[rgba(239,68,68,0.10)] border border-[#EF4444]/20 rounded-full px-2.5 py-0.5">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#F43F5E] bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/20 rounded-full px-2.5 py-0.5">
                         Live
                       </span>
                     )}
@@ -449,19 +449,19 @@ export default function EmergencyRoutingPage() {
                     <button
                       onClick={() => handleTestCall(p.id)}
                       disabled={testingId === p.id}
-                      className="text-[#9B96C0] border border-[#2E2B50] rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#2E2B50] transition-colors disabled:opacity-50"
+                      className="text-[#9490BF] border border-[#1E1B38] rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#1E1B38] transition-colors disabled:opacity-50"
                     >
                       {testingId === p.id ? 'Testing…' : 'Test call'}
                     </button>
                     <button
                       onClick={() => startEdit(p)}
-                      className="text-[#8B5CF6] border border-[#2E2B50] rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#8B5CF6]/10 transition-colors"
+                      className="text-[#7B35FA] border border-[#1E1B38] rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#7B35FA]/10 transition-colors"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => setDeleteId(p.id)}
-                      className="text-[#EF4444] border border-[#EF4444]/20 rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#EF4444]/10 transition-colors"
+                      className="text-[#F43F5E] border border-[#F43F5E]/20 rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#F43F5E]/10 transition-colors"
                     >
                       Delete
                     </button>
@@ -477,14 +477,14 @@ export default function EmergencyRoutingPage() {
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDeleteId(null)} />
-          <div className="relative w-full max-w-sm bg-[#14122A] border border-[#2E2B50] rounded-2xl p-6 shadow-2xl">
-            <h2 className="text-[#F5F0FF] font-bold text-lg mb-2">Delete provider?</h2>
-            <p className="text-[#9B96C0] text-sm mb-6">This will permanently remove the provider and cannot be undone.</p>
+          <div className="relative w-full max-w-sm bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-6 shadow-2xl">
+            <h2 className="text-[#EDE8FF] font-bold text-lg mb-2">Delete provider?</h2>
+            <p className="text-[#9490BF] text-sm mb-6">This will permanently remove the provider and cannot be undone.</p>
             <div className="flex gap-3">
-              <button onClick={() => setDeleteId(null)} className="flex-1 py-3 rounded-xl border border-[#2E2B50] text-[#9B96C0] text-sm font-semibold hover:bg-[#1C1A35] transition-colors">
+              <button onClick={() => setDeleteId(null)} className="flex-1 py-3 rounded-xl border border-[#1E1B38] text-[#9490BF] text-sm font-semibold hover:bg-[#131029] transition-colors">
                 Cancel
               </button>
-              <button onClick={() => handleDelete(deleteId)} disabled={deleting} className="flex-1 py-3 rounded-xl bg-[#EF4444] text-white text-sm font-bold hover:bg-red-500 transition-colors disabled:opacity-50">
+              <button onClick={() => handleDelete(deleteId)} disabled={deleting} className="flex-1 py-3 rounded-xl bg-[#F43F5E] text-white text-sm font-bold hover:bg-red-500 transition-colors disabled:opacity-50">
                 {deleting ? 'Deleting…' : 'Delete'}
               </button>
             </div>

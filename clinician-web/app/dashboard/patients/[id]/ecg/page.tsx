@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -67,7 +67,7 @@ function EcgSvg() {
     `L ${width} ${baseline}`;
 
   return (
-    <div className="overflow-x-auto rounded-xl bg-[#09090F] border border-[#2E2B50]">
+    <div className="overflow-x-auto rounded-xl bg-[#04030D] border border-[#1E1B38]">
       <svg
         width={width}
         height={height}
@@ -77,15 +77,15 @@ function EcgSvg() {
       >
         {vLines.map((x) => (
           <line key={`v${x}`} x1={x} y1={0} x2={x} y2={height}
-            stroke="#1C1A35" strokeWidth={x % majorStep === 0 ? 1 : 0.4} />
+            stroke="#131029" strokeWidth={x % majorStep === 0 ? 1 : 0.4} />
         ))}
         {hLines.map((y) => (
           <line key={`h${y}`} x1={0} y1={y} x2={width} y2={y}
-            stroke="#1C1A35" strokeWidth={y % majorStep === 0 ? 1 : 0.4} />
+            stroke="#131029" strokeWidth={y % majorStep === 0 ? 1 : 0.4} />
         ))}
         <path d={path} fill="none" stroke="#22C87A" strokeWidth={1.8}
           strokeLinecap="round" strokeLinejoin="round" />
-        <text x={8} y={12} fill="#504C78" fontSize={9} fontFamily="monospace">
+        <text x={8} y={12} fill="#504875" fontSize={9} fontFamily="monospace">
           25mm/s · waveform strip
         </text>
       </svg>
@@ -100,7 +100,7 @@ function EcgSvg() {
 function StatusBadge({ status }: { status: RecordingStatus }) {
   if (status === 'reviewed') {
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[rgba(34,200,122,0.10)] text-[#22C87A] border border-[#22C87A]/20">
+      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[rgba(0,217,126,0.10)] text-[#22C87A] border border-[#22C87A]/20">
         <span className="w-1.5 h-1.5 rounded-full bg-current" />
         reviewed
       </span>
@@ -128,18 +128,18 @@ function EcgCard({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-[#14122A] border border-[#2E2B50] rounded-2xl overflow-hidden">
+    <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl overflow-hidden">
       <div className="flex items-center justify-between px-6 py-4 gap-4 flex-wrap">
         <div className="flex items-center gap-3 flex-wrap">
-          <p className="text-[#F5F0FF] font-semibold text-sm">
+          <p className="text-[#EDE8FF] font-semibold text-sm">
             {recording.date} · {recording.time}
           </p>
-          <span className="text-[#504C78] text-xs">Duration: {recording.duration}</span>
+          <span className="text-[#504875] text-xs">Duration: {recording.duration}</span>
           <StatusBadge status={recording.status} />
         </div>
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-xl bg-[#1C1A35] border border-[#2E2B50] text-[#9B96C0] hover:text-[#F5F0FF] hover:border-[#504C78] transition-colors flex-shrink-0"
+          className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-xl bg-[#131029] border border-[#1E1B38] text-[#9490BF] hover:text-[#EDE8FF] hover:border-[#504875] transition-colors flex-shrink-0"
         >
           {expanded ? (
             <>
@@ -160,13 +160,13 @@ function EcgCard({
       </div>
 
       {expanded && (
-        <div className="px-6 pb-6 border-t border-[#2E2B50] pt-4">
+        <div className="px-6 pb-6 border-t border-[#1E1B38] pt-4">
           <EcgSvg />
           {recording.status === 'unreviewed' && (
             <div className="mt-4">
               <button
                 onClick={() => onMarkReviewed(recording.id)}
-                className="text-xs font-bold px-4 py-2 rounded-xl bg-[rgba(34,200,122,0.12)] text-[#22C87A] border border-[#22C87A]/25 hover:bg-[rgba(34,200,122,0.22)] transition-colors"
+                className="text-xs font-bold px-4 py-2 rounded-xl bg-[rgba(0,217,126,0.12)] text-[#22C87A] border border-[#22C87A]/25 hover:bg-[rgba(0,217,126,0.22)] transition-colors"
               >
                 Mark as reviewed
               </button>
@@ -239,7 +239,7 @@ export default function EcgPage({ params }: { params: { id: string } }) {
       <div className="mb-5">
         <Link
           href={`/dashboard/patients/${params.id}`}
-          className="inline-flex items-center gap-1.5 text-sm text-[#9B96C0] hover:text-[#F5F0FF] transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-[#9490BF] hover:text-[#EDE8FF] transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -261,16 +261,16 @@ export default function EcgPage({ params }: { params: { id: string } }) {
       )}
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#F5F0FF]">ECG Recordings</h1>
-        <p className="text-[#9B96C0] text-sm mt-1">
+        <h1 className="text-2xl font-bold text-[#EDE8FF]">ECG Recordings</h1>
+        <p className="text-[#9490BF] text-sm mt-1">
           Review wrist ECG strips captured by the Mojo Strap.
         </p>
       </div>
 
       {loading ? (
         <div className="py-20 text-center">
-          <div className="inline-block w-6 h-6 border-2 border-[#8B5CF6] border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-[#9B96C0] text-sm">Loading recordings…</p>
+          <div className="inline-block w-6 h-6 border-2 border-[#7B35FA] border-t-transparent rounded-full animate-spin mb-3" />
+          <p className="text-[#9490BF] text-sm">Loading recordings…</p>
         </div>
       ) : (
         <div className="space-y-4">
