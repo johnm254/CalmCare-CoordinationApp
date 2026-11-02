@@ -47,6 +47,8 @@ import {
 
 import { I18nProvider } from "../lib/i18n-context"
 
+import { connectToStrap, isStrapConnected, sendStrapCommand, STRAP_CMD } from "../lib/ble-strap"
+
 // ── Auth context ──────────────────────────────────────────────────────────────
 
 interface AuthContextType {
@@ -55,25 +57,15 @@ interface AuthContextType {
   profile: Profile | null
 
   isLoading: boolean
-
-  activePatientId: string | null
-
-  setActivePatientId: (id: string) => void
 }
 
 export const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   isLoading: true,
-  activePatientId: null,
-  setActivePatientId: () => {},
 })
 
 export function useAuth() {
-  return useContext(AuthContext)
-}
-
-export function useActivePatient() {
   return useContext(AuthContext)
 }
 
@@ -533,8 +525,6 @@ export default function RootLayout() {
 
   const [initialized, setInitialized] = useState(false)
 
-  const [activePatientId, setActivePatientId] = useState<string | null>(null)
-
   // Splash + biometric
 
   const [splashDone, setSplashDone] = useState(false)
@@ -788,8 +778,6 @@ export default function RootLayout() {
 
         setProfile(p)
 
-        if (p?.role === "patient") setActivePatientId(p.id)
-
         getExpoPushToken().then((token) => {
           if (token && session.user)
             registerPushToken(session.user.id, token).catch(() => {})
@@ -808,8 +796,6 @@ export default function RootLayout() {
         const p = await getProfile(session.user.id)
 
         setProfile(p)
-
-        if (p?.role === "patient") setActivePatientId(p.id)
 
         getExpoPushToken().then((token) => {
           if (token && session?.user)
@@ -915,6 +901,32 @@ export default function RootLayout() {
 
   if (!initialized) return null
 
+  // ── Strap event handler (patient role only) ───────────────────────────────
+
+  function handleStrapEvent(event: import("../lib/ble-strap").StrapEvent) {
+    if (profile?.role !== "patient") return
+    switch (event) {
+      case "SOS_BUTTON":
+        router.push("/sos")
+        break
+      case "FALL_DETECTED":
+        router.push({ pathname: "/sos", params: { autoDetected: "1" } })
+        break
+      case "MED_CONFIRMED":
+        console.log("ble-strap: medication confirmation received")
+        break
+      case "BATTERY_LOW":
+        Notifications.scheduleNotificationAsync({
+          content: {
+            title: "Strap battery low",
+            body: "Charge your Mojo Strap soon",
+          },
+          trigger: null,
+        }).catch(() => {})
+        break
+    }
+  }
+
   const progressWidth = progressAnim.interpolate({
     inputRange: [0, 1],
     outputRange: ["0%", "100%"],
@@ -924,7 +936,7 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <I18nProvider>
       <AuthContext.Provider
-        value={{ session, profile, isLoading: !initialized, activePatientId, setActivePatientId }}
+        value={{ session, profile, isLoading: !initialized }}
       >
         <StatusBar style="light" backgroundColor={colors.bg} />
 

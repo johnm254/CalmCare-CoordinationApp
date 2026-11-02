@@ -221,7 +221,8 @@ export async function POST(request: NextRequest) {
         const locPart = location
           ? ` Location: https://maps.google.com/?q=${location.lat},${location.lon}`
           : '';
-        const smsText = `URGENT: ${patientName} needs help. SOS from Mojo. Call 999 immediately.${locPart}`;
+        const sentTime = now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', hour12: false });
+        const smsText = `Mojo SOS: ${patientName} needs help (sent ${sentTime}). Reply 1 = yes, 2 = no.${locPart}`;
 
         const params = new URLSearchParams({ username: AT_USERNAME, to: phoneNumbers, message: smsText });
         if (AT_SENDER_ID) params.set('from', AT_SENDER_ID);
