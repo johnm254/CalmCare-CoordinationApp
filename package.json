@@ -2,12 +2,11 @@
   "name": "mojo-health",
   "private": true,
   "version": "1.0.0",
+  "description": "Mojo — monorepo for clinician-web (Next.js), mobile (Expo), and supabase",
   "scripts": {
-    "dev": "cd clinician-web && npm run dev",
-    "build": "cd clinician-web && npm run build",
+    "web": "cd clinician-web && npm run dev",
+    "mobile": "cd mobile && npx expo start",
+    "build:web": "cd clinician-web && npm run build",
     "lint": "cd clinician-web && npm run lint"
-  },
-  "dependencies": {
-    "next": "^14.0.0"
   }
 }
