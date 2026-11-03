@@ -7,28 +7,48 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development"
+      "channel": "development",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://rtlhckntjrhdhbaqzxoy.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_Ayy3iLaAoQcTu0Kr0tQGbg_LUEFF7O8",
+        "EXPO_PUBLIC_API_URL": "https://clinician-web-one.vercel.app"
+      }
     },
     "preview": {
       "android": {
         "buildType": "apk"
       },
       "distribution": "internal",
-      "channel": "preview"
+      "channel": "preview",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://rtlhckntjrhdhbaqzxoy.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_Ayy3iLaAoQcTu0Kr0tQGbg_LUEFF7O8",
+        "EXPO_PUBLIC_API_URL": "https://clinician-web-one.vercel.app"
+      }
     },
     "production": {
       "android": {
         "buildType": "apk"
       },
       "distribution": "internal",
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://rtlhckntjrhdhbaqzxoy.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_Ayy3iLaAoQcTu0Kr0tQGbg_LUEFF7O8",
+        "EXPO_PUBLIC_API_URL": "https://clinician-web-one.vercel.app"
+      }
     },
     "production-apk": {
       "android": {
         "buildType": "apk"
       },
       "distribution": "internal",
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://rtlhckntjrhdhbaqzxoy.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_Ayy3iLaAoQcTu0Kr0tQGbg_LUEFF7O8",
+        "EXPO_PUBLIC_API_URL": "https://clinician-web-one.vercel.app"
+      }
     }
   },
   "submit": {
