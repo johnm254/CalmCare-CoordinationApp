@@ -241,7 +241,7 @@ export default function PatientsPage() {
           {filtered.map((patient, i) => (
             <div
               key={patient.id}
-              className={`grid grid-cols-[1fr_160px_100px_130px_80px] px-6 py-4 items-center border-b border-[#E6ECF2] last:border-0 hover:bg-[#F1F5FA] transition-colors ${i % 2 === 1 ? 'bg-[#0A1628]' : ''}`}
+              className={`grid grid-cols-[1fr_160px_100px_130px_80px] px-6 py-4 items-center border-b border-[#E6ECF2] last:border-0 hover:bg-[#F1F5FA] transition-colors ${i % 2 === 1 ? 'bg-[#F8FAFC]' : 'bg-[#FFFFFF]'}`}
             >
               {/* Avatar + name + alert dot */}
               <div className="flex items-center gap-3">
