@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS clinician_patient_preferences (
 ALTER TABLE clinician_patient_preferences ENABLE ROW LEVEL SECURITY;
 
 -- Clinicians can read and write their own preferences
+DROP POLICY IF EXISTS "cpp_clinician_self" ON clinician_patient_preferences;
 CREATE POLICY "cpp_clinician_self"
   ON clinician_patient_preferences
   FOR ALL

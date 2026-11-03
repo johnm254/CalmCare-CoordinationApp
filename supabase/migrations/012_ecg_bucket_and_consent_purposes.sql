@@ -15,12 +15,14 @@ VALUES (
 ON CONFLICT (id) DO NOTHING;
 
 -- Device (service role) can upload recordings
-CREATE POLICY IF NOT EXISTS "ecg_recordings device write"
+DROP POLICY IF EXISTS "ecg_recordings device write" ON storage.objects;
+CREATE POLICY "ecg_recordings device write"
   ON storage.objects FOR INSERT
   WITH CHECK (bucket_id = 'ecg_recordings');
 
 -- Clinician can read recordings for their linked patients
-CREATE POLICY IF NOT EXISTS "ecg_recordings clinician read"
+DROP POLICY IF EXISTS "ecg_recordings clinician read" ON storage.objects;
+CREATE POLICY "ecg_recordings clinician read"
   ON storage.objects FOR SELECT
   USING (
     bucket_id = 'ecg_recordings'
@@ -34,7 +36,8 @@ CREATE POLICY IF NOT EXISTS "ecg_recordings clinician read"
   );
 
 -- Patient can read their own recordings
-CREATE POLICY IF NOT EXISTS "ecg_recordings patient read"
+DROP POLICY IF EXISTS "ecg_recordings patient read" ON storage.objects;
+CREATE POLICY "ecg_recordings patient read"
   ON storage.objects FOR SELECT
   USING (
     bucket_id = 'ecg_recordings'

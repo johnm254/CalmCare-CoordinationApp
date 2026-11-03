@@ -40,22 +40,13 @@ CREATE POLICY "clinician reads linked patient mood_logs"
   );
 
 
--- ─── 2. appointments ──────────────────────────────────────────────────────────
+-- ─── 2. appointments — add new columns to existing table ──────────────────────
 
-CREATE TABLE IF NOT EXISTS appointments (
-  id              UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  patient_id      UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  clinician_id    UUID        NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  scheduled_at    TIMESTAMPTZ,
-  preferred_date  TEXT,
-  preferred_time  TEXT,
-  reason          TEXT,
-  status          TEXT        NOT NULL DEFAULT 'pending'
-                              CHECK (status IN ('pending','confirmed','cancelled','completed')),
-  notes           TEXT,
-  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
+ALTER TABLE appointments
+  ADD COLUMN IF NOT EXISTS scheduled_at   TIMESTAMPTZ,
+  ADD COLUMN IF NOT EXISTS preferred_date TEXT,
+  ADD COLUMN IF NOT EXISTS preferred_time TEXT,
+  ADD COLUMN IF NOT EXISTS reason         TEXT;
 
 ALTER TABLE appointments ENABLE ROW LEVEL SECURITY;
 
@@ -241,20 +232,15 @@ CREATE POLICY "patient can cancel own sos_event"
   WITH CHECK (patient_id = auth.uid() AND status = 'cancelled');
 
 
--- ─── 8. health_facilities ─────────────────────────────────────────────────────
+-- ─── 8. health_facilities — add flat lat/lon columns to existing table ───────
+-- health_facilities was created in 003 with PostGIS geometry; add simple
+-- lat/lon columns used by the nearest_er_facility() function and seed data.
 
-CREATE TABLE IF NOT EXISTS health_facilities (
-  id         UUID             PRIMARY KEY DEFAULT gen_random_uuid(),
-  name       TEXT             NOT NULL,
-  phone      TEXT,
-  latitude   DOUBLE PRECISION NOT NULL,
-  longitude  DOUBLE PRECISION NOT NULL,
-  county     TEXT,
-  type       TEXT             DEFAULT 'hospital',
-  er_24h     BOOLEAN          NOT NULL DEFAULT TRUE,
-  active     BOOLEAN          NOT NULL DEFAULT TRUE,
-  created_at TIMESTAMPTZ      NOT NULL DEFAULT NOW()
-);
+ALTER TABLE health_facilities
+  ADD COLUMN IF NOT EXISTS latitude  DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION,
+  ADD COLUMN IF NOT EXISTS type      TEXT DEFAULT 'hospital',
+  ADD COLUMN IF NOT EXISTS er_24h    BOOLEAN NOT NULL DEFAULT TRUE;
 
 ALTER TABLE health_facilities ENABLE ROW LEVEL SECURITY;
 
@@ -269,7 +255,6 @@ CREATE POLICY "authenticated read health_facilities"
   ON health_facilities FOR SELECT
   USING (auth.role() = 'authenticated' AND active = TRUE);
 
--- Spatial index (idempotent — also referenced in migration 010)
 CREATE INDEX IF NOT EXISTS idx_health_facilities_latlon
   ON health_facilities (latitude, longitude)
   WHERE active = TRUE;
@@ -322,3 +307,37 @@ CREATE INDEX IF NOT EXISTS idx_incident_log_clinician
 
 CREATE INDEX IF NOT EXISTS idx_incident_log_patient
   ON incident_log (patient_id);
+
+
+-- ─── 11. nearest_er_facility() — moved here from 010 (needs health_facilities) ─
+
+CREATE OR REPLACE FUNCTION nearest_er_facility(
+  p_lat DOUBLE PRECISION,
+  p_lon DOUBLE PRECISION
+)
+RETURNS TABLE (
+  id           UUID,
+  name         TEXT,
+  phone        TEXT,
+  latitude     DOUBLE PRECISION,
+  longitude    DOUBLE PRECISION,
+  distance_km  DOUBLE PRECISION
+)
+LANGUAGE sql STABLE SECURITY DEFINER AS $$
+  SELECT
+    id,
+    name,
+    phone,
+    latitude,
+    longitude,
+    (2 * 6371 * ASIN(SQRT(
+      POWER(SIN(RADIANS(latitude  - p_lat) / 2), 2) +
+      COS(RADIANS(p_lat)) * COS(RADIANS(latitude)) *
+      POWER(SIN(RADIANS(longitude - p_lon) / 2), 2)
+    ))) AS distance_km
+  FROM  health_facilities
+  WHERE er_24h  = TRUE
+    AND active  = TRUE
+  ORDER BY distance_km
+  LIMIT 1;
+$$;

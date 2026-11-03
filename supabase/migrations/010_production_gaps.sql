@@ -46,47 +46,7 @@ CREATE TRIGGER trg_grant_revoke_notify
   FOR EACH ROW EXECUTE FUNCTION fn_grant_revoke_notify();
 
 
--- ─── CR-LOC-05: Spatial index for health_facilities ─────────────────────────
-
-CREATE INDEX IF NOT EXISTS idx_health_facilities_latlon
-  ON health_facilities (latitude, longitude)
-  WHERE active = TRUE;
-
-
--- ─── CR-SOS-06: nearest_er_facility() — returns closest 24h ER ──────────────
-
-CREATE OR REPLACE FUNCTION nearest_er_facility(
-  p_lat DOUBLE PRECISION,
-  p_lon DOUBLE PRECISION
-)
-RETURNS TABLE (
-  id           UUID,
-  name         TEXT,
-  phone        TEXT,
-  latitude     DOUBLE PRECISION,
-  longitude    DOUBLE PRECISION,
-  distance_km  DOUBLE PRECISION
-)
-LANGUAGE sql STABLE SECURITY DEFINER AS $$
-  SELECT
-    id,
-    name,
-    phone,
-    latitude,
-    longitude,
-    -- Haversine approximation (< 1% error within 500 km)
-    (2 * 6371 * ASIN(SQRT(
-      POWER(SIN(RADIANS(latitude  - p_lat) / 2), 2) +
-      COS(RADIANS(p_lat)) * COS(RADIANS(latitude)) *
-      POWER(SIN(RADIANS(longitude - p_lon) / 2), 2)
-    ))) AS distance_km
-  FROM  health_facilities
-  WHERE er_24h  = TRUE
-    AND active  = TRUE
-  ORDER BY distance_km
-  LIMIT 1;
-$$;
-
+-- nearest_er_facility() moved to 011 — health_facilities is created there.
 
 -- ─── CR-SEC-04: Append-only enforcement on audit_log ────────────────────────
 
@@ -110,13 +70,13 @@ CREATE TRIGGER trg_audit_log_no_delete
 
 -- ─── CR-SEC-05: is_verified_clinician() respects locked_until ───────────────
 
-CREATE OR REPLACE FUNCTION is_verified_clinician(p_user_id UUID)
+CREATE OR REPLACE FUNCTION is_verified_clinician(uid UUID)
 RETURNS BOOLEAN LANGUAGE sql STABLE SECURITY DEFINER AS $$
   SELECT EXISTS (
     SELECT 1
-    FROM   clinician_profiles
-    WHERE  user_id    = p_user_id
-      AND  verified   = TRUE
+    FROM   clinician_verifications
+    WHERE  clinician_id = uid
+      AND  verified_at IS NOT NULL
       AND  (locked_until IS NULL OR locked_until < NOW())
   );
 $$;
@@ -137,11 +97,13 @@ CREATE TABLE IF NOT EXISTS crisis_resources (
 
 ALTER TABLE crisis_resources ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "admins manage crisis_resources" ON crisis_resources;
 CREATE POLICY "admins manage crisis_resources"
   ON crisis_resources FOR ALL
   USING (auth.jwt() ->> 'role' = 'admin')
   WITH CHECK (auth.jwt() ->> 'role' = 'admin');
 
+DROP POLICY IF EXISTS "authenticated read crisis_resources" ON crisis_resources;
 CREATE POLICY "authenticated read crisis_resources"
   ON crisis_resources FOR SELECT
   USING (auth.role() = 'authenticated' AND active = TRUE);
@@ -159,15 +121,18 @@ CREATE TABLE IF NOT EXISTS dpa_requests (
 
 ALTER TABLE dpa_requests ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "admins manage dpa_requests" ON dpa_requests;
 CREATE POLICY "admins manage dpa_requests"
   ON dpa_requests FOR ALL
   USING (auth.jwt() ->> 'role' = 'admin')
   WITH CHECK (auth.jwt() ->> 'role' = 'admin');
 
+DROP POLICY IF EXISTS "patients read own dpa_requests" ON dpa_requests;
 CREATE POLICY "patients read own dpa_requests"
   ON dpa_requests FOR SELECT
   USING (patient_id = auth.uid());
 
+DROP POLICY IF EXISTS "patients insert dpa_requests" ON dpa_requests;
 CREATE POLICY "patients insert dpa_requests"
   ON dpa_requests FOR INSERT
   WITH CHECK (patient_id = auth.uid());
