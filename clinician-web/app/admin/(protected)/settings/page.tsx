@@ -31,10 +31,10 @@ type AuditEntry  = {
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-6">
+    <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-6">
       <div className="mb-5">
-        <h2 className="text-[#EDE8FF] font-bold text-base">{title}</h2>
-        {description && <p className="text-[#9490BF] text-sm mt-0.5">{description}</p>}
+        <h2 className="text-[#0F1B2D] font-bold text-base">{title}</h2>
+        {description && <p className="text-[#5B6B7F] text-sm mt-0.5">{description}</p>}
       </div>
       <div className="space-y-4">{children}</div>
     </div>
@@ -43,10 +43,10 @@ function Section({ title, description, children }: { title: string; description?
 
 function InfoRow({ label, value, badge }: { label: string; value: string; badge?: { text: string; color: string } }) {
   return (
-    <div className="flex items-center justify-between py-2.5 border-b border-[#1E1B38] last:border-0">
-      <span className="text-[#9490BF] text-sm">{label}</span>
+    <div className="flex items-center justify-between py-2.5 border-b border-[#E6ECF2] last:border-0">
+      <span className="text-[#5B6B7F] text-sm">{label}</span>
       <div className="flex items-center gap-2">
-        <span className="text-[#EDE8FF] text-sm font-medium font-mono">{value}</span>
+        <span className="text-[#0F1B2D] text-sm font-medium font-mono">{value}</span>
         {badge && (
           <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${badge.color}`}>{badge.text}</span>
         )}
@@ -204,25 +204,25 @@ export default function AdminSettingsPage() {
   return (
     <div className="p-6 max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#EDE8FF]">Platform settings</h1>
-        <p className="text-[#9490BF] text-sm mt-1">System configuration and diagnostics for Duara.</p>
+        <h1 className="text-2xl font-bold text-[#0F1B2D]">Platform settings</h1>
+        <p className="text-[#5B6B7F] text-sm mt-1">System configuration and diagnostics for Duara.</p>
       </div>
 
       <div className="space-y-5">
         {/* System info */}
         <Section title="System information" description="Supabase project and environment details.">
-          <InfoRow label="Project ID" value={projectId} badge={{ text: 'Supabase', color: 'bg-[rgba(123,53,250,0.10)] text-[#7B35FA]' }} />
+          <InfoRow label="Project ID" value={projectId} badge={{ text: 'Supabase', color: 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6]' }} />
           <InfoRow
             label="Environment" value={env}
-            badge={{ text: env === 'production' ? 'Live' : 'Dev', color: env === 'production' ? 'bg-[rgba(123,53,250,0.10)] text-[#7B35FA]' : 'bg-[rgba(244,184,96,0.12)] text-[#F4B860]' }}
+            badge={{ text: env === 'production' ? 'Live' : 'Dev', color: env === 'production' ? 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6]' : 'bg-[rgba(244,184,96,0.12)] text-[#F4B860]' }}
           />
           <InfoRow label="Supabase URL" value={supabaseUrl.length > 40 ? supabaseUrl.slice(0, 40) + '…' : supabaseUrl} />
           <div className="flex items-center justify-between py-2.5">
-            <span className="text-[#9490BF] text-sm">API status</span>
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7B35FA] bg-[rgba(123,53,250,0.10)] border border-[#7B35FA]/25 rounded-full px-3 py-1">
+            <span className="text-[#5B6B7F] text-sm">API status</span>
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#14B8A6] bg-[rgba(20,184,166,0.10)] border border-[#14B8A6]/25 rounded-full px-3 py-1">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#7B35FA] opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#7B35FA]" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#14B8A6] opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#14B8A6]" />
               </span>
               Operational
             </span>
@@ -237,9 +237,9 @@ export default function AdminSettingsPage() {
             </div>
           )}
           {loadingFlags ? (
-            <p className="text-[#9490BF] text-sm">Loading…</p>
+            <p className="text-[#5B6B7F] text-sm">Loading…</p>
           ) : flags.length === 0 ? (
-            <p className="text-[#504875] text-sm">No feature flags found. Run migration 005 to seed them.</p>
+            <p className="text-[#8C9AAB] text-sm">No feature flags found. Run migration 005 to seed them.</p>
           ) : (
             flags.map((flag) => {
               const meta = FLAG_META[flag.key] ?? { label: flag.key, sub: '' };
@@ -247,15 +247,15 @@ export default function AdminSettingsPage() {
               return (
                 <div key={flag.key} className="flex items-center justify-between py-1">
                   <div>
-                    <p className="text-[#EDE8FF] text-sm font-medium">{meta.label}</p>
-                    {meta.sub && <p className="text-[#9490BF] text-xs mt-0.5">{meta.sub}</p>}
+                    <p className="text-[#0F1B2D] text-sm font-medium">{meta.label}</p>
+                    {meta.sub && <p className="text-[#5B6B7F] text-xs mt-0.5">{meta.sub}</p>}
                   </div>
                   <button
                     role="switch"
                     aria-checked={flag.enabled}
                     disabled={busy}
                     onClick={() => toggleFlag(flag.key, !flag.enabled)}
-                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 disabled:opacity-60 ${flag.enabled ? 'bg-[#7B35FA]' : 'bg-[#1E1B38]'}`}
+                    className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 disabled:opacity-60 ${flag.enabled ? 'bg-[#14B8A6]' : 'bg-[#E6ECF2]'}`}
                   >
                     <span className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-all ${flag.enabled ? 'left-6' : 'left-1'}`} />
                   </button>
@@ -268,7 +268,7 @@ export default function AdminSettingsPage() {
         {/* Schema status */}
         <Section title="Schema status" description="Check that all required database tables are accessible.">
           <div className="flex items-center justify-between mb-3">
-            <p className="text-[#9490BF] text-xs">
+            <p className="text-[#5B6B7F] text-xs">
               {tableStatuses.every((t) => t.ok === null)
                 ? 'Click "Check tables" to verify.'
                 : `${tableStatuses.filter((t) => t.ok).length} / ${TABLES.length} tables reachable`}
@@ -276,7 +276,7 @@ export default function AdminSettingsPage() {
             <button
               onClick={checkSchema}
               disabled={checkingSchema}
-              className="text-xs font-semibold text-[#7B35FA] border border-[#7B35FA]/30 px-3 py-1.5 rounded-lg hover:bg-[#7B35FA]/10 transition-colors disabled:opacity-50"
+              className="text-xs font-semibold text-[#14B8A6] border border-[#14B8A6]/30 px-3 py-1.5 rounded-lg hover:bg-[#14B8A6]/10 transition-colors disabled:opacity-50"
             >
               {checkingSchema ? 'Checking…' : 'Check tables'}
             </button>
@@ -286,16 +286,16 @@ export default function AdminSettingsPage() {
               <div
                 key={t.name}
                 className={`flex items-center justify-between rounded-xl px-3 py-2.5 border ${
-                  t.ok === null ? 'border-[#1E1B38] bg-[#131029]'
-                  : t.ok ? 'border-[#7B35FA]/20 bg-[rgba(123,53,250,0.06)]'
+                  t.ok === null ? 'border-[#E6ECF2] bg-[#F1F5FA]'
+                  : t.ok ? 'border-[#14B8A6]/20 bg-[rgba(20,184,166,0.06)]'
                   : 'border-[#F43F5E]/20 bg-[rgba(244,63,94,0.06)]'
                 }`}
               >
-                <span className="text-[#9490BF] text-xs font-mono">{t.name}</span>
+                <span className="text-[#5B6B7F] text-xs font-mono">{t.name}</span>
                 {t.ok === null ? (
-                  <span className="text-[#504875] text-xs">—</span>
+                  <span className="text-[#8C9AAB] text-xs">—</span>
                 ) : t.ok ? (
-                  <span className="text-[#7B35FA] text-xs font-semibold">OK</span>
+                  <span className="text-[#14B8A6] text-xs font-semibold">OK</span>
                 ) : (
                   <span className="text-[#F43F5E] text-xs font-semibold">Missing</span>
                 )}
@@ -308,12 +308,12 @@ export default function AdminSettingsPage() {
         <Section title="Email (Resend)" description="Status of the transactional email integration.">
           <div className="flex items-center justify-between py-1">
             <div>
-              <p className="text-[#EDE8FF] text-sm font-medium">Resend API key</p>
-              <p className="text-[#9490BF] text-xs mt-0.5">Set via RESEND_API_KEY environment variable.</p>
+              <p className="text-[#0F1B2D] text-sm font-medium">Resend API key</p>
+              <p className="text-[#5B6B7F] text-xs mt-0.5">Set via RESEND_API_KEY environment variable.</p>
             </div>
             <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border ${
               resendConfigured
-                ? 'bg-[rgba(123,53,250,0.10)] text-[#7B35FA] border-[#7B35FA]/25'
+                ? 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6] border-[#14B8A6]/25'
                 : 'bg-[rgba(244,184,96,0.10)] text-[#F4B860] border-[#F4B860]/25'
             }`}>
               {resendConfigured ? 'Configured' : 'Not set'}
@@ -325,20 +325,20 @@ export default function AdminSettingsPage() {
         <Section title="Test email" description="Send a test email via the SOS API route to verify Resend is working.">
           <form onSubmit={sendTestEmail} className="space-y-3">
             <div>
-              <label className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-2">Recipient email</label>
+              <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">Recipient email</label>
               <input
                 type="email"
                 placeholder="you@example.com"
                 value={testEmail}
                 onChange={(e) => setTestEmail(e.target.value)}
                 required
-                className="w-full bg-[#04030D] border border-[#1E1B38] rounded-xl px-4 py-3 text-[#EDE8FF] placeholder:text-[#504875] focus:border-[#7B35FA] focus:outline-none text-sm"
+                className="w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none text-sm"
               />
             </div>
             {testResult && (
               <div className={`rounded-xl px-4 py-3 text-sm font-medium border ${
                 testResult.type === 'success'
-                  ? 'bg-[rgba(123,53,250,0.10)] border-[#7B35FA]/30 text-[#7B35FA]'
+                  ? 'bg-[rgba(20,184,166,0.10)] border-[#14B8A6]/30 text-[#14B8A6]'
                   : 'bg-[rgba(244,63,94,0.10)] border-[#F43F5E]/30 text-[#F43F5E]'
               }`}>
                 {testResult.msg}
@@ -347,7 +347,7 @@ export default function AdminSettingsPage() {
             <button
               type="submit"
               disabled={sendingTest || !testEmail}
-              className="bg-[#131029] border border-[#1E1B38] text-[#EDE8FF] text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#1E1B38] transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="bg-[#F1F5FA] border border-[#E6ECF2] text-[#0F1B2D] text-sm font-semibold px-5 py-2.5 rounded-xl hover:bg-[#E6ECF2] transition-colors disabled:opacity-50 flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -360,22 +360,22 @@ export default function AdminSettingsPage() {
         {/* Audit log viewer */}
         <Section title="Audit log" description="Last 50 platform events across all patients.">
           {loadingAudit ? (
-            <p className="text-[#9490BF] text-sm">Loading…</p>
+            <p className="text-[#5B6B7F] text-sm">Loading…</p>
           ) : auditEntries.length === 0 ? (
-            <p className="text-[#504875] text-sm">No audit entries yet.</p>
+            <p className="text-[#8C9AAB] text-sm">No audit entries yet.</p>
           ) : (
-            <div className="divide-y divide-[#1E1B38]">
+            <div className="divide-y divide-[#E6ECF2]">
               {auditEntries.map((entry) => (
                 <div key={entry.id} className="flex items-start justify-between py-3 gap-4">
                   <div className="min-w-0">
-                    <p className="text-[#EDE8FF] text-sm font-medium">{formatAuditAction(entry.action)}</p>
-                    <p className="text-[#9490BF] text-xs mt-0.5">
+                    <p className="text-[#0F1B2D] text-sm font-medium">{formatAuditAction(entry.action)}</p>
+                    <p className="text-[#5B6B7F] text-xs mt-0.5">
                       {entry.actor_name ?? 'System'}
                       {entry.actor_role ? ` · ${entry.actor_role}` : ''}
                       {entry.resource_type ? ` · ${entry.resource_type}` : ''}
                     </p>
                   </div>
-                  <span className="text-[#504875] text-xs whitespace-nowrap flex-shrink-0">
+                  <span className="text-[#8C9AAB] text-xs whitespace-nowrap flex-shrink-0">
                     {new Date(entry.at).toLocaleString('en-KE', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
@@ -387,7 +387,7 @@ export default function AdminSettingsPage() {
         {/* Danger zone */}
         <div className="bg-[rgba(244,63,94,0.04)] border border-[#F43F5E]/20 rounded-2xl p-5">
           <h2 className="text-[#F43F5E] font-bold text-sm mb-1">Danger zone</h2>
-          <p className="text-[#9490BF] text-xs mb-4">These actions are irreversible. Proceed with caution.</p>
+          <p className="text-[#5B6B7F] text-xs mb-4">These actions are irreversible. Proceed with caution.</p>
           {dangerResult && (
             <div className={`mb-4 px-4 py-2.5 rounded-xl text-sm border ${
               dangerResult.type === 'success'

@@ -14,13 +14,13 @@ function DueDateLabel({ dateStr }: { dateStr: string }) {
   if (days < 0) return <span className="text-xs font-semibold text-[#F43F5E]">Overdue by {Math.abs(days)}d</span>;
   if (days === 0) return <span className="text-xs font-semibold text-[#F4B860]">Due today</span>;
   if (days <= 3) return <span className="text-xs font-semibold text-[#F4B860]">Due in {days}d</span>;
-  return <span className="text-xs font-semibold text-[#9490BF]">Due in {days}d</span>;
+  return <span className="text-xs font-semibold text-[#5B6B7F]">Due in {days}d</span>;
 }
 
 function StatusPill({ status }: { status: string }) {
   const map: Record<string, { bg: string; text: string; label: string }> = {
     open:        { bg: 'bg-[rgba(244,184,96,0.10)]',  text: 'text-[#F4B860]',  label: 'Open' },
-    in_progress: { bg: 'bg-[rgba(123,53,250,0.10)]',   text: 'text-[#7B35FA]',  label: 'In Progress' },
+    in_progress: { bg: 'bg-[rgba(20,184,166,0.10)]',   text: 'text-[#14B8A6]',  label: 'In Progress' },
     completed:   { bg: 'bg-[rgba(0,217,126,0.10)]',  text: 'text-[#22C87A]',  label: 'Completed' },
   };
   const s = map[status] ?? map.open;
@@ -72,21 +72,21 @@ function CreateFollowUpModal({ patients, onClose, onCreated }: CreateModalProps)
     }
   }
 
-  const inputClass = "w-full bg-[#04030D] border border-[#1E1B38] rounded-xl px-4 py-3 text-[#EDE8FF] placeholder:text-[#504875] focus:border-[#7B35FA] focus:outline-none focus:ring-2 focus:ring-[#7B35FA]/20 text-sm transition-colors";
-  const labelClass = "block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-2";
+  const inputClass = "w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 text-sm transition-colors";
+  const labelClass = "block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-6 shadow-2xl">
+      <div className="relative w-full max-w-lg bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-[#EDE8FF] font-bold text-lg">Create follow-up</h2>
-            <p className="text-[#9490BF] text-sm mt-0.5">Schedule a task for a linked patient.</p>
+            <h2 className="text-[#0F1B2D] font-bold text-lg">Create follow-up</h2>
+            <p className="text-[#5B6B7F] text-sm mt-0.5">Schedule a task for a linked patient.</p>
           </div>
           <button
             onClick={onClose}
-            className="w-8 h-8 rounded-lg bg-[#131029] flex items-center justify-center text-[#9490BF] hover:text-[#EDE8FF] transition-colors"
+            className="w-8 h-8 rounded-lg bg-[#F1F5FA] flex items-center justify-center text-[#5B6B7F] hover:text-[#0F1B2D] transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -125,7 +125,7 @@ function CreateFollowUpModal({ patients, onClose, onCreated }: CreateModalProps)
           </div>
 
           <div>
-            <label className={labelClass}>Description <span className="normal-case font-normal text-[#504875]">(optional)</span></label>
+            <label className={labelClass}>Description <span className="normal-case font-normal text-[#8C9AAB]">(optional)</span></label>
             <textarea
               placeholder="Add notes or instructions…"
               value={description}
@@ -157,14 +157,14 @@ function CreateFollowUpModal({ patients, onClose, onCreated }: CreateModalProps)
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 rounded-xl border border-[#1E1B38] text-[#9490BF] text-sm font-semibold hover:bg-[#131029] hover:text-[#EDE8FF] transition-colors"
+              className="flex-1 py-3 rounded-xl border border-[#E6ECF2] text-[#5B6B7F] text-sm font-semibold hover:bg-[#F1F5FA] hover:text-[#0F1B2D] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting || !patientId}
-              className="flex-1 py-3 rounded-xl bg-[#7B35FA] text-[#04030D] text-sm font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50"
+              className="flex-1 py-3 rounded-xl bg-[#14B8A6] text-[#F6F9FC] text-sm font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50"
             >
               {submitting ? 'Creating…' : 'Create follow-up'}
             </button>
@@ -243,7 +243,7 @@ export default function FollowUpsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-[#EDE8FF]">Follow-ups</h1>
+          <h1 className="text-2xl font-bold text-[#0F1B2D]">Follow-ups</h1>
           {openCount > 0 && (
             <span className="bg-[rgba(244,184,96,0.10)] text-[#F4B860] text-xs font-semibold px-2.5 py-1 rounded-full border border-[#F4B860]/20">
               {openCount} open
@@ -252,7 +252,7 @@ export default function FollowUpsPage() {
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="bg-[#7B35FA] text-[#04030D] text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#00A896] transition-colors flex items-center gap-2 min-h-[40px]"
+          className="bg-[#14B8A6] text-[#F6F9FC] text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#00A896] transition-colors flex items-center gap-2 min-h-[40px]"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -269,8 +269,8 @@ export default function FollowUpsPage() {
             onClick={() => setFilter(f)}
             className={`text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all border ${
               filter === f
-                ? 'bg-[#7B35FA] text-[#04030D] border-[#7B35FA]'
-                : 'bg-transparent text-[#9490BF] border-[#1E1B38] hover:border-[#7B35FA]/50 hover:text-[#EDE8FF]'
+                ? 'bg-[#14B8A6] text-[#F6F9FC] border-[#14B8A6]'
+                : 'bg-transparent text-[#5B6B7F] border-[#E6ECF2] hover:border-[#14B8A6]/50 hover:text-[#0F1B2D]'
             }`}
           >
             {f}
@@ -279,12 +279,12 @@ export default function FollowUpsPage() {
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-[#9490BF] text-sm">Loading…</div>
+        <div className="py-20 text-center text-[#5B6B7F] text-sm">Loading…</div>
       ) : filtered.length === 0 ? (
-        <div className="py-20 text-center bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl">
+        <div className="py-20 text-center bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl">
           <div className="text-3xl mb-3">📅</div>
-          <p className="text-[#EDE8FF] font-semibold">All caught up</p>
-          <p className="text-[#9490BF] text-sm mt-1">No follow-ups match this filter right now.</p>
+          <p className="text-[#0F1B2D] font-semibold">All caught up</p>
+          <p className="text-[#5B6B7F] text-sm mt-1">No follow-ups match this filter right now.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -294,23 +294,23 @@ export default function FollowUpsPage() {
             return (
               <div
                 key={fu.id}
-                className={`bg-[#0C0A1E] border rounded-xl p-4 transition-colors hover:bg-[#131029] ${
-                  isOverdue ? 'border-[#F43F5E]/25' : 'border-[#1E1B38]'
+                className={`bg-[#FFFFFF] border rounded-xl p-4 transition-colors hover:bg-[#F1F5FA] ${
+                  isOverdue ? 'border-[#F43F5E]/25' : 'border-[#E6ECF2]'
                 }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 min-w-0">
-                    <p className={`text-xs mb-1 ${isOverdue ? 'text-[#F43F5E]' : 'text-[#9490BF]'}`}>
-                      <Link href={`/dashboard/patients/${fu.patient_id}`} className="hover:text-[#7B35FA] transition-colors">
+                    <p className={`text-xs mb-1 ${isOverdue ? 'text-[#F43F5E]' : 'text-[#5B6B7F]'}`}>
+                      <Link href={`/dashboard/patients/${fu.patient_id}`} className="hover:text-[#14B8A6] transition-colors">
                         {fu.profiles?.full_name ?? '—'}
                       </Link>
                     </p>
-                    <p className={`font-semibold text-sm leading-snug mb-2 ${isOverdue ? 'text-[#F43F5E]' : 'text-[#EDE8FF]'}`}>{fu.title}</p>
+                    <p className={`font-semibold text-sm leading-snug mb-2 ${isOverdue ? 'text-[#F43F5E]' : 'text-[#0F1B2D]'}`}>{fu.title}</p>
                     {fu.description && (
-                      <p className="text-[#504875] text-xs mb-2 line-clamp-2">{fu.description}</p>
+                      <p className="text-[#8C9AAB] text-xs mb-2 line-clamp-2">{fu.description}</p>
                     )}
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5 text-[#504875] text-xs">
+                      <div className="flex items-center gap-1.5 text-[#8C9AAB] text-xs">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
@@ -324,7 +324,7 @@ export default function FollowUpsPage() {
                     {fu.status !== 'completed' && (
                       <button
                         onClick={() => markComplete(fu.id)}
-                        className="text-[#7B35FA] border border-[#1E1B38] rounded-lg px-3 py-1.5 text-xs font-semibold hover:bg-[#7B35FA]/10 transition-colors min-h-[36px] flex items-center gap-1.5"
+                        className="text-[#14B8A6] border border-[#E6ECF2] rounded-lg px-3 py-1.5 text-xs font-semibold hover:bg-[#14B8A6]/10 transition-colors min-h-[36px] flex items-center gap-1.5"
                       >
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />

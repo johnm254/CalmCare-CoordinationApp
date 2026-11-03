@@ -126,13 +126,13 @@ export default function MfaVerifyPage() {
   }
 
   const inputClass =
-    'w-full bg-[#0C0A1E] border border-[#1E1B38] rounded-xl px-4 py-3.5 text-[#EDE8FF] placeholder:text-[#504875] focus:border-[#7B35FA] focus:outline-none focus:ring-2 focus:ring-[#7B35FA]/20 text-sm transition-colors disabled:opacity-50 text-center tracking-widest text-lg font-mono';
+    'w-full bg-[#FFFFFF] border border-[#E6ECF2] rounded-xl px-4 py-3.5 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 text-sm transition-colors disabled:opacity-50 text-center tracking-widest text-lg font-mono';
 
   return (
-    <div className="min-h-screen bg-[#04030D] flex flex-col items-center justify-center px-6 py-16">
+    <div className="min-h-screen bg-[#F6F9FC] flex flex-col items-center justify-center px-6 py-16">
       <div
         className="fixed inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(123,53,250,0.05) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(20,184,166,0.05) 0%, transparent 70%)' }}
         aria-hidden="true"
       />
 
@@ -140,36 +140,36 @@ export default function MfaVerifyPage() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-10 h-10" aria-label="Duara logo">
-            <circle cx="48" cy="48" r="10" fill="#7B35FA" />
-            <circle cx="48" cy="48" r="26" fill="none" stroke="#7B35FA" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
-            <circle cx="48" cy="48" r="42" fill="none" stroke="#7B35FA" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
+            <circle cx="48" cy="48" r="10" fill="#14B8A6" />
+            <circle cx="48" cy="48" r="26" fill="none" stroke="#14B8A6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
+            <circle cx="48" cy="48" r="42" fill="none" stroke="#14B8A6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
           </svg>
-          <p className="text-[#EDE8FF] font-extrabold text-xl mt-2">Duara</p>
-          <p className="text-[#7B35FA] text-xs mt-1">Clinician & Nurse Portal</p>
+          <p className="text-[#0F1B2D] font-extrabold text-xl mt-2">Duara</p>
+          <p className="text-[#14B8A6] text-xs mt-1">Clinician & Nurse Portal</p>
         </div>
 
         {step === 'loading' && (
-          <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-10 flex flex-col items-center">
-            <svg className="w-8 h-8 animate-spin text-[#7B35FA]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-10 flex flex-col items-center">
+            <svg className="w-8 h-8 animate-spin text-[#14B8A6]" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity=".3" />
               <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
             </svg>
-            <p className="text-[#9490BF] text-sm mt-4">Loading two-factor challenge…</p>
+            <p className="text-[#5B6B7F] text-sm mt-4">Loading two-factor challenge…</p>
           </div>
         )}
 
         {step === 'error' && (
-          <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-8 text-center">
+          <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-8 text-center">
             <div className="w-14 h-14 rounded-full bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/30 flex items-center justify-center mx-auto mb-5">
               <svg className="w-7 h-7 text-[#F43F5E]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="text-[#EDE8FF] font-bold text-xl mb-3">Authentication error</h2>
-            <p className="text-[#9490BF] text-sm mb-6">{initError}</p>
+            <h2 className="text-[#0F1B2D] font-bold text-xl mb-3">Authentication error</h2>
+            <p className="text-[#5B6B7F] text-sm mb-6">{initError}</p>
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-[#7B35FA] text-[#04030D] font-bold rounded-xl hover:bg-[#00A896] transition-colors min-h-12 px-6 text-sm"
+              className="w-full bg-[#14B8A6] text-[#F6F9FC] font-bold rounded-xl hover:bg-[#00A896] transition-colors min-h-12 px-6 text-sm"
             >
               Try again
             </button>
@@ -177,28 +177,28 @@ export default function MfaVerifyPage() {
         )}
 
         {step === 'verify' && (
-          <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-8">
+          <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-8">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-[rgba(123,53,250,0.10)] border border-[#7B35FA]/25 flex items-center justify-center flex-shrink-0">
-                <svg className="w-5 h-5 text-[#7B35FA]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <div className="w-10 h-10 rounded-xl bg-[rgba(20,184,166,0.10)] border border-[#14B8A6]/25 flex items-center justify-center flex-shrink-0">
+                <svg className="w-5 h-5 text-[#14B8A6]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </div>
               <div>
-                <h2 className="text-[#EDE8FF] font-bold text-xl">Two-factor verification</h2>
-                <p className="text-[#9490BF] text-xs mt-0.5">
+                <h2 className="text-[#0F1B2D] font-bold text-xl">Two-factor verification</h2>
+                <p className="text-[#5B6B7F] text-xs mt-0.5">
                   {selectedFactor?.friendly_name ?? 'Authenticator app'}
                 </p>
               </div>
             </div>
 
-            <p className="text-[#9490BF] text-sm mb-6 leading-relaxed">
+            <p className="text-[#5B6B7F] text-sm mb-6 leading-relaxed">
               Open your authenticator app and enter the 6-digit code shown for Duara to continue.
             </p>
 
             <form onSubmit={handleVerify} className="space-y-5" noValidate>
               <div>
-                <label htmlFor="mfa-code" className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-2">
+                <label htmlFor="mfa-code" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
                   Verification code
                 </label>
                 <input
@@ -228,7 +228,7 @@ export default function MfaVerifyPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#7B35FA] text-[#04030D] font-bold rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 text-sm tracking-wide"
+                className="w-full bg-[#14B8A6] text-[#F6F9FC] font-bold rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 text-sm tracking-wide"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -244,8 +244,8 @@ export default function MfaVerifyPage() {
 
             {/* Multiple factors */}
             {factors.length > 1 && (
-              <div className="mt-5 pt-5 border-t border-[#1E1B38]">
-                <p className="text-[#504875] text-xs mb-3">Use a different authenticator:</p>
+              <div className="mt-5 pt-5 border-t border-[#E6ECF2]">
+                <p className="text-[#8C9AAB] text-xs mb-3">Use a different authenticator:</p>
                 <div className="space-y-2">
                   {factors
                     .filter((f) => f.id !== selectedFactor?.id)
@@ -254,7 +254,7 @@ export default function MfaVerifyPage() {
                         key={f.id}
                         type="button"
                         onClick={() => handleSwitch(f)}
-                        className="w-full text-left text-[#9490BF] text-sm px-3 py-2.5 rounded-xl border border-[#1E1B38] hover:bg-[#131029] hover:text-[#EDE8FF] transition-colors"
+                        className="w-full text-left text-[#5B6B7F] text-sm px-3 py-2.5 rounded-xl border border-[#E6ECF2] hover:bg-[#F1F5FA] hover:text-[#0F1B2D] transition-colors"
                       >
                         {f.friendly_name ?? 'Authenticator app'}
                       </button>
@@ -263,10 +263,10 @@ export default function MfaVerifyPage() {
               </div>
             )}
 
-            <div className="mt-5 pt-5 border-t border-[#1E1B38] text-center">
-              <p className="text-[#504875] text-xs">
+            <div className="mt-5 pt-5 border-t border-[#E6ECF2] text-center">
+              <p className="text-[#8C9AAB] text-xs">
                 Having trouble? Contact{' '}
-                <a href="mailto:support@duara.health" className="text-[#9490BF] hover:text-[#7B35FA] transition-colors">
+                <a href="mailto:support@duara.health" className="text-[#5B6B7F] hover:text-[#14B8A6] transition-colors">
                   support@duara.health
                 </a>
               </p>
@@ -275,14 +275,14 @@ export default function MfaVerifyPage() {
         )}
 
         {step === 'success' && (
-          <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-10 flex flex-col items-center text-center">
+          <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-10 flex flex-col items-center text-center">
             <div className="w-16 h-16 rounded-full bg-[rgba(0,217,126,0.10)] border-2 border-[#22C87A]/30 flex items-center justify-center mb-5">
               <svg className="w-8 h-8 text-[#22C87A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-[#EDE8FF] font-bold text-xl mb-3">Verified</h2>
-            <p className="text-[#9490BF] text-sm">Identity confirmed. Redirecting to dashboard…</p>
+            <h2 className="text-[#0F1B2D] font-bold text-xl mb-3">Verified</h2>
+            <p className="text-[#5B6B7F] text-sm">Identity confirmed. Redirecting to dashboard…</p>
           </div>
         )}
       </div>

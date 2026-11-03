@@ -6,10 +6,10 @@ function PendingIcon() {
   return (
     <div className="relative w-24 h-24 flex items-center justify-center" aria-hidden="true">
       <svg viewBox="0 0 96 96" fill="none" className="absolute inset-0 w-full h-full">
-        <circle cx="48" cy="48" r="44" stroke="#7B35FA" strokeOpacity=".12" strokeWidth="4" />
-        <circle cx="48" cy="48" r="32" stroke="#7B35FA" strokeOpacity=".25" strokeWidth="4" />
-        <circle cx="48" cy="48" r="20" stroke="#7B35FA" strokeOpacity=".5" strokeWidth="4" />
-        <circle cx="48" cy="48" r="8" fill="#7B35FA" />
+        <circle cx="48" cy="48" r="44" stroke="#14B8A6" strokeOpacity=".12" strokeWidth="4" />
+        <circle cx="48" cy="48" r="32" stroke="#14B8A6" strokeOpacity=".25" strokeWidth="4" />
+        <circle cx="48" cy="48" r="20" stroke="#14B8A6" strokeOpacity=".5" strokeWidth="4" />
+        <circle cx="48" cy="48" r="8" fill="#14B8A6" />
       </svg>
     </div>
   );
@@ -59,10 +59,10 @@ export default async function VerificationPendingPage() {
   const effectiveStatus = isExpired ? 'expired' : status;
 
   return (
-    <div className="min-h-screen bg-[#04030D] flex flex-col items-center justify-center px-6 py-16">
+    <div className="min-h-screen bg-[#F6F9FC] flex flex-col items-center justify-center px-6 py-16">
       <div
         className="fixed inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(123,53,250,0.05) 0%, transparent 70%)' }}
+        style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(20,184,166,0.05) 0%, transparent 70%)' }}
         aria-hidden="true"
       />
 
@@ -70,34 +70,34 @@ export default async function VerificationPendingPage() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-10 h-10" aria-label="Duara logo">
-            <circle cx="48" cy="48" r="10" fill="#7B35FA" />
-            <circle cx="48" cy="48" r="26" fill="none" stroke="#7B35FA" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
-            <circle cx="48" cy="48" r="42" fill="none" stroke="#7B35FA" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
+            <circle cx="48" cy="48" r="10" fill="#14B8A6" />
+            <circle cx="48" cy="48" r="26" fill="none" stroke="#14B8A6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
+            <circle cx="48" cy="48" r="42" fill="none" stroke="#14B8A6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
           </svg>
-          <p className="text-[#EDE8FF] font-extrabold text-xl mt-2">Duara</p>
+          <p className="text-[#0F1B2D] font-extrabold text-xl mt-2">Duara</p>
         </div>
 
-        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-10 flex flex-col items-center text-center">
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-10 flex flex-col items-center text-center">
           {effectiveStatus === 'pending' && (
             <>
               <PendingIcon />
-              <h1 className="text-[#EDE8FF] font-bold text-2xl mt-6 mb-3">Verification in progress</h1>
-              <p className="text-[#9490BF] text-sm leading-relaxed mb-2">
+              <h1 className="text-[#0F1B2D] font-bold text-2xl mt-6 mb-3">Verification in progress</h1>
+              <p className="text-[#5B6B7F] text-sm leading-relaxed mb-2">
                 Your licence is being verified by our team. This usually takes 1–2 business days.
               </p>
-              <p className="text-[#9490BF] text-sm leading-relaxed">
+              <p className="text-[#5B6B7F] text-sm leading-relaxed">
                 You will receive an email once your account is approved.
               </p>
-              <div className="mt-6 bg-[rgba(123,53,250,0.07)] border border-[#7B35FA]/20 rounded-xl px-5 py-4 w-full text-left">
-                <p className="text-[#7B35FA] text-xs font-semibold uppercase tracking-widest mb-2">What happens next</p>
+              <div className="mt-6 bg-[rgba(20,184,166,0.07)] border border-[#14B8A6]/20 rounded-xl px-5 py-4 w-full text-left">
+                <p className="text-[#14B8A6] text-xs font-semibold uppercase tracking-widest mb-2">What happens next</p>
                 <ul className="space-y-1.5">
                   {[
                     'Our team reviews your licence with the registering body',
                     'You receive an approval email',
                     'Sign in and complete MFA setup to access the portal',
                   ].map((item, i) => (
-                    <li key={i} className="text-[#9490BF] text-xs flex items-start gap-2">
-                      <span className="text-[#7B35FA] mt-0.5">•</span>
+                    <li key={i} className="text-[#5B6B7F] text-xs flex items-start gap-2">
+                      <span className="text-[#14B8A6] mt-0.5">•</span>
                       {item}
                     </li>
                   ))}
@@ -109,16 +109,16 @@ export default async function VerificationPendingPage() {
           {effectiveStatus === 'rejected' && (
             <>
               <RejectedIcon />
-              <h1 className="text-[#EDE8FF] font-bold text-2xl mt-6 mb-3">Verification unsuccessful</h1>
+              <h1 className="text-[#0F1B2D] font-bold text-2xl mt-6 mb-3">Verification unsuccessful</h1>
               {notes ? (
                 <div className="mb-4 bg-[rgba(244,63,94,0.07)] border border-[#F43F5E]/20 rounded-xl px-5 py-4 w-full text-left">
-                  <p className="text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-1">Reason provided</p>
-                  <p className="text-[#EDE8FF] text-sm">{notes}</p>
+                  <p className="text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-1">Reason provided</p>
+                  <p className="text-[#0F1B2D] text-sm">{notes}</p>
                 </div>
               ) : null}
-              <p className="text-[#9490BF] text-sm leading-relaxed">
+              <p className="text-[#5B6B7F] text-sm leading-relaxed">
                 Please contact{' '}
-                <a href="mailto:support@duara.health" className="text-[#7B35FA] hover:underline">
+                <a href="mailto:support@duara.health" className="text-[#14B8A6] hover:underline">
                   support@duara.health
                 </a>{' '}
                 or re-apply with corrected details.
@@ -129,10 +129,10 @@ export default async function VerificationPendingPage() {
           {effectiveStatus === 'expired' && (
             <>
               <ExpiredIcon />
-              <h1 className="text-[#EDE8FF] font-bold text-2xl mt-6 mb-3">Licence expired</h1>
-              <p className="text-[#9490BF] text-sm leading-relaxed">
+              <h1 className="text-[#0F1B2D] font-bold text-2xl mt-6 mb-3">Licence expired</h1>
+              <p className="text-[#5B6B7F] text-sm leading-relaxed">
                 Your licence on record has expired. Please renew your licence with your registering body, then contact{' '}
-                <a href="mailto:support@duara.health" className="text-[#7B35FA] hover:underline">
+                <a href="mailto:support@duara.health" className="text-[#14B8A6] hover:underline">
                   support@duara.health
                 </a>{' '}
                 to update your record.
@@ -145,9 +145,9 @@ export default async function VerificationPendingPage() {
           </div>
         </div>
 
-        <p className="text-center text-[#504875] text-xs mt-6">
+        <p className="text-center text-[#8C9AAB] text-xs mt-6">
           Wrong account?{' '}
-          <a href="/login" className="text-[#9490BF] hover:text-[#7B35FA] transition-colors font-medium">
+          <a href="/login" className="text-[#5B6B7F] hover:text-[#14B8A6] transition-colors font-medium">
             Sign in with a different email
           </a>
         </p>

@@ -48,20 +48,20 @@ export default async function SchedulesPage({ params }: { params: { id: string }
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#EDE8FF] mb-1">Medication schedules</h1>
-        <p className="text-[#9490BF] text-sm">
+        <h1 className="text-2xl font-bold text-[#0F1B2D] mb-1">Medication schedules</h1>
+        <p className="text-[#5B6B7F] text-sm">
           Set when and how each medication should be taken. Patients cannot change their dose.
         </p>
       </div>
 
       {/* Clinician responsibility note */}
-      <div className="bg-[rgba(123,53,250,0.05)] border border-[#7B35FA]/20 rounded-xl px-5 py-4 mb-7 flex items-start gap-3">
-        <svg className="w-4 h-4 text-[#7B35FA] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+      <div className="bg-[rgba(20,184,166,0.05)] border border-[#14B8A6]/20 rounded-xl px-5 py-4 mb-7 flex items-start gap-3">
+        <svg className="w-4 h-4 text-[#14B8A6] mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div>
-          <p className="text-[#7B35FA] text-xs font-semibold mb-0.5">Clinician responsibility</p>
-          <p className="text-[#9490BF] text-xs leading-relaxed">
+          <p className="text-[#14B8A6] text-xs font-semibold mb-0.5">Clinician responsibility</p>
+          <p className="text-[#5B6B7F] text-xs leading-relaxed">
             Duara never changes a patient's dose. All schedules are set exclusively by the prescribing clinician.
             Patients receive reminders but cannot modify dose amounts.
           </p>
@@ -69,14 +69,14 @@ export default async function SchedulesPage({ params }: { params: { id: string }
       </div>
 
       {meds.length === 0 ? (
-        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-12 text-center">
-          <div className="w-12 h-12 rounded-full bg-[#131029] border border-[#1E1B38] flex items-center justify-center mx-auto mb-4">
-            <svg className="w-6 h-6 text-[#504875]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-12 text-center">
+          <div className="w-12 h-12 rounded-full bg-[#F1F5FA] border border-[#E6ECF2] flex items-center justify-center mx-auto mb-4">
+            <svg className="w-6 h-6 text-[#8C9AAB]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <p className="text-[#EDE8FF] font-semibold text-sm mb-1">No active medications</p>
-          <p className="text-[#9490BF] text-xs">Add medications to this patient before configuring schedules.</p>
+          <p className="text-[#0F1B2D] font-semibold text-sm mb-1">No active medications</p>
+          <p className="text-[#5B6B7F] text-xs">Add medications to this patient before configuring schedules.</p>
         </div>
       ) : (
         <div className="space-y-5">

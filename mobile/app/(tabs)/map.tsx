@@ -259,8 +259,8 @@ export default function MapScreen() {
         <Circle
           center={location}
           radius={60}
-          fillColor="rgba(123,53,250,0.12)"
-          strokeColor="rgba(123,53,250,0.4)"
+          fillColor="rgba(20,184,166,0.12)"
+          strokeColor="rgba(20,184,166,0.4)"
           strokeWidth={1}
         />
         <Marker

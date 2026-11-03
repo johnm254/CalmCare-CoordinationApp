@@ -93,37 +93,37 @@ export default async function ActivityPage() {
   return (
     <div className="p-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[#EDE8FF]">Activity feed</h1>
-        <p className="text-[#9490BF] text-sm mt-1">
+        <h1 className="text-2xl font-bold text-[#0F1B2D]">Activity feed</h1>
+        <p className="text-[#5B6B7F] text-sm mt-1">
           SOS alerts and events from your linked patients, sorted by newest first.
         </p>
       </div>
 
       {feed.length === 0 ? (
-        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl py-20 text-center">
-          <div className="w-12 h-12 rounded-full bg-[#131029] flex items-center justify-center mx-auto mb-3">
-            <svg className="w-6 h-6 text-[#504875]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl py-20 text-center">
+          <div className="w-12 h-12 rounded-full bg-[#F1F5FA] flex items-center justify-center mx-auto mb-3">
+            <svg className="w-6 h-6 text-[#8C9AAB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <p className="text-[#9490BF] font-medium">No activity yet.</p>
-          <p className="text-[#504875] text-xs mt-1">Events will appear here as your patients use the app.</p>
+          <p className="text-[#5B6B7F] font-medium">No activity yet.</p>
+          <p className="text-[#8C9AAB] text-xs mt-1">Events will appear here as your patients use the app.</p>
         </div>
       ) : (
-        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-6">
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-6">
           <div className="space-y-0">
             {feed.map((item, i) => {
               const isSOS = item.type === 'sos';
               const isSeizure = item.type === 'event';
 
-              const dotColor = isSOS ? 'bg-[#F43F5E]' : isSeizure ? 'bg-[#F4B860]' : 'bg-[#7B35FA]';
-              const ringColor = isSOS ? 'bg-[rgba(244,63,94,0.15)]' : isSeizure ? 'bg-[rgba(244,184,96,0.15)]' : 'bg-[rgba(123,53,250,0.12)]';
+              const dotColor = isSOS ? 'bg-[#F43F5E]' : isSeizure ? 'bg-[#F4B860]' : 'bg-[#14B8A6]';
+              const ringColor = isSOS ? 'bg-[rgba(244,63,94,0.15)]' : isSeizure ? 'bg-[rgba(244,184,96,0.15)]' : 'bg-[rgba(20,184,166,0.12)]';
 
               return (
                 <div key={item.id} className="flex gap-4 pb-5 relative">
                   {/* Vertical timeline line */}
                   {i < feed.length - 1 && (
-                    <div className="absolute left-4 top-9 bottom-0 w-px bg-[#1E1B38]" />
+                    <div className="absolute left-4 top-9 bottom-0 w-px bg-[#E6ECF2]" />
                   )}
 
                   {/* Timeline dot */}
@@ -134,7 +134,7 @@ export default async function ActivityPage() {
                   </div>
 
                   {/* Card */}
-                  <div className={`flex-1 rounded-xl p-4 border ${isSOS ? 'border-[#F43F5E]/25 bg-[rgba(244,63,94,0.05)]' : 'border-[#1E1B38] bg-[#131029]'}`}>
+                  <div className={`flex-1 rounded-xl p-4 border ${isSOS ? 'border-[#F43F5E]/25 bg-[rgba(244,63,94,0.05)]' : 'border-[#E6ECF2] bg-[#F1F5FA]'}`}>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         {/* SOS badge */}
@@ -148,25 +148,25 @@ export default async function ActivityPage() {
                           <span className={`inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full mb-2 ${
                             isSeizure
                               ? 'bg-[rgba(244,184,96,0.15)] text-[#F4B860]'
-                              : 'bg-[rgba(123,53,250,0.12)] text-[#7B35FA]'
+                              : 'bg-[rgba(20,184,166,0.12)] text-[#14B8A6]'
                           }`}>
                             {isSeizure ? 'Seizure' : 'Event'}
                           </span>
                         )}
-                        <p className="text-[#EDE8FF] text-sm font-semibold">{item.label}</p>
-                        <p className="text-[#9490BF] text-xs mt-0.5">
+                        <p className="text-[#0F1B2D] text-sm font-semibold">{item.label}</p>
+                        <p className="text-[#5B6B7F] text-xs mt-0.5">
                           Patient:{' '}
-                          <span className="font-semibold text-[#EDE8FF]">{item.patientName}</span>
+                          <span className="font-semibold text-[#0F1B2D]">{item.patientName}</span>
                         </p>
                         {item.detail && (
-                          <p className={`text-xs mt-1 ${isSOS && item.detail === 'Active' ? 'text-[#F43F5E] font-semibold' : 'text-[#504875]'}`}>
+                          <p className={`text-xs mt-1 ${isSOS && item.detail === 'Active' ? 'text-[#F43F5E] font-semibold' : 'text-[#8C9AAB]'}`}>
                             {item.detail}
                           </p>
                         )}
                       </div>
                       <div className="flex-shrink-0 text-right">
-                        <p className="text-[#504875] text-xs">{timeAgo(item.at)}</p>
-                        <p className="text-[#504875] text-xs mt-0.5">{formatTime(item.at)}</p>
+                        <p className="text-[#8C9AAB] text-xs">{timeAgo(item.at)}</p>
+                        <p className="text-[#8C9AAB] text-xs mt-0.5">{formatTime(item.at)}</p>
                       </div>
                     </div>
                   </div>

@@ -125,8 +125,8 @@ export default function FeatureFlagsPage() {
     <div className="p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#EDE8FF]">Feature Flags</h1>
-        <p className="text-[#9490BF] text-sm mt-1 max-w-2xl">
+        <h1 className="text-2xl font-bold text-[#0F1B2D]">Feature Flags</h1>
+        <p className="text-[#5B6B7F] text-sm mt-1 max-w-2xl">
           Toggle platform capabilities. Changes take effect immediately for all users.
         </p>
       </div>
@@ -148,7 +148,7 @@ export default function FeatureFlagsPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p className="text-[#F4B860] text-xs leading-snug">
-            These are display defaults — save to DB to persist. Run the <code className="font-mono bg-[#131029] px-1 rounded">feature_flags</code> migration first.
+            These are display defaults — save to DB to persist. Run the <code className="font-mono bg-[#F1F5FA] px-1 rounded">feature_flags</code> migration first.
           </p>
         </div>
       )}
@@ -161,11 +161,11 @@ export default function FeatureFlagsPage() {
       )}
 
       {/* Flags table */}
-      <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl overflow-hidden">
+      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
         {/* Table header */}
-        <div className="grid grid-cols-[1fr_2fr_100px_140px_120px] px-6 py-3 bg-[#04030D] border-b border-[#1E1B38]">
+        <div className="grid grid-cols-[1fr_2fr_100px_140px_120px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
           {['Flag key', 'Description', 'Status', 'Last changed', ''].map((h) => (
-            <span key={h} className="text-[#504875] text-xs font-semibold uppercase tracking-wider">
+            <span key={h} className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider">
               {h}
             </span>
           ))}
@@ -173,22 +173,22 @@ export default function FeatureFlagsPage() {
 
         {loading ? (
           <div className="py-20 text-center">
-            <div className="inline-block w-6 h-6 border-2 border-[#7B35FA] border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-[#9490BF] text-sm">Loading flags…</p>
+            <div className="inline-block w-6 h-6 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-[#5B6B7F] text-sm">Loading flags…</p>
           </div>
         ) : (
           flags.map((flag) => (
             <div
               key={flag.key}
-              className="grid grid-cols-[1fr_2fr_100px_140px_120px] px-6 py-4 border-b border-[#1E1B38] last:border-0 items-center hover:bg-[#131029] transition-colors"
+              className="grid grid-cols-[1fr_2fr_100px_140px_120px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
             >
               {/* Key */}
-              <code className="text-[#EDE8FF] text-sm font-mono bg-[#131029] px-2 py-0.5 rounded w-fit">
+              <code className="text-[#0F1B2D] text-sm font-mono bg-[#F1F5FA] px-2 py-0.5 rounded w-fit">
                 {flag.key}
               </code>
 
               {/* Description */}
-              <p className="text-[#9490BF] text-sm pr-4">{flag.description}</p>
+              <p className="text-[#5B6B7F] text-sm pr-4">{flag.description}</p>
 
               {/* Enabled badge */}
               {flag.enabled ? (
@@ -197,14 +197,14 @@ export default function FeatureFlagsPage() {
                   Enabled
                 </span>
               ) : (
-                <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[rgba(80,72,117,0.15)] text-[#504875] border border-[#504875]/20 w-fit">
+                <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[rgba(80,72,117,0.15)] text-[#8C9AAB] border border-[#8C9AAB]/20 w-fit">
                   <span className="w-1.5 h-1.5 rounded-full bg-current" />
                   Disabled
                 </span>
               )}
 
               {/* Updated at */}
-              <p className="text-[#504875] text-xs">{fmtDate(flag.updated_at)}</p>
+              <p className="text-[#8C9AAB] text-xs">{fmtDate(flag.updated_at)}</p>
 
               {/* Toggle button */}
               <button

@@ -184,19 +184,19 @@ const styles = StyleSheet.create({
     height: LOGO,
     borderRadius: LOGO / 2,
     borderWidth: 2,
-    borderColor: "rgba(123,53,250,0.22)",
+    borderColor: "rgba(20,184,166,0.22)",
   },
   ringMid: {
     width: 66,
     height: 66,
     borderRadius: 33,
-    borderColor: "rgba(123,53,250,0.45)",
+    borderColor: "rgba(20,184,166,0.45)",
   },
   ringInner: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    borderColor: "rgba(123,53,250,0.75)",
+    borderColor: "rgba(20,184,166,0.75)",
   },
   ringCore: {
     width: 18,

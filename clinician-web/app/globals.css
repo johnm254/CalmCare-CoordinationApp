@@ -1,45 +1,54 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  /* ── Backgrounds ───────────────────────────────────────────────────────── */
-  --color-bg:         #04030D;
-  --color-card:       #0C0A1E;
-  --color-card-alt:   #131029;
-  --color-card-high:  #1A1835;
+  /* ── Canvas & surfaces ─────────────────────────────────────────────────── */
+  --color-bg:         #F6F9FC;
+  --color-card:       #FFFFFF;
+  --color-card-alt:   #F1F5FA;
+  --color-card-high:  #EEF3F9;
 
   /* ── Borders ───────────────────────────────────────────────────────────── */
-  --color-border:       #1E1B38;
-  --color-border-light: #2C2952;
+  --color-border:       #E6ECF2;
+  --color-border-light: #EEF3F9;
 
-  /* ── Primary — Electric Violet ─────────────────────────────────────────── */
-  --color-primary:       #7B35FA;
-  --color-primary-hover: #9B69FF;
-  --color-primary-muted: #2A1760;
-  --color-primary-dim:   rgba(123, 53, 250, 0.10);
+  /* ── Primary — Lagoon teal ─────────────────────────────────────────────── */
+  --color-primary:       #14B8A6;
+  --color-primary-hover: #0D9488;
+  --color-primary-muted: #CCFBEF;
+  --color-primary-dim:   rgba(20, 184, 166, 0.10);
 
   /* ── Semantic ──────────────────────────────────────────────────────────── */
-  --color-success:   #00D97E;
-  --color-warning:   #FFB020;
-  --color-danger:    #F43F5E;
+  --color-success:   #22C08A;
+  --color-warning:   #FFC24B;
+  --color-danger:    #EF4444;
   --color-info:      #4A8AFF;
 
-  /* ── Text ──────────────────────────────────────────────────────────────── */
-  --color-text:      #EDE8FF;
-  --color-secondary: #9490BF;
-  --color-muted:     #504875;
+  /* ── Text / ink ────────────────────────────────────────────────────────── */
+  --color-text:      #0F1B2D;
+  --color-secondary: #5B6B7F;
+  --color-muted:     #8C9AAB;
 
-  /* ── Legacy aliases (used across existing components) ─────────────────── */
+  /* ── Accent palette ────────────────────────────────────────────────────── */
+  --color-iris:       #6C63FF;
+  --color-iris-dim:   #F1F0FF;
+  --color-coral:      #FF6B4A;
+  --color-coral-dim:  #FFF2EF;
+  --color-amber:      #FFC24B;
+  --color-amber-dim:  #FFF4D6;
+  --color-hero-card:  #0F1B2D;
+
+  /* ── Legacy aliases ────────────────────────────────────────────────────── */
   --color-teal: var(--color-primary);
 }
 
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: 'Inter', 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Inter', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 16px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -50,11 +59,11 @@ body {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 5px; }
-::-webkit-scrollbar-track { background: #04030D; }
-::-webkit-scrollbar-thumb { background: #1E1B38; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #2C2952; }
+::-webkit-scrollbar-track { background: #F1F5FA; }
+::-webkit-scrollbar-thumb { background: #E6ECF2; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #CBD5E0; }
 
 @media print {
-  body { background: white; color: #0F1E29; }
+  body { background: white; color: #0F1B2D; }
   .no-print { display: none !important; }
 }

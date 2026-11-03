@@ -67,28 +67,28 @@ export default function AdminActivityPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#EDE8FF]">System activity</h1>
-        <p className="text-[#9490BF] text-sm mt-1">
+        <h1 className="text-2xl font-bold text-[#0F1B2D]">System activity</h1>
+        <p className="text-[#5B6B7F] text-sm mt-1">
           Platform-wide audit trail — SOS alerts, events, and authentication logs.
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-5">
-          <p className="text-3xl font-black text-[#EDE8FF] mb-0.5">{loading ? '—' : entries.length}</p>
-          <p className="text-[#9490BF] text-sm">Total entries</p>
-          <p className="text-[#504875] text-xs mt-1">Last 100 records</p>
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
+          <p className="text-3xl font-black text-[#0F1B2D] mb-0.5">{loading ? '—' : entries.length}</p>
+          <p className="text-[#5B6B7F] text-sm">Total entries</p>
+          <p className="text-[#8C9AAB] text-xs mt-1">Last 100 records</p>
         </div>
-        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-5">
-          <p className={`text-3xl font-black mb-0.5 ${sosCount > 0 ? 'text-[#F43F5E]' : 'text-[#EDE8FF]'}`}>{loading ? '—' : sosCount}</p>
-          <p className="text-[#9490BF] text-sm">SOS alerts</p>
-          <p className="text-[#504875] text-xs mt-1">In this window</p>
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
+          <p className={`text-3xl font-black mb-0.5 ${sosCount > 0 ? 'text-[#F43F5E]' : 'text-[#0F1B2D]'}`}>{loading ? '—' : sosCount}</p>
+          <p className="text-[#5B6B7F] text-sm">SOS alerts</p>
+          <p className="text-[#8C9AAB] text-xs mt-1">In this window</p>
         </div>
-        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-5">
-          <p className="text-3xl font-black text-[#7B35FA] mb-0.5">{loading ? '—' : todayCount}</p>
-          <p className="text-[#9490BF] text-sm">Events today</p>
-          <p className="text-[#504875] text-xs mt-1">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
+          <p className="text-3xl font-black text-[#14B8A6] mb-0.5">{loading ? '—' : todayCount}</p>
+          <p className="text-[#5B6B7F] text-sm">Events today</p>
+          <p className="text-[#8C9AAB] text-xs mt-1">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
         </div>
       </div>
 
@@ -100,8 +100,8 @@ export default function AdminActivityPage() {
             onClick={() => setFilter(f)}
             className={`text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all border ${
               filter === f
-                ? 'bg-[#7B35FA] text-[#04030D] border-[#7B35FA]'
-                : 'bg-transparent text-[#9490BF] border-[#1E1B38] hover:border-[#7B35FA]/50 hover:text-[#EDE8FF]'
+                ? 'bg-[#14B8A6] text-[#F6F9FC] border-[#14B8A6]'
+                : 'bg-transparent text-[#5B6B7F] border-[#E6ECF2] hover:border-[#14B8A6]/50 hover:text-[#0F1B2D]'
             }`}
           >
             {f}
@@ -110,15 +110,15 @@ export default function AdminActivityPage() {
       </div>
 
       {/* Timeline */}
-      <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-6">
+      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-6">
         {loading ? (
           <div className="py-16 text-center">
-            <div className="inline-block w-6 h-6 border-2 border-[#7B35FA] border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-[#9490BF] text-sm">Loading activity…</p>
+            <div className="inline-block w-6 h-6 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-[#5B6B7F] text-sm">Loading activity…</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-[#9490BF] text-sm">No activity in this category.</p>
+            <p className="text-[#5B6B7F] text-sm">No activity in this category.</p>
           </div>
         ) : (
           <div className="space-y-0">
@@ -127,17 +127,17 @@ export default function AdminActivityPage() {
               const isEvent = entry.kind === 'event';
               const isLogin = entry.kind === 'login' || entry.kind === 'audit';
 
-              const dotColor = isSOS ? 'bg-[#F43F5E]' : isEvent ? 'bg-[#F4B860]' : 'bg-[#7B35FA]';
+              const dotColor = isSOS ? 'bg-[#F43F5E]' : isEvent ? 'bg-[#F4B860]' : 'bg-[#14B8A6]';
               const ringColor = isSOS
                 ? 'bg-[rgba(244,63,94,0.15)]'
                 : isEvent
                 ? 'bg-[rgba(244,184,96,0.15)]'
-                : 'bg-[rgba(123,53,250,0.12)]';
+                : 'bg-[rgba(20,184,166,0.12)]';
 
               return (
                 <div key={entry.id} className={`flex gap-4 pb-5 relative ${isSOS ? 'bg-[rgba(244,63,94,0.03)] -mx-6 px-6 rounded-xl' : ''}`}>
                   {i < filtered.length - 1 && (
-                    <div className="absolute left-4 top-9 bottom-0 w-px bg-[#1E1B38]" />
+                    <div className="absolute left-4 top-9 bottom-0 w-px bg-[#E6ECF2]" />
                   )}
                   <div className="flex-shrink-0 mt-0.5">
                     <div className={`w-8 h-8 rounded-full ${ringColor} flex items-center justify-center`}>
@@ -156,22 +156,22 @@ export default function AdminActivityPage() {
                           <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full mb-1.5 ${
                             isEvent
                               ? 'bg-[rgba(244,184,96,0.12)] text-[#F4B860]'
-                              : 'bg-[rgba(123,53,250,0.10)] text-[#7B35FA]'
+                              : 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6]'
                           }`}>
                             {isLogin ? 'Auth' : 'Event'}
                           </span>
                         )}
-                        <p className="text-[#EDE8FF] text-sm font-semibold">{entry.description}</p>
-                        <p className="text-[#9490BF] text-xs mt-0.5">
+                        <p className="text-[#0F1B2D] text-sm font-semibold">{entry.description}</p>
+                        <p className="text-[#5B6B7F] text-xs mt-0.5">
                           {entry.actorName}
                           {entry.patientName && (
-                            <> · <span className="text-[#EDE8FF] font-semibold">{entry.patientName}</span></>
+                            <> · <span className="text-[#0F1B2D] font-semibold">{entry.patientName}</span></>
                           )}
                         </p>
                       </div>
                       <div className="flex-shrink-0 text-right">
-                        <p className="text-[#504875] text-xs whitespace-nowrap">{timeAgo(entry.at)}</p>
-                        <p className="text-[#504875] text-xs mt-0.5 whitespace-nowrap">{formatTime(entry.at)}</p>
+                        <p className="text-[#8C9AAB] text-xs whitespace-nowrap">{timeAgo(entry.at)}</p>
+                        <p className="text-[#8C9AAB] text-xs mt-0.5 whitespace-nowrap">{formatTime(entry.at)}</p>
                       </div>
                     </div>
                   </div>

@@ -51,7 +51,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   }
 
   return (
-    <div className="flex min-h-screen bg-[#04030D]">
+    <div className="flex min-h-screen bg-[#F6F9FC]">
       <InactivityLogout redirectTo="/login" />
       <Sidebar profile={profile} />
       <main className="flex-1 ml-60 overflow-y-auto min-h-screen">

@@ -276,21 +276,21 @@ const splashStyles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    borderColor: "rgba(123,53,250,0.20)",
+    borderColor: "rgba(20,184,166,0.20)",
   },
 
   r2: {
     width: 84,
     height: 84,
     borderRadius: 42,
-    borderColor: "rgba(123,53,250,0.45)",
+    borderColor: "rgba(20,184,166,0.45)",
   },
 
   r3: {
     width: 54,
     height: 54,
     borderRadius: 27,
-    borderColor: "rgba(123,53,250,0.75)",
+    borderColor: "rgba(20,184,166,0.75)",
   },
 
   core: {
@@ -453,21 +453,21 @@ const bioStyles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: 55,
-    borderColor: "rgba(123,53,250,0.18)",
+    borderColor: "rgba(20,184,166,0.18)",
   },
 
   r2: {
     width: 76,
     height: 76,
     borderRadius: 38,
-    borderColor: "rgba(123,53,250,0.42)",
+    borderColor: "rgba(20,184,166,0.42)",
   },
 
   r3: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    borderColor: "rgba(123,53,250,0.72)",
+    borderColor: "rgba(20,184,166,0.72)",
   },
 
   core: {

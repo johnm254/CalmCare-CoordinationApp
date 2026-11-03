@@ -65,7 +65,7 @@ function StatusBadge({ status }: { status: string }) {
     );
   if (status === 'acknowledged')
     return (
-      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[rgba(123,53,250,0.10)] text-[#7B35FA] border border-[#7B35FA]/20">
+      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[rgba(20,184,166,0.10)] text-[#14B8A6] border border-[#14B8A6]/20">
         Acknowledged
       </span>
     );
@@ -77,12 +77,12 @@ function StatusBadge({ status }: { status: string }) {
     );
   if (status === 'false_alarm')
     return (
-      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[rgba(148,144,191,0.10)] text-[#9490BF] border border-[#9490BF]/20">
+      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[rgba(148,144,191,0.10)] text-[#5B6B7F] border border-[#5B6B7F]/20">
         False alarm
       </span>
     );
   return (
-    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#131029] text-[#9490BF] border border-[#1E1B38]">
+    <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-[#F1F5FA] text-[#5B6B7F] border border-[#E6ECF2]">
       {status}
     </span>
   );
@@ -92,12 +92,12 @@ function Skeleton() {
   return (
     <div className="space-y-3">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-5 animate-pulse">
+        <div key={i} className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5 animate-pulse">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#1E1B38]" />
+            <div className="w-10 h-10 rounded-full bg-[#E6ECF2]" />
             <div className="flex-1 space-y-2">
-              <div className="h-3 bg-[#1E1B38] rounded w-36" />
-              <div className="h-3 bg-[#1E1B38] rounded w-24" />
+              <div className="h-3 bg-[#E6ECF2] rounded w-36" />
+              <div className="h-3 bg-[#E6ECF2] rounded w-24" />
             </div>
           </div>
         </div>
@@ -136,16 +136,16 @@ function EscalationTimeline({ event }: { event: SosEvent }) {
               <div
                 className={`w-2.5 h-2.5 rounded-full border-2 flex-shrink-0 ${
                   step.done
-                    ? 'bg-[#7B35FA] border-[#7B35FA]'
-                    : 'bg-transparent border-[#504875]'
+                    ? 'bg-[#14B8A6] border-[#14B8A6]'
+                    : 'bg-transparent border-[#8C9AAB]'
                 }`}
               />
-              <p className="text-[#504875] text-[10px] mt-1 whitespace-nowrap max-w-[80px] text-center leading-tight">
+              <p className="text-[#8C9AAB] text-[10px] mt-1 whitespace-nowrap max-w-[80px] text-center leading-tight">
                 {step.label}
               </p>
             </div>
             {idx < steps.length - 1 && (
-              <div className="w-12 h-px bg-[#1E1B38] mx-1 mb-3" />
+              <div className="w-12 h-px bg-[#E6ECF2] mx-1 mb-3" />
             )}
           </div>
         ))}
@@ -196,8 +196,8 @@ function SosEventsTab({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <p className="text-[#EDE8FF] font-semibold text-base">No active SOS alerts</p>
-        <p className="text-[#9490BF] text-sm mt-1">All clear — no SOS events for your patients.</p>
+        <p className="text-[#0F1B2D] font-semibold text-base">No active SOS alerts</p>
+        <p className="text-[#5B6B7F] text-sm mt-1">All clear — no SOS events for your patients.</p>
       </div>
     );
   }
@@ -211,26 +211,26 @@ function SosEventsTab({
         const isNoteOpen = noteOpen === ev.id;
 
         return (
-          <div key={ev.id} className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-5">
+          <div key={ev.id} className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
             {/* Row 1: avatar + meta + badge */}
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full bg-[#7B35FA]/15 border border-[#7B35FA]/30 flex items-center justify-center text-[#7B35FA] font-bold text-sm flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-[#14B8A6]/15 border border-[#14B8A6]/30 flex items-center justify-center text-[#14B8A6] font-bold text-sm flex-shrink-0">
                 {patientInitials(name)}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-[#EDE8FF] font-semibold text-sm">{name}</p>
+                  <p className="text-[#0F1B2D] font-semibold text-sm">{name}</p>
                   <StatusBadge status={ev.status} />
                 </div>
-                <p className="text-[#504875] text-xs mt-0.5">{fmtTime(ev.created_at)}</p>
+                <p className="text-[#8C9AAB] text-xs mt-0.5">{fmtTime(ev.created_at)}</p>
                 {ev.dispatch_ref && (
-                  <p className="text-[#9490BF] text-xs mt-0.5">
+                  <p className="text-[#5B6B7F] text-xs mt-0.5">
                     Dispatch ref:{' '}
                     <span className="font-mono text-[#F4B860]">{ev.dispatch_ref}</span>
                   </p>
                 )}
                 {ev.notes && !isNoteOpen && (
-                  <p className="text-[#9490BF] text-xs mt-1 italic">
+                  <p className="text-[#5B6B7F] text-xs mt-1 italic">
                     Note: {ev.notes}
                   </p>
                 )}
@@ -244,7 +244,7 @@ function SosEventsTab({
             {isNoteOpen && (
               <div className="mt-3">
                 <textarea
-                  className="w-full bg-[#04030D] border border-[#1E1B38] rounded-xl px-3 py-2 text-[#EDE8FF] text-sm placeholder:text-[#504875] focus:border-[#7B35FA] focus:outline-none focus:ring-2 focus:ring-[#7B35FA]/20 resize-none"
+                  className="w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-3 py-2 text-[#0F1B2D] text-sm placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 resize-none"
                   rows={3}
                   placeholder="Add a clinical note..."
                   value={noteText[ev.id] ?? ev.notes ?? ''}
@@ -256,13 +256,13 @@ function SosEventsTab({
                   <button
                     onClick={() => saveNote(ev.id)}
                     disabled={isSavingNote}
-                    className="bg-[#7B35FA] text-[#04030D] text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#7C3AED] transition-colors disabled:opacity-50"
+                    className="bg-[#14B8A6] text-[#F6F9FC] text-xs font-bold px-4 py-2 rounded-lg hover:bg-[#7C3AED] transition-colors disabled:opacity-50"
                   >
                     {isSavingNote ? 'Saving…' : 'Save note'}
                   </button>
                   <button
                     onClick={() => setNoteOpen(null)}
-                    className="text-[#9490BF] text-xs hover:text-[#EDE8FF] transition-colors px-3 py-2"
+                    className="text-[#5B6B7F] text-xs hover:text-[#0F1B2D] transition-colors px-3 py-2"
                   >
                     Cancel
                   </button>
@@ -276,7 +276,7 @@ function SosEventsTab({
                 <button
                   onClick={() => updateStatus(ev.id, 'acknowledged')}
                   disabled={isSaving}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgba(123,53,250,0.10)] text-[#7B35FA] border border-[#7B35FA]/20 hover:bg-[rgba(123,53,250,0.20)] transition-colors disabled:opacity-50"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgba(20,184,166,0.10)] text-[#14B8A6] border border-[#14B8A6]/20 hover:bg-[rgba(20,184,166,0.20)] transition-colors disabled:opacity-50"
                 >
                   {isSaving ? 'Saving…' : 'Acknowledge'}
                 </button>
@@ -284,7 +284,7 @@ function SosEventsTab({
               {!isNoteOpen && (
                 <button
                   onClick={() => setNoteOpen(ev.id)}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#131029] text-[#9490BF] border border-[#1E1B38] hover:text-[#EDE8FF] hover:border-[#504875] transition-colors"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#F1F5FA] text-[#5B6B7F] border border-[#E6ECF2] hover:text-[#0F1B2D] hover:border-[#8C9AAB] transition-colors"
                 >
                   Add note
                 </button>
@@ -293,7 +293,7 @@ function SosEventsTab({
                 <button
                   onClick={() => updateStatus(ev.id, 'false_alarm')}
                   disabled={isSaving}
-                  className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgba(148,144,191,0.08)] text-[#9490BF] border border-[#504875]/40 hover:text-[#EDE8FF] transition-colors disabled:opacity-50"
+                  className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgba(148,144,191,0.08)] text-[#5B6B7F] border border-[#8C9AAB]/40 hover:text-[#0F1B2D] transition-colors disabled:opacity-50"
                 >
                   Close — false alarm
                 </button>
@@ -341,8 +341,8 @@ function MetricAlertsTab({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <p className="text-[#EDE8FF] font-semibold text-base">No metric alerts</p>
-        <p className="text-[#9490BF] text-sm mt-1">All patient vitals are within normal thresholds.</p>
+        <p className="text-[#0F1B2D] font-semibold text-base">No metric alerts</p>
+        <p className="text-[#5B6B7F] text-sm mt-1">All patient vitals are within normal thresholds.</p>
       </div>
     );
   }
@@ -353,15 +353,15 @@ function MetricAlertsTab({
     const metricLabel = alert.metric.replace(/_/g, ' ');
 
     return (
-      <div className="flex items-center gap-4 py-3.5 border-b border-[#1E1B38] last:border-0">
+      <div className="flex items-center gap-4 py-3.5 border-b border-[#E6ECF2] last:border-0">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-[#EDE8FF] font-semibold text-sm">{name}</p>
+            <p className="text-[#0F1B2D] font-semibold text-sm">{name}</p>
             <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-[rgba(244,184,96,0.10)] text-[#F4B860] border border-[#F4B860]/20 capitalize">
               {metricLabel}
             </span>
           </div>
-          <p className="text-[#9490BF] text-xs mt-0.5">
+          <p className="text-[#5B6B7F] text-xs mt-0.5">
             Value:{' '}
             <span className="text-[#F43F5E] font-bold">{alert.value}</span>
             {' '}· Threshold: {alert.threshold}
@@ -372,7 +372,7 @@ function MetricAlertsTab({
           <button
             onClick={() => acknowledge(alert.id)}
             disabled={isSaving}
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgba(123,53,250,0.10)] text-[#7B35FA] border border-[#7B35FA]/20 hover:bg-[rgba(123,53,250,0.20)] transition-colors disabled:opacity-50 flex-shrink-0"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgba(20,184,166,0.10)] text-[#14B8A6] border border-[#14B8A6]/20 hover:bg-[rgba(20,184,166,0.20)] transition-colors disabled:opacity-50 flex-shrink-0"
           >
             {isSaving ? 'Saving…' : 'Acknowledge'}
           </button>
@@ -386,8 +386,8 @@ function MetricAlertsTab({
   return (
     <div>
       {active.length > 0 && (
-        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-5 mb-4">
-          <h3 className="text-sm font-bold text-[#EDE8FF] mb-1">
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5 mb-4">
+          <h3 className="text-sm font-bold text-[#0F1B2D] mb-1">
             Unacknowledged
             <span className="ml-2 text-xs text-[#F43F5E] font-semibold px-1.5 py-0.5 rounded-full bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/20">
               {active.length}
@@ -397,8 +397,8 @@ function MetricAlertsTab({
         </div>
       )}
       {acknowledged.length > 0 && (
-        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-5">
-          <h3 className="text-sm font-bold text-[#9490BF] mb-1">Acknowledged</h3>
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
+          <h3 className="text-sm font-bold text-[#5B6B7F] mb-1">Acknowledged</h3>
           {acknowledged.map((a) => <MetricRow key={a.id} alert={a} />)}
         </div>
       )}
@@ -484,14 +484,14 @@ export default function AlertsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-[#EDE8FF]">Alerts Inbox</h1>
-          <p className="text-[#9490BF] text-sm mt-1">
+          <h1 className="text-2xl font-bold text-[#0F1B2D]">Alerts Inbox</h1>
+          <p className="text-[#5B6B7F] text-sm mt-1">
             SOS events and metric threshold breaches for your patients.
           </p>
         </div>
         <button
           onClick={fetchData}
-          className="flex items-center gap-2 text-sm text-[#9490BF] hover:text-[#EDE8FF] transition-colors bg-[#0C0A1E] border border-[#1E1B38] rounded-xl px-4 py-2"
+          className="flex items-center gap-2 text-sm text-[#5B6B7F] hover:text-[#0F1B2D] transition-colors bg-[#FFFFFF] border border-[#E6ECF2] rounded-xl px-4 py-2"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -514,13 +514,13 @@ export default function AlertsPage() {
       )}
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 border-b border-[#1E1B38] mb-6">
+      <div className="flex items-center gap-1 border-b border-[#E6ECF2] mb-6">
         <button
           onClick={() => setTab('sos')}
           className={`px-5 py-3 text-sm font-semibold transition-colors border-b-2 flex items-center gap-2 ${
             tab === 'sos'
-              ? 'text-[#7B35FA] border-[#7B35FA]'
-              : 'text-[#9490BF] border-transparent hover:text-[#EDE8FF] hover:border-[#2C2952]'
+              ? 'text-[#14B8A6] border-[#14B8A6]'
+              : 'text-[#5B6B7F] border-transparent hover:text-[#0F1B2D] hover:border-[#EEF3F9]'
           }`}
         >
           SOS Events
@@ -534,8 +534,8 @@ export default function AlertsPage() {
           onClick={() => setTab('metrics')}
           className={`px-5 py-3 text-sm font-semibold transition-colors border-b-2 flex items-center gap-2 ${
             tab === 'metrics'
-              ? 'text-[#7B35FA] border-[#7B35FA]'
-              : 'text-[#9490BF] border-transparent hover:text-[#EDE8FF] hover:border-[#2C2952]'
+              ? 'text-[#14B8A6] border-[#14B8A6]'
+              : 'text-[#5B6B7F] border-transparent hover:text-[#0F1B2D] hover:border-[#EEF3F9]'
           }`}
         >
           Metric Alerts

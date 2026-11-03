@@ -17,7 +17,7 @@ type Tab = 'all' | 'pending' | 'processing' | 'completed';
 
 const STATUS_STYLES: Record<string, string> = {
   pending: 'text-[#F4B860] bg-[rgba(244,184,96,0.10)] border-[#F4B860]/20',
-  processing: 'text-[#7B35FA] bg-[rgba(123,53,250,0.10)] border-[#7B35FA]/20',
+  processing: 'text-[#14B8A6] bg-[rgba(20,184,166,0.10)] border-[#14B8A6]/20',
   completed: 'text-[#22C87A] bg-[rgba(0,217,126,0.10)] border-[#22C87A]/20',
   rejected: 'text-[#F43F5E] bg-[rgba(244,63,94,0.10)] border-[#F43F5E]/20',
 };
@@ -29,7 +29,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const TYPE_STYLES: Record<string, string> = {
-  export: 'text-[#9490BF] bg-[rgba(148,144,191,0.10)] border-[#9490BF]/20',
+  export: 'text-[#5B6B7F] bg-[rgba(148,144,191,0.10)] border-[#5B6B7F]/20',
   delete: 'text-[#F43F5E] bg-[rgba(244,63,94,0.10)] border-[#F43F5E]/20',
   correct: 'text-[#F4B860] bg-[rgba(244,184,96,0.10)] border-[#F4B860]/20',
 };
@@ -60,12 +60,12 @@ function RejectModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-6 shadow-2xl">
-        <h2 className="text-[#EDE8FF] font-bold text-lg mb-1">Reject DPA request</h2>
-        <p className="text-[#9490BF] text-sm mb-5">
+      <div className="relative w-full max-w-md bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-6 shadow-2xl">
+        <h2 className="text-[#0F1B2D] font-bold text-lg mb-1">Reject DPA request</h2>
+        <p className="text-[#5B6B7F] text-sm mb-5">
           Provide a reason — this will be stored in the notes field.
         </p>
-        <label className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-1.5">
+        <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-1.5">
           Reason (optional)
         </label>
         <textarea
@@ -73,12 +73,12 @@ function RejectModal({
           onChange={(e) => setNotes(e.target.value)}
           placeholder="e.g. Request is outside the scope of KDPA 2019…"
           rows={3}
-          className="w-full bg-[#04030D] border border-[#1E1B38] rounded-xl px-4 py-3 text-[#EDE8FF] placeholder:text-[#504875] focus:border-[#F43F5E]/50 focus:outline-none text-sm resize-none mb-5"
+          className="w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#F43F5E]/50 focus:outline-none text-sm resize-none mb-5"
         />
         <div className="flex gap-3">
           <button
             onClick={onClose}
-            className="flex-1 py-3 rounded-xl border border-[#1E1B38] text-[#9490BF] text-sm font-semibold hover:bg-[#131029] transition-colors"
+            className="flex-1 py-3 rounded-xl border border-[#E6ECF2] text-[#5B6B7F] text-sm font-semibold hover:bg-[#F1F5FA] transition-colors"
           >
             Cancel
           </button>
@@ -187,27 +187,27 @@ export default function DpaRequestsPage() {
     <div className="p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#EDE8FF]">Data Protection Requests</h1>
-        <p className="text-[#9490BF] text-sm mt-1 max-w-2xl">
+        <h1 className="text-2xl font-bold text-[#0F1B2D]">Data Protection Requests</h1>
+        <p className="text-[#5B6B7F] text-sm mt-1 max-w-2xl">
           Requests from patients to export, correct or delete their data under the{' '}
-          <span className="text-[#EDE8FF]">Kenya Data Protection Act 2019</span>. Respond within
+          <span className="text-[#0F1B2D]">Kenya Data Protection Act 2019</span>. Respond within
           21 days of receipt.
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-1 mb-4 bg-[#04030D] border border-[#1E1B38] rounded-xl p-1 w-fit">
+      <div className="flex items-center gap-1 mb-4 bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl p-1 w-fit">
         {TABS.map((t) => (
           <button
             key={t.key}
             onClick={() => setTab(t.key)}
             className={`relative px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${
-              tab === t.key ? 'bg-[#0C0A1E] text-[#EDE8FF]' : 'text-[#504875] hover:text-[#9490BF]'
+              tab === t.key ? 'bg-[#FFFFFF] text-[#0F1B2D]' : 'text-[#8C9AAB] hover:text-[#5B6B7F]'
             }`}
           >
             {t.label}
             {counts[t.key] > 0 && tab !== t.key && (
-              <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#1E1B38] text-[#9490BF] text-xs font-black">
+              <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#E6ECF2] text-[#5B6B7F] text-xs font-black">
                 {counts[t.key] > 9 ? '9+' : counts[t.key]}
               </span>
             )}
@@ -216,10 +216,10 @@ export default function DpaRequestsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl overflow-hidden">
-        <div className="grid grid-cols-[1fr_130px_120px_100px_120px_160px] px-6 py-3 bg-[#04030D] border-b border-[#1E1B38]">
+      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-[1fr_130px_120px_100px_120px_160px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
           {['Patient', 'Type', 'Status', 'Submitted', 'Notes', ''].map((h) => (
-            <span key={h} className="text-[#504875] text-xs font-semibold uppercase tracking-wider">
+            <span key={h} className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider">
               {h}
             </span>
           ))}
@@ -227,30 +227,30 @@ export default function DpaRequestsPage() {
 
         {loading ? (
           <div className="py-20 text-center">
-            <div className="inline-block w-6 h-6 border-2 border-[#7B35FA] border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-[#9490BF] text-sm">Loading requests…</p>
+            <div className="inline-block w-6 h-6 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-[#5B6B7F] text-sm">Loading requests…</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-20 text-center">
-            <svg className="w-10 h-10 text-[#1E1B38] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-10 h-10 text-[#E6ECF2] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <p className="text-[#9490BF] text-sm font-medium">No pending data protection requests.</p>
-            <p className="text-[#504875] text-xs mt-1">All caught up.</p>
+            <p className="text-[#5B6B7F] text-sm font-medium">No pending data protection requests.</p>
+            <p className="text-[#8C9AAB] text-xs mt-1">All caught up.</p>
           </div>
         ) : (
           filtered.map((r) => (
             <div
               key={r.id}
-              className="grid grid-cols-[1fr_130px_120px_100px_120px_160px] px-6 py-4 border-b border-[#1E1B38] last:border-0 items-center hover:bg-[#131029] transition-colors"
+              className="grid grid-cols-[1fr_130px_120px_100px_120px_160px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
             >
               {/* Patient */}
               <div>
-                <p className="text-[#EDE8FF] text-sm font-semibold">
+                <p className="text-[#0F1B2D] text-sm font-semibold">
                   {r.patient_name ?? maskPatientId(r.patient_id)}
                 </p>
                 {r.patient_name && (
-                  <p className="text-[#504875] text-xs font-mono">{maskPatientId(r.patient_id)}</p>
+                  <p className="text-[#8C9AAB] text-xs font-mono">{maskPatientId(r.patient_id)}</p>
                 )}
               </div>
 
@@ -270,10 +270,10 @@ export default function DpaRequestsPage() {
               </span>
 
               {/* Date */}
-              <p className="text-[#9490BF] text-xs">{fmtDate(r.created_at)}</p>
+              <p className="text-[#5B6B7F] text-xs">{fmtDate(r.created_at)}</p>
 
               {/* Notes */}
-              <p className="text-[#504875] text-xs truncate">{r.notes ?? '—'}</p>
+              <p className="text-[#8C9AAB] text-xs truncate">{r.notes ?? '—'}</p>
 
               {/* Actions */}
               <div className="flex items-center gap-2">
@@ -281,7 +281,7 @@ export default function DpaRequestsPage() {
                   <button
                     onClick={() => updateStatus(r.id, 'processing')}
                     disabled={actionLoading === r.id}
-                    className="bg-[#7B35FA] text-[#04030D] rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50 whitespace-nowrap"
+                    className="bg-[#14B8A6] text-[#F6F9FC] rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
                     {actionLoading === r.id ? '…' : 'Start processing'}
                   </button>
@@ -290,7 +290,7 @@ export default function DpaRequestsPage() {
                   <button
                     onClick={() => updateStatus(r.id, 'completed')}
                     disabled={actionLoading === r.id}
-                    className="bg-[#22C87A] text-[#04030D] rounded-lg px-3 py-1.5 text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
+                    className="bg-[#22C87A] text-[#F6F9FC] rounded-lg px-3 py-1.5 text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
                   >
                     {actionLoading === r.id ? '…' : 'Mark complete'}
                   </button>

@@ -552,10 +552,10 @@ const styles = StyleSheet.create({
   inviteBtnText: { color: "#000", fontWeight: "700", fontSize: fonts.md },
 
   caregiverBanner: {
-    backgroundColor: "rgba(123,53,250,0.08)",
+    backgroundColor: "rgba(20,184,166,0.08)",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(123,53,250,0.20)",
+    borderColor: "rgba(20,184,166,0.20)",
     padding: 14,
     marginBottom: 16,
     flexDirection: "row",
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
 
   caregiverBannerLabel: {
     fontSize: 12,
-    color: "#9490BF",
+    color: "#5B6B7F",
     fontWeight: "600",
   },
 
@@ -578,19 +578,19 @@ const styles = StyleSheet.create({
   patientPickerName: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#EDE8FF",
+    color: "#0F1B2D",
   },
 
   patientPickerChevron: {
     fontSize: 12,
-    color: "#7B35FA",
+    color: "#14B8A6",
   },
 
   pickerDropdown: {
-    backgroundColor: "#0C0A1E",
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#1E1B38",
+    borderColor: "#E6ECF2",
     marginBottom: 12,
     overflow: "hidden",
   },
@@ -598,24 +598,24 @@ const styles = StyleSheet.create({
   pickerItem: {
     padding: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#1E1B38",
+    borderBottomColor: "#E6ECF2",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
 
   pickerItemActive: {
-    backgroundColor: "rgba(123,53,250,0.08)",
+    backgroundColor: "rgba(20,184,166,0.08)",
   },
 
   pickerItemName: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#EDE8FF",
+    color: "#0F1B2D",
   },
 
   pickerItemRel: {
     fontSize: 12,
-    color: "#9490BF",
+    color: "#5B6B7F",
   },
 })

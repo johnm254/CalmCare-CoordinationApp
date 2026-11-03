@@ -67,7 +67,7 @@ function EcgSvg() {
     `L ${width} ${baseline}`;
 
   return (
-    <div className="overflow-x-auto rounded-xl bg-[#04030D] border border-[#1E1B38]">
+    <div className="overflow-x-auto rounded-xl bg-[#F6F9FC] border border-[#E6ECF2]">
       <svg
         width={width}
         height={height}
@@ -77,15 +77,15 @@ function EcgSvg() {
       >
         {vLines.map((x) => (
           <line key={`v${x}`} x1={x} y1={0} x2={x} y2={height}
-            stroke="#131029" strokeWidth={x % majorStep === 0 ? 1 : 0.4} />
+            stroke="#F1F5FA" strokeWidth={x % majorStep === 0 ? 1 : 0.4} />
         ))}
         {hLines.map((y) => (
           <line key={`h${y}`} x1={0} y1={y} x2={width} y2={y}
-            stroke="#131029" strokeWidth={y % majorStep === 0 ? 1 : 0.4} />
+            stroke="#F1F5FA" strokeWidth={y % majorStep === 0 ? 1 : 0.4} />
         ))}
         <path d={path} fill="none" stroke="#22C87A" strokeWidth={1.8}
           strokeLinecap="round" strokeLinejoin="round" />
-        <text x={8} y={12} fill="#504875" fontSize={9} fontFamily="monospace">
+        <text x={8} y={12} fill="#8C9AAB" fontSize={9} fontFamily="monospace">
           25mm/s · waveform strip
         </text>
       </svg>
@@ -128,18 +128,18 @@ function EcgCard({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl overflow-hidden">
+    <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
       <div className="flex items-center justify-between px-6 py-4 gap-4 flex-wrap">
         <div className="flex items-center gap-3 flex-wrap">
-          <p className="text-[#EDE8FF] font-semibold text-sm">
+          <p className="text-[#0F1B2D] font-semibold text-sm">
             {recording.date} · {recording.time}
           </p>
-          <span className="text-[#504875] text-xs">Duration: {recording.duration}</span>
+          <span className="text-[#8C9AAB] text-xs">Duration: {recording.duration}</span>
           <StatusBadge status={recording.status} />
         </div>
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-xl bg-[#131029] border border-[#1E1B38] text-[#9490BF] hover:text-[#EDE8FF] hover:border-[#504875] transition-colors flex-shrink-0"
+          className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-xl bg-[#F1F5FA] border border-[#E6ECF2] text-[#5B6B7F] hover:text-[#0F1B2D] hover:border-[#8C9AAB] transition-colors flex-shrink-0"
         >
           {expanded ? (
             <>
@@ -160,7 +160,7 @@ function EcgCard({
       </div>
 
       {expanded && (
-        <div className="px-6 pb-6 border-t border-[#1E1B38] pt-4">
+        <div className="px-6 pb-6 border-t border-[#E6ECF2] pt-4">
           <EcgSvg />
           {recording.status === 'unreviewed' && (
             <div className="mt-4">
@@ -239,7 +239,7 @@ export default function EcgPage({ params }: { params: { id: string } }) {
       <div className="mb-5">
         <Link
           href={`/dashboard/patients/${params.id}`}
-          className="inline-flex items-center gap-1.5 text-sm text-[#9490BF] hover:text-[#EDE8FF] transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-[#5B6B7F] hover:text-[#0F1B2D] transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -261,16 +261,16 @@ export default function EcgPage({ params }: { params: { id: string } }) {
       )}
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#EDE8FF]">ECG Recordings</h1>
-        <p className="text-[#9490BF] text-sm mt-1">
+        <h1 className="text-2xl font-bold text-[#0F1B2D]">ECG Recordings</h1>
+        <p className="text-[#5B6B7F] text-sm mt-1">
           Review wrist ECG strips captured by the Mojo Strap.
         </p>
       </div>
 
       {loading ? (
         <div className="py-20 text-center">
-          <div className="inline-block w-6 h-6 border-2 border-[#7B35FA] border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-[#9490BF] text-sm">Loading recordings…</p>
+          <div className="inline-block w-6 h-6 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mb-3" />
+          <p className="text-[#5B6B7F] text-sm">Loading recordings…</p>
         </div>
       ) : (
         <div className="space-y-4">

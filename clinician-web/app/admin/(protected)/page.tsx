@@ -15,13 +15,13 @@ function StatCard({
   iconBg: string;
 }) {
   return (
-    <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-5">
+    <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
       <div className="flex items-center justify-between mb-4">
         <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${iconBg}`}>{icon}</div>
       </div>
-      <p className="text-3xl font-black text-[#EDE8FF] mb-0.5">{value}</p>
-      <p className="text-[#9490BF] text-sm">{label}</p>
-      {sub && <p className="text-[#504875] text-xs mt-1">{sub}</p>}
+      <p className="text-3xl font-black text-[#0F1B2D] mb-0.5">{value}</p>
+      <p className="text-[#5B6B7F] text-sm">{label}</p>
+      {sub && <p className="text-[#8C9AAB] text-xs mt-1">{sub}</p>}
     </div>
   );
 }
@@ -102,9 +102,9 @@ export default async function AdminOverviewPage() {
   const STATUS_STYLES: Record<string, string> = {
     pending: 'text-[#F4B860] bg-[rgba(244,184,96,0.10)] border-[#F4B860]/20',
     active: 'text-[#F43F5E] bg-[rgba(244,63,94,0.10)] border-[#F43F5E]/20',
-    dispatched: 'text-[#7B35FA] bg-[rgba(123,53,250,0.10)] border-[#7B35FA]/20',
+    dispatched: 'text-[#14B8A6] bg-[rgba(20,184,166,0.10)] border-[#14B8A6]/20',
     resolved: 'text-[#22C87A] bg-[rgba(0,217,126,0.10)] border-[#22C87A]/20',
-    cancelled: 'text-[#504875] bg-[rgba(80,72,117,0.10)] border-[#504875]/20',
+    cancelled: 'text-[#8C9AAB] bg-[rgba(80,72,117,0.10)] border-[#8C9AAB]/20',
   };
 
   return (
@@ -129,9 +129,9 @@ export default async function AdminOverviewPage() {
             <p className="text-[#F4B860] text-sm font-black">
               ⚠ Dispatch is in SANDBOX mode — no real ambulances will be called
             </p>
-            <p className="text-[#9490BF] text-xs mt-0.5">
+            <p className="text-[#5B6B7F] text-xs mt-0.5">
               Enable live dispatch from{' '}
-              <Link href="/admin/emergency-routing" className="text-[#7B35FA] underline underline-offset-2">
+              <Link href="/admin/emergency-routing" className="text-[#14B8A6] underline underline-offset-2">
                 Emergency Routing
               </Link>{' '}
               when a signed provider agreement is in place.
@@ -141,10 +141,10 @@ export default async function AdminOverviewPage() {
       )}
 
       {/* Welcome */}
-      <div className="bg-gradient-to-r from-[#0C0A1E] to-[#1A1835] border border-[#1E1B38] rounded-2xl p-6 mb-6">
-        <p className="text-[#504875] text-sm mb-1">{today}</p>
-        <h1 className="text-2xl font-bold text-[#EDE8FF]">System Health Overview</h1>
-        <p className="text-[#9490BF] text-sm mt-1">Platform-wide status at a glance.</p>
+      <div className="bg-gradient-to-r from-[#FFFFFF] to-[#EEF3F9] border border-[#E6ECF2] rounded-2xl p-6 mb-6">
+        <p className="text-[#8C9AAB] text-sm mb-1">{today}</p>
+        <h1 className="text-2xl font-bold text-[#0F1B2D]">System Health Overview</h1>
+        <p className="text-[#5B6B7F] text-sm mt-1">Platform-wide status at a glance.</p>
       </div>
 
       {/* Stats row */}
@@ -153,7 +153,7 @@ export default async function AdminOverviewPage() {
           label="Total Clinicians"
           value={allClinicians.length}
           sub={`${verifiedClinicians.length} verified · ${pendingClinicians.length} pending · ${rejectedClinicians.length} rejected`}
-          iconBg="bg-[rgba(123,53,250,0.12)] text-[#7B35FA]"
+          iconBg="bg-[rgba(20,184,166,0.12)] text-[#14B8A6]"
           icon={
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -199,16 +199,16 @@ export default async function AdminOverviewPage() {
       {pendingVerCount > 0 && (
         <div className="flex items-center justify-between bg-[rgba(244,184,96,0.08)] border border-[#F4B860]/30 rounded-2xl px-5 py-4 mb-6">
           <div className="flex items-center gap-3">
-            <span className="w-8 h-8 rounded-full bg-[#F4B860] text-[#04030D] font-black text-sm flex items-center justify-center flex-shrink-0">
+            <span className="w-8 h-8 rounded-full bg-[#F4B860] text-[#F6F9FC] font-black text-sm flex items-center justify-center flex-shrink-0">
               {pendingVerCount > 9 ? '9+' : pendingVerCount}
             </span>
-            <p className="text-[#EDE8FF] text-sm font-semibold">
+            <p className="text-[#0F1B2D] text-sm font-semibold">
               {pendingVerCount} clinician {pendingVerCount === 1 ? 'verification' : 'verifications'} awaiting review
             </p>
           </div>
           <Link
             href="/admin/clinicians"
-            className="bg-[#F4B860] text-[#04030D] font-bold px-4 py-2 rounded-xl text-sm hover:bg-amber-400 transition-colors flex-shrink-0"
+            className="bg-[#F4B860] text-[#F6F9FC] font-bold px-4 py-2 rounded-xl text-sm hover:bg-amber-400 transition-colors flex-shrink-0"
           >
             Review now
           </Link>
@@ -216,15 +216,15 @@ export default async function AdminOverviewPage() {
       )}
 
       {/* Recent SOS events */}
-      <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1E1B38]">
-          <h2 className="text-[#EDE8FF] font-bold text-base">Recent SOS Events</h2>
-          <span className="text-[#504875] text-xs">Last 10</span>
+      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E6ECF2]">
+          <h2 className="text-[#0F1B2D] font-bold text-base">Recent SOS Events</h2>
+          <span className="text-[#8C9AAB] text-xs">Last 10</span>
         </div>
 
-        <div className="grid grid-cols-[1fr_110px_130px_130px] px-6 py-3 bg-[#04030D] border-b border-[#1E1B38]">
+        <div className="grid grid-cols-[1fr_110px_130px_130px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
           {['Patient', 'Status', 'Created', 'Dispatched'].map((h) => (
-            <span key={h} className="text-[#504875] text-xs font-semibold uppercase tracking-wider">
+            <span key={h} className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider">
               {h}
             </span>
           ))}
@@ -232,7 +232,7 @@ export default async function AdminOverviewPage() {
 
         {recentSos.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-[#9490BF] text-sm">No SOS events recorded yet.</p>
+            <p className="text-[#5B6B7F] text-sm">No SOS events recorded yet.</p>
           </div>
         ) : (
           recentSos.map((ev) => {
@@ -241,17 +241,17 @@ export default async function AdminOverviewPage() {
             return (
               <div
                 key={ev.id}
-                className="grid grid-cols-[1fr_110px_130px_130px] px-6 py-4 border-b border-[#1E1B38] last:border-0 items-center hover:bg-[#131029] transition-colors"
+                className="grid grid-cols-[1fr_110px_130px_130px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
               >
-                <p className="text-[#EDE8FF] text-sm font-mono">{maskPatientId(ev.patient_id)}</p>
+                <p className="text-[#0F1B2D] text-sm font-mono">{maskPatientId(ev.patient_id)}</p>
                 <span
                   className={`inline-flex items-center gap-1 text-xs font-semibold border rounded-full px-2.5 py-0.5 w-fit ${badgeStyle}`}
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-current" />
                   {ev.status ?? 'pending'}
                 </span>
-                <p className="text-[#9490BF] text-xs">{fmtDate(ev.created_at)}</p>
-                <p className="text-[#9490BF] text-xs">{fmtDate(ev.dispatched_at)}</p>
+                <p className="text-[#5B6B7F] text-xs">{fmtDate(ev.created_at)}</p>
+                <p className="text-[#5B6B7F] text-xs">{fmtDate(ev.dispatched_at)}</p>
               </div>
             );
           })

@@ -33,18 +33,18 @@ function StatCard({ label, value, icon, iconBg, sub, badge }: {
   iconBg: string; sub?: string; badge?: number;
 }) {
   return (
-    <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-5 relative">
+    <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5 relative">
       {badge != null && badge > 0 && (
-        <span className="absolute top-4 right-4 w-5 h-5 rounded-full bg-[#F4B860] text-[#04030D] text-xs font-black flex items-center justify-center">
+        <span className="absolute top-4 right-4 w-5 h-5 rounded-full bg-[#F4B860] text-[#F6F9FC] text-xs font-black flex items-center justify-center">
           {badge > 9 ? '9+' : badge}
         </span>
       )}
       <div className="flex items-center justify-between mb-4">
         <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${iconBg}`}>{icon}</div>
       </div>
-      <p className="text-3xl font-black text-[#EDE8FF] mb-0.5">{value}</p>
-      <p className="text-[#9490BF] text-sm">{label}</p>
-      {sub && <p className="text-[#504875] text-xs mt-1">{sub}</p>}
+      <p className="text-3xl font-black text-[#0F1B2D] mb-0.5">{value}</p>
+      <p className="text-[#5B6B7F] text-sm">{label}</p>
+      {sub && <p className="text-[#8C9AAB] text-xs mt-1">{sub}</p>}
     </div>
   );
 }
@@ -78,13 +78,13 @@ function InviteModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-6 shadow-2xl">
+      <div className="relative w-full max-w-md bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-[#EDE8FF] font-bold text-lg">Invite Clinician</h2>
-            <p className="text-[#9490BF] text-sm mt-0.5">They will receive a magic link to set their password.</p>
+            <h2 className="text-[#0F1B2D] font-bold text-lg">Invite Clinician</h2>
+            <p className="text-[#5B6B7F] text-sm mt-0.5">They will receive a magic link to set their password.</p>
           </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-[#131029] flex items-center justify-center text-[#9490BF] hover:text-[#EDE8FF] transition-colors">
+          <button onClick={onClose} className="w-8 h-8 rounded-lg bg-[#F1F5FA] flex items-center justify-center text-[#5B6B7F] hover:text-[#0F1B2D] transition-colors">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -92,23 +92,23 @@ function InviteModal({ onClose, onSuccess }: { onClose: () => void; onSuccess: (
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-1.5">Full Name</label>
+            <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-1.5">Full Name</label>
             <input type="text" placeholder="Dr. Jane Doe" value={name} onChange={(e) => setName(e.target.value)} required
-              className="w-full bg-[#04030D] border border-[#1E1B38] rounded-xl px-4 py-3 text-[#EDE8FF] placeholder:text-[#504875] focus:border-[#7B35FA] focus:outline-none text-sm" />
+              className="w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none text-sm" />
           </div>
           <div>
-            <label className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-1.5">Email Address</label>
+            <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-1.5">Email Address</label>
             <input type="email" placeholder="doctor@hospital.org" value={email} onChange={(e) => setEmail(e.target.value)} required
-              className="w-full bg-[#04030D] border border-[#1E1B38] rounded-xl px-4 py-3 text-[#EDE8FF] placeholder:text-[#504875] focus:border-[#7B35FA] focus:outline-none text-sm" />
+              className="w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none text-sm" />
           </div>
           {status && (
-            <div className={`rounded-xl px-4 py-3 text-sm font-medium ${status.type === 'success' ? 'bg-[rgba(123,53,250,0.10)] border border-[#7B35FA]/30 text-[#7B35FA]' : 'bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/30 text-[#F43F5E]'}`}>
+            <div className={`rounded-xl px-4 py-3 text-sm font-medium ${status.type === 'success' ? 'bg-[rgba(20,184,166,0.10)] border border-[#14B8A6]/30 text-[#14B8A6]' : 'bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/30 text-[#F43F5E]'}`}>
               {status.msg}
             </div>
           )}
           <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl border border-[#1E1B38] text-[#9490BF] text-sm font-semibold hover:bg-[#131029] transition-colors">Cancel</button>
-            <button type="submit" disabled={sending} className="flex-1 py-3 rounded-xl bg-[#7B35FA] text-[#04030D] text-sm font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50">
+            <button type="button" onClick={onClose} className="flex-1 py-3 rounded-xl border border-[#E6ECF2] text-[#5B6B7F] text-sm font-semibold hover:bg-[#F1F5FA] transition-colors">Cancel</button>
+            <button type="submit" disabled={sending} className="flex-1 py-3 rounded-xl bg-[#14B8A6] text-[#F6F9FC] text-sm font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50">
               {sending ? 'Sending…' : 'Send Invite'}
             </button>
           </div>
@@ -138,20 +138,20 @@ function RejectModal({ verification, onClose, onDone }: {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl p-6 shadow-2xl">
-        <h2 className="text-[#EDE8FF] font-bold text-lg mb-1">Reject verification</h2>
-        <p className="text-[#9490BF] text-sm mb-5">
-          Rejecting <strong className="text-[#EDE8FF]">{verification.profiles?.full_name ?? 'this clinician'}</strong> — they will be told their application was not approved.
+      <div className="relative w-full max-w-md bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-6 shadow-2xl">
+        <h2 className="text-[#0F1B2D] font-bold text-lg mb-1">Reject verification</h2>
+        <p className="text-[#5B6B7F] text-sm mb-5">
+          Rejecting <strong className="text-[#0F1B2D]">{verification.profiles?.full_name ?? 'this clinician'}</strong> — they will be told their application was not approved.
         </p>
-        <label className="block text-[#9490BF] text-xs font-semibold uppercase tracking-widest mb-1.5">Reason (optional)</label>
+        <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-1.5">Reason (optional)</label>
         <textarea
           value={notes} onChange={(e) => setNotes(e.target.value)}
           placeholder="e.g. Licence number not found in KMPDC register"
           rows={3}
-          className="w-full bg-[#04030D] border border-[#1E1B38] rounded-xl px-4 py-3 text-[#EDE8FF] placeholder:text-[#504875] focus:border-[#F43F5E]/50 focus:outline-none text-sm resize-none mb-5"
+          className="w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#F43F5E]/50 focus:outline-none text-sm resize-none mb-5"
         />
         <div className="flex gap-3">
-          <button onClick={onClose} className="flex-1 py-3 rounded-xl border border-[#1E1B38] text-[#9490BF] text-sm font-semibold hover:bg-[#131029] transition-colors">Cancel</button>
+          <button onClick={onClose} className="flex-1 py-3 rounded-xl border border-[#E6ECF2] text-[#5B6B7F] text-sm font-semibold hover:bg-[#F1F5FA] transition-colors">Cancel</button>
           <button onClick={handleReject} disabled={loading} className="flex-1 py-3 rounded-xl bg-[#F43F5E] text-white text-sm font-bold hover:bg-red-500 transition-colors disabled:opacity-50">
             {loading ? 'Rejecting…' : 'Reject'}
           </button>
@@ -235,16 +235,16 @@ export default function AdminCliniciansPage() {
   return (
     <div className="p-6">
       {/* Welcome banner */}
-      <div className="bg-gradient-to-r from-[#0C0A1E] to-[#1A1835] border border-[#1E1B38] rounded-2xl p-6 mb-6">
-        <p className="text-[#504875] text-sm mb-1">{today}</p>
-        <h1 className="text-2xl font-bold text-[#EDE8FF]">Welcome back, Admin</h1>
-        <p className="text-[#9490BF] text-sm mt-1">Here is what is happening with your platform today.</p>
+      <div className="bg-gradient-to-r from-[#FFFFFF] to-[#EEF3F9] border border-[#E6ECF2] rounded-2xl p-6 mb-6">
+        <p className="text-[#8C9AAB] text-sm mb-1">{today}</p>
+        <h1 className="text-2xl font-bold text-[#0F1B2D]">Welcome back, Admin</h1>
+        <p className="text-[#5B6B7F] text-sm mt-1">Here is what is happening with your platform today.</p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <StatCard label="Total Clinicians" value={loading ? '—' : clinicians.length}
-          iconBg="bg-[rgba(123,53,250,0.12)] text-[#7B35FA]"
+          iconBg="bg-[rgba(20,184,166,0.12)] text-[#14B8A6]"
           icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>}
         />
         <StatCard label="Total Patients" value={loading ? '—' : totalPatients}
@@ -259,16 +259,16 @@ export default function AdminCliniciansPage() {
       </div>
 
       {/* Tab bar */}
-      <div className="flex items-center gap-1 mb-4 bg-[#04030D] border border-[#1E1B38] rounded-xl p-1 w-fit">
+      <div className="flex items-center gap-1 mb-4 bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl p-1 w-fit">
         {(['clinicians', 'verifications'] as const).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`relative px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${tab === t ? 'bg-[#0C0A1E] text-[#EDE8FF]' : 'text-[#504875] hover:text-[#9490BF]'}`}
+            className={`relative px-5 py-2 rounded-lg text-sm font-semibold transition-colors ${tab === t ? 'bg-[#FFFFFF] text-[#0F1B2D]' : 'text-[#8C9AAB] hover:text-[#5B6B7F]'}`}
           >
             {t === 'clinicians' ? 'Clinicians' : 'Verifications'}
             {t === 'verifications' && pendingCount > 0 && (
-              <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#F4B860] text-[#04030D] text-xs font-black">
+              <span className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full bg-[#F4B860] text-[#F6F9FC] text-xs font-black">
                 {pendingCount > 9 ? '9+' : pendingCount}
               </span>
             )}
@@ -279,17 +279,17 @@ export default function AdminCliniciansPage() {
       {/* Search + action row */}
       <div className="flex items-center justify-between mb-4 gap-3">
         <div className="relative flex-1 max-w-sm">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#504875]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8C9AAB]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input type="text" placeholder={tab === 'clinicians' ? 'Search clinicians…' : 'Search by name, email or licence…'}
             value={search} onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 pr-4 py-2 bg-[#04030D] border border-[#1E1B38] rounded-full text-sm text-[#EDE8FF] placeholder:text-[#504875] focus:outline-none focus:border-[#7B35FA]/50 w-full"
+            className="pl-9 pr-4 py-2 bg-[#F6F9FC] border border-[#E6ECF2] rounded-full text-sm text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:outline-none focus:border-[#14B8A6]/50 w-full"
           />
         </div>
         {tab === 'clinicians' && (
           <button onClick={() => setShowInviteModal(true)}
-            className="flex items-center gap-2 bg-[#7B35FA] text-[#04030D] font-bold px-4 py-2.5 rounded-xl text-sm hover:bg-[#00A896] transition-colors flex-shrink-0"
+            className="flex items-center gap-2 bg-[#14B8A6] text-[#F6F9FC] font-bold px-4 py-2.5 rounded-xl text-sm hover:bg-[#00A896] transition-colors flex-shrink-0"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -301,51 +301,51 @@ export default function AdminCliniciansPage() {
 
       {/* ── CLINICIANS TAB ── */}
       {tab === 'clinicians' && (
-        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl overflow-hidden">
-          <div className="grid grid-cols-[1fr_1fr_90px_90px_90px_100px] px-6 py-3 bg-[#04030D] border-b border-[#1E1B38]">
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-[1fr_1fr_90px_90px_90px_100px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
             {['Clinician', 'Email', 'Patients', 'Verified', 'Joined', ''].map((h) => (
-              <span key={h} className="text-[#504875] text-xs font-semibold uppercase tracking-wider">{h}</span>
+              <span key={h} className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider">{h}</span>
             ))}
           </div>
 
           {loading ? (
             <div className="py-20 text-center">
-              <div className="inline-block w-6 h-6 border-2 border-[#7B35FA] border-t-transparent rounded-full animate-spin mb-3" />
-              <p className="text-[#9490BF] text-sm">Loading clinicians…</p>
+              <div className="inline-block w-6 h-6 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mb-3" />
+              <p className="text-[#5B6B7F] text-sm">Loading clinicians…</p>
             </div>
           ) : filteredClinicians.length === 0 ? (
             <div className="py-20 text-center">
-              <p className="text-[#9490BF] text-sm font-medium">{search ? 'No clinicians match your search.' : 'No clinicians registered yet.'}</p>
+              <p className="text-[#5B6B7F] text-sm font-medium">{search ? 'No clinicians match your search.' : 'No clinicians registered yet.'}</p>
             </div>
           ) : filteredClinicians.map((c, i) => {
             const initials = (c.full_name ?? 'C').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
-            const colorClasses = ['text-[#7B35FA] bg-[rgba(123,53,250,0.12)]', 'text-[#9490BF] bg-[rgba(122,170,200,0.12)]', 'text-[#F4B860] bg-[rgba(244,184,96,0.12)]'];
+            const colorClasses = ['text-[#14B8A6] bg-[rgba(20,184,166,0.12)]', 'text-[#5B6B7F] bg-[rgba(122,170,200,0.12)]', 'text-[#F4B860] bg-[rgba(244,184,96,0.12)]'];
             const colorClass = colorClasses[i % colorClasses.length];
             return (
               <div key={c.id}
-                className={`grid grid-cols-[1fr_1fr_90px_90px_90px_100px] px-6 py-4 border-b border-[#1E1B38] last:border-0 items-center hover:bg-[#131029] transition-colors ${c.role === 'suspended' ? 'opacity-50' : ''}`}
+                className={`grid grid-cols-[1fr_1fr_90px_90px_90px_100px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors ${c.role === 'suspended' ? 'opacity-50' : ''}`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${colorClass}`}>{initials}</div>
-                  <p className="text-[#EDE8FF] text-sm font-semibold truncate">{c.full_name ?? '—'}</p>
+                  <p className="text-[#0F1B2D] text-sm font-semibold truncate">{c.full_name ?? '—'}</p>
                 </div>
-                <p className="text-[#9490BF] text-xs truncate">{c.email ?? '—'}</p>
-                <p className="text-[#EDE8FF] text-sm font-semibold">{c.patient_count}</p>
+                <p className="text-[#5B6B7F] text-xs truncate">{c.email ?? '—'}</p>
+                <p className="text-[#0F1B2D] text-sm font-semibold">{c.patient_count}</p>
                 <div>
                   {c.verified ? (
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#7B35FA] bg-[rgba(123,53,250,0.10)] border border-[#7B35FA]/20 rounded-full px-2.5 py-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#7B35FA]" />Yes
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#14B8A6] bg-[rgba(20,184,166,0.10)] border border-[#14B8A6]/20 rounded-full px-2.5 py-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#14B8A6]" />Yes
                     </span>
                   ) : (
-                    <span className="text-xs text-[#504875]">No</span>
+                    <span className="text-xs text-[#8C9AAB]">No</span>
                   )}
                 </div>
-                <p className="text-[#504875] text-xs">
+                <p className="text-[#8C9AAB] text-xs">
                   {new Date(c.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                 </p>
                 <div className="flex items-center gap-2">
                   <Link href={`/admin/clinicians/${c.id}`}
-                    className="text-[#7B35FA] border border-[#1E1B38] rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#7B35FA]/10 transition-colors"
+                    className="text-[#14B8A6] border border-[#E6ECF2] rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#14B8A6]/10 transition-colors"
                   >
                     Patients
                   </Link>
@@ -358,23 +358,23 @@ export default function AdminCliniciansPage() {
 
       {/* ── VERIFICATIONS TAB ── */}
       {tab === 'verifications' && (
-        <div className="bg-[#0C0A1E] border border-[#1E1B38] rounded-2xl overflow-hidden">
-          <div className="grid grid-cols-[1fr_120px_100px_100px_140px] px-6 py-3 bg-[#04030D] border-b border-[#1E1B38]">
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-[1fr_120px_100px_100px_140px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
             {['Clinician', 'Licence', 'Cadre', 'Status', ''].map((h) => (
-              <span key={h} className="text-[#504875] text-xs font-semibold uppercase tracking-wider">{h}</span>
+              <span key={h} className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider">{h}</span>
             ))}
           </div>
 
           {loading ? (
             <div className="py-20 text-center">
-              <div className="inline-block w-6 h-6 border-2 border-[#7B35FA] border-t-transparent rounded-full animate-spin mb-3" />
-              <p className="text-[#9490BF] text-sm">Loading verifications…</p>
+              <div className="inline-block w-6 h-6 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mb-3" />
+              <p className="text-[#5B6B7F] text-sm">Loading verifications…</p>
             </div>
           ) : filteredVerifications.length === 0 ? (
             <div className="py-20 text-center">
-              <p className="text-[#7B35FA] text-2xl mb-3">✓</p>
-              <p className="text-[#9490BF] text-sm font-medium">{search ? 'No results match your search.' : 'No pending verifications.'}</p>
-              <p className="text-[#504875] text-xs mt-1">All clinician applications have been reviewed.</p>
+              <p className="text-[#14B8A6] text-2xl mb-3">✓</p>
+              <p className="text-[#5B6B7F] text-sm font-medium">{search ? 'No results match your search.' : 'No pending verifications.'}</p>
+              <p className="text-[#8C9AAB] text-xs mt-1">All clinician applications have been reviewed.</p>
             </div>
           ) : filteredVerifications.map((v) => {
             const initials = (v.profiles?.full_name ?? 'C').split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -382,15 +382,15 @@ export default function AdminCliniciansPage() {
             const isVerified = v.status === 'verified';
             return (
               <div key={v.id}
-                className="grid grid-cols-[1fr_120px_100px_100px_140px] px-6 py-4 border-b border-[#1E1B38] last:border-0 items-center hover:bg-[#131029] transition-colors"
+                className="grid grid-cols-[1fr_120px_100px_100px_140px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
               >
                 {/* Clinician */}
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-full bg-[rgba(123,53,250,0.12)] text-[#7B35FA] flex items-center justify-center font-bold text-xs flex-shrink-0">{initials}</div>
+                  <div className="w-9 h-9 rounded-full bg-[rgba(20,184,166,0.12)] text-[#14B8A6] flex items-center justify-center font-bold text-xs flex-shrink-0">{initials}</div>
                   <div className="min-w-0">
-                    <p className="text-[#EDE8FF] text-sm font-semibold truncate">{v.profiles?.full_name ?? '—'}</p>
-                    <p className="text-[#504875] text-xs truncate">{v.profiles?.email ?? '—'}</p>
-                    <p className="text-[#504875] text-xs mt-0.5">
+                    <p className="text-[#0F1B2D] text-sm font-semibold truncate">{v.profiles?.full_name ?? '—'}</p>
+                    <p className="text-[#8C9AAB] text-xs truncate">{v.profiles?.email ?? '—'}</p>
+                    <p className="text-[#8C9AAB] text-xs mt-0.5">
                       {BODY_LABELS[v.registering_body] ?? v.registering_body} ·{' '}
                       {new Date(v.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                     </p>
@@ -398,10 +398,10 @@ export default function AdminCliniciansPage() {
                 </div>
 
                 {/* Licence */}
-                <p className="text-[#EDE8FF] text-xs font-mono">{v.licence_number}</p>
+                <p className="text-[#0F1B2D] text-xs font-mono">{v.licence_number}</p>
 
                 {/* Cadre */}
-                <p className="text-[#9490BF] text-xs">{CADRE_LABELS[v.cadre] ?? v.cadre}</p>
+                <p className="text-[#5B6B7F] text-xs">{CADRE_LABELS[v.cadre] ?? v.cadre}</p>
 
                 {/* Status */}
                 <div>
@@ -411,8 +411,8 @@ export default function AdminCliniciansPage() {
                     </span>
                   )}
                   {isVerified && (
-                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#7B35FA] bg-[rgba(123,53,250,0.10)] border border-[#7B35FA]/20 rounded-full px-2.5 py-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#7B35FA]" />Verified
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#14B8A6] bg-[rgba(20,184,166,0.10)] border border-[#14B8A6]/20 rounded-full px-2.5 py-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#14B8A6]" />Verified
                     </span>
                   )}
                   {v.status === 'rejected' && (
@@ -427,7 +427,7 @@ export default function AdminCliniciansPage() {
                       <button
                         onClick={() => handleApprove(v)}
                         disabled={actionLoading === v.id}
-                        className="bg-[#7B35FA] text-[#04030D] rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50"
+                        className="bg-[#14B8A6] text-[#F6F9FC] rounded-lg px-3 py-1.5 text-xs font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50"
                       >
                         {actionLoading === v.id ? '…' : 'Approve'}
                       </button>
@@ -441,7 +441,7 @@ export default function AdminCliniciansPage() {
                   )}
                   {v.evidence_path && (
                     <a href={v.evidence_path} target="_blank" rel="noopener noreferrer"
-                      className="text-[#9490BF] border border-[#1E1B38] rounded-lg px-2.5 py-1.5 text-xs hover:bg-[#131029] transition-colors"
+                      className="text-[#5B6B7F] border border-[#E6ECF2] rounded-lg px-2.5 py-1.5 text-xs hover:bg-[#F1F5FA] transition-colors"
                     >
                       Evidence
                     </a>
