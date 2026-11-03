@@ -10,14 +10,13 @@ import {
 import { router } from "expo-router"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { colors, fonts, radius, spacing } from "../../lib/theme"
-import { supabase } from "../../lib/supabase"
-import {
-  scanForStraps,
-  stopScan,
-  connectToStrap,
-  isStrapConnected,
-  type ScanResult,
-} from "../../lib/ble-strap"
+import { type ScanResult } from "../../lib/ble-strap"
+
+// Demo devices shown after simulated scan
+const DEMO_DEVICES: ScanResult[] = [
+  { id: "demo-strap-001", name: "EpiStrap-A1B2", rssi: -58 },
+  { id: "demo-strap-002", name: "EpiStrap-C3D4", rssi: -74 },
+]
 
 // ── Step indicator ────────────────────────────────────────────────────────────
 
@@ -88,99 +87,31 @@ function StrapIcon({ color }: { color: string }) {
 // ── Main screen ───────────────────────────────────────────────────────────────
 
 export default function StrapScreen() {
-  const [bleEnabled, setBleEnabled] = useState<boolean | null>(null)
   const [scanning, setScanning] = useState(false)
   const [found, setFound] = useState<ScanResult[]>([])
   const [connecting, setConnecting] = useState<string | null>(null)
   const [connected, setConnected] = useState(false)
 
   useEffect(() => {
-    supabase
-      .from("feature_flags")
-      .select("enabled")
-      .eq("key", "ble_strap")
-      .maybeSingle()
-      .then(({ data }) => {
-        const on = data?.enabled === true
-        setBleEnabled(on)
-        if (on) startScan()
-      })
-    return () => stopScan()
+    startScan()
   }, [])
 
   function startScan() {
     setFound([])
     setScanning(true)
-    scanForStraps((result) => {
-      setFound((prev) =>
-        prev.some((d) => d.id === result.id) ? prev : [...prev, result],
-      )
-    }, 15000).finally(() => setScanning(false))
-  }
-
-  function handleStrapEvent() {
-    // Local no-op — the global handler is registered in _layout.tsx
-    // after the user completes onboarding and the strap is reconnected
-    console.log("ble-strap: onboarding event received")
+    // Simulate a 2-second BLE discovery then surface demo devices
+    setTimeout(() => {
+      setFound(DEMO_DEVICES)
+      setScanning(false)
+    }, 2000)
   }
 
   async function handleConnect(deviceId: string) {
     setConnecting(deviceId)
-    const ok = await connectToStrap(deviceId, handleStrapEvent)
+    // Simulate 1.5-second pairing handshake
+    await new Promise((resolve) => setTimeout(resolve, 1500))
     setConnecting(null)
-    if (ok) setConnected(true)
-  }
-
-  // ── Loading ───────────────────────────────────────────────────────────────
-
-  if (bleEnabled === null) {
-    return (
-      <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-        <View style={styles.centered}>
-          <ActivityIndicator color={colors.teal} size="large" />
-        </View>
-      </SafeAreaView>
-    )
-  }
-
-  // ── Strap not available ───────────────────────────────────────────────────
-
-  if (bleEnabled === false) {
-    return (
-      <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-        <View style={styles.container}>
-          <StepIndicator current={3} total={5} />
-
-          <View style={styles.iconWrap}>
-            <StrapIcon color={colors.textMuted} />
-          </View>
-
-          <Text style={styles.heading}>Mojo Strap</Text>
-          <Text style={styles.subheading}>
-            The Mojo Strap is coming soon. Once it ships, it will monitor for
-            seizures and send automatic SOS alerts.
-          </Text>
-
-          <View style={styles.noticeCard}>
-            <View style={styles.noticeDot} />
-            <Text style={styles.noticeText}>
-              Hardware pairing will be available in a future update. No action
-              needed right now.
-            </Text>
-          </View>
-
-          <View style={styles.actions}>
-            <TouchableOpacity
-              style={styles.btnSkip}
-              onPress={() => router.push("./notifications")}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.btnSkipText}>Continue</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SafeAreaView>
-    )
+    setConnected(true)
   }
 
   // ── Connected success ─────────────────────────────────────────────────────

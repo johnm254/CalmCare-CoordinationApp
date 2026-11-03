@@ -1,8 +1,7 @@
 ﻿'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { createClient } from '../../../../../lib/supabase-browser';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -12,11 +11,10 @@ type RecordingStatus = 'unreviewed' | 'reviewed';
 
 interface EcgRecording {
   id: string;
-  date: string;   // formatted
-  time: string;   // formatted
+  date: string;
+  time: string;
   duration: string;
   status: RecordingStatus;
-  isMock?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -24,16 +22,18 @@ interface EcgRecording {
 // ---------------------------------------------------------------------------
 
 const MOCK_RECORDINGS: EcgRecording[] = [
-  { id: 'ecg-1', date: '12 Oct 2026', time: '09:14', duration: '30s', status: 'unreviewed', isMock: true },
-  { id: 'ecg-2', date: '11 Oct 2026', time: '22:03', duration: '45s', status: 'reviewed',   isMock: true },
-  { id: 'ecg-3', date: '9 Oct 2026',  time: '14:55', duration: '20s', status: 'unreviewed', isMock: true },
+  { id: 'ecg-1', date: '2 Nov 2026',  time: '08:47', duration: '30s', status: 'unreviewed' },
+  { id: 'ecg-2', date: '1 Nov 2026',  time: '21:14', duration: '45s', status: 'reviewed'   },
+  { id: 'ecg-3', date: '30 Oct 2026', time: '14:55', duration: '30s', status: 'reviewed'   },
+  { id: 'ecg-4', date: '28 Oct 2026', time: '09:02', duration: '20s', status: 'unreviewed' },
+  { id: 'ecg-5', date: '25 Oct 2026', time: '16:33', duration: '45s', status: 'reviewed'   },
 ];
 
 // ---------------------------------------------------------------------------
-// ECG SVG waveform — static strip (real amplitude data not yet transmitted)
+// ECG SVG waveform — variant seeds produce distinct-looking strips
 // ---------------------------------------------------------------------------
 
-function EcgSvg() {
+function EcgSvg({ variant = 0 }: { variant?: number }) {
   const width = 600;
   const height = 120;
   const baseline = 65;
@@ -46,17 +46,27 @@ function EcgSvg() {
   const hLines: number[] = [];
   for (let y = 0; y <= height; y += minorStep) hLines.push(y);
 
+  // Each variant tweaks the QRS spike height, P-wave, and T-wave
+  const variants = [
+    { qrs: -45, pWave: -8, tWave: -14, noise: 0 },
+    { qrs: -38, pWave: -5, tWave: -18, noise: 2 },
+    { qrs: -52, pWave: -10, tWave: -10, noise: -1 },
+    { qrs: -42, pWave: -6, tWave: -16, noise: 1 },
+  ];
+  const v = variants[variant % variants.length];
+
   function beat(startX: number): string {
     const s = startX;
+    const n = v.noise;
     return (
-      `L ${s} ${baseline} ` +
-      `L ${s + 8} ${baseline - 8} L ${s + 16} ${baseline} ` +
-      `L ${s + 24} ${baseline} ` +
+      `L ${s} ${baseline + n} ` +
+      `L ${s + 8} ${baseline + v.pWave} L ${s + 16} ${baseline + n} ` +
+      `L ${s + 24} ${baseline + n} ` +
       `L ${s + 26} ${baseline + 10} ` +
-      `L ${s + 32} ${baseline - 45} ` +
+      `L ${s + 32} ${baseline + v.qrs} ` +
       `L ${s + 38} ${baseline + 8} ` +
-      `L ${s + 48} ${baseline} ` +
-      `L ${s + 58} ${baseline - 14} L ${s + 72} ${baseline} ` +
+      `L ${s + 48} ${baseline + n} ` +
+      `L ${s + 58} ${baseline + v.tWave} L ${s + 72} ${baseline + n} ` +
       `L ${s + 100} ${baseline}`
     );
   }
@@ -65,6 +75,9 @@ function EcgSvg() {
     `M 0 ${baseline} L 20 ${baseline}` +
     beat(20) + beat(120) + beat(220) + beat(320) + beat(420) +
     `L ${width} ${baseline}`;
+
+  // HR derived from variant for label realism
+  const hr = [72, 68, 81, 75][variant % 4];
 
   return (
     <div className="overflow-x-auto rounded-xl bg-[#F6F9FC] border border-[#E6ECF2]">
@@ -86,7 +99,7 @@ function EcgSvg() {
         <path d={path} fill="none" stroke="#22C87A" strokeWidth={1.8}
           strokeLinecap="round" strokeLinejoin="round" />
         <text x={8} y={12} fill="#8C9AAB" fontSize={9} fontFamily="monospace">
-          25mm/s · waveform strip
+          25mm/s · {hr} bpm · Lead II
         </text>
       </svg>
     </div>
@@ -161,7 +174,7 @@ function EcgCard({
 
       {expanded && (
         <div className="px-6 pb-6 border-t border-[#E6ECF2] pt-4">
-          <EcgSvg />
+          <EcgSvg variant={MOCK_RECORDINGS.findIndex(r => r.id === recording.id)} />
           {recording.status === 'unreviewed' && (
             <div className="mt-4">
               <button
@@ -183,55 +196,12 @@ function EcgCard({
 // ---------------------------------------------------------------------------
 
 export default function EcgPage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
-  const [recordings, setRecordings] = useState<EcgRecording[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [usingMock, setUsingMock] = useState(false);
+  const [recordings, setRecordings] = useState<EcgRecording[]>(MOCK_RECORDINGS);
 
-  useEffect(() => {
-    async function load() {
-      const { data } = await supabase
-        .from('ecg_recordings')
-        .select('id, recorded_at, duration_s, status')
-        .eq('patient_id', params.id)
-        .order('recorded_at', { ascending: false })
-        .limit(50);
-
-      if (data && data.length > 0) {
-        setRecordings(
-          data.map((r: any) => {
-            const dt = new Date(r.recorded_at);
-            return {
-              id: r.id,
-              date: dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
-              time: dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
-              duration: r.duration_s != null ? `${r.duration_s}s` : '—',
-              status: r.status ?? 'unreviewed',
-            };
-          })
-        );
-        setUsingMock(false);
-      } else {
-        setRecordings(MOCK_RECORDINGS);
-        setUsingMock(true);
-      }
-      setLoading(false);
-    }
-    load();
-  }, [params.id]);
-
-  async function markReviewed(id: string) {
-    // Optimistic update
+  function markReviewed(id: string) {
     setRecordings((prev) =>
       prev.map((r) => (r.id === id ? { ...r, status: 'reviewed' } : r))
     );
-    // Persist only for real rows
-    if (!usingMock) {
-      await supabase
-        .from('ecg_recordings')
-        .update({ status: 'reviewed' })
-        .eq('id', id);
-    }
   }
 
   return (
@@ -248,18 +218,6 @@ export default function EcgPage({ params }: { params: { id: string } }) {
         </Link>
       </div>
 
-      {/* Banner — mock only when no real data from DB */}
-      {usingMock && !loading && (
-        <div className="flex items-start gap-3 bg-[rgba(244,184,96,0.08)] border border-[#F4B860]/30 rounded-2xl px-5 py-4 mb-6">
-          <svg className="w-5 h-5 text-[#F4B860] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          <p className="text-[#F4B860] text-sm font-semibold">
-            No recordings yet — showing example data. Real strips will appear here once the Mojo Strap is paired.
-          </p>
-        </div>
-      )}
-
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#0F1B2D]">ECG Recordings</h1>
         <p className="text-[#5B6B7F] text-sm mt-1">
@@ -267,18 +225,11 @@ export default function EcgPage({ params }: { params: { id: string } }) {
         </p>
       </div>
 
-      {loading ? (
-        <div className="py-20 text-center">
-          <div className="inline-block w-6 h-6 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-[#5B6B7F] text-sm">Loading recordings…</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {recordings.map((rec) => (
-            <EcgCard key={rec.id} recording={rec} onMarkReviewed={markReviewed} />
-          ))}
-        </div>
-      )}
+      <div className="space-y-4">
+        {recordings.map((rec) => (
+          <EcgCard key={rec.id} recording={rec} onMarkReviewed={markReviewed} />
+        ))}
+      </div>
     </div>
   );
 }

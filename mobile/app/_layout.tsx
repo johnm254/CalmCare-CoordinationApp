@@ -535,6 +535,16 @@ export default function RootLayout() {
 
   const bgStartRef = useRef<number | null>(null)
 
+  // In-app notification toast
+  const [inAppToast, setInAppToast] = useState<{ title: string; body: string; type: "sos" | "info" } | null>(null)
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  function showToast(title: string, body: string, type: "sos" | "info" = "info") {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+    setInAppToast({ title, body, type })
+    toastTimerRef.current = setTimeout(() => setInAppToast(null), 5000)
+  }
+
   // Update flow
 
   const [updateStatus, setUpdateStatus] = useState<UpdateStatus>("idle")
@@ -810,6 +820,14 @@ export default function RootLayout() {
       if (event === "SIGNED_OUT") router.replace("/(auth)/login")
     })
 
+    // Foreground notification banner — fires when app is open and a push arrives
+    const notifReceiveSub = Notifications.addNotificationReceivedListener((notification) => {
+      const content = notification.request.content
+      const data = content.data as Record<string, string | undefined>
+      const type = data?.type === "sos_alert" ? "sos" : "info"
+      showToast(content.title ?? "Mojo", content.body ?? "", type)
+    })
+
     const notifTapSub = Notifications.addNotificationResponseReceivedListener(
       (response) => {
         const data = response.notification.request.content
@@ -881,6 +899,8 @@ export default function RootLayout() {
 
       appStateSub.remove()
 
+      notifReceiveSub.remove()
+
       notifTapSub.remove()
 
       clearTimeout(splashTimer)
@@ -945,6 +965,24 @@ export default function RootLayout() {
 
         {/* Biometric lock — shown after 5-min background */}
         {locked && <BiometricLock onUnlock={() => setLocked(false)} />}
+
+        {/* In-app notification toast */}
+        {inAppToast && (
+          <TouchableOpacity
+            style={[
+              styles.toastBanner,
+              inAppToast.type === "sos" && styles.toastBannerSos,
+            ]}
+            onPress={() => setInAppToast(null)}
+            activeOpacity={0.9}
+          >
+            <View style={[styles.toastDot, inAppToast.type === "sos" && { backgroundColor: colors.emergency }]} />
+            <View style={styles.toastText}>
+              <Text style={styles.toastTitle}>{inAppToast.title}</Text>
+              {!!inAppToast.body && <Text style={styles.toastBody} numberOfLines={2}>{inAppToast.body}</Text>}
+            </View>
+          </TouchableOpacity>
+        )}
 
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
@@ -1158,6 +1196,58 @@ function StepLabel({
 // ── Styles ────────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
+  // In-app notification toast
+
+  toastBanner: {
+    position: "absolute",
+    top: 56,
+    left: 16,
+    right: 16,
+    backgroundColor: colors.bgCard,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    zIndex: 200,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+
+  toastBannerSos: {
+    borderColor: colors.emergency,
+    backgroundColor: colors.bgCard,
+  },
+
+  toastDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: colors.teal,
+    flexShrink: 0,
+  },
+
+  toastText: { flex: 1 },
+
+  toastTitle: {
+    fontSize: fonts.base,
+    fontWeight: "700",
+    color: colors.text,
+  },
+
+  toastBody: {
+    fontSize: fonts.sm,
+    color: colors.textSecondary,
+    marginTop: 2,
+    lineHeight: 18,
+  },
+
   // Dim overlay
 
   dimOverlay: {

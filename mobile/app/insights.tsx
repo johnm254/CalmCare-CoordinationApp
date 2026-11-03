@@ -213,6 +213,24 @@ export default function InsightsScreen() {
   const [showVoiceModal, setShowVoiceModal] = useState(false)
   const [voiceNote, setVoiceNote] = useState("")
   const [savingNote, setSavingNote] = useState(false)
+  const [recording, setRecording] = useState(false)
+
+  const DEMO_TRANSCRIPTS = [
+    "Felt a brief aura before the episode — flickering lights on the left side. Duration about 90 seconds. No injury, was seated at the time.",
+    "Woke up feeling tired and confused. Possible nocturnal event overnight. No witnessed convulsions but pillow was displaced.",
+    "Stress-related trigger suspected. Had a difficult day at work before the episode this evening. Lasted 2 minutes.",
+  ]
+
+  function handleMicPress() {
+    if (recording) return
+    setRecording(true)
+    setTimeout(() => {
+      const transcript = DEMO_TRANSCRIPTS[Math.floor(Math.random() * DEMO_TRANSCRIPTS.length)]
+      setVoiceNote(transcript)
+      setRecording(false)
+      setShowVoiceModal(true)
+    }, 2200)
+  }
 
   const [showBriefModal, setShowBriefModal] = useState(false)
 
@@ -335,18 +353,24 @@ export default function InsightsScreen() {
           </View>
           <View style={styles.micRow}>
             <TouchableOpacity
-              style={styles.micBtn}
-              onPress={() => setShowVoiceModal(true)}
+              style={[styles.micBtn, recording && { backgroundColor: colors.emergency + "22" }]}
+              onPress={handleMicPress}
               activeOpacity={0.7}
               accessibilityRole="button"
-              accessibilityLabel="Log a note"
+              accessibilityLabel="Record a voice note"
             >
-              <MicrophoneIcon />
+              {recording
+                ? <ActivityIndicator color={colors.emergency} size="small" />
+                : <MicrophoneIcon />
+              }
             </TouchableOpacity>
-            <WaveformIcon />
+            {recording
+              ? <Text style={{ color: colors.emergency, fontSize: fonts.sm, fontWeight: "700" }}>Listening…</Text>
+              : <WaveformIcon />
+            }
           </View>
           <Text style={styles.cardBody}>
-            {t('insights_voice_body')}
+            {recording ? "Processing your voice note…" : t('insights_voice_body')}
           </Text>
         </View>
 

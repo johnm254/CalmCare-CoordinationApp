@@ -133,6 +133,18 @@ export default function SosAlertScreen() {
     }
   }, [sosId, session])
 
+  // Polling fallback — keeps responder list fresh even if Realtime is unavailable
+  useEffect(() => {
+    if (!sosId) return
+    const intervalId = setInterval(async () => {
+      const r = await getSosResponders(sosId)
+      setResponders(r)
+      if (session?.user)
+        setMyResponse(r.some((x) => x.responder_id === session.user!.id))
+    }, 5000)
+    return () => clearInterval(intervalId)
+  }, [sosId, session])
+
   async function handleRespond() {
     if (!session?.user || !sosId || responding || myResponse) return
     setResponding(true)
