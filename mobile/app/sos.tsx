@@ -326,7 +326,7 @@ export default function SOSScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.topRow}>
-          <Text style={styles.duaraLabel}>MOJO</Text>
+          <Text style={styles.mojoLabel}>MOJO</Text>
           <View style={styles.sosLabelRow}>
             <View style={[styles.redDot, { backgroundColor: circleColor }]} />
             <Text style={[styles.sosLabelText, { color: circleColor }]}>
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xl,
   },
 
-  duaraLabel: {
+  mojoLabel: {
     fontSize: fonts.sm,
     fontWeight: "800",
     color: colors.text,
