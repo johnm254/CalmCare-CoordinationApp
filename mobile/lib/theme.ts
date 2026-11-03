@@ -1,56 +1,67 @@
+// MOJO brand tokens — "Bright, calm, cared-for" (light mode primary)
+// Spec: MOJO_PREMIUM_UI_UPGRADE.md
+
 export const colors = {
-  // ── Backgrounds ────────────────────────────────────────────────────────────
-  bg:          "#04030D",  // deep space black
-  bgCard:      "#0C0A1E",  // elevated surface
-  bgCardAlt:   "#131029",  // mid-surface
-  bgCardHigh:  "#1A1835",  // highest surface / hover states
-  border:      "#1E1B38",  // subtle definition
-  borderLight: "#2C2952",  // active / focus borders
+  // ── Canvas & surfaces ─────────────────────────────────────────────────────
+  bg:          "#F6F9FC",   // canvas — off-white, never pure grey
+  bgCard:      "#FFFFFF",   // white surface
+  bgCardAlt:   "#F1F5FA",   // slightly tinted surface
+  bgCardHigh:  "#EEF3F9",   // elevated / hover tint
+  border:      "#E6ECF2",   // hairline
+  borderLight: "#EEF3F9",
 
-  // ── Primary — Electric Violet ───────────────────────────────────────────
-  teal:        "#7B35FA",
-  tealHover:   "#9B69FF",
-  tealMuted:   "#2A1760",
-  tealDim:     "rgba(123,53,250,0.10)",
-  tealBadge:   "rgba(123,53,250,0.14)",
+  // ── Primary — Lagoon teal ─────────────────────────────────────────────────
+  teal:      "#14B8A6",     // lagoon-500 · brand hero
+  tealHover: "#0D9488",     // lagoon-600 · button fill
+  tealMuted: "#CCFBEF",     // lagoon-100 · chip bg
+  tealDim:   "rgba(20,184,166,0.10)",
+  tealBadge: "rgba(20,184,166,0.14)",
 
-  // ── Info / Blue ────────────────────────────────────────────────────────────
-  blue:        "#4A8AFF",
-  blueDim:     "#0B1030",
+  // ── Info / blue ───────────────────────────────────────────────────────────
+  blue:    "#4A8AFF",
+  blueDim: "#EFF4FF",
 
-  // ── Emergency / Rose-Red ───────────────────────────────────────────────────
-  emergency:    "#F43F5E",
-  emergencyDim: "#1A070D",
+  // ── Emergency / ruby (SOS + critical ONLY) ────────────────────────────────
+  emergency:    "#EF4444",  // ruby-500
+  emergencyDim: "#FFF1F1",
 
-  // ── Warning / Gold ─────────────────────────────────────────────────────────
-  amber:    "#FFB020",
-  amberDim: "#1C1208",
+  // ── Warning / sun (medication reminders) ─────────────────────────────────
+  amber:    "#FFC24B",      // sun-400
+  amberDim: "#FFF4D6",      // sun-100
 
-  // ── Success / Vivid Mint ───────────────────────────────────────────────────
-  success:    "#00D97E",
-  successDim: "#061A10",
+  // ── Success / mint ────────────────────────────────────────────────────────
+  success:    "#22C08A",    // mint-500
+  successDim: "#ECFDF9",    // lagoon-50
 
-  // ── Text ───────────────────────────────────────────────────────────────────
-  text:          "#EDE8FF",  // warm lavender-white
-  textSecondary: "#9490BF",
-  textMuted:     "#504875",
+  // ── Text / ink ────────────────────────────────────────────────────────────
+  text:          "#0F1B2D", // ink
+  textSecondary: "#5B6B7F", // ink-muted
+  textMuted:     "#8C9AAB", // ink-subtle
 
-  // ── Tab Bar ────────────────────────────────────────────────────────────────
-  tabBg:      "#030210",
-  tabActive:  "#7B35FA",
-  tabInactive: "#504875",
+  // ── Floating pill tab bar ─────────────────────────────────────────────────
+  tabBg:       "#FFFFFF",
+  tabActive:   "#0F1B2D",   // ink pill with white icon+label
+  tabInactive: "#8C9AAB",
 
-  // ── Controls ───────────────────────────────────────────────────────────────
-  toggleActive:   "#7B35FA",
-  toggleInactive: "#1E1B38",
-  inputBg:        "#030210",
-  inputBorder:    "#1E1B38",
+  // ── Controls ─────────────────────────────────────────────────────────────
+  toggleActive:   "#14B8A6",
+  toggleInactive: "#E6ECF2",
+  inputBg:        "#FFFFFF",
+  inputBorder:    "#E6ECF2",
 
-  // ── Compat aliases ─────────────────────────────────────────────────────────
-  coral:          "#F43F5E",
-  coralDim:       "#1A070D",
-  badgeReviewBg:  "rgba(244,63,94,0.12)",
-  badgeStableBg:  "rgba(123,53,250,0.12)",
+  // ── Artboard accent palette ───────────────────────────────────────────────
+  heroCard:  "#0F1B2D",     // dark ink hero card background
+  iris:      "#6C63FF",     // iris-500 · insights / sleep ring
+  irisDim:   "#F1F0FF",     // iris-50
+  lagoon700: "#0F766E",     // lagoon-700 · seizure-now tile
+  sun:       "#FFC24B",     // sun-400 (same as amber — explicit alias)
+  sunDim:    "#FFF4D6",     // sun-100
+
+  // ── Compat aliases (existing code still references these) ─────────────────
+  coral:         "#EF4444",   // kept as emergency alias
+  coralDim:      "#FFF1F1",
+  badgeReviewBg: "rgba(239,68,68,0.10)",
+  badgeStableBg: "rgba(20,184,166,0.12)",
 }
 
 export const fonts = {
@@ -65,11 +76,11 @@ export const fonts = {
 }
 
 export const radius = {
-  sm:   8,
-  md:   12,
-  lg:   16,
-  xl:   20,
-  xxl:  24,
+  sm:   10,
+  md:   16,
+  lg:   20,
+  xl:   24,
+  xxl:  28,
   full: 9999,
 }
 
@@ -81,4 +92,36 @@ export const spacing = {
   xl:   20,
   xxl:  24,
   xxxl: 32,
+}
+
+// ── Shadow presets (use in elevation / shadow* props) ─────────────────────────
+export const shadows = {
+  sm: {
+    shadowColor:   "#0F1B2D",
+    shadowOffset:  { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius:  4,
+    elevation:     2,
+  },
+  md: {
+    shadowColor:   "#0F1B2D",
+    shadowOffset:  { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius:  12,
+    elevation:     4,
+  },
+  lg: {
+    shadowColor:   "#0F1B2D",
+    shadowOffset:  { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius:  24,
+    elevation:     8,
+  },
+  glowLagoon: {
+    shadowColor:   "#14B8A6",
+    shadowOffset:  { width: 0, height: 8 },
+    shadowOpacity: 0.28,
+    shadowRadius:  20,
+    elevation:     10,
+  },
 }
