@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Mojo">
+  <!-- Dark ink card background -->
+  <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+  <!-- Geometric M lettermark in lagoon teal -->
+  <!-- Left vertical stroke -->
+  <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
+  <!-- Right vertical stroke -->
+  <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
+  <!-- Left diagonal: (16,16)→(28,16)→(55,52)→(44,52) -->
+  <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
+  <!-- Right diagonal: (68,16)→(80,16)→(55,52)→(44,52) -->
+  <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+</svg>

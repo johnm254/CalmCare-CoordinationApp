@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Duara",
-    "slug": "duara",
+    "name": "Mojo",
+    "slug": "mojo",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -28,7 +28,7 @@
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "package": "com.duara.app",
+      "package": "com.mojo.app",
       "config": {
         "googleMaps": {
           "apiKey": "REPLACE_WITH_GOOGLE_MAPS_API_KEY"
@@ -37,7 +37,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.duara.app"
+      "bundleIdentifier": "com.mojo.app"
     },
     "runtimeVersion": "1.0.0",
     "extra": {
@@ -48,7 +48,7 @@
         "projectId": "dbbecdaf-3e0e-4b75-8437-6e27cbc15917"
       }
     },
-    "scheme": "duara",
+    "scheme": "mojo",
     "owner": "chainforge",
     "plugins": [
       "expo-secure-store",
@@ -56,8 +56,8 @@
       [
         "expo-location",
         {
-          "locationAlwaysAndWhenInUsePermission": "Duara needs your location to include it in SOS alerts.",
-          "locationWhenInUsePermission": "Duara needs your location to include it in SOS alerts."
+          "locationAlwaysAndWhenInUsePermission": "Mojo needs your location to include it in SOS alerts.",
+          "locationWhenInUsePermission": "Mojo needs your location to include it in SOS alerts."
         }
       ]
     ]

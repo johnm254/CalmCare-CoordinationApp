@@ -38,13 +38,15 @@ export default function AdminLoginPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-5">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-16 h-16" aria-label="Duara">
-              <circle cx="48" cy="48" r="10" fill="#14B8A6"/>
-              <circle cx="48" cy="48" r="26" fill="none" stroke="#14B8A6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)"/>
-              <circle cx="48" cy="48" r="42" fill="none" stroke="#14B8A6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)"/>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-16 h-16" aria-label="Mojo">
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
+          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
+          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
+          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+        </svg>
           </div>
-          <h1 className="text-3xl font-bold text-[#0F1B2D]">Duara</h1>
+          <h1 className="text-3xl font-bold text-[#0F1B2D]">Mojo</h1>
           <p className="text-[#5B6B7F] text-sm mt-1">Admin Portal</p>
         </div>
 
@@ -61,7 +63,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                placeholder="admin@duara.app"
+                placeholder="admin@mojo.app"
                 disabled={loading}
                 className="w-full bg-[#030210] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 text-sm disabled:opacity-50 transition-colors"
               />

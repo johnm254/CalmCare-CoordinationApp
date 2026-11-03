@@ -4,7 +4,7 @@ export interface PasswordCheckResult {
 }
 
 /**
- * Evaluate a password against Duara security requirements.
+ * Evaluate a password against Mojo security requirements.
  * Returns { valid: true, errors: [] } when all rules pass.
  */
 export function checkPasswordStrength(password: string): PasswordCheckResult {

@@ -5,12 +5,13 @@ import SignOutButtonClient from './SignOutButtonClient';
 function PendingIcon() {
   return (
     <div className="relative w-24 h-24 flex items-center justify-center" aria-hidden="true">
-      <svg viewBox="0 0 96 96" fill="none" className="absolute inset-0 w-full h-full">
-        <circle cx="48" cy="48" r="44" stroke="#14B8A6" strokeOpacity=".12" strokeWidth="4" />
-        <circle cx="48" cy="48" r="32" stroke="#14B8A6" strokeOpacity=".25" strokeWidth="4" />
-        <circle cx="48" cy="48" r="20" stroke="#14B8A6" strokeOpacity=".5" strokeWidth="4" />
-        <circle cx="48" cy="48" r="8" fill="#14B8A6" />
-      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="absolute inset-0 w-full h-full" aria-label="Mojo">
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
+          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
+          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
+          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+        </svg>
     </div>
   );
 }
@@ -69,12 +70,14 @@ export default async function VerificationPendingPage() {
       <div className="relative z-10 w-full max-w-lg">
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-10 h-10" aria-label="Duara logo">
-            <circle cx="48" cy="48" r="10" fill="#14B8A6" />
-            <circle cx="48" cy="48" r="26" fill="none" stroke="#14B8A6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
-            <circle cx="48" cy="48" r="42" fill="none" stroke="#14B8A6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
-          </svg>
-          <p className="text-[#0F1B2D] font-extrabold text-xl mt-2">Duara</p>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-10 h-10" aria-label="Mojo logo">
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
+          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
+          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
+          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+        </svg>
+          <p className="text-[#0F1B2D] font-extrabold text-xl mt-2">Mojo</p>
         </div>
 
         <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-10 flex flex-col items-center text-center">
@@ -118,8 +121,8 @@ export default async function VerificationPendingPage() {
               ) : null}
               <p className="text-[#5B6B7F] text-sm leading-relaxed">
                 Please contact{' '}
-                <a href="mailto:support@duara.health" className="text-[#14B8A6] hover:underline">
-                  support@duara.health
+                <a href="mailto:support@mojo.health" className="text-[#14B8A6] hover:underline">
+                  support@mojo.health
                 </a>{' '}
                 or re-apply with corrected details.
               </p>
@@ -132,8 +135,8 @@ export default async function VerificationPendingPage() {
               <h1 className="text-[#0F1B2D] font-bold text-2xl mt-6 mb-3">Licence expired</h1>
               <p className="text-[#5B6B7F] text-sm leading-relaxed">
                 Your licence on record has expired. Please renew your licence with your registering body, then contact{' '}
-                <a href="mailto:support@duara.health" className="text-[#14B8A6] hover:underline">
-                  support@duara.health
+                <a href="mailto:support@mojo.health" className="text-[#14B8A6] hover:underline">
+                  support@mojo.health
                 </a>{' '}
                 to update your record.
               </p>

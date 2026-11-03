@@ -138,14 +138,16 @@ export default function LoginPage() {
             <div className="w-14 h-14 rounded-full border-2 border-[#14B8A6] opacity-20 absolute inset-0" />
             <div className="absolute rounded-full border-2 border-[#14B8A6] opacity-50" style={{ inset: 10 }} />
             <div className="absolute rounded-full bg-[#14B8A6]" style={{ inset: 20 }} />
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-14 h-14 relative" aria-hidden="true">
-              <circle cx="48" cy="48" r="10" fill="#14B8A6" />
-              <circle cx="48" cy="48" r="26" fill="none" stroke="#14B8A6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
-              <circle cx="48" cy="48" r="42" fill="none" stroke="#14B8A6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-14 h-14 relative" aria-label="Mojo">
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
+          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
+          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
+          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+        </svg>
           </div>
 
-          <h1 className="text-[#0F1B2D] font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>Duara</h1>
+          <h1 className="text-[#0F1B2D] font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>Mojo</h1>
           <p className="text-[#14B8A6] text-sm mt-2 tracking-wide font-medium">Clinician & Nurse Portal</p>
 
           <div className="mt-8 w-full max-w-xs mx-auto">
@@ -177,12 +179,14 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#F6F9FC]">
         {/* Mobile logo */}
         <div className="flex lg:hidden flex-col items-center mb-8">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-12 h-12" aria-hidden="true">
-            <circle cx="48" cy="48" r="10" fill="#14B8A6" />
-            <circle cx="48" cy="48" r="26" fill="none" stroke="#14B8A6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
-            <circle cx="48" cy="48" r="42" fill="none" stroke="#14B8A6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
-          </svg>
-          <p className="text-[#0F1B2D] font-extrabold text-2xl mt-2">Duara</p>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-12 h-12" aria-label="Mojo">
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
+          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
+          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
+          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+        </svg>
+          <p className="text-[#0F1B2D] font-extrabold text-2xl mt-2">Mojo</p>
           <p className="text-[#14B8A6] text-xs mt-1">Clinician & Nurse Portal</p>
         </div>
 

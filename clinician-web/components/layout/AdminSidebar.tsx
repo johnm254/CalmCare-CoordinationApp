@@ -116,11 +116,13 @@ export default function AdminSidebar() {
       <div className="px-5 pt-6 pb-5 border-b border-[#2E2B50]">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-5 h-5" aria-hidden="true">
-              <circle cx="48" cy="48" r="10" fill="white"/>
-              <circle cx="48" cy="48" r="26" fill="none" stroke="white" strokeWidth="7" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)"/>
-              <circle cx="48" cy="48" r="42" fill="none" stroke="white" strokeOpacity=".6" strokeWidth="7" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)"/>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-5 h-5" aria-label="Mojo">
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
+          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
+          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
+          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+        </svg>
           </div>
           <div>
             <p className="text-[#F5F0FF] font-bold text-base leading-none">Mojo</p>

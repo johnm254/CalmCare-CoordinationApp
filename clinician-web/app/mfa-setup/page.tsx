@@ -24,7 +24,7 @@ export default function MfaSetupPage() {
         const supabase = createClient();
         const { data, error: enrollError } = await supabase.auth.mfa.enroll({
           factorType: 'totp',
-          issuer: 'Duara',
+          issuer: 'Mojo',
           friendlyName: 'Authenticator app',
         });
 
@@ -100,12 +100,14 @@ export default function MfaSetupPage() {
       <div className="relative z-10 w-full max-w-md">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-10 h-10" aria-label="Duara logo">
-            <circle cx="48" cy="48" r="10" fill="#14B8A6" />
-            <circle cx="48" cy="48" r="26" fill="none" stroke="#14B8A6" strokeWidth="6" strokeLinecap="round" strokeDasharray="130 34" transform="rotate(-60 48 48)" />
-            <circle cx="48" cy="48" r="42" fill="none" stroke="#14B8A6" strokeOpacity=".4" strokeWidth="6" strokeLinecap="round" strokeDasharray="200 64" transform="rotate(100 48 48)" />
-          </svg>
-          <p className="text-[#0F1B2D] font-extrabold text-xl mt-2">Duara</p>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-10 h-10" aria-label="Mojo logo">
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
+          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
+          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
+          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+        </svg>
+          <p className="text-[#0F1B2D] font-extrabold text-xl mt-2">Mojo</p>
           <p className="text-[#14B8A6] text-xs mt-1">Clinician & Nurse Portal</p>
         </div>
 
@@ -188,7 +190,7 @@ export default function MfaSetupPage() {
                   {qrCode && (
                     <div className="flex justify-center mb-4">
                       <div className="bg-white p-3 rounded-xl inline-block">
-                        <img src={qrCode} alt="TOTP QR code for Duara clinician portal" className="w-40 h-40" />
+                        <img src={qrCode} alt="TOTP QR code for Mojo clinician portal" className="w-40 h-40" />
                       </div>
                     </div>
                   )}
@@ -215,7 +217,7 @@ export default function MfaSetupPage() {
             {step === 'verify' && (
               <form onSubmit={handleVerify} className="space-y-5" noValidate>
                 <div className="bg-[rgba(20,184,166,0.05)] border border-[#14B8A6]/20 rounded-xl px-4 py-3 text-sm text-[#5B6B7F]">
-                  Open your authenticator app and enter the 6-digit code shown for Duara.
+                  Open your authenticator app and enter the 6-digit code shown for Mojo.
                 </div>
 
                 <div>

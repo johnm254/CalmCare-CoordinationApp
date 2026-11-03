@@ -104,17 +104,19 @@ export default function Sidebar({ profile }: Props) {
 
   return (
     <aside className="w-60 min-h-screen bg-[#07060E] border-r border-[#2E2B50] flex flex-col fixed top-0 left-0 z-20">
-      {/* Brand with Duara logomark */}
+      {/* Brand with Mojo logomark */}
       <div className="px-5 py-5 border-b border-[#2E2B50]">
         <div className="flex items-center gap-3">
-          {/* Duara logomark: 28px circle with 3 concentric rings */}
-          <div className="relative flex-shrink-0" style={{ width: 28, height: 28 }}>
-            <div className="absolute inset-0 rounded-full border-2 border-[#8B5CF6] opacity-20" />
-            <div className="absolute rounded-full border-2 border-[#8B5CF6] opacity-50" style={{ inset: 5 }} />
-            <div className="absolute rounded-full bg-[#8B5CF6]" style={{ inset: 10 }} />
-          </div>
+          {/* Mojo M logomark */}
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width={28} height={28} aria-hidden="true">
+            <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+            <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
+            <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
+            <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
+            <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+          </svg>
           <div>
-            <p className="text-[#F5F0FF] font-bold text-base leading-none">Duara</p>
+            <p className="text-[#F5F0FF] font-bold text-base leading-none">Mojo</p>
             <p className="text-[#504C78] text-xs mt-0.5">Clinician & Nurse Portal</p>
           </div>
         </div>
