@@ -81,9 +81,7 @@ export default function AdminSettingsPage() {
   const [dangerLoading, setDangerLoading] = useState<string | null>(null);
   const [dangerResult, setDangerResult] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '(not set)';
   const env = process.env.NODE_ENV ?? 'development';
-  const projectId = supabaseUrl.split('.')[0]?.replace('https://', '') ?? '—';
   const resendConfigured = !!(process.env.RESEND_API_KEY || typeof window === 'undefined');
 
   useEffect(() => {
@@ -205,18 +203,16 @@ export default function AdminSettingsPage() {
     <div className="p-6 max-w-3xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-[#0F1B2D]">Platform settings</h1>
-        <p className="text-[#5B6B7F] text-sm mt-1">System configuration and diagnostics for Duara.</p>
+        <p className="text-[#5B6B7F] text-sm mt-1">System configuration and diagnostics for Mojo.</p>
       </div>
 
       <div className="space-y-5">
         {/* System info */}
-        <Section title="System information" description="Supabase project and environment details.">
-          <InfoRow label="Project ID" value={projectId} badge={{ text: 'Supabase', color: 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6]' }} />
+        <Section title="System information" description="Platform environment and service status.">
           <InfoRow
-            label="Environment" value={env}
+            label="Environment" value={env === 'production' ? 'Production' : 'Development'}
             badge={{ text: env === 'production' ? 'Live' : 'Dev', color: env === 'production' ? 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6]' : 'bg-[rgba(244,184,96,0.12)] text-[#F4B860]' }}
           />
-          <InfoRow label="Supabase URL" value={supabaseUrl.length > 40 ? supabaseUrl.slice(0, 40) + '…' : supabaseUrl} />
           <div className="flex items-center justify-between py-2.5">
             <span className="text-[#5B6B7F] text-sm">API status</span>
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#14B8A6] bg-[rgba(20,184,166,0.10)] border border-[#14B8A6]/25 rounded-full px-3 py-1">
