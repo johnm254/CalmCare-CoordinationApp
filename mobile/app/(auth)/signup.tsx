@@ -270,7 +270,7 @@ export default function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#09090F" },
+  safe: { flex: 1, backgroundColor: "#04030D" },
   flex: { flex: 1 },
   container: { flexGrow: 1 },
 
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     borderWidth: 2,
-    borderColor: "rgba(139,92,246,0.2)",
+    borderColor: "rgba(123,53,250,0.2)",
   },
   logoRingMid: {
     position: "absolute",
@@ -302,7 +302,7 @@ const styles = StyleSheet.create({
     height: 40,
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: "rgba(139,92,246,0.5)",
+    borderColor: "rgba(123,53,250,0.5)",
   },
   logoCore: {
     width: 18,
@@ -324,13 +324,13 @@ const styles = StyleSheet.create({
   },
 
   card: {
-    backgroundColor: "#14122A",
+    backgroundColor: "#0C0A1E",
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: "#2E2B50",
+    borderColor: "#1E1B38",
     padding: 28,
     paddingBottom: 48,
     flex: 1,

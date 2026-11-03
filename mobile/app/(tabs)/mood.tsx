@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+﻿import { useState, useEffect } from "react"
 import {
   View,
   Text,
@@ -19,7 +19,7 @@ import { useAuth } from "../_layout"
 import { useTranslation } from "../../lib/i18n-context"
 
 const MOOD_OPTIONS = [
-  { score: 1, labelKey: "mood_score_1" as const, color: "#EF4444" },
+  { score: 1, labelKey: "mood_score_1" as const, color: "#F43F5E" },
   { score: 2, labelKey: "mood_score_2" as const, color: "#F97316" },
   { score: 3, labelKey: "mood_score_3" as const, color: "#F4B860" },
   { score: 4, labelKey: "mood_score_4" as const, color: "#22C87A" },
@@ -346,7 +346,7 @@ const styles = StyleSheet.create({
   },
   inputFocused: {
     borderColor: colors.teal,
-    backgroundColor: "rgba(139,92,246,0.05)",
+    backgroundColor: "rgba(123,53,250,0.05)",
   },
   input: { color: colors.text, fontSize: fonts.base },
 

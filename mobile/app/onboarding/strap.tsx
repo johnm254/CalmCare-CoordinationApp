@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+﻿import { useEffect, useState } from "react"
 import {
   View,
   Text,
@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     width: 88,
     height: 88,
     borderRadius: 44,
-    backgroundColor: "rgba(16,185,129,0.12)",
+    backgroundColor: "rgba(0,217,126,0.12)",
     borderWidth: 2,
     borderColor: colors.success,
     alignItems: "center",

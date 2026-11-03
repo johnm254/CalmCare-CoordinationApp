@@ -259,8 +259,8 @@ export default function MapScreen() {
         <Circle
           center={location}
           radius={60}
-          fillColor="rgba(139,92,246,0.12)"
-          strokeColor="rgba(139,92,246,0.4)"
+          fillColor="rgba(123,53,250,0.12)"
+          strokeColor="rgba(123,53,250,0.4)"
           strokeWidth={1}
         />
         <Marker
@@ -373,7 +373,7 @@ export default function MapScreen() {
             <View
               style={[
                 s.bottomIconWrap,
-                { backgroundColor: "rgba(239,68,68,0.12)" },
+                { backgroundColor: "rgba(244,63,94,0.12)" },
               ]}
             >
               <View
@@ -737,7 +737,7 @@ const s = StyleSheet.create({
   lastSosTime: { fontSize: fonts.xs, color: colors.textMuted, marginTop: 2 },
 
   sosBadge: {
-    backgroundColor: "rgba(239,68,68,0.12)",
+    backgroundColor: "rgba(244,63,94,0.12)",
     borderRadius: radius.full,
     paddingHorizontal: spacing.md,
     paddingVertical: 3,

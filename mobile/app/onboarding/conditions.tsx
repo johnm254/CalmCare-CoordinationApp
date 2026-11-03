@@ -1,4 +1,4 @@
-import { useState } from "react"
+﻿import { useState } from "react"
 import {
   View,
   Text,
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   },
   inputFocused: {
     borderColor: colors.teal,
-    backgroundColor: "rgba(139,92,246,0.05)",
+    backgroundColor: "rgba(123,53,250,0.05)",
   },
   input: {
     color: colors.text,

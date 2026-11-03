@@ -12,6 +12,7 @@ import {
   useWindowDimensions,
   Modal,
   Linking,
+  Pressable,
 } from "react-native"
 
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
@@ -42,6 +43,8 @@ import { getWeather, iconUrl, type WeatherData } from "../../lib/weather"
 
 import * as Location from "expo-location"
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
 const LOG_EVENT_OPTIONS = [
   { value: "Seizure",   labelKey: "home_event_seizure"   as const },
   { value: "Headache",  labelKey: "home_event_headache"  as const },
@@ -52,80 +55,48 @@ const LOG_EVENT_OPTIONS = [
 const GRID_ITEMS = [
   {
     icon: "flash",
-    lib: "ion",
     titleKey: "home_grid_conditions" as const,
     subtitleKey: "home_grid_conditions_sub" as const,
     route: "/records",
-    color: "#F59E0B",
+    color: colors.amber,
   },
   {
     icon: "people",
-    lib: "ion",
     titleKey: "home_grid_circle" as const,
     subtitleKey: "home_grid_circle_sub" as const,
     route: "/circle",
-    color: "#8B5CF6",
+    color: colors.teal,
   },
   {
     icon: "shield-checkmark",
-    lib: "ion",
     titleKey: "home_grid_doctor" as const,
     subtitleKey: "home_grid_doctor_sub" as const,
     route: "/circle",
-    color: "#10B981",
+    color: colors.success,
   },
   {
     icon: "document-text",
-    lib: "ion",
     titleKey: "home_grid_records" as const,
     subtitleKey: "home_grid_records_sub" as const,
     route: "/records",
-    color: "#3B82F6",
+    color: colors.blue,
   },
 ]
 
-// ── Animated concentric rings ──────────────────────────────────────────────────
+// ─── Animated concentric rings ─────────────────────────────────────────────────
 
-function ConcentricRings({
-  size = 72,
-  pulse,
-}: {
-  size?: number
-  pulse: Animated.Value
-}) {
-  const r1 = size / 2
-
-  const r2 = (size * 0.65) / 2
-
-  const r3 = (size * 0.38) / 2
-
+function ConcentricRings({ size = 72, pulse }: { size?: number; pulse: Animated.Value }) {
   return (
-    <View
-      style={{
-        width: size,
-        height: size,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
+    <View style={{ width: size, height: size, alignItems: "center", justifyContent: "center" }}>
       <Animated.View
         style={{
           position: "absolute",
           width: size,
           height: size,
-          borderRadius: r1,
-
-          borderWidth: 2,
-          borderColor: "rgba(139,92,246,0.22)",
-
-          transform: [
-            {
-              scale: pulse.interpolate({
-                inputRange: [0, 1],
-                outputRange: [1, 1.06],
-              }),
-            },
-          ],
+          borderRadius: size / 2,
+          borderWidth: 1.5,
+          borderColor: "rgba(123,53,250,0.20)",
+          transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.07] }) }],
         }}
       />
       <View
@@ -133,10 +104,9 @@ function ConcentricRings({
           position: "absolute",
           width: size * 0.65,
           height: size * 0.65,
-          borderRadius: r2,
-
-          borderWidth: 2,
-          borderColor: "rgba(139,92,246,0.45)",
+          borderRadius: (size * 0.65) / 2,
+          borderWidth: 1.5,
+          borderColor: "rgba(123,53,250,0.42)",
         }}
       />
       <View
@@ -144,226 +114,207 @@ function ConcentricRings({
           position: "absolute",
           width: size * 0.38,
           height: size * 0.38,
-          borderRadius: r3,
-
-          borderWidth: 2.5,
-          borderColor: "rgba(139,92,246,0.8)",
+          borderRadius: (size * 0.38) / 2,
+          borderWidth: 2,
+          borderColor: "rgba(123,53,250,0.75)",
         }}
       />
       <Animated.View
         style={{
           width: size * 0.14,
           height: size * 0.14,
-
           borderRadius: (size * 0.14) / 2,
-
           backgroundColor: colors.teal,
-
           opacity: pulse,
-
           shadowColor: colors.teal,
           shadowOffset: { width: 0, height: 0 },
-
-          shadowOpacity: 0.9,
-          shadowRadius: 6,
-          elevation: 6,
+          shadowOpacity: 0.95,
+          shadowRadius: 8,
+          elevation: 8,
         }}
       />
     </View>
   )
 }
 
-// ── Health banner ──────────────────────────────────────────────────────────────
+// ─── Hero banner ───────────────────────────────────────────────────────────────
 
-function HealthBanner({ name, streak }: { name: string; streak: number }) {
+function HeroBanner({
+  name,
+  streak,
+  circleCount,
+}: {
+  name: string
+  streak: number
+  circleCount: number
+}) {
   const { t } = useTranslation()
-  const pulseAnim = useRef(new Animated.Value(0)).current
+  const pulse = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
     Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
-
-        Animated.timing(pulseAnim, {
-          toValue: 0,
-          duration: 2000,
-          useNativeDriver: true,
-        }),
+        Animated.timing(pulse, { toValue: 1, duration: 2200, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0, duration: 2200, useNativeDriver: true }),
       ]),
     ).start()
   }, [])
 
   return (
-    <LinearGradient colors={["#1A1035", "#0D0B1E"]} style={styles.banner}>
-      {/* ECG lines decoration */}
-      <View style={styles.ecgDecor} pointerEvents="none">
+    <LinearGradient
+      colors={["#180D4A", "#0C0A1E"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.hero}
+    >
+      {/* Subtle grid decoration */}
+      <View style={styles.heroDecor} pointerEvents="none">
         {[0, 1, 2].map((i) => (
           <Animated.View
             key={i}
             style={[
-              styles.ecgLine,
+              styles.heroLine,
               {
-                opacity: pulseAnim.interpolate({
+                top: 14 + i * 22,
+                opacity: pulse.interpolate({
                   inputRange: [0, 0.5, 1],
-
-                  outputRange: [0.04, 0.1 - i * 0.02, 0.04],
+                  outputRange: [0.03, 0.08 - i * 0.015, 0.03],
                 }),
-
-                top: 16 + i * 20,
               },
             ]}
           />
         ))}
-        {/* Pulse spike */}
-        <View style={styles.ecgSpike} />
       </View>
 
-      <View style={styles.bannerContent}>
-        <View>
-          <Text style={styles.bannerLabel}>{t("home_streak_label")}</Text>
-          <View
+      {/* Stats row */}
+      <View style={styles.heroStats}>
+        {/* Streak */}
+        <View style={styles.heroStat}>
+          <Text style={styles.heroStatValue}>{streak}</Text>
+          <Text style={styles.heroStatLabel}>{t("home_streak_days")}</Text>
+          <Text style={styles.heroStatSub}>{t("home_streak_label")}</Text>
+        </View>
+
+        {/* Divider */}
+        <View style={styles.heroStatDivider} />
+
+        {/* BPM */}
+        <View style={styles.heroStat}>
+          <Animated.View
             style={{
-              flexDirection: "row",
-              alignItems: "baseline",
-              gap: 4,
-              marginTop: 2,
+              opacity: pulse.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.5, 1, 0.5] }),
             }}
           >
-            <Text style={styles.bannerStreak}>{streak}</Text>
-            <Text style={styles.bannerDays}>{t("home_streak_days")}</Text>
-          </View>
-          <Text style={styles.bannerSub}>{t("home_banner_sub", name)}</Text>
+            <Text style={[styles.heroStatValue, { color: colors.emergency }]}>72</Text>
+          </Animated.View>
+          <Text style={styles.heroStatLabel}>BPM</Text>
+          <Text style={styles.heroStatSub}>Heart rate</Text>
         </View>
 
-        {/* Heart rate visual */}
-        <View style={styles.bannerChart}>
-          <Animated.View
-            style={[
-              styles.bannerChartDot,
-              {
-                opacity: pulseAnim.interpolate({
-                  inputRange: [0, 0.5, 1],
-                  outputRange: [0.4, 1, 0.4],
-                }),
+        {/* Divider */}
+        <View style={styles.heroStatDivider} />
 
-                transform: [
-                  {
-                    scale: pulseAnim.interpolate({
-                      inputRange: [0, 0.5, 1],
-                      outputRange: [0.8, 1.2, 0.8],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          />
-          <Ionicons
-            name="heart"
-            size={28}
-            color={colors.emergency}
-            style={{ opacity: 0.85 }}
-          />
-          <Text style={styles.bannerBpm}>
-            72 <Text style={styles.bannerBpmLabel}>BPM</Text>
-          </Text>
+        {/* Circle */}
+        <View style={styles.heroStat}>
+          <Text style={[styles.heroStatValue, { color: colors.success }]}>{circleCount}</Text>
+          <Text style={styles.heroStatLabel}>Care</Text>
+          <Text style={styles.heroStatSub}>Circle</Text>
         </View>
       </View>
+
+      {/* Sub label */}
+      <Text style={styles.heroSub}>{t("home_banner_sub", name)}</Text>
     </LinearGradient>
   )
 }
 
-// ── Main screen ────────────────────────────────────────────────────────────────
+// ─── Quick actions horizontal strip ───────────────────────────────────────────
+
+type QuickAction = {
+  icon: string
+  label: string
+  color: string
+  onPress?: () => void
+  route?: string
+}
+
+function QuickActions({ onLogEvent }: { onLogEvent: () => void }) {
+  const ACTIONS: QuickAction[] = [
+    { icon: "add-circle-outline", label: "Log Event", color: colors.teal, onPress: onLogEvent },
+    { icon: "calendar-outline",   label: "Appointments", color: colors.blue, route: "/appointments" },
+    { icon: "analytics-outline",  label: "Insights",     color: colors.amber, route: "/insights" },
+    { icon: "map-outline",        label: "Map",          color: colors.success, route: "/map" },
+    { icon: "document-text-outline", label: "Records",  color: colors.textSecondary, route: "/records" },
+  ]
+
+  return (
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      contentContainerStyle={styles.quickActionsContent}
+      style={styles.quickActionsScroll}
+    >
+      {ACTIONS.map((a) => (
+        <TouchableOpacity
+          key={a.label}
+          style={[styles.quickChip, { borderColor: a.color + "30" }]}
+          onPress={a.route ? () => router.push(a.route! as any) : a.onPress}
+          activeOpacity={0.75}
+        >
+          <View style={[styles.quickChipIcon, { backgroundColor: a.color + "18" }]}>
+            <Ionicons name={a.icon as any} size={16} color={a.color} />
+          </View>
+          <Text style={[styles.quickChipLabel, { color: a.color }]}>{a.label}</Text>
+        </TouchableOpacity>
+      ))}
+    </ScrollView>
+  )
+}
+
+// ─── Main screen ───────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
   const { width } = useWindowDimensions()
-
   const { profile, session } = useAuth()
   const { t } = useTranslation()
 
   const [medications, setMedications] = useState<Medication[]>([])
-
   const [circleCount, setCircleCount] = useState(0)
-
   const [loading, setLoading] = useState(true)
-
   const [takenId, setTakenId] = useState<string | null>(null)
-
   const [weather, setWeather] = useState<WeatherData | null>(null)
-
   const [forecastOpen, setForecastOpen] = useState(false)
-
   const [streakDays, setStreakDays] = useState(0)
-
   const [hasActiveAlert, setHasActiveAlert] = useState(false)
-
-  const [lastSyncedMinutes, setLastSyncedMinutes] = useState<number | null>(
-    null,
-  )
-
+  const [lastSyncedMinutes, setLastSyncedMinutes] = useState<number | null>(null)
   const [logModalVisible, setLogModalVisible] = useState(false)
-
   const [loggingEvent, setLoggingEvent] = useState<string | null>(null)
-
-  const [nearestHospital, setNearestHospital] = useState<{
-    name: string
-    phone: string | null
-  } | null>(null)
-
+  const [nearestHospital, setNearestHospital] = useState<{ name: string; phone: string | null } | null>(null)
   const [latestMoodScore, setLatestMoodScore] = useState<number | null>(null)
 
   const pulseAnim = useRef(new Animated.Value(0.5)).current
-
   const sosScale = useRef(new Animated.Value(1)).current
 
-  // Staggered entrance
-
+  // 8 staggered entrance slots
   const anims = useRef(
-    Array.from({ length: 7 }, () => ({
-      y: new Animated.Value(28),
-
-      op: new Animated.Value(0),
-    })),
+    Array.from({ length: 8 }, () => ({ y: new Animated.Value(30), op: new Animated.Value(0) })),
   ).current
 
   useEffect(() => {
     anims.forEach((a, i) => {
       Animated.sequence([
-        Animated.delay(i * 80 + 120),
-
+        Animated.delay(i * 75 + 100),
         Animated.parallel([
-          Animated.spring(a.y, {
-            toValue: 0,
-            tension: 65,
-            friction: 14,
-            useNativeDriver: true,
-          }),
-
-          Animated.timing(a.op, {
-            toValue: 1,
-            duration: 340,
-            useNativeDriver: true,
-          }),
+          Animated.spring(a.y, { toValue: 0, tension: 60, friction: 13, useNativeDriver: true }),
+          Animated.timing(a.op, { toValue: 1, duration: 320, useNativeDriver: true }),
         ]),
       ]).start()
     })
 
     Animated.loop(
       Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 1100,
-          useNativeDriver: true,
-        }),
-
-        Animated.timing(pulseAnim, {
-          toValue: 0.5,
-          duration: 1100,
-          useNativeDriver: true,
-        }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 1100, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 0.5, duration: 1100, useNativeDriver: true }),
       ]),
     ).start()
 
@@ -372,85 +323,43 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (!session?.user) return
-
     const uid = session.user.id
 
-    Promise.all([getMedications(uid), getCareCircle(uid)]).then(
-      ([meds, circle]) => {
-        setMedications(meds)
-
-        setCircleCount(circle.length)
-
-        setLoading(false)
-      },
-    )
+    Promise.all([getMedications(uid), getCareCircle(uid)]).then(([meds, circle]) => {
+      setMedications(meds)
+      setCircleCount(circle.length)
+      setLoading(false)
+    })
 
     supabase
-
       .from("events")
-
       .select("occurred_at")
-
       .eq("user_id", uid)
-
       .in("type", ["seizure", "sz", "tonic-clonic", "absence"])
-
       .order("occurred_at", { ascending: false })
-
       .limit(1)
-
       .then(({ data }) => {
-        if (!data || data.length === 0) {
-          setStreakDays(30)
-          return
-        }
-
-        const days = Math.floor(
-          (Date.now() - new Date(data[0].occurred_at).getTime()) / 86_400_000,
-        )
-
-        setStreakDays(Math.max(0, days))
+        if (!data || data.length === 0) { setStreakDays(30); return }
+        setStreakDays(Math.max(0, Math.floor((Date.now() - new Date(data[0].occurred_at).getTime()) / 86_400_000)))
       })
 
-    // Check for open SOS alerts
-
     supabase
-
       .from("sos_events")
-
       .select("id")
-
       .eq("patient_id", uid)
-
       .not("status", "in", '("resolved","cancelled")')
-
       .limit(1)
-
-      .then(({ data }) => {
-        setHasActiveAlert((data ?? []).length > 0)
-      })
-
-    // Last synced: most recent event timestamp
+      .then(({ data }) => setHasActiveAlert((data ?? []).length > 0))
 
     supabase
-
       .from("events")
-
       .select("occurred_at")
-
       .eq("patient_id", uid)
-
       .order("occurred_at", { ascending: false })
-
       .limit(1)
-
       .then(({ data }) => {
         if (data && data.length > 0) {
-          const mins = Math.floor(
-            (Date.now() - new Date(data[0].occurred_at).getTime()) / 60_000,
-          )
-
-          setLastSyncedMinutes(Math.max(0, mins))
+          setLastSyncedMinutes(Math.max(0, Math.floor((Date.now() - new Date(data[0].occurred_at).getTime()) / 60_000)))
         }
       })
 
@@ -460,9 +369,7 @@ export default function HomeScreen() {
       .eq("patient_id", uid)
       .order("logged_at", { ascending: false })
       .limit(1)
-      .then(({ data }) => {
-        if (data && data.length > 0) setLatestMoodScore(data[0].score)
-      })
+      .then(({ data }) => { if (data && data.length > 0) setLatestMoodScore(data[0].score) })
   }, [session])
 
   useEffect(() => {
@@ -470,100 +377,56 @@ export default function HomeScreen() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync()
         if (status !== "granted") return
-        const { coords } = await Location.getCurrentPositionAsync({
-          accuracy: Location.Accuracy.Balanced,
-        })
-        const { data } = await supabase.rpc("nearest_er_facility", {
-          lat: coords.latitude,
-          lon: coords.longitude,
-        })
+        const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+        const { data } = await supabase.rpc("nearest_er_facility", { lat: coords.latitude, lon: coords.longitude })
         const row = data as { name: string; phone: string | null } | null
-        if (row?.name) {
-          setNearestHospital({ name: row.name, phone: row.phone ?? null })
-        }
-      } catch {
-        // fall back to hardcoded KNH
-      }
+        if (row?.name) setNearestHospital({ name: row.name, phone: row.phone ?? null })
+      } catch { /* fall back to hardcoded KNH */ }
     }
     fetchNearestHospital()
   }, [])
 
   async function handleTaken(med: Medication) {
     if (!session?.user || takenId) return
-
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-
     setTakenId(med.id)
-
     await logMedicationTaken(med.id, session.user.id)
   }
 
   async function handleLogEvent(eventType: string) {
     if (!session?.user) return
-
     setLoggingEvent(eventType)
-
     try {
       await supabase.from("events").insert({
         patient_id: session.user.id,
-
         logged_by: session.user.id,
-
         event_type: eventType.toLowerCase(),
-
         severity: "mild",
-
         occurred_at: new Date().toISOString(),
-
         details: {},
       })
     } finally {
       setLoggingEvent(null)
-
       setLogModalVisible(false)
     }
   }
 
   function onSosPressIn() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
-
-    Animated.spring(sosScale, {
-      toValue: 0.97,
-      useNativeDriver: true,
-      tension: 220,
-      friction: 12,
-    }).start()
+    Animated.spring(sosScale, { toValue: 0.97, useNativeDriver: true, tension: 240, friction: 12 }).start()
   }
 
   function onSosPressOut() {
-    Animated.spring(sosScale, {
-      toValue: 1,
-      useNativeDriver: true,
-      tension: 220,
-      friction: 12,
-    }).start()
+    Animated.spring(sosScale, { toValue: 1, useNativeDriver: true, tension: 240, friction: 12 }).start()
   }
 
   const hour = new Date().getHours()
-
-  const greeting =
-    hour < 12 ? t("home_greeting_morning") : hour < 18 ? t("home_greeting_afternoon") : t("home_greeting_evening")
-
+  const greeting = hour < 12 ? t("home_greeting_morning") : hour < 18 ? t("home_greeting_afternoon") : t("home_greeting_evening")
   const firstName = profile?.full_name?.split(" ")[0] ?? ""
-
-  const initials = (profile?.full_name ?? "U")
-    .split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
-
+  const initials = (profile?.full_name ?? "U").split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
   const showCrisisCard = latestMoodScore !== null && latestMoodScore <= 2
-
   const nextMed = medications[0]
-
-  const pad = spacing.xl // 20
-
+  const pad = spacing.xl
   const cardWidth = (width - pad * 2 - spacing.md) / 2
 
   function slot(i: number) {
@@ -577,20 +440,18 @@ export default function HomeScreen() {
         contentContainerStyle={[styles.container, { paddingHorizontal: pad }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── Header ─────────────────────────────────────────────────────── */}
+        {/* ── Header ───────────────────────────────────────────────────────── */}
         <Animated.View style={[styles.header, slot(0)]}>
           <View style={styles.headerLeft}>
             <LinearGradient
-              colors={["#8B5CF6", "#6D28D9"]}
+              colors={[colors.teal, "#4A15C0"]}
               style={styles.avatar}
             >
               <Text style={styles.avatarText}>{initials}</Text>
             </LinearGradient>
             <View>
               <Text style={styles.greeting}>{greeting}</Text>
-              <Text style={styles.heroName}>
-                {firstName || t("home_hero_fallback")}
-              </Text>
+              <Text style={styles.heroName}>{firstName || t("home_hero_fallback")}</Text>
               {lastSyncedMinutes !== null && (
                 <Text style={styles.lastSynced}>
                   {lastSyncedMinutes < 1
@@ -601,15 +462,11 @@ export default function HomeScreen() {
             </View>
           </View>
           <TouchableOpacity style={styles.bellBtn} onPress={() => {}}>
-            <Ionicons
-              name="notifications-outline"
-              size={20}
-              color={colors.textSecondary}
-            />
+            <Ionicons name="notifications-outline" size={20} color={colors.textSecondary} />
           </TouchableOpacity>
         </Animated.View>
 
-        {/* ── Active alert banner ─────────────────────────────────────────── */}
+        {/* ── Active alert banner ──────────────────────────────────────────── */}
         {hasActiveAlert && (
           <TouchableOpacity
             style={styles.alertBanner}
@@ -622,41 +479,21 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {/* ── Health banner ───────────────────────────────────────────────── */}
+        {/* ── Hero stat banner ─────────────────────────────────────────────── */}
         <Animated.View style={slot(1)}>
-          <HealthBanner name={firstName} streak={streakDays} />
+          <HeroBanner name={firstName} streak={streakDays} circleCount={circleCount} />
         </Animated.View>
 
-        {/* ── Circle protection card ─────────────────────────────────────── */}
-        <Animated.View style={[styles.card, slot(2)]}>
-          <ConcentricRings size={72} pulse={pulseAnim} />
-          <View style={styles.circleText}>
-            <View style={styles.protectedRow}>
-              <Animated.View
-                style={[styles.pulseDot, { opacity: pulseAnim }]}
-              />
-              <Text style={styles.protectedLabel}>{t("home_protected")}</Text>
-            </View>
-            <Text style={styles.cardTitle}>{t("home_circle_active")}</Text>
-            <Text style={styles.cardSub}>
-              {circleCount > 0
-                ? t("home_circle_sub_plural", circleCount)
-                : t("home_circle_sub_default")}
-            </Text>
-          </View>
-        </Animated.View>
-
-        {/* ── SOS button ─────────────────────────────────────────────────── */}
-        <Animated.View style={[{ transform: [{ scale: sosScale }] }, slot(3)]}>
+        {/* ── SOS button ───────────────────────────────────────────────────── */}
+        <Animated.View style={[{ transform: [{ scale: sosScale }] }, slot(2)]}>
           <TouchableOpacity
             onPress={() => router.push("/sos")}
-            onLongPress={() => router.push("/sos")}
             onPressIn={onSosPressIn}
             onPressOut={onSosPressOut}
             activeOpacity={1}
           >
             <LinearGradient
-              colors={["#EF4444", "#C0392B"]}
+              colors={[colors.emergency, "#B91C1C"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.sosBtn}
@@ -674,8 +511,28 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </Animated.View>
 
-        {/* ── Medication card ────────────────────────────────────────────── */}
-        <Animated.View style={slot(4)}>
+        {/* ── Quick actions strip ──────────────────────────────────────────── */}
+        <Animated.View style={[{ marginHorizontal: -pad }, slot(3)]}>
+          <QuickActions onLogEvent={() => setLogModalVisible(true)} />
+        </Animated.View>
+
+        {/* ── Protection card ──────────────────────────────────────────────── */}
+        <Animated.View style={[styles.card, slot(4)]}>
+          <ConcentricRings size={70} pulse={pulseAnim} />
+          <View style={styles.circleText}>
+            <View style={styles.protectedRow}>
+              <Animated.View style={[styles.pulseDot, { opacity: pulseAnim }]} />
+              <Text style={styles.protectedLabel}>{t("home_protected")}</Text>
+            </View>
+            <Text style={styles.cardTitle}>{t("home_circle_active")}</Text>
+            <Text style={styles.cardSub}>
+              {circleCount > 0 ? t("home_circle_sub_plural", circleCount) : t("home_circle_sub_default")}
+            </Text>
+          </View>
+        </Animated.View>
+
+        {/* ── Medication card ───────────────────────────────────────────────── */}
+        <Animated.View style={slot(5)}>
           {loading ? (
             <View style={styles.card}>
               <ActivityIndicator color={colors.teal} />
@@ -683,11 +540,7 @@ export default function HomeScreen() {
           ) : nextMed ? (
             <View style={styles.medCard}>
               <View style={styles.medIconWrap}>
-                <MaterialCommunityIcons
-                  name="pill"
-                  size={24}
-                  color={colors.teal}
-                />
+                <MaterialCommunityIcons name="pill" size={24} color={colors.teal} />
               </View>
               <View style={styles.medInfo}>
                 <Text style={styles.medTime}>
@@ -697,10 +550,7 @@ export default function HomeScreen() {
                 <Text style={styles.medDose}>{nextMed.dose}</Text>
               </View>
               <TouchableOpacity
-                style={[
-                  styles.takenBtn,
-                  takenId === nextMed.id && styles.takenBtnDone,
-                ]}
+                style={[styles.takenBtn, takenId === nextMed.id && styles.takenBtnDone]}
                 onPress={() => handleTaken(nextMed)}
                 disabled={takenId === nextMed.id}
                 activeOpacity={0.85}
@@ -713,173 +563,135 @@ export default function HomeScreen() {
           ) : null}
         </Animated.View>
 
-        {/* ── Ambulance quick-dial ────────────────────────────────────────── */}
-        <TouchableOpacity
-          style={styles.ambulanceRow}
-          onPress={() => Linking.openURL("tel:999")}
-          activeOpacity={0.85}
-          accessibilityRole="button"
-          accessibilityLabel="Call ambulance 999 or 112"
-        >
-          <View style={styles.ambulanceIconWrap}>
-            <Ionicons name="medical" size={18} color={colors.emergency} />
+        {/* ── Emergency section ─────────────────────────────────────────────── */}
+        <Animated.View style={[styles.emergencyCard, slot(6)]}>
+          <View style={styles.emergencyHeader}>
+            <View style={styles.emergencyIconWrap}>
+              <Ionicons name="medkit" size={20} color={colors.emergency} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.emergencyTitle}>Emergency Access</Text>
+              <Text style={styles.emergencyHospital} numberOfLines={1}>
+                {nearestHospital?.name ?? "Kenyatta National Hospital"}
+              </Text>
+            </View>
           </View>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.ambulanceLabel}>{t("home_ambulance_label")}</Text>
-            <Text style={styles.ambulanceNum}>{t("home_ambulance_num")}</Text>
-          </View>
-          <Ionicons name="call" size={16} color={colors.emergency} />
-        </TouchableOpacity>
-
-        {/* ── Nearest hospital card ──────────────────────────────────────── */}
-        <View style={styles.hospitalCard}>
-          <View style={styles.hospitalIconWrap}>
-            <Ionicons name="medkit" size={22} color={colors.emergency} />
-          </View>
-          <View style={styles.hospitalInfo}>
-            <Text style={styles.hospitalLabel}>{t("home_nearest_hospital")}</Text>
-            <Text style={styles.hospitalName}>
-              {nearestHospital?.name ?? "Kenyatta National Hospital"}
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={styles.callBtn}
-            onPress={() =>
-              Linking.openURL(
-                nearestHospital?.phone
-                  ? `tel:${nearestHospital.phone}`
-                  : "tel:+254202726300",
-              )
-            }
-            activeOpacity={0.85}
-          >
-            <Ionicons name="call" size={18} color="#fff" />
-          </TouchableOpacity>
-        </View>
-
-        {/* ── Quick log button ────────────────────────────────────────────── */}
-        <TouchableOpacity
-          style={styles.quickLogBtn}
-          onPress={() => setLogModalVisible(true)}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="add-circle-outline" size={16} color={colors.teal} />
-          <Text style={styles.quickLogBtnText}>{t("home_log_event")}</Text>
-        </TouchableOpacity>
-
-        {/* ── 2×2 Quick access grid ─────────────────────────────────────── */}
-        <Animated.View style={[styles.grid, slot(5)]}>
-          {GRID_ITEMS.map((item) => (
+          <View style={styles.emergencyActions}>
             <TouchableOpacity
-              key={item.titleKey}
-              style={[styles.gridItem, { width: cardWidth }]}
-              onPress={() => router.push(item.route as any)}
+              style={styles.emergencyBtn}
+              onPress={() => Linking.openURL("tel:999")}
               activeOpacity={0.82}
             >
-              <View
-                style={[
-                  styles.gridIconBg,
-                  { backgroundColor: item.color + "18" },
-                ]}
-              >
-                <Ionicons
-                  name={item.icon as any}
-                  size={22}
-                  color={item.color}
-                />
+              <Ionicons name="call-outline" size={15} color={colors.emergency} />
+              <Text style={styles.emergencyBtnText}>Call 999</Text>
+            </TouchableOpacity>
+            <View style={styles.emergencyBtnDivider} />
+            <TouchableOpacity
+              style={styles.emergencyBtn}
+              onPress={() => Linking.openURL("tel:112")}
+              activeOpacity={0.82}
+            >
+              <Ionicons name="call-outline" size={15} color={colors.emergency} />
+              <Text style={styles.emergencyBtnText}>Call 112</Text>
+            </TouchableOpacity>
+            <View style={styles.emergencyBtnDivider} />
+            <TouchableOpacity
+              style={styles.emergencyBtn}
+              onPress={() =>
+                Linking.openURL(
+                  nearestHospital?.phone ? `tel:${nearestHospital.phone}` : "tel:+254202726300",
+                )
+              }
+              activeOpacity={0.82}
+            >
+              <Ionicons name="navigate-outline" size={15} color={colors.emergency} />
+              <Text style={styles.emergencyBtnText}>Hospital</Text>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
+        {/* ── 2 × 2 Feature grid ───────────────────────────────────────────── */}
+        <Animated.View style={[styles.grid, slot(7)]}>
+          {GRID_ITEMS.map((item) => (
+            <Pressable
+              key={item.titleKey}
+              style={({ pressed }) => [
+                styles.gridItem,
+                { width: cardWidth, opacity: pressed ? 0.82 : 1 },
+              ]}
+              onPress={() => router.push(item.route as any)}
+            >
+              <View style={[styles.gridIconBg, { backgroundColor: item.color + "18" }]}>
+                <Ionicons name={item.icon as any} size={22} color={item.color} />
               </View>
               <Text style={styles.gridTitle}>{t(item.titleKey)}</Text>
               <Text style={styles.gridSub}>{t(item.subtitleKey)}</Text>
-            </TouchableOpacity>
+              <Ionicons
+                name="chevron-forward"
+                size={14}
+                color={item.color}
+                style={{ marginTop: 2, opacity: 0.7 }}
+              />
+            </Pressable>
           ))}
         </Animated.View>
 
-        {/* ── Weather widget ─────────────────────────────────────────────── */}
+        {/* ── Weather widget ────────────────────────────────────────────────── */}
         {weather && (
-          <Animated.View style={slot(6)}>
-            <TouchableOpacity
-              style={styles.weatherCard}
-              onPress={() => setForecastOpen((v) => !v)}
-              activeOpacity={0.88}
-            >
-              <View style={styles.weatherMain}>
-                <Image
-                  source={{ uri: iconUrl(weather.current.iconCode) }}
-                  style={styles.weatherIcon}
-                />
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.weatherCity}>{weather.current.city}</Text>
-                  <Text style={styles.weatherDesc}>
-                    {weather.current.description}
-                  </Text>
-                </View>
-                <View style={{ alignItems: "flex-end" }}>
-                  <Text style={styles.weatherTemp}>
-                    {weather.current.temp}°C
-                  </Text>
-                  <Text style={styles.weatherFeels}>
-                    {t("home_weather_feels", weather.current.feels_like)}
-                  </Text>
-                </View>
+          <TouchableOpacity
+            style={styles.weatherCard}
+            onPress={() => setForecastOpen((v) => !v)}
+            activeOpacity={0.88}
+          >
+            <View style={styles.weatherMain}>
+              <Image source={{ uri: iconUrl(weather.current.iconCode) }} style={styles.weatherIcon} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.weatherCity}>{weather.current.city}</Text>
+                <Text style={styles.weatherDesc}>{weather.current.description}</Text>
               </View>
-
-              <View style={styles.weatherStatsRow}>
-                <View style={styles.weatherStat}>
-                  <Ionicons
-                    name="water-outline"
-                    size={13}
-                    color={colors.blue}
-                  />
-                  <Text style={styles.weatherStatTxt}>
-                    {t("home_weather_humidity", weather.current.humidity)}
-                  </Text>
-                </View>
-                <View style={styles.weatherStat}>
-                  <Ionicons
-                    name="flag-outline"
-                    size={13}
-                    color={colors.textMuted}
-                  />
-                  <Text style={styles.weatherStatTxt}>
-                    {t("home_weather_wind", weather.current.wind_kph)}
-                  </Text>
-                </View>
-                <TouchableOpacity onPress={() => router.push("/map" as any)}>
-                  <Text style={styles.weatherMapLink}>{t("home_weather_map")}</Text>
-                </TouchableOpacity>
+              <View style={{ alignItems: "flex-end" }}>
+                <Text style={styles.weatherTemp}>{weather.current.temp}°C</Text>
+                <Text style={styles.weatherFeels}>{t("home_weather_feels", weather.current.feels_like)}</Text>
               </View>
+            </View>
 
-              {weather.trigger && (
-                <View style={styles.triggerRow}>
-                  <Ionicons
-                    name="warning-outline"
-                    size={14}
-                    color={colors.amber}
-                  />
-                  <Text style={styles.triggerTxt}>{weather.trigger}</Text>
-                </View>
-              )}
+            <View style={styles.weatherStatsRow}>
+              <View style={styles.weatherStat}>
+                <Ionicons name="water-outline" size={13} color={colors.blue} />
+                <Text style={styles.weatherStatTxt}>{t("home_weather_humidity", weather.current.humidity)}</Text>
+              </View>
+              <View style={styles.weatherStat}>
+                <Ionicons name="flag-outline" size={13} color={colors.textMuted} />
+                <Text style={styles.weatherStatTxt}>{t("home_weather_wind", weather.current.wind_kph)}</Text>
+              </View>
+              <TouchableOpacity onPress={() => router.push("/map" as any)}>
+                <Text style={styles.weatherMapLink}>{t("home_weather_map")}</Text>
+              </TouchableOpacity>
+            </View>
 
-              {forecastOpen && (
-                <View style={styles.forecastRow}>
-                  {weather.forecast.map((day) => (
-                    <View key={day.day} style={styles.forecastItem}>
-                      <Text style={styles.forecastDay}>{day.day}</Text>
-                      <Image
-                        source={{ uri: iconUrl(day.iconCode) }}
-                        style={styles.forecastIcon}
-                      />
-                      <Text style={styles.forecastHigh}>{day.high}°</Text>
-                      <Text style={styles.forecastLow}>{day.low}°</Text>
-                    </View>
-                  ))}
-                </View>
-              )}
-            </TouchableOpacity>
-          </Animated.View>
+            {weather.trigger && (
+              <View style={styles.triggerRow}>
+                <Ionicons name="warning-outline" size={14} color={colors.amber} />
+                <Text style={styles.triggerTxt}>{weather.trigger}</Text>
+              </View>
+            )}
+
+            {forecastOpen && (
+              <View style={styles.forecastRow}>
+                {weather.forecast.map((day) => (
+                  <View key={day.day} style={styles.forecastItem}>
+                    <Text style={styles.forecastDay}>{day.day}</Text>
+                    <Image source={{ uri: iconUrl(day.iconCode) }} style={styles.forecastIcon} />
+                    <Text style={styles.forecastHigh}>{day.high}°</Text>
+                    <Text style={styles.forecastLow}>{day.low}°</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </TouchableOpacity>
         )}
 
-        {/* ── Crisis resource card ───────────────────────────────────────────── */}
+        {/* ── Crisis resource card ─────────────────────────────────────────── */}
         {showCrisisCard && (
           <View style={styles.crisisCard}>
             <View style={styles.crisisHeader}>
@@ -899,7 +711,7 @@ export default function HomeScreen() {
         )}
       </ScrollView>
 
-      {/* ── Log event modal ─────────────────────────────────────────────── */}
+      {/* ── Log event modal ───────────────────────────────────────────────── */}
       <Modal
         visible={logModalVisible}
         transparent
@@ -908,27 +720,27 @@ export default function HomeScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalSheet}>
+            <View style={styles.modalHandle} />
             <Text style={styles.modalTitle}>{t("home_log_event")}</Text>
-            {LOG_EVENT_OPTIONS.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={styles.modalOption}
-                onPress={() => handleLogEvent(option.value)}
-                disabled={loggingEvent === option.value}
-                activeOpacity={0.8}
-              >
-                {loggingEvent === option.value ? (
-                  <ActivityIndicator
-                    size="small"
-                    color={colors.teal}
-                    style={{ marginRight: spacing.md }}
-                  />
-                ) : (
-                  <View style={styles.modalOptionDot} />
-                )}
-                <Text style={styles.modalOptionText}>{t(option.labelKey)}</Text>
-              </TouchableOpacity>
-            ))}
+            <View style={styles.modalOptions}>
+              {LOG_EVENT_OPTIONS.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={styles.modalOption}
+                  onPress={() => handleLogEvent(option.value)}
+                  disabled={loggingEvent === option.value}
+                  activeOpacity={0.78}
+                >
+                  {loggingEvent === option.value ? (
+                    <ActivityIndicator size="small" color={colors.teal} />
+                  ) : (
+                    <View style={styles.modalOptionDot} />
+                  )}
+                  <Text style={styles.modalOptionText}>{t(option.labelKey)}</Text>
+                  <Ionicons name="chevron-forward" size={16} color={colors.textMuted} style={{ marginLeft: "auto" }} />
+                </TouchableOpacity>
+              ))}
+            </View>
             <TouchableOpacity
               style={styles.modalCancelBtn}
               onPress={() => setLogModalVisible(false)}
@@ -943,44 +755,49 @@ export default function HomeScreen() {
   )
 }
 
+// ─── Styles ───────────────────────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
-
   scroll: { flex: 1 },
-
-  container: { paddingTop: spacing.md, paddingBottom: 40, gap: spacing.md },
+  container: { paddingTop: spacing.md, paddingBottom: 56, gap: spacing.md },
 
   // Header
-
   header: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 4,
+    paddingVertical: 6,
   },
-
   headerLeft: { flexDirection: "row", alignItems: "center", gap: 12 },
-
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: colors.teal,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  avatarText: { color: "#fff", fontWeight: "800", fontSize: fonts.md },
+  greeting: { fontSize: fonts.sm, color: colors.textSecondary },
+  heroName: { fontSize: fonts.md, fontWeight: "800", color: colors.text },
+  lastSynced: { fontSize: fonts.xs, color: colors.textMuted, marginTop: 1 },
+  bellBtn: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: colors.bgCard,
+    borderWidth: 1,
+    borderColor: colors.border,
     alignItems: "center",
     justifyContent: "center",
   },
 
-  avatarText: { color: "#fff", fontWeight: "800", fontSize: fonts.md },
-
-  greeting: { fontSize: fonts.sm, color: colors.textSecondary },
-
-  heroName: { fontSize: fonts.md, fontWeight: "700", color: colors.text },
-
-  lastSynced: {
-    fontSize: fonts.xs,
-    color: colors.textMuted,
-    marginTop: 2,
-  },
-
+  // Alert banner
   alertBanner: {
     flexDirection: "row",
     alignItems: "center",
@@ -989,527 +806,250 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
+    shadowColor: colors.emergency,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
   },
+  alertBannerText: { flex: 1, color: "#fff", fontWeight: "700", fontSize: fonts.base },
 
-  alertBannerText: {
-    flex: 1,
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: fonts.base,
-  },
-
-  ambulanceRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    backgroundColor: colors.emergencyDim,
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    borderColor: colors.emergency + "40",
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-
-  ambulanceIconWrap: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: colors.emergency + "20",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-
-  ambulanceLabel: {
-    fontSize: fonts.sm,
-    fontWeight: "700",
-    color: colors.emergency,
-  },
-
-  ambulanceNum: {
-    fontSize: fonts.xs,
-    color: colors.emergency,
-    opacity: 0.75,
-    marginTop: 1,
-  },
-
-  hospitalCard: {
-    backgroundColor: colors.bgCard,
+  // Hero banner
+  hero: {
     borderRadius: radius.xl,
     borderWidth: 1,
-    borderColor: colors.border,
-    padding: spacing.lg,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-  },
-
-  hospitalIconWrap: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: colors.emergencyDim,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-
-  hospitalInfo: { flex: 1 },
-
-  hospitalLabel: {
-    fontSize: fonts.xs,
-    color: colors.textSecondary,
-    marginBottom: 2,
-  },
-
-  hospitalName: { fontSize: fonts.md, fontWeight: "700", color: colors.text },
-
-  callBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: colors.emergency,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-
-  quickLogBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.xs,
-    borderWidth: 1,
-    borderColor: colors.teal,
-    borderRadius: radius.full,
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.xl,
-    alignSelf: "flex-start",
-  },
-
-  quickLogBtnText: {
-    color: colors.teal,
-    fontWeight: "700",
-    fontSize: fonts.sm,
-  },
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "flex-end",
-  },
-
-  modalSheet: {
-    backgroundColor: colors.bgCard,
-    borderTopLeftRadius: radius.xxl,
-    borderTopRightRadius: radius.xxl,
+    borderColor: "rgba(123,53,250,0.22)",
     padding: spacing.xl,
-    paddingBottom: 36,
-    gap: spacing.sm,
-  },
-
-  modalTitle: {
-    fontSize: fonts.lg,
-    fontWeight: "800",
-    color: colors.text,
-    marginBottom: spacing.sm,
-    textAlign: "center",
-  },
-
-  modalOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.md,
-    backgroundColor: colors.bgCardAlt,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-  },
-
-  modalOptionDot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: colors.teal,
-  },
-
-  modalOptionText: {
-    fontSize: fonts.md,
-    fontWeight: "600",
-    color: colors.text,
-  },
-
-  modalCancelBtn: {
-    alignItems: "center",
-    paddingVertical: spacing.lg,
-    marginTop: spacing.sm,
-  },
-
-  modalCancelText: {
-    fontSize: fonts.md,
-    color: colors.textSecondary,
-    fontWeight: "600",
-  },
-
-  bellBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-
-    backgroundColor: colors.bgCard,
-    borderWidth: 1,
-    borderColor: colors.border,
-
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  // Health banner
-
-  banner: {
-    borderRadius: radius.xl,
-
-    borderWidth: 1,
-
-    borderColor: "rgba(139,92,246,0.2)",
-
-    padding: spacing.xl,
-
+    paddingBottom: 18,
     overflow: "hidden",
-
-    shadowColor: "#8B5CF6",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
-    shadowRadius: 14,
+    shadowColor: colors.teal,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.22,
+    shadowRadius: 18,
     elevation: 10,
   },
-
-  ecgDecor: { position: "absolute", left: 0, right: 0, top: 0, bottom: 0 },
-
-  ecgLine: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    height: 1,
-
-    backgroundColor: colors.teal,
-  },
-
-  ecgSpike: {
-    position: "absolute",
-    right: 60,
-    top: 28,
-
-    width: 2,
-    height: 28,
-
-    backgroundColor: colors.emergency,
-
-    opacity: 0.3,
-  },
-
-  bannerContent: {
+  heroDecor: { position: "absolute", left: 0, right: 0, top: 0, bottom: 0 },
+  heroLine: { position: "absolute", left: 0, right: 0, height: 1, backgroundColor: colors.teal },
+  heroStats: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "space-around",
+    marginBottom: 14,
   },
+  heroStat: { alignItems: "center", flex: 1 },
+  heroStatValue: { fontSize: 36, fontWeight: "800", color: colors.text, lineHeight: 40 },
+  heroStatLabel: { fontSize: fonts.xs, fontWeight: "700", color: colors.textSecondary, marginTop: 2 },
+  heroStatSub: { fontSize: 10, color: colors.textMuted, marginTop: 1, letterSpacing: 0.5 },
+  heroStatDivider: { width: 1, height: 44, backgroundColor: colors.border },
+  heroSub: { fontSize: fonts.sm, color: colors.textSecondary, textAlign: "center" },
 
-  bannerLabel: {
-    fontSize: fonts.xs,
-    fontWeight: "700",
-    color: colors.teal,
-    letterSpacing: 1.2,
+  // Quick actions
+  quickActionsScroll: { flexGrow: 0 },
+  quickActionsContent: { paddingHorizontal: spacing.xl, gap: spacing.sm, paddingVertical: 4 },
+  quickChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.full,
+    borderWidth: 1,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
   },
-
-  bannerStreak: {
-    fontSize: 52,
-    fontWeight: "800",
-    color: colors.text,
-    lineHeight: 56,
-  },
-
-  bannerDays: {
-    fontSize: fonts.xl,
-    fontWeight: "600",
-    color: colors.textSecondary,
-    paddingBottom: 6,
-  },
-
-  bannerSub: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 4 },
-
-  bannerChart: { alignItems: "center", gap: 6 },
-
-  bannerChartDot: {
-    position: "absolute",
-    top: -8,
-
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-
-    backgroundColor: colors.emergency,
-  },
-
-  bannerBpm: {
-    fontSize: fonts.xl,
-    fontWeight: "800",
-    color: colors.text,
-    marginTop: 4,
-  },
-
-  bannerBpmLabel: {
-    fontSize: fonts.xs,
-    color: colors.textSecondary,
-    fontWeight: "500",
-  },
+  quickChipIcon: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  quickChipLabel: { fontSize: fonts.sm, fontWeight: "600" },
 
   // Generic card
-
   card: {
     backgroundColor: colors.bgCard,
-
     borderRadius: radius.xl,
-
     borderWidth: 1,
-
     borderColor: colors.border,
-
     padding: spacing.lg,
-
     flexDirection: "row",
-
     alignItems: "center",
-
     gap: spacing.lg,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 4,
   },
 
   // Circle card text
-
   circleText: { flex: 1 },
-
-  protectedRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginBottom: 5,
-  },
-
-  pulseDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-    backgroundColor: colors.teal,
-  },
-
-  protectedLabel: {
-    fontSize: fonts.xs,
-    fontWeight: "700",
-    color: colors.teal,
-    letterSpacing: 1.5,
-  },
-
-  cardTitle: {
-    fontSize: fonts.md,
-    fontWeight: "700",
-    color: colors.text,
-    marginBottom: 4,
-  },
-
+  protectedRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 5 },
+  pulseDot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.teal },
+  protectedLabel: { fontSize: fonts.xs, fontWeight: "700", color: colors.teal, letterSpacing: 1.5 },
+  cardTitle: { fontSize: fonts.md, fontWeight: "700", color: colors.text, marginBottom: 4 },
   cardSub: { fontSize: fonts.sm, color: colors.textSecondary, lineHeight: 19 },
 
   // SOS
-
   sosBtn: {
     borderRadius: radius.xl,
-
     padding: spacing.lg,
-
-    paddingVertical: 18,
-
-    shadowColor: "#EF4444",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.45,
-    shadowRadius: 14,
-    elevation: 10,
+    paddingVertical: 20,
+    shadowColor: colors.emergency,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.5,
+    shadowRadius: 16,
+    elevation: 12,
   },
-
-  sosBtnInner: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
-  sosBtnTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#fff",
-    marginBottom: 3,
-  },
-
-  sosBtnSub: { fontSize: fonts.sm, color: "rgba(255,255,255,0.8)" },
-
+  sosBtnInner: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  sosBtnTitle: { fontSize: 18, fontWeight: "800", color: "#fff", marginBottom: 3 },
+  sosBtnSub: { fontSize: fonts.sm, color: "rgba(255,255,255,0.80)" },
   sosPowerWrap: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-
-    backgroundColor: "rgba(0,0,0,0.25)",
-
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "rgba(0,0,0,0.22)",
     alignItems: "center",
     justifyContent: "center",
   },
 
   // Medication
-
   medCard: {
     backgroundColor: colors.bgCard,
-
     borderRadius: radius.xl,
-
     borderWidth: 1,
     borderColor: colors.border,
-
     padding: spacing.lg,
-
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.md,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.22,
+    shadowRadius: 10,
+    elevation: 4,
   },
-
   medIconWrap: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     backgroundColor: colors.tealDim,
-
     alignItems: "center",
     justifyContent: "center",
-
     flexShrink: 0,
   },
-
   medInfo: { flex: 1 },
-
   medTime: { fontSize: fonts.xs, color: colors.textSecondary, marginBottom: 2 },
-
   medName: { fontSize: fonts.md, fontWeight: "700", color: colors.text },
-
   medDose: { fontSize: fonts.sm, color: colors.textSecondary },
-
   takenBtn: {
     backgroundColor: colors.teal,
-
     borderRadius: radius.full,
-
     paddingHorizontal: 18,
-
     paddingVertical: 10,
-
     flexShrink: 0,
+    shadowColor: colors.teal,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 4,
   },
-
-  takenBtnDone: { backgroundColor: colors.tealDim },
-
+  takenBtnDone: { backgroundColor: colors.tealDim, shadowOpacity: 0 },
   takenBtnText: { color: "#fff", fontWeight: "700", fontSize: fonts.sm },
 
-  // Grid
-
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.md },
-
-  gridItem: {
-    backgroundColor: colors.bgCard,
-
+  // Emergency
+  emergencyCard: {
+    backgroundColor: colors.emergencyDim,
     borderRadius: radius.xl,
-
     borderWidth: 1,
-    borderColor: colors.border,
-
+    borderColor: colors.emergency + "38",
     padding: spacing.lg,
-
-    gap: 6,
+    gap: spacing.md,
   },
-
-  gridIconBg: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-
+  emergencyHeader: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  emergencyIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.emergency + "20",
     alignItems: "center",
     justifyContent: "center",
-
-    marginBottom: 4,
+    flexShrink: 0,
   },
+  emergencyTitle: { fontSize: fonts.sm, fontWeight: "700", color: colors.emergency },
+  emergencyHospital: { fontSize: fonts.xs, color: colors.textSecondary, marginTop: 1 },
+  emergencyActions: {
+    flexDirection: "row",
+    backgroundColor: colors.emergency + "14",
+    borderRadius: radius.lg,
+    overflow: "hidden",
+  },
+  emergencyBtn: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 5,
+    paddingVertical: 11,
+  },
+  emergencyBtnText: { fontSize: fonts.sm, fontWeight: "700", color: colors.emergency },
+  emergencyBtnDivider: { width: 1, backgroundColor: colors.emergency + "30" },
 
+  // Grid
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: spacing.md },
+  gridItem: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    gap: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  gridIconBg: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 6,
+  },
   gridTitle: { fontSize: fonts.md, fontWeight: "700", color: colors.text },
-
   gridSub: { fontSize: fonts.sm, color: colors.textSecondary, lineHeight: 17 },
 
   // Weather
-
   weatherCard: {
     backgroundColor: colors.bgCard,
     borderRadius: radius.xl,
     borderWidth: 1,
-
     borderColor: colors.border,
     padding: spacing.lg,
     gap: spacing.md,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.22,
+    shadowRadius: 10,
+    elevation: 4,
   },
-
   weatherMain: { flexDirection: "row", alignItems: "center", gap: 10 },
-
   weatherIcon: { width: 52, height: 52 },
-
   weatherCity: { fontSize: fonts.sm, fontWeight: "700", color: colors.text },
-
-  weatherDesc: {
-    fontSize: fonts.xs,
-    color: colors.textSecondary,
-    marginTop: 2,
-    textTransform: "capitalize",
-  },
-
+  weatherDesc: { fontSize: fonts.xs, color: colors.textSecondary, marginTop: 2, textTransform: "capitalize" },
   weatherTemp: { fontSize: fonts.xxl, fontWeight: "800", color: colors.text },
-
   weatherFeels: { fontSize: fonts.xs, color: colors.textMuted },
-
-  weatherStatsRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.lg,
-  },
-
+  weatherStatsRow: { flexDirection: "row", alignItems: "center", gap: spacing.lg },
   weatherStat: { flexDirection: "row", alignItems: "center", gap: 4 },
-
   weatherStatTxt: { fontSize: fonts.xs, color: colors.textSecondary },
-
-  weatherMapLink: {
-    fontSize: fonts.xs,
-    color: colors.teal,
-    fontWeight: "700",
-    marginLeft: "auto",
-  },
-
+  weatherMapLink: { fontSize: fonts.xs, color: colors.teal, fontWeight: "700", marginLeft: "auto" },
   triggerRow: {
     flexDirection: "row",
     alignItems: "flex-start",
     gap: 6,
-
     backgroundColor: colors.amberDim,
     borderRadius: radius.sm,
-
     borderWidth: 1,
     borderColor: colors.amber + "40",
     padding: 10,
   },
-
-  triggerTxt: {
-    fontSize: fonts.xs,
-    color: colors.amber,
-    lineHeight: 17,
-    flex: 1,
-  },
-
+  triggerTxt: { fontSize: fonts.xs, color: colors.amber, lineHeight: 17, flex: 1 },
   forecastRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -1517,73 +1057,71 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
     paddingTop: spacing.sm,
   },
-
   forecastItem: { alignItems: "center", gap: 2, flex: 1 },
-
-  forecastDay: {
-    fontSize: fonts.xs,
-    color: colors.textMuted,
-    fontWeight: "600",
-  },
-
+  forecastDay: { fontSize: fonts.xs, color: colors.textMuted, fontWeight: "600" },
   forecastIcon: { width: 30, height: 30 },
-
   forecastHigh: { fontSize: fonts.sm, color: colors.text, fontWeight: "700" },
-
   forecastLow: { fontSize: fonts.xs, color: colors.textMuted },
 
+  // Crisis
   crisisCard: {
-    backgroundColor: "rgba(239,68,68,0.06)",
-    borderRadius: 16,
+    backgroundColor: "rgba(244,63,94,0.06)",
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: "rgba(239,68,68,0.25)",
-    padding: 16,
-    marginBottom: 16,
+    borderColor: "rgba(244,63,94,0.25)",
+    padding: spacing.lg,
   },
-
-  crisisHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 6,
-  },
-
-  crisisDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#EF4444",
-  },
-
-  crisisTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#EF4444",
-  },
-
-  crisisOrg: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#F5F0FF",
-    marginBottom: 2,
-  },
-
-  crisisLine: {
-    fontSize: 13,
-    color: "#9B96C0",
-    marginBottom: 14,
-  },
-
+  crisisHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 6 },
+  crisisDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.emergency },
+  crisisTitle: { fontSize: fonts.base, fontWeight: "700", color: colors.emergency },
+  crisisOrg: { fontSize: fonts.lg, fontWeight: "800", color: colors.text, marginBottom: 2 },
+  crisisLine: { fontSize: fonts.sm, color: colors.textSecondary, marginBottom: spacing.md },
   crisisCallBtn: {
-    backgroundColor: "#EF4444",
-    borderRadius: 12,
+    backgroundColor: colors.emergency,
+    borderRadius: radius.md,
     paddingVertical: 12,
     alignItems: "center",
+    shadowColor: colors.emergency,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 5,
   },
+  crisisCallText: { color: "#fff", fontWeight: "800", fontSize: fonts.base },
 
-  crisisCallText: {
-    color: "#fff",
-    fontWeight: "800",
-    fontSize: 14,
+  // Modal
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.65)", justifyContent: "flex-end" },
+  modalSheet: {
+    backgroundColor: colors.bgCardAlt,
+    borderTopLeftRadius: radius.xxl,
+    borderTopRightRadius: radius.xxl,
+    padding: spacing.xl,
+    paddingBottom: 40,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
+  modalHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: colors.border,
+    alignSelf: "center",
+    marginBottom: spacing.lg,
+  },
+  modalTitle: { fontSize: fonts.lg, fontWeight: "800", color: colors.text, marginBottom: spacing.md, textAlign: "center" },
+  modalOptions: { gap: spacing.sm, marginBottom: spacing.md },
+  modalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
+  },
+  modalOptionDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: colors.teal },
+  modalOptionText: { fontSize: fonts.md, fontWeight: "600", color: colors.text, flex: 1 },
+  modalCancelBtn: { alignItems: "center", paddingVertical: spacing.lg },
+  modalCancelText: { fontSize: fonts.md, color: colors.textSecondary, fontWeight: "600" },
 })

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+﻿import { useEffect, useState } from "react"
 
 import {
   View,
@@ -552,10 +552,10 @@ const styles = StyleSheet.create({
   inviteBtnText: { color: "#000", fontWeight: "700", fontSize: fonts.md },
 
   caregiverBanner: {
-    backgroundColor: "rgba(139,92,246,0.08)",
+    backgroundColor: "rgba(123,53,250,0.08)",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(139,92,246,0.20)",
+    borderColor: "rgba(123,53,250,0.20)",
     padding: 14,
     marginBottom: 16,
     flexDirection: "row",
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
 
   caregiverBannerLabel: {
     fontSize: 12,
-    color: "#9B96C0",
+    color: "#9490BF",
     fontWeight: "600",
   },
 
@@ -578,19 +578,19 @@ const styles = StyleSheet.create({
   patientPickerName: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#F5F0FF",
+    color: "#EDE8FF",
   },
 
   patientPickerChevron: {
     fontSize: 12,
-    color: "#8B5CF6",
+    color: "#7B35FA",
   },
 
   pickerDropdown: {
-    backgroundColor: "#14122A",
+    backgroundColor: "#0C0A1E",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#2E2B50",
+    borderColor: "#1E1B38",
     marginBottom: 12,
     overflow: "hidden",
   },
@@ -598,24 +598,24 @@ const styles = StyleSheet.create({
   pickerItem: {
     padding: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#2E2B50",
+    borderBottomColor: "#1E1B38",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
 
   pickerItemActive: {
-    backgroundColor: "rgba(139,92,246,0.08)",
+    backgroundColor: "rgba(123,53,250,0.08)",
   },
 
   pickerItemName: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#F5F0FF",
+    color: "#EDE8FF",
   },
 
   pickerItemRel: {
     fontSize: 12,
-    color: "#9B96C0",
+    color: "#9490BF",
   },
 })

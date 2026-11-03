@@ -858,7 +858,7 @@ function DeleteSheet({
 
 const del = StyleSheet.create({
   warningCard: {
-    backgroundColor: "rgba(239,68,68,0.08)",
+    backgroundColor: "rgba(244,63,94,0.08)",
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.emergency + "40",
@@ -1917,7 +1917,7 @@ export default function MeScreen() {
             activeOpacity={0.75}
             accessibilityRole="button"
           >
-            <IconBadge bg="rgba(139,92,246,0.12)">
+            <IconBadge bg="rgba(123,53,250,0.12)">
               <View
                 style={{
                   width: 14,
@@ -1996,7 +1996,7 @@ export default function MeScreen() {
           />
           <View style={s.divider} />
           <SettingRow
-            iconBg="rgba(239,68,68,0.10)"
+            iconBg="rgba(244,63,94,0.10)"
             icon={
               <View
                 style={{
@@ -2018,7 +2018,7 @@ export default function MeScreen() {
         <SectionHeader title="DEVICES" />
         <View style={s.card}>
           <SettingRow
-            iconBg="rgba(139,92,246,0.12)"
+            iconBg="rgba(123,53,250,0.12)"
             icon={
               <View
                 style={{
@@ -2082,7 +2082,7 @@ export default function MeScreen() {
           />
           <View style={s.divider} />
           <SettingRow
-            iconBg="rgba(139,92,246,0.12)"
+            iconBg="rgba(123,53,250,0.12)"
             icon={
               <View style={{ gap: 3 }}>
                 <View

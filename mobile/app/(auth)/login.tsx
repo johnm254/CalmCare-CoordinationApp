@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react"
+﻿import { useState, useRef, useEffect } from "react"
 import {
   View,
   Text,
@@ -376,7 +376,7 @@ export default function LoginScreen() {
               >
                 <LinearGradient
                   colors={
-                    loading ? ["#2E2B50", "#2E2B50"] : ["#8B5CF6", "#6D28D9"]
+                    loading ? ["#1E1B38", "#1E1B38"] : ["#7B35FA", "#6D28D9"]
                   }
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
@@ -406,7 +406,7 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#09090F" },
+  safe: { flex: 1, backgroundColor: "#04030D" },
   flex: { flex: 1 },
   container: { flexGrow: 1 },
 
@@ -429,19 +429,19 @@ const styles = StyleSheet.create({
     width: 96,
     height: 96,
     borderRadius: 48,
-    borderColor: "rgba(139,92,246,0.22)",
+    borderColor: "rgba(123,53,250,0.22)",
   },
   ringMid: {
     width: 66,
     height: 66,
     borderRadius: 33,
-    borderColor: "rgba(139,92,246,0.45)",
+    borderColor: "rgba(123,53,250,0.45)",
   },
   ringInner: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    borderColor: "rgba(139,92,246,0.75)",
+    borderColor: "rgba(123,53,250,0.75)",
   },
   ringCore: {
     width: 18,
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
     padding: spacing.xxl,
     paddingBottom: 48,
     flex: 1,
-    shadowColor: "#8B5CF6",
+    shadowColor: "#7B35FA",
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.12,
     shadowRadius: 20,
@@ -511,7 +511,7 @@ const styles = StyleSheet.create({
   },
   inputWrapperFocused: {
     borderColor: colors.teal,
-    backgroundColor: "rgba(139,92,246,0.05)",
+    backgroundColor: "rgba(123,53,250,0.05)",
     shadowColor: colors.teal,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.25,
@@ -527,7 +527,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: spacing.md,
     marginBottom: spacing.lg,
-    shadowColor: "#8B5CF6",
+    shadowColor: "#7B35FA",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.45,
     shadowRadius: 12,
