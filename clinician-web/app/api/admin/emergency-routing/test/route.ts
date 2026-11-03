@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     if (provider.endpoint_url) {
       try {
         const apiKey = provider.api_key_env
-          ? Deno?.env?.get(provider.api_key_env) ?? process.env[provider.api_key_env]
+          ? process.env[provider.api_key_env]
           : undefined;
 
         const resp = await fetch(provider.endpoint_url, {
