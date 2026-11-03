@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 import {
   View,
@@ -10,13 +10,15 @@ import {
   ActivityIndicator,
 } from "react-native"
 
-import { SafeAreaView } from "react-native-safe-area-context"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { router, useFocusEffect } from "expo-router"
 
 import { useCallback } from "react"
 
-import { colors, fonts, radius, spacing } from "../../lib/theme"
+import { Ionicons } from "@expo/vector-icons"
+
+import { colors, fonts, radius, spacing, shadows } from "../../lib/theme"
 
 import { useAuth } from "../_layout"
 
@@ -31,32 +33,44 @@ import {
   type LinkedPatient,
 } from "../../lib/supabase"
 
-const GRANT_LABELS: { key: GrantKey; label: string; sub: string }[] = [
+import { TAB_BOTTOM, TAB_HEIGHT } from "./_layout"
+
+const GRANT_LABELS: {
+  key: GrantKey
+  label: string
+  sub: string
+  icon: keyof typeof Ionicons.glyphMap
+}[] = [
   {
     key: "emergency_alerts",
     label: "Emergency alerts",
     sub: "Receive your SOS with location",
+    icon: "alert-circle",
   },
-
   {
     key: "medication_schedule",
     label: "Medication schedule",
     sub: "Doses and reminders",
+    icon: "medical",
   },
-
   {
     key: "appointments",
     label: "Appointments",
     sub: "Dates and clinic details",
+    icon: "calendar",
   },
-
   {
     key: "event_summaries",
     label: "Event summaries",
     sub: "What happened, without notes",
+    icon: "document-text",
   },
-
-  { key: "records", label: "Records", sub: "Reports and documents" },
+  {
+    key: "records",
+    label: "Records",
+    sub: "Reports and documents",
+    icon: "folder",
+  },
 ]
 
 type ContactWithGrants = CareCircleMember & {
@@ -87,6 +101,8 @@ function ChevronIcon({ open }: { open: boolean }) {
 
 export default function CircleScreen() {
   const { profile, session, activePatientId, setActivePatientId } = useAuth()
+  const insets = useSafeAreaInsets()
+  const bottomPad = TAB_HEIGHT + TAB_BOTTOM + insets.bottom + 16
 
   const [contacts, setContacts] = useState<ContactWithGrants[]>([])
 
@@ -173,10 +189,10 @@ export default function CircleScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <View style={styles.safe}>
       <ScrollView
         style={styles.scroll}
-        contentContainerStyle={styles.container}
+        contentContainerStyle={[styles.container, { paddingBottom: bottomPad }]}
         showsVerticalScrollIndicator={false}
       >
         {isCaregiver && (
@@ -188,7 +204,8 @@ export default function CircleScreen() {
               activeOpacity={0.8}
             >
               <Text style={styles.patientPickerName}>
-                {linkedPatients.find(p => p.patient_id === activePatientId)?.full_name ?? "Select patient"}
+                {linkedPatients.find((p) => p.patient_id === activePatientId)
+                  ?.full_name ?? "Select patient"}
               </Text>
               <Text style={styles.patientPickerChevron}>▾</Text>
             </TouchableOpacity>
@@ -210,17 +227,27 @@ export default function CircleScreen() {
                 }}
                 activeOpacity={0.8}
               >
-                <Text style={styles.pickerItemName}>{p.full_name ?? "Unknown"}</Text>
+                <Text style={styles.pickerItemName}>
+                  {p.full_name ?? "Unknown"}
+                </Text>
                 <Text style={styles.pickerItemRel}>{p.relationship}</Text>
               </TouchableOpacity>
             ))}
           </View>
         )}
 
-        <Text style={styles.title}>Care Circle</Text>
-        <Text style={styles.description}>
-          You decide who sees what. Changes take effect immediately.
-        </Text>
+        {/* Premium intro block */}
+        <View style={styles.headerBlock}>
+          <Text style={styles.title}>Care Circle</Text>
+          <Text style={styles.subtitle}>You decide who sees what.</Text>
+          {!loading && (
+            <View style={styles.memberChip}>
+              <Text style={styles.memberChipText}>
+                {contacts.length} members
+              </Text>
+            </View>
+          )}
+        </View>
 
         {loading ? (
           <ActivityIndicator
@@ -291,9 +318,14 @@ export default function CircleScreen() {
                       <Text style={styles.avatarText}>{initials}</Text>
                     </View>
                     <View style={styles.contactInfo}>
-                      <Text style={styles.contactName}>
-                        {contact.full_name}
-                      </Text>
+                      <View style={styles.nameRow}>
+                        <Text style={styles.contactName}>
+                          {contact.full_name}
+                        </Text>
+                        {contact.is_emergency && (
+                          <View style={styles.emergencyDot} />
+                        )}
+                      </View>
                       <Text style={styles.contactRole}>
                         {contact.relationship}
                         {contact.is_emergency ? " · emergency contact" : ""}
@@ -312,11 +344,19 @@ export default function CircleScreen() {
 
                 {isOpen && (
                   <View style={styles.grantList}>
-                    {GRANT_LABELS.map(({ key, label, sub }) => {
+                    {GRANT_LABELS.map(({ key, label, sub, icon }) => {
                       const savingThis = saving === `${contact.id}-${key}`
+                      const granted = contact.grants[key]
 
                       return (
                         <View key={key} style={styles.grantRow}>
+                          <View style={styles.grantIconWrap}>
+                            <Ionicons
+                              name={icon}
+                              size={16}
+                              color={granted ? colors.teal : colors.textMuted}
+                            />
+                          </View>
                           <View style={styles.grantInfo}>
                             <Text style={styles.grantLabel}>{label}</Text>
                             <Text style={styles.grantSub}>{sub}</Text>
@@ -368,7 +408,7 @@ export default function CircleScreen() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 
@@ -377,27 +417,41 @@ const styles = StyleSheet.create({
 
   scroll: { flex: 1 },
 
-  container: { padding: spacing.lg, paddingBottom: 40 },
+  container: { padding: spacing.lg },
+
+  // ─── Premium header block ──────────────────────────────────────────────────
+  headerBlock: {
+    marginBottom: spacing.xl,
+  },
 
   title: {
     fontSize: fonts.xxl,
     fontWeight: "800",
     color: colors.text,
+    marginBottom: spacing.xs,
+  },
+
+  subtitle: {
+    fontSize: fonts.sm,
+    color: colors.textSecondary,
     marginBottom: spacing.sm,
   },
 
-  description: {
-    fontSize: fonts.sm,
-
-    color: colors.textSecondary,
-
-    lineHeight: 20,
-
-    marginBottom: spacing.xl,
-
-    paddingHorizontal: spacing.xs,
+  memberChip: {
+    alignSelf: "flex-start",
+    backgroundColor: colors.tealMuted,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.md,
+    paddingVertical: 4,
   },
 
+  memberChipText: {
+    fontSize: fonts.sm,
+    color: colors.teal,
+    fontWeight: "700",
+  },
+
+  // ─── Empty state ───────────────────────────────────────────────────────────
   emptyCard: {
     backgroundColor: colors.bgCard,
     borderRadius: radius.lg,
@@ -429,6 +483,7 @@ const styles = StyleSheet.create({
 
   emptySub: { color: colors.textSecondary, fontSize: fonts.sm },
 
+  // ─── Contact cards ─────────────────────────────────────────────────────────
   contactCard: {
     backgroundColor: colors.bgCard,
 
@@ -441,6 +496,8 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
 
     overflow: "hidden",
+
+    ...shadows.sm,
   },
 
   contactHeader: {
@@ -459,11 +516,11 @@ const styles = StyleSheet.create({
   },
 
   avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
 
-    backgroundColor: colors.tealMuted,
+    backgroundColor: colors.heroCard,
 
     alignItems: "center",
     justifyContent: "center",
@@ -472,11 +529,24 @@ const styles = StyleSheet.create({
     borderColor: colors.teal,
   },
 
-  avatarText: { color: colors.teal, fontWeight: "700", fontSize: fonts.lg },
+  avatarText: { color: "#FFFFFF", fontWeight: "700", fontSize: fonts.lg },
 
   contactInfo: { flex: 1 },
 
+  nameRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+
   contactName: { fontSize: fonts.md, fontWeight: "700", color: colors.text },
+
+  emergencyDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.emergency,
+  },
 
   contactRole: {
     fontSize: fonts.sm,
@@ -487,7 +557,7 @@ const styles = StyleSheet.create({
   headerRight: { flexDirection: "row", alignItems: "center", gap: spacing.md },
 
   grantBadge: {
-    backgroundColor: colors.tealBadge,
+    backgroundColor: colors.irisDim,
 
     borderRadius: radius.full,
 
@@ -496,8 +566,13 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
 
-  grantBadgeText: { fontSize: fonts.sm, color: colors.teal, fontWeight: "600" },
+  grantBadgeText: {
+    fontSize: fonts.sm,
+    color: colors.iris,
+    fontWeight: "600",
+  },
 
+  // ─── Grant list ────────────────────────────────────────────────────────────
   grantList: {
     borderTopWidth: 1,
     borderTopColor: colors.border,
@@ -515,6 +590,12 @@ const styles = StyleSheet.create({
 
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+
+  grantIconWrap: {
+    width: 24,
+    alignItems: "center",
+    marginRight: spacing.sm,
   },
 
   grantInfo: { flex: 1, marginRight: spacing.md },
@@ -537,6 +618,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 
+  // ─── Invite button ─────────────────────────────────────────────────────────
   inviteBtn: {
     backgroundColor: colors.teal,
 
@@ -549,8 +631,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
 
-  inviteBtnText: { color: "#000", fontWeight: "700", fontSize: fonts.md },
+  inviteBtnText: { color: "#FFFFFF", fontWeight: "700", fontSize: fonts.md },
 
+  // ─── Caregiver banner ──────────────────────────────────────────────────────
   caregiverBanner: {
     backgroundColor: "rgba(20,184,166,0.08)",
     borderRadius: 12,

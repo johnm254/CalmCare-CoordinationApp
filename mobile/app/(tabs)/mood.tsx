@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import {
   View,
   Text,
@@ -11,19 +11,20 @@ import {
   Linking,
   ActivityIndicator,
 } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { router } from "expo-router"
 import { colors, fonts, radius, spacing } from "../../lib/theme"
 import { supabase } from "../../lib/supabase"
 import { useAuth } from "../_layout"
 import { useTranslation } from "../../lib/i18n-context"
+import { TAB_BOTTOM, TAB_HEIGHT } from "./_layout"
 
 const MOOD_OPTIONS = [
-  { score: 1, labelKey: "mood_score_1" as const, color: "#F43F5E" },
-  { score: 2, labelKey: "mood_score_2" as const, color: "#F97316" },
-  { score: 3, labelKey: "mood_score_3" as const, color: "#F4B860" },
-  { score: 4, labelKey: "mood_score_4" as const, color: "#22C87A" },
-  { score: 5, labelKey: "mood_score_5" as const, color: "#00BFA6" },
+  { score: 1, labelKey: "mood_score_1" as const, color: "#F43F5E", emoji: "😔" },
+  { score: 2, labelKey: "mood_score_2" as const, color: "#F97316", emoji: "😟" },
+  { score: 3, labelKey: "mood_score_3" as const, color: "#F4B860", emoji: "😐" },
+  { score: 4, labelKey: "mood_score_4" as const, color: "#22C87A", emoji: "🙂" },
+  { score: 5, labelKey: "mood_score_5" as const, color: "#00BFA6", emoji: "😊" },
 ]
 
 type MoodLog = {
@@ -46,6 +47,9 @@ function formatDay(iso: string) {
 export default function MoodScreen() {
   const { session } = useAuth()
   const { t } = useTranslation()
+  const insets = useSafeAreaInsets()
+  const bottomPad = TAB_HEIGHT + TAB_BOTTOM + insets.bottom + 16
+
   const [selectedScore, setSelectedScore] = useState<number | null>(null)
   const [note, setNote] = useState("")
   const [noteFocused, setNoteFocused] = useState(false)
@@ -118,18 +122,21 @@ export default function MoodScreen() {
     history.some((h) => h.score <= 2)
 
   return (
-    <SafeAreaView style={styles.safe} edges={["bottom"]}>
+    <View style={styles.safe}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
         <ScrollView
-          contentContainerStyle={styles.container}
+          contentContainerStyle={[styles.container, { paddingBottom: bottomPad }]}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
           {/* Heading */}
           <Text style={styles.heading}>{t("mood_heading")}</Text>
+          <Text style={styles.headingSubtitle}>
+            Your mood is private — only you can see it.
+          </Text>
 
           {/* Mood selector */}
           <View style={styles.moodRow}>
@@ -154,9 +161,7 @@ export default function MoodScreen() {
                       },
                     ]}
                   >
-                    <Text style={[styles.moodScore, { color: active ? "#fff" : opt.color }]}>
-                      {opt.score}
-                    </Text>
+                    <Text style={styles.moodEmoji}>{opt.emoji}</Text>
                   </View>
                   <Text
                     style={[
@@ -248,25 +253,36 @@ export default function MoodScreen() {
           {/* 7-day history */}
           <Text style={styles.sectionLabel}>{t("mood_history_label")}</Text>
           {loadingHistory ? (
-            <ActivityIndicator color={colors.teal} style={{ marginVertical: spacing.xl }} />
+            <ActivityIndicator
+              color={colors.teal}
+              style={{ marginVertical: spacing.xl }}
+            />
           ) : history.length === 0 ? (
             <Text style={styles.emptyText}>{t("mood_history_empty")}</Text>
           ) : (
-            <View style={styles.historyRow}>
-              {history.map((log) => {
-                const moodOpt = MOOD_OPTIONS.find((m) => m.score === log.score)
-                return (
-                  <View key={log.id} style={styles.historyItem}>
-                    <View
-                      style={[
-                        styles.historyDot,
-                        { backgroundColor: moodOpt?.color ?? colors.teal },
-                      ]}
-                    />
-                    <Text style={styles.historyDay}>{formatDay(log.logged_at)}</Text>
-                  </View>
-                )
-              })}
+            <View style={styles.historyCard}>
+              <View style={styles.historyRow}>
+                {history.map((log) => {
+                  const moodOpt = MOOD_OPTIONS.find((m) => m.score === log.score)
+                  const barHeight = 12 + (log.score - 1) * 10
+                  return (
+                    <View key={log.id} style={styles.historyBarItem}>
+                      <View
+                        style={[
+                          styles.historyBar,
+                          {
+                            height: barHeight,
+                            backgroundColor: moodOpt?.color ?? colors.teal,
+                          },
+                        ]}
+                      />
+                      <Text style={styles.historyDay}>
+                        {formatDay(log.logged_at)}
+                      </Text>
+                    </View>
+                  )
+                })}
+              </View>
             </View>
           )}
 
@@ -297,7 +313,7 @@ export default function MoodScreen() {
           )}
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   )
 }
 
@@ -307,14 +323,19 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.lg,
     paddingTop: spacing.xl,
-    paddingBottom: spacing.xxxl,
   },
 
   heading: {
-    fontSize: fonts.xl,
+    fontSize: fonts.xxl,
     fontWeight: "800",
     color: colors.text,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.xs,
+  },
+
+  headingSubtitle: {
+    fontSize: fonts.sm,
+    color: colors.textMuted,
+    marginBottom: spacing.md,
   },
 
   moodRow: {
@@ -324,14 +345,14 @@ const styles = StyleSheet.create({
   },
   moodOption: { alignItems: "center", flex: 1 },
   moodCircle: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: spacing.xs,
   },
-  moodScore: { fontSize: fonts.lg, fontWeight: "800" },
+  moodEmoji: { fontSize: 26 },
   moodLabel: { fontSize: 10, fontWeight: "600", textAlign: "center" },
 
   inputWrapper: {
@@ -358,7 +379,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
     shadowColor: colors.teal,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.35,
     shadowRadius: 12,
     elevation: 8,
   },
@@ -387,8 +408,16 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   confirmedDot: { width: 12, height: 12, borderRadius: 6 },
-  confirmedTitle: { fontSize: fonts.base, fontWeight: "700", color: colors.text },
-  confirmedDate: { fontSize: fonts.sm, color: colors.textSecondary, marginTop: 2 },
+  confirmedTitle: {
+    fontSize: fonts.base,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  confirmedDate: {
+    fontSize: fonts.sm,
+    color: colors.textSecondary,
+    marginTop: 2,
+  },
   logAgainBtn: { marginLeft: "auto" },
   logAgainText: { fontSize: fonts.sm, color: colors.teal, fontWeight: "700" },
 
@@ -414,15 +443,38 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginBottom: spacing.xxl,
   },
-  historyRow: {
-    flexDirection: "row",
-    gap: spacing.md,
+
+  // ─── Bar chart history ─────────────────────────────────────────────────────
+  historyCard: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    padding: spacing.lg,
     marginBottom: spacing.xxl,
   },
-  historyItem: { alignItems: "center", gap: spacing.xs },
-  historyDot: { width: 28, height: 28, borderRadius: 14 },
-  historyDay: { fontSize: fonts.xs, color: colors.textMuted, fontWeight: "600" },
+  historyRow: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "flex-end",
+  },
+  historyBarItem: {
+    alignItems: "center",
+    gap: spacing.xs,
+    justifyContent: "flex-end",
+    minHeight: 60,
+  },
+  historyBar: {
+    width: 28,
+    borderRadius: 4,
+  },
+  historyDay: {
+    fontSize: fonts.xs,
+    color: colors.textMuted,
+    fontWeight: "600",
+  },
 
+  // ─── Crisis card ───────────────────────────────────────────────────────────
   crisisCard: {
     backgroundColor: colors.emergencyDim,
     borderRadius: radius.lg,
@@ -473,5 +525,9 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     alignItems: "center",
   },
-  crisisSosBtnText: { color: colors.emergency, fontWeight: "700", fontSize: fonts.sm },
+  crisisSosBtnText: {
+    color: colors.emergency,
+    fontWeight: "700",
+    fontSize: fonts.sm,
+  },
 })

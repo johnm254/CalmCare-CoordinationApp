@@ -14,15 +14,20 @@ import {
   StyleSheet,
   ActivityIndicator,
   RefreshControl,
+  StatusBar,
 } from "react-native"
 
-import { SafeAreaView } from "react-native-safe-area-context"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { useFocusEffect } from "expo-router"
 
-import { colors, fonts, radius, spacing } from "../../lib/theme"
+import { Ionicons } from "@expo/vector-icons"
+
+import { colors, fonts, radius, spacing, shadows } from "../../lib/theme"
 
 import { useAuth } from "../_layout"
+
+import { TAB_BOTTOM, TAB_HEIGHT } from "./_layout"
 
 import {
   initializeDB,
@@ -37,71 +42,13 @@ import { useTranslation } from "../../lib/i18n-context"
 
 function PillIcon({ color = colors.teal }: { color?: string }) {
   return (
-    <View
-      style={{
-        width: 32,
-        height: 32,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <View
-        style={{
-          width: 20,
-          height: 10,
-          borderRadius: 5,
-          backgroundColor: color,
-          marginBottom: 2,
-        }}
-      />
-      <View
-        style={{
-          width: 20,
-          height: 10,
-          borderRadius: 5,
-          backgroundColor: color,
-          opacity: 0.5,
-        }}
-      />
-    </View>
+    <Ionicons name="medical" size={22} color={color} />
   )
 }
 
 function CheckIcon() {
   return (
-    <View
-      style={{
-        width: 16,
-        height: 16,
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <View
-        style={{
-          position: "absolute",
-          width: 10,
-          height: 2,
-          backgroundColor: colors.bg,
-          borderRadius: 1,
-          transform: [{ rotate: "40deg" }, { translateX: -1 }],
-        }}
-      />
-      <View
-        style={{
-          position: "absolute",
-          width: 6,
-          height: 2,
-          backgroundColor: colors.bg,
-          borderRadius: 1,
-          transform: [
-            { rotate: "-50deg" },
-            { translateX: 3 },
-            { translateY: 2 },
-          ],
-        }}
-      />
-    </View>
+    <Ionicons name="checkmark" size={14} color={colors.bg} />
   )
 }
 
@@ -129,6 +76,10 @@ export default function MedsScreen() {
   const { session } = useAuth()
 
   const { t } = useTranslation()
+
+  const insets = useSafeAreaInsets()
+
+  const bottomPad = TAB_HEIGHT + TAB_BOTTOM + insets.bottom + 16
 
   const [doses, setDoses] = useState<DoseSlot[]>([])
 
@@ -232,21 +183,35 @@ export default function MedsScreen() {
 
   const missed = doses.filter((d) => d.status === "missed")
 
+  // ─── Hero card derivations ─────────────────────────────────────────────────
+
+  const takenCount = doses.filter((d) => d.status === "taken").length
+
+  const totalToday = doses.length
+
+  const heroPct = Math.round((takenCount / Math.max(totalToday, 1)) * 100)
+
   if (loading) {
     return (
-      <SafeAreaView style={styles.safe} edges={["bottom"]}>
+      <View style={styles.safe}>
+        <StatusBar barStyle="dark-content" />
         <View style={styles.centered}>
           <ActivityIndicator color={colors.teal} size="large" />
         </View>
-      </SafeAreaView>
+      </View>
     )
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={["bottom"]}>
+    <View style={{ flex: 1, backgroundColor: colors.bg }}>
+      <StatusBar barStyle="dark-content" />
+
       <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.container}
+        style={{ flex: 1 }}
+        contentContainerStyle={[
+          styles.container,
+          { paddingBottom: bottomPad },
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -260,6 +225,21 @@ export default function MedsScreen() {
           />
         }
       >
+        {/* ── Adherence hero card ──────────────────────────────────────────── */}
+        <View style={styles.heroCard}>
+          <View style={styles.heroLeft}>
+            <Text style={styles.heroPct}>{heroPct}%</Text>
+            <Text style={styles.heroSubLabel}>30-day adherence</Text>
+          </View>
+          <View style={styles.heroRight}>
+            <Text style={styles.heroTakenNum}>{takenCount}</Text>
+            <Text style={styles.heroTakenLabel}>doses today</Text>
+            <Text style={[styles.heroTakenNum, { fontSize: fonts.sm, marginTop: 4 }]}>
+              of {totalToday}
+            </Text>
+          </View>
+        </View>
+
         {/* Disclaimer — CR-MED-11 */}
         <View style={styles.disclaimer}>
           <Text style={styles.disclaimerText}>{t("meds_disclaimer")}</Text>
@@ -348,7 +328,7 @@ export default function MedsScreen() {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }
 
@@ -384,7 +364,7 @@ function DoseCard({
       : colors.border
 
   return (
-    <View style={[styles.card, { borderColor: cardBorderColor }]}>
+    <View style={[styles.card, { borderColor: cardBorderColor }, shadows.sm]}>
       <View style={styles.cardLeft}>
         <PillIcon
           color={
@@ -450,9 +430,58 @@ const styles = StyleSheet.create({
 
   scroll: { flex: 1 },
 
-  container: { padding: spacing.xl, paddingBottom: spacing.xxxl },
+  container: { padding: spacing.xl },
 
   centered: { flex: 1, alignItems: "center", justifyContent: "center" },
+
+  // ─── Hero card ──────────────────────────────────────────────────────────────
+
+  heroCard: {
+    backgroundColor: colors.heroCard,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: spacing.lg,
+    ...shadows.glowLagoon,
+  },
+
+  heroLeft: {
+    flex: 1,
+  },
+
+  heroPct: {
+    fontSize: fonts.xxxl,
+    fontWeight: "900",
+    color: "#FFFFFF",
+    lineHeight: fonts.xxxl + 4,
+  },
+
+  heroSubLabel: {
+    fontSize: fonts.sm,
+    color: "rgba(255,255,255,0.5)",
+    marginTop: 4,
+  },
+
+  heroRight: {
+    alignItems: "flex-end",
+  },
+
+  heroTakenNum: {
+    fontSize: fonts.xxl,
+    fontWeight: "800",
+    color: "#FFFFFF",
+    lineHeight: fonts.xxl + 2,
+  },
+
+  heroTakenLabel: {
+    fontSize: fonts.sm,
+    color: "rgba(255,255,255,0.5)",
+    marginTop: 2,
+  },
+
+  // ─── Adherence section ──────────────────────────────────────────────────────
 
   adherenceCard: {
     backgroundColor: colors.bgCard,
@@ -487,15 +516,15 @@ const styles = StyleSheet.create({
 
   adherenceBarBg: {
     flex: 1,
-    height: 6,
+    height: 8,
     backgroundColor: colors.bgCardAlt,
-    borderRadius: 3,
+    borderRadius: 4,
     overflow: "hidden",
   },
 
   adherenceBarFill: {
-    height: 6,
-    borderRadius: 3,
+    height: 8,
+    borderRadius: 4,
   },
 
   adherencePct: {
@@ -505,6 +534,8 @@ const styles = StyleSheet.create({
     textAlign: "right",
     flexShrink: 0,
   },
+
+  // ─── Disclaimer ─────────────────────────────────────────────────────────────
 
   disclaimer: {
     backgroundColor: colors.amberDim,
@@ -530,6 +561,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
+  // ─── Sections ───────────────────────────────────────────────────────────────
+
   section: { marginBottom: spacing.xl },
 
   sectionLabel: {
@@ -543,6 +576,8 @@ const styles = StyleSheet.create({
 
     marginBottom: spacing.md,
   },
+
+  // ─── Dose card ──────────────────────────────────────────────────────────────
 
   card: {
     backgroundColor: colors.bgCard,
@@ -641,6 +676,8 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     fontSize: fonts.sm,
   },
+
+  // ─── Empty state ─────────────────────────────────────────────────────────────
 
   empty: {
     alignItems: "center",

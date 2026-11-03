@@ -16,7 +16,7 @@ import {
   Platform,
 } from "react-native"
 
-import { SafeAreaView } from "react-native-safe-area-context"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { router } from "expo-router"
 
@@ -29,6 +29,8 @@ import { useAuth } from "../_layout"
 import { supabase } from "../../lib/supabase"
 
 import { useTranslation } from "../../lib/i18n-context"
+
+import { TAB_BOTTOM, TAB_HEIGHT } from "./_layout"
 
 import { scanForStraps, stopScan, connectToStrap, disconnectStrap, type ScanResult } from "../../lib/ble-strap"
 
@@ -1597,6 +1599,10 @@ export default function MeScreen() {
 
   const { locale, setLocale } = useTranslation()
 
+  const insets = useSafeAreaInsets()
+
+  const bottomPad = TAB_HEIGHT + TAB_BOTTOM + insets.bottom + 16
+
   // Modal
 
   const [openModal, setOpenModal] = useState<ModalKey | null>(null)
@@ -1760,10 +1766,10 @@ export default function MeScreen() {
   }
 
   return (
-    <SafeAreaView style={s.safe} edges={["bottom"]}>
+    <View style={s.safe}>
       <ScrollView
         style={s.scroll}
-        contentContainerStyle={s.container}
+        contentContainerStyle={[s.container, { paddingBottom: bottomPad }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Profile card */}
@@ -2225,7 +2231,7 @@ export default function MeScreen() {
         visible={openModal === "addons"}
         onClose={() => setOpenModal(null)}
       />
-    </SafeAreaView>
+    </View>
   )
 }
 
