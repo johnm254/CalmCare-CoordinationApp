@@ -111,29 +111,29 @@ export default function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-56 flex-shrink-0 bg-[#07060E] border-r border-[#2E2B50] flex flex-col">
+    <aside className="w-56 flex-shrink-0 bg-[#FFFFFF] border-r border-[#E6ECF2] flex flex-col">
       {/* Logo */}
-      <div className="px-5 pt-6 pb-5 border-b border-[#2E2B50]">
+      <div className="px-5 pt-6 pb-5 border-b border-[#E6ECF2]">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0D9488] to-[#0891B2] flex items-center justify-center flex-shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-5 h-5" aria-label="Mojo">
-          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
-          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
-          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
-          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
-          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="rgba(255,255,255,0.15)"/>
+          <rect x="16" y="16" width="12" height="64" fill="white"/>
+          <rect x="68" y="16" width="12" height="64" fill="white"/>
+          <polygon points="16,16 28,16 55,52 44,52" fill="white"/>
+          <polygon points="68,16 80,16 55,52 44,52" fill="white"/>
         </svg>
           </div>
           <div>
-            <p className="text-[#F5F0FF] font-bold text-base leading-none">Mojo</p>
-            <p className="text-[#504C78] text-xs mt-0.5">Admin Panel</p>
+            <p className="text-[#0F1B2D] font-bold text-base leading-none">Mojo</p>
+            <p className="text-[#8C9AAB] text-xs mt-0.5">Admin Panel</p>
           </div>
         </div>
       </div>
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-5 space-y-1">
-        <p className="text-[#504C78] text-[10px] font-semibold uppercase tracking-widest px-3 mb-3">Main Menu</p>
+        <p className="text-[#8C9AAB] text-[10px] font-semibold uppercase tracking-widest px-3 mb-3">Main Menu</p>
         {NAV.map((item) => {
           const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           return (
@@ -142,11 +142,11 @@ export default function AdminSidebar() {
               href={item.href}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 active
-                  ? 'bg-[#8B5CF6]/15 text-[#8B5CF6] border border-[#8B5CF6]/20'
-                  : 'text-[#9B96C0] hover:bg-[#2E2B50] hover:text-[#F5F0FF]'
+                  ? 'bg-[#14B8A6]/10 text-[#14B8A6] border border-[#14B8A6]/20'
+                  : 'text-[#5B6B7F] hover:bg-[#F1F5FA] hover:text-[#0F1B2D]'
               }`}
             >
-              <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${active ? 'bg-gradient-to-br ' + item.color + ' text-white' : 'bg-[#2E2B50] text-[#9B96C0]'}`}>
+              <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${active ? 'bg-gradient-to-br ' + item.color + ' text-white' : 'bg-[#F1F5FA] text-[#5B6B7F]'}`}>
                 {item.icon}
               </span>
               {item.label}
@@ -156,14 +156,14 @@ export default function AdminSidebar() {
       </nav>
 
       {/* System status */}
-      <div className="mx-3 mb-4 p-4 rounded-2xl bg-[#14122A] border border-[#2E2B50]">
-        <p className="text-[#9B96C0] text-[10px] font-semibold uppercase tracking-widest mb-2">System Status</p>
+      <div className="mx-3 mb-4 p-4 rounded-2xl bg-[#F1F5FA] border border-[#E6ECF2]">
+        <p className="text-[#8C9AAB] text-[10px] font-semibold uppercase tracking-widest mb-2">System Status</p>
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
           </span>
-          <p className="text-[#F5F0FF] text-xs font-medium">All Systems Operational</p>
+          <p className="text-[#0F1B2D] text-xs font-medium">All Systems Operational</p>
         </div>
       </div>
     </aside>

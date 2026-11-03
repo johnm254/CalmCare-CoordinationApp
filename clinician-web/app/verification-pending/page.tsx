@@ -6,7 +6,7 @@ function PendingIcon() {
   return (
     <div className="relative w-24 h-24 flex items-center justify-center" aria-hidden="true">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="absolute inset-0 w-full h-full" aria-label="Mojo">
-          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0D9488"/>
           <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
           <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
           <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
@@ -71,7 +71,7 @@ export default async function VerificationPendingPage() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-10">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-10 h-10" aria-label="Mojo logo">
-          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0D9488"/>
           <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
           <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
           <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>

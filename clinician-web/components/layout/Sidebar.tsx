@@ -100,38 +100,38 @@ export default function Sidebar({ profile }: Props) {
 
   const roleBadge = isAdmin
     ? { label: 'Admin', bg: 'bg-[rgba(244,184,96,0.15)]', text: 'text-[#F4B860]', border: 'border-[#F4B860]/30' }
-    : { label: 'Clinician', bg: 'bg-[rgba(139,92,246,0.12)]', text: 'text-[#8B5CF6]', border: 'border-[#8B5CF6]/30' };
+    : { label: 'Clinician', bg: 'bg-[rgba(20,184,166,0.12)]', text: 'text-[#14B8A6]', border: 'border-[#14B8A6]/30' };
 
   return (
-    <aside className="w-60 min-h-screen bg-[#07060E] border-r border-[#2E2B50] flex flex-col fixed top-0 left-0 z-20">
+    <aside className="w-60 min-h-screen bg-[#FFFFFF] border-r border-[#E6ECF2] flex flex-col fixed top-0 left-0 z-20">
       {/* Brand with Mojo logomark */}
-      <div className="px-5 py-5 border-b border-[#2E2B50]">
+      <div className="px-5 py-5 border-b border-[#E6ECF2]">
         <div className="flex items-center gap-3">
           {/* Mojo M logomark */}
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width={28} height={28} aria-hidden="true">
-            <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+            <rect x="4" y="4" width="88" height="88" rx="18" fill="#0D9488"/>
             <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
             <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
             <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
             <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
           </svg>
           <div>
-            <p className="text-[#F5F0FF] font-bold text-base leading-none">Mojo</p>
-            <p className="text-[#504C78] text-xs mt-0.5">Clinician & Nurse Portal</p>
+            <p className="text-[#0F1B2D] font-bold text-base leading-none">Mojo</p>
+            <p className="text-[#8C9AAB] text-xs mt-0.5">Clinician & Nurse Portal</p>
           </div>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="flex-1 py-5 px-3 overflow-y-auto">
-        <p className="text-[#504C78] text-xs font-semibold uppercase tracking-widest px-3 mb-3">Navigation</p>
+        <p className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-widest px-3 mb-3">Navigation</p>
         <div className="space-y-0.5">
           {NAV_ITEMS.map((item) => (
             <Link key={item.href} href={item.href}>
               <div className={`flex items-center gap-3 py-2.5 rounded-xl transition-all cursor-pointer border-l-2 pl-[10px] pr-3 ${
                 isActive(item.href)
-                  ? 'bg-[#8B5CF6]/10 text-[#8B5CF6] border-[#8B5CF6]'
-                  : 'text-[#9B96C0] hover:bg-[#14122A] hover:text-[#F5F0FF] border-transparent'
+                  ? 'bg-[#14B8A6]/10 text-[#14B8A6] border-[#14B8A6]'
+                  : 'text-[#5B6B7F] hover:bg-[#F1F5FA] hover:text-[#0F1B2D] border-transparent'
               }`}>
                 {item.icon}
                 <span className="font-medium text-sm flex-1">{item.label}</span>
@@ -146,14 +146,14 @@ export default function Sidebar({ profile }: Props) {
         {/* Admin section — only visible for admin role */}
         {isAdmin && (
           <div className="mt-6">
-            <p className="text-[#504C78] text-xs font-semibold uppercase tracking-widest px-3 mb-3">Admin</p>
+            <p className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-widest px-3 mb-3">Admin</p>
             <div className="space-y-0.5">
               {ADMIN_NAV_ITEMS.map((item) => (
                 <Link key={item.href} href={item.href}>
                   <div className={`flex items-center gap-3 py-2.5 rounded-xl transition-all cursor-pointer border-l-2 pl-[10px] pr-3 ${
                     isActive(item.href)
                       ? 'bg-[#F4B860]/10 text-[#F4B860] border-[#F4B860]'
-                      : 'text-[#9B96C0] hover:bg-[#14122A] hover:text-[#F5F0FF] border-transparent'
+                      : 'text-[#5B6B7F] hover:bg-[#F1F5FA] hover:text-[#0F1B2D] border-transparent'
                   }`}>
                     {item.icon}
                     <span className="font-medium text-sm">{item.label}</span>
@@ -166,13 +166,13 @@ export default function Sidebar({ profile }: Props) {
       </nav>
 
       {/* Profile section */}
-      <div className="p-4 border-t border-[#2E2B50]">
+      <div className="p-4 border-t border-[#E6ECF2]">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 rounded-full bg-[#8B5CF6]/15 flex items-center justify-center text-[#8B5CF6] font-bold text-sm flex-shrink-0 border border-[#8B5CF6]/30">
+          <div className="w-9 h-9 rounded-full bg-[#14B8A6]/15 flex items-center justify-center text-[#14B8A6] font-bold text-sm flex-shrink-0 border border-[#14B8A6]/30">
             {initials}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[#F5F0FF] font-semibold text-sm truncate">{profile.full_name ?? 'Clinician'}</p>
+            <p className="text-[#0F1B2D] font-semibold text-sm truncate">{profile.full_name ?? 'Clinician'}</p>
             <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full border ${roleBadge.bg} ${roleBadge.text} ${roleBadge.border} mt-0.5`}>
               {roleBadge.label}
             </span>
@@ -180,7 +180,7 @@ export default function Sidebar({ profile }: Props) {
         </div>
         <button
           onClick={handleSignOut}
-          className="text-[#504C78] text-xs hover:text-[#9B96C0] transition-colors flex items-center gap-1.5"
+          className="text-[#8C9AAB] text-xs hover:text-[#5B6B7F] transition-colors flex items-center gap-1.5"
         >
           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />

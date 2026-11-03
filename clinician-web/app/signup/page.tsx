@@ -142,30 +142,26 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-[#F6F9FC] flex">
       {/* Left panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-[#030210] border-r border-[#E6ECF2] flex-col items-center justify-center px-12 py-16 relative overflow-hidden">
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(20,184,166,0.07) 0%, transparent 70%)' }}
-        />
+      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-[#0D9488] to-[#0891B2] flex-col items-center justify-center px-12 py-16 relative overflow-hidden">
         <div className="relative z-10 flex flex-col items-center text-center max-w-sm w-full">
           <div className="relative mb-2">
-            <div className="w-14 h-14 rounded-full border-2 border-[#14B8A6] opacity-20 absolute inset-0" />
-            <div className="absolute rounded-full border-2 border-[#14B8A6] opacity-50" style={{ inset: 10 }} />
-            <div className="absolute rounded-full bg-[#14B8A6]" style={{ inset: 20 }} />
+            <div className="w-14 h-14 rounded-full border-2 border-white opacity-20 absolute inset-0" />
+            <div className="absolute rounded-full border-2 border-white opacity-50" style={{ inset: 10 }} />
+            <div className="absolute rounded-full bg-white opacity-30" style={{ inset: 20 }} />
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-14 h-14 relative" aria-label="Mojo">
-          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="rgba(255,255,255,0.15)"/>
           <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
           <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
           <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
           <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
         </svg>
           </div>
-          <h1 className="text-[#0F1B2D] font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>Mojo</h1>
-          <p className="text-[#14B8A6] text-sm mt-2 tracking-wide font-medium">Clinician & Nurse Portal</p>
+          <h1 className="text-white font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>Mojo</h1>
+          <p className="text-white/80 text-sm mt-2 tracking-wide font-medium">Clinician & Nurse Portal</p>
 
           <div className="mt-10 w-full space-y-6">
-            <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5 text-left">
-              <p className="text-[#0F1B2D] font-semibold text-sm mb-2">Registration process</p>
+            <div className="bg-white/10 border border-white/20 rounded-2xl p-5 text-left">
+              <p className="text-white font-semibold text-sm mb-2">Registration process</p>
               <ol className="space-y-2.5">
                 {[
                   'Submit your details and licence number',
@@ -173,8 +169,8 @@ export default function SignUpPage() {
                   'Receive email confirmation to activate your account',
                   'Set up two-factor authentication',
                 ].map((step, i) => (
-                  <li key={i} className="flex items-start gap-3 text-[#5B6B7F] text-xs">
-                    <span className="w-5 h-5 rounded-full bg-[rgba(20,184,166,0.10)] border border-[#14B8A6]/30 flex items-center justify-center text-[#14B8A6] font-bold flex-shrink-0 text-xs">
+                  <li key={i} className="flex items-start gap-3 text-white/70 text-xs">
+                    <span className="w-5 h-5 rounded-full bg-white/20 border border-white/30 flex items-center justify-center text-white font-bold flex-shrink-0 text-xs">
                       {i + 1}
                     </span>
                     {step}
@@ -188,8 +184,8 @@ export default function SignUpPage() {
                 'Patient-controlled consent & data access',
                 'HIPAA-aligned data handling',
               ].map((b) => (
-                <li key={b} className="flex items-center gap-3 text-[#5B6B7F] text-sm">
-                  <svg className="w-4 h-4 text-[#14B8A6] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <li key={b} className="flex items-center gap-3 text-white/70 text-sm">
+                  <svg className="w-4 h-4 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
                   {b}
@@ -205,7 +201,7 @@ export default function SignUpPage() {
         {/* Mobile logo */}
         <div className="flex lg:hidden flex-col items-center mb-8">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-12 h-12" aria-label="Mojo">
-          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0D9488"/>
           <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
           <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
           <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>

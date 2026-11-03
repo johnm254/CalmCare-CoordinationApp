@@ -39,7 +39,7 @@ export default function AdminLoginPage() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center mb-5">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-16 h-16" aria-label="Mojo">
-          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0F1B2D"/>
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0D9488"/>
           <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
           <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
           <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
@@ -65,7 +65,7 @@ export default function AdminLoginPage() {
                 autoComplete="email"
                 placeholder="admin@mojo.app"
                 disabled={loading}
-                className="w-full bg-[#030210] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 text-sm disabled:opacity-50 transition-colors"
+                className="w-full bg-[#FFFFFF] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 text-sm disabled:opacity-50 transition-colors"
               />
             </div>
             <div>
@@ -78,12 +78,12 @@ export default function AdminLoginPage() {
                 autoComplete="current-password"
                 placeholder="••••••••"
                 disabled={loading}
-                className="w-full bg-[#030210] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 text-sm disabled:opacity-50 transition-colors"
+                className="w-full bg-[#FFFFFF] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 text-sm disabled:opacity-50 transition-colors"
               />
             </div>
 
             {error && (
-              <div className="bg-[#1A070D] border border-[#F43F5E]/40 rounded-xl px-4 py-3">
+              <div className="bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/40 rounded-xl px-4 py-3">
                 <p className="text-[#F43F5E] text-sm">{error}</p>
               </div>
             )}
