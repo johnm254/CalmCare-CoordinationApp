@@ -9,9 +9,11 @@ const ALLOWED_TABLES = [
   'events',
   'sos_events',
   'followups',
-  'medication_logs',
+  'dose_events',
   'audit_log',
   'care_circle',
+  'feature_flags',
+  'alerts',
 ];
 
 export async function GET(request: NextRequest) {
