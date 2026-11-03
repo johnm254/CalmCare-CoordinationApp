@@ -1,4 +1,4 @@
-package com.duara.app
+package com.mojo.app
 
 import android.app.Application
 import android.content.res.Configuration
