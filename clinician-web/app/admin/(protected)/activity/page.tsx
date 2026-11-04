@@ -33,11 +33,13 @@ type Filter = typeof FILTER_OPTS[number];
 export default function AdminActivityPage() {
   const [entries, setEntries] = useState<ActivityEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
   const [filter, setFilter] = useState<Filter>('All');
 
   useEffect(() => {
     async function load() {
       setLoading(true);
+      setFetchError(false);
       try {
         const res = await fetch('/api/admin/activity');
         if (!res.ok) throw new Error('Failed');
@@ -45,6 +47,7 @@ export default function AdminActivityPage() {
         setEntries(json.entries ?? []);
       } catch {
         setEntries([]);
+        setFetchError(true);
       } finally {
         setLoading(false);
       }
@@ -91,6 +94,16 @@ export default function AdminActivityPage() {
           <p className="text-[#8C9AAB] text-xs mt-1">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
         </div>
       </div>
+
+      {/* Error banner */}
+      {fetchError && !loading && (
+        <div className="flex items-center gap-3 bg-[rgba(244,63,94,0.08)] border border-[#F43F5E]/30 rounded-2xl px-5 py-3 mb-5">
+          <svg className="w-4 h-4 text-[#F43F5E] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <p className="text-[#F43F5E] text-sm">Could not load activity. The API may be unavailable or the activity table may not exist yet.</p>
+        </div>
+      )}
 
       {/* Filter pills */}
       <div className="flex items-center gap-2 mb-5">
@@ -158,7 +171,7 @@ export default function AdminActivityPage() {
                               ? 'bg-[rgba(244,184,96,0.12)] text-[#F4B860]'
                               : 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6]'
                           }`}>
-                            {isLogin ? 'Auth' : 'Event'}
+                            {isLogin ? 'Login / System' : 'Event'}
                           </span>
                         )}
                         <p className="text-[#0F1B2D] text-sm font-semibold">{entry.description}</p>

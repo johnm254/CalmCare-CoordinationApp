@@ -383,8 +383,8 @@ export default function EmergencyRoutingPage() {
       )}
 
       {/* Providers table */}
-      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
-        <div className="grid grid-cols-[1fr_1fr_120px_70px_80px_80px_140px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
+      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden overflow-x-auto">
+        <div className="grid grid-cols-[1fr_1fr_120px_70px_80px_80px_140px] min-w-[700px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
           {['Region', 'Name', 'Adapter', 'Priority', 'Active', 'Sandbox', ''].map((h) => (
             <span key={h} className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider">
               {h}
@@ -418,7 +418,7 @@ export default function EmergencyRoutingPage() {
                   />
                 </div>
               ) : (
-                <div className="grid grid-cols-[1fr_1fr_120px_70px_80px_80px_140px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors">
+                <div className="grid grid-cols-[1fr_1fr_120px_70px_80px_80px_140px] min-w-[700px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors">
                   <p className="text-[#0F1B2D] text-sm font-semibold">{p.region}</p>
                   <p className="text-[#5B6B7F] text-sm">{p.name}</p>
                   <span className={`inline-flex items-center text-xs font-semibold border rounded-full px-2.5 py-0.5 w-fit ${ADAPTER_STYLES[p.adapter_type] ?? ''}`}>

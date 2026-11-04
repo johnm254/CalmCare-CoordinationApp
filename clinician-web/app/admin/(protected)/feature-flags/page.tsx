@@ -18,29 +18,36 @@ interface FlagRow {
 // Hardcoded defaults shown when DB is empty
 // ---------------------------------------------------------------------------
 
+const FLAG_NAMES: Record<string, string> = {
+  live_dispatch:  'Live Emergency Dispatch',
+  ble_strap:      'Mojo Strap Bluetooth',
+  swahili_ui:     'Swahili Language',
+  research_mode:  'Research Data Sharing',
+};
+
 const DEFAULT_FLAGS: FlagRow[] = [
   {
     key: 'live_dispatch',
     enabled: false,
-    description: 'Real ambulances called on SOS. Keep OFF until county MoU signed.',
+    description: 'Real ambulances called on SOS. Keep OFF until county agreement is signed.',
     updated_at: null,
   },
   {
     key: 'ble_strap',
     enabled: false,
-    description: 'Mojo Strap Bluetooth pairing enabled.',
+    description: 'Allow patients to pair a Mojo wrist sensor via Bluetooth.',
     updated_at: null,
   },
   {
     key: 'swahili_ui',
     enabled: false,
-    description: 'Swahili locale strings shown to users.',
+    description: 'Show the app in Swahili for patients who prefer it.',
     updated_at: null,
   },
   {
     key: 'research_mode',
     enabled: false,
-    description: 'Anonymised data shared with research partners.',
+    description: 'Share anonymised data with approved research partners.',
     updated_at: null,
   },
 ];
@@ -161,10 +168,10 @@ export default function FeatureFlagsPage() {
       )}
 
       {/* Flags table */}
-      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
+      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden overflow-x-auto">
         {/* Table header */}
         <div className="grid grid-cols-[1fr_2fr_100px_140px_120px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
-          {['Flag key', 'Description', 'Status', 'Last changed', ''].map((h) => (
+          {['Feature', 'Description', 'Status', 'Last changed', ''].map((h) => (
             <span key={h} className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider">
               {h}
             </span>
@@ -182,10 +189,11 @@ export default function FeatureFlagsPage() {
               key={flag.key}
               className="grid grid-cols-[1fr_2fr_100px_140px_120px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
             >
-              {/* Key */}
-              <code className="text-[#0F1B2D] text-sm font-mono bg-[#F1F5FA] px-2 py-0.5 rounded w-fit">
-                {flag.key}
-              </code>
+              {/* Feature name */}
+              <div>
+                <p className="text-[#0F1B2D] text-sm font-semibold">{FLAG_NAMES[flag.key] ?? flag.key}</p>
+                <code className="text-[#8C9AAB] text-xs font-mono">{flag.key}</code>
+              </div>
 
               {/* Description */}
               <p className="text-[#5B6B7F] text-sm pr-4">{flag.description}</p>

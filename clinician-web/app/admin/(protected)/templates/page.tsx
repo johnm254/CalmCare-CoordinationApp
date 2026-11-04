@@ -134,7 +134,7 @@ function TemplateForm({
         <button
           onClick={() => onSave(form)}
           disabled={saving || !form.name.trim()}
-          className="bg-[#14B8A6] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#7C3AED] transition-colors disabled:opacity-50"
+          className="bg-[#14B8A6] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save template'}
         </button>
@@ -213,7 +213,7 @@ function TemplateCard({
       {template.severity_scale && (
         <div className="mb-2">
           <p className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-widest mb-1">Severity scale</p>
-          <p className="text-[#5B6B7F] text-xs font-mono bg-[#F6F9FC] border border-[#E6ECF2] rounded-lg px-3 py-2 whitespace-pre-wrap break-all">
+          <p className="text-[#5B6B7F] text-xs font-mono bg-[#F6F9FC] border border-[#E6ECF2] rounded-lg px-3 py-2 whitespace-pre-wrap break-words">
             {template.severity_scale}
           </p>
         </div>
@@ -326,7 +326,7 @@ export default function TemplatesPage() {
         {!showAddForm && (
           <button
             onClick={() => { setShowAddForm(true); setEditingId(null); setSaveError(null); }}
-            className="flex items-center gap-2 bg-[#14B8A6] text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#7C3AED] transition-colors flex-shrink-0"
+            className="flex items-center gap-2 bg-[#14B8A6] text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#00A896] transition-colors flex-shrink-0"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

@@ -146,7 +146,7 @@ function RejectModal({ verification, onClose, onDone }: {
         <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-1.5">Reason (optional)</label>
         <textarea
           value={notes} onChange={(e) => setNotes(e.target.value)}
-          placeholder="e.g. Licence number not found in KMPDC register"
+          placeholder="e.g. Licence number not found in the official medical registry"
           rows={3}
           className="w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#F43F5E]/50 focus:outline-none text-sm resize-none mb-5"
         />
@@ -166,7 +166,10 @@ const CADRE_LABELS: Record<string, string> = {
 };
 
 const BODY_LABELS: Record<string, string> = {
-  KMPDC: 'KMPDC', COC: 'COC', NCK: 'NCK', other: 'Other',
+  KMPDC: 'Medical Board (KMPDC)',
+  COC: 'Clinicians Council (COC)',
+  NCK: 'Nursing Council (NCK)',
+  other: 'Other',
 };
 
 export default function AdminCliniciansPage() {
@@ -301,8 +304,8 @@ export default function AdminCliniciansPage() {
 
       {/* ── CLINICIANS TAB ── */}
       {tab === 'clinicians' && (
-        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
-          <div className="grid grid-cols-[1fr_1fr_90px_90px_90px_100px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden overflow-x-auto">
+          <div className="grid grid-cols-[1fr_1fr_90px_90px_90px_100px] min-w-[640px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
             {['Clinician', 'Email', 'Patients', 'Verified', 'Joined', ''].map((h) => (
               <span key={h} className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider">{h}</span>
             ))}
@@ -323,7 +326,7 @@ export default function AdminCliniciansPage() {
             const colorClass = colorClasses[i % colorClasses.length];
             return (
               <div key={c.id}
-                className={`grid grid-cols-[1fr_1fr_90px_90px_90px_100px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors ${c.role === 'suspended' ? 'opacity-50' : ''}`}
+                className={`grid grid-cols-[1fr_1fr_90px_90px_90px_100px] min-w-[640px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors ${c.role === 'suspended' ? 'opacity-50' : ''}`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${colorClass}`}>{initials}</div>
@@ -347,7 +350,7 @@ export default function AdminCliniciansPage() {
                   <Link href={`/admin/clinicians/${c.id}`}
                     className="text-[#14B8A6] border border-[#E6ECF2] rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#14B8A6]/10 transition-colors"
                   >
-                    Patients
+                    View
                   </Link>
                 </div>
               </div>
@@ -358,9 +361,9 @@ export default function AdminCliniciansPage() {
 
       {/* ── VERIFICATIONS TAB ── */}
       {tab === 'verifications' && (
-        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
-          <div className="grid grid-cols-[1fr_120px_100px_100px_140px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
-            {['Clinician', 'Licence', 'Cadre', 'Status', ''].map((h) => (
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-x-auto">
+          <div className="grid grid-cols-[1fr_120px_100px_100px_140px] min-w-[560px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
+            {['Clinician', 'Licence No.', 'Role', 'Status', ''].map((h) => (
               <span key={h} className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider">{h}</span>
             ))}
           </div>
@@ -382,7 +385,7 @@ export default function AdminCliniciansPage() {
             const isVerified = v.status === 'verified';
             return (
               <div key={v.id}
-                className="grid grid-cols-[1fr_120px_100px_100px_140px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
+                className="grid grid-cols-[1fr_120px_100px_100px_140px] min-w-[560px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
               >
                 {/* Clinician */}
                 <div className="flex items-center gap-3 min-w-0">

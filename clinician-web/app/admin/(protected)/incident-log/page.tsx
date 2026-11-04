@@ -31,6 +31,7 @@ export default function IncidentLogPage() {
   const [loading, setLoading] = useState(true);
   const [tableError, setTableError] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [reopenLoading, setReopenLoading] = useState<string | null>(null);
 
   const fetchRows = useCallback(async () => {
     setLoading(true);
@@ -96,6 +97,19 @@ export default function IncidentLogPage() {
     };
   }, [fetchRows]);
 
+  async function reopenIncident(id: string) {
+    setReopenLoading(id);
+    try {
+      await supabase
+        .from('incident_log')
+        .update({ resolved_at: null, resolved_by: null })
+        .eq('id', id);
+      await fetchRows();
+    } finally {
+      setReopenLoading(null);
+    }
+  }
+
   async function markResolved(id: string) {
     setActionLoading(id);
     try {
@@ -159,9 +173,9 @@ export default function IncidentLogPage() {
 
       {/* Table */}
       {!tableError && (
-        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
+        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden overflow-x-auto">
           {/* Table header */}
-          <div className="grid grid-cols-[1fr_1fr_2fr_160px_110px_120px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
+          <div className="grid grid-cols-[1fr_1fr_2fr_160px_110px_120px] min-w-[700px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
             {['Clinician', 'Patient', 'Reason', 'Accessed At', 'Status', ''].map(
               (h) => (
                 <span
@@ -205,7 +219,7 @@ export default function IncidentLogPage() {
             rows.map((row) => (
               <div
                 key={row.id}
-                className="grid grid-cols-[1fr_1fr_2fr_160px_110px_120px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
+                className="grid grid-cols-[1fr_1fr_2fr_160px_110px_120px] min-w-[700px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
               >
                 {/* Clinician */}
                 <div>
@@ -249,14 +263,23 @@ export default function IncidentLogPage() {
                 )}
 
                 {/* Action */}
-                <div>
+                <div className="flex gap-1.5 flex-wrap">
                   {!row.resolved_at && (
                     <button
                       onClick={() => markResolved(row.id)}
                       disabled={actionLoading === row.id}
                       className="bg-[#22C87A] text-[#F6F9FC] rounded-lg px-3 py-1.5 text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
                     >
-                      {actionLoading === row.id ? '…' : 'Mark resolved'}
+                      {actionLoading === row.id ? '…' : 'Resolve'}
+                    </button>
+                  )}
+                  {row.resolved_at && (
+                    <button
+                      onClick={() => reopenIncident(row.id)}
+                      disabled={reopenLoading === row.id}
+                      className="border border-[#8C9AAB]/30 text-[#5B6B7F] rounded-lg px-3 py-1.5 text-xs font-semibold hover:bg-[#F1F5FA] transition-colors disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {reopenLoading === row.id ? '…' : 'Reopen'}
                     </button>
                   )}
                 </div>

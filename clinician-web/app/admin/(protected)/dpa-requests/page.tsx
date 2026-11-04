@@ -216,8 +216,8 @@ export default function DpaRequestsPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
-        <div className="grid grid-cols-[1fr_130px_120px_100px_120px_160px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
+      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden overflow-x-auto">
+        <div className="grid grid-cols-[1fr_130px_120px_100px_120px_160px] min-w-[760px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
           {['Patient', 'Type', 'Status', 'Submitted', 'Notes', ''].map((h) => (
             <span key={h} className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider">
               {h}
@@ -242,7 +242,7 @@ export default function DpaRequestsPage() {
           filtered.map((r) => (
             <div
               key={r.id}
-              className="grid grid-cols-[1fr_130px_120px_100px_120px_160px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
+              className="grid grid-cols-[1fr_130px_120px_100px_120px_160px] min-w-[760px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
             >
               {/* Patient */}
               <div>

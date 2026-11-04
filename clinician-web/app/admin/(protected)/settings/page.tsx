@@ -80,9 +80,10 @@ export default function AdminSettingsPage() {
   // Danger zone
   const [dangerLoading, setDangerLoading] = useState<string | null>(null);
   const [dangerResult, setDangerResult] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const [dangerConfirm, setDangerConfirm] = useState<{ action: string; msg: string } | null>(null);
 
   const env = process.env.NODE_ENV ?? 'development';
-  const resendConfigured = !!(process.env.RESEND_API_KEY || typeof window === 'undefined');
+  const resendConfigured = !!(process.env.NEXT_PUBLIC_RESEND_CONFIGURED);
 
   useEffect(() => {
     fetch('/api/admin/feature-flags')
@@ -160,8 +161,8 @@ export default function AdminSettingsPage() {
     }
   }
 
-  async function runDangerAction(action: string, confirmMsg: string) {
-    if (!window.confirm(confirmMsg)) return;
+  async function runDangerAction(action: string) {
+    setDangerConfirm(null);
     setDangerLoading(action);
     setDangerResult(null);
     try {
@@ -393,16 +394,35 @@ export default function AdminSettingsPage() {
               {dangerResult.msg}
             </div>
           )}
+          {dangerConfirm && (
+            <div className="mb-4 p-4 bg-[rgba(244,63,94,0.06)] border border-[#F43F5E]/30 rounded-xl">
+              <p className="text-[#F43F5E] text-sm font-semibold mb-3">{dangerConfirm.msg}</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setDangerConfirm(null)}
+                  className="px-4 py-1.5 rounded-lg border border-[#E6ECF2] text-[#5B6B7F] text-sm font-semibold hover:bg-[#F1F5FA] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => runDangerAction(dangerConfirm.action)}
+                  className="px-4 py-1.5 rounded-lg bg-[#F43F5E] text-white text-sm font-bold hover:bg-red-500 transition-colors"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          )}
           <div className="flex flex-wrap gap-3">
             <button
-              onClick={() => runDangerAction('purge_audit_log', 'This will permanently delete all audit log entries older than 30 days. Continue?')}
+              onClick={() => setDangerConfirm({ action: 'purge_audit_log', msg: 'This will permanently delete all audit log entries older than 30 days. Continue?' })}
               disabled={dangerLoading !== null}
               className="px-4 py-2 rounded-xl border border-[#F43F5E]/40 text-[#F43F5E] text-sm font-semibold hover:bg-[#F43F5E]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {dangerLoading === 'purge_audit_log' ? 'Purging…' : 'Purge audit log'}
             </button>
             <button
-              onClick={() => runDangerAction('revoke_all_sessions', 'This will immediately sign out ALL users across the platform. They will need to log in again. Continue?')}
+              onClick={() => setDangerConfirm({ action: 'revoke_all_sessions', msg: 'This will immediately sign out ALL users across the platform. They will need to log in again. Continue?' })}
               disabled={dangerLoading !== null}
               className="px-4 py-2 rounded-xl border border-[#F43F5E]/40 text-[#F43F5E] text-sm font-semibold hover:bg-[#F43F5E]/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >

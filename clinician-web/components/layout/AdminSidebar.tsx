@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 const NAV = [
   {
@@ -109,30 +110,38 @@ const NAV = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
-  return (
-    <aside className="w-56 flex-shrink-0 bg-[#FFFFFF] border-r border-[#E6ECF2] flex flex-col">
+  const sidebarContent = (
+    <>
       {/* Logo */}
       <div className="px-5 pt-6 pb-5 border-b border-[#E6ECF2]">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0D9488] to-[#0891B2] flex items-center justify-center flex-shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-5 h-5" aria-label="Mojo">
-          <rect x="4" y="4" width="88" height="88" rx="18" fill="rgba(255,255,255,0.15)"/>
-          <rect x="16" y="16" width="12" height="64" fill="white"/>
-          <rect x="68" y="16" width="12" height="64" fill="white"/>
-          <polygon points="16,16 28,16 55,52 44,52" fill="white"/>
-          <polygon points="68,16 80,16 55,52 44,52" fill="white"/>
-        </svg>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0D9488] to-[#0891B2] flex items-center justify-center flex-shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-5 h-5" aria-label="Mojo">
+                <rect x="4" y="4" width="88" height="88" rx="18" fill="rgba(255,255,255,0.15)"/>
+                <rect x="16" y="16" width="12" height="64" fill="white"/>
+                <rect x="68" y="16" width="12" height="64" fill="white"/>
+                <polygon points="16,16 28,16 55,52 44,52" fill="white"/>
+                <polygon points="68,16 80,16 55,52 44,52" fill="white"/>
+              </svg>
+            </div>
+            <div>
+              <p className="text-[#0F1B2D] font-bold text-base leading-none">Mojo</p>
+              <p className="text-[#8C9AAB] text-xs mt-0.5">Admin Panel</p>
+            </div>
           </div>
-          <div>
-            <p className="text-[#0F1B2D] font-bold text-base leading-none">Mojo</p>
-            <p className="text-[#8C9AAB] text-xs mt-0.5">Admin Panel</p>
-          </div>
+          <button onClick={() => setOpen(false)} className="md:hidden text-[#5B6B7F] p-1 rounded-lg hover:bg-[#F1F5FA]">
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-3 py-5 space-y-1">
+      <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
         <p className="text-[#8C9AAB] text-[10px] font-semibold uppercase tracking-widest px-3 mb-3">Main Menu</p>
         {NAV.map((item) => {
           const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
@@ -140,6 +149,7 @@ export default function AdminSidebar() {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 active
                   ? 'bg-[#14B8A6]/10 text-[#14B8A6] border border-[#14B8A6]/20'
@@ -166,6 +176,35 @@ export default function AdminSidebar() {
           <p className="text-[#0F1B2D] text-xs font-medium">All Systems Operational</p>
         </div>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile hamburger button */}
+      <button
+        onClick={() => setOpen(true)}
+        className="md:hidden fixed top-4 left-4 z-30 w-9 h-9 flex items-center justify-center rounded-xl bg-[#FFFFFF] border border-[#E6ECF2] shadow-sm"
+      >
+        <svg className="w-5 h-5 text-[#5B6B7F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* Mobile overlay */}
+      {open && (
+        <div className="md:hidden fixed inset-0 z-40 bg-black/50" onClick={() => setOpen(false)} />
+      )}
+
+      {/* Mobile drawer */}
+      <aside className={`md:hidden fixed top-0 left-0 h-full w-64 z-50 bg-[#FFFFFF] border-r border-[#E6ECF2] flex flex-col transform transition-transform ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+        {sidebarContent}
+      </aside>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden md:flex w-56 flex-shrink-0 bg-[#FFFFFF] border-r border-[#E6ECF2] flex-col">
+        {sidebarContent}
+      </aside>
+    </>
   );
 }

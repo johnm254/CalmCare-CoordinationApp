@@ -265,7 +265,7 @@ export default function CrisisResourcesPage() {
         </div>
       )}
 
-      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
+      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden overflow-x-auto">
         {/* Add form at top */}
         {showAddForm && (
           <table className="w-full">
