@@ -150,6 +150,17 @@ function SplashOverlay({ exiting }: { exiting: boolean }) {
         useNativeDriver: true,
       }),
     ]).start()
+
+    return () => {
+      ring1.stopAnimation()
+      ring2.stopAnimation()
+      ring3.stopAnimation()
+      coreS.stopAnimation()
+      titleY.stopAnimation()
+      titleOp.stopAnimation()
+      tagOp.stopAnimation()
+      exitOp.stopAnimation()
+    }
   }, [])
 
   useEffect(() => {
@@ -160,6 +171,7 @@ function SplashOverlay({ exiting }: { exiting: boolean }) {
         useNativeDriver: true,
       }).start()
     }
+    return () => exitOp.stopAnimation()
   }, [exiting])
 
   return (
@@ -331,7 +343,7 @@ function BiometricLock({ onUnlock }: { onUnlock: () => void }) {
   const btnScale = useRef(new Animated.Value(1)).current
 
   useEffect(() => {
-    Animated.loop(
+    const anim = Animated.loop(
       Animated.sequence([
         Animated.timing(ringPulse, {
           toValue: 1.08,
@@ -345,11 +357,17 @@ function BiometricLock({ onUnlock }: { onUnlock: () => void }) {
           useNativeDriver: true,
         }),
       ]),
-    ).start()
+    )
+    anim.start()
 
     // Auto-prompt on mount
-
     handleUnlock()
+
+    return () => {
+      anim.stop()
+      ringPulse.stopAnimation()
+      btnScale.stopAnimation()
+    }
   }, [])
 
   async function handleUnlock() {
