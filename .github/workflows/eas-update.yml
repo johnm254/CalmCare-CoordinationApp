@@ -26,6 +26,7 @@ on:
       # Exclude native directories — those need a full APK build
       - '!mobile/android/**'
       - '!mobile/ios/**'
+  workflow_dispatch:   # allow manual trigger from GitHub Actions tab
 
 concurrency:
   group: eas-update

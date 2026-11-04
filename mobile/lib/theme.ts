@@ -1,5 +1,4 @@
 // MOJO brand tokens — "Bright, calm, cared-for" (light mode primary)
-// Spec: MOJO_PREMIUM_UI_UPGRADE.md
 
 export const colors = {
   // ── Canvas & surfaces ─────────────────────────────────────────────────────
