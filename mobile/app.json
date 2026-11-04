@@ -40,6 +40,11 @@
       "bundleIdentifier": "com.mojo.app"
     },
     "runtimeVersion": "1.0.0",
+    "updates": {
+      "enabled": true,
+      "url": "https://u.expo.dev/7ddbc7b4-3018-4724-93eb-ae479d9bbf64",
+      "fallbackToCacheTimeout": 0
+    },
     "extra": {
       "router": {
         "origin": false
