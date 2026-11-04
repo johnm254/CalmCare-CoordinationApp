@@ -1,0 +1,65 @@
+name: EAS OTA Update
+
+# Publishes a JS-only over-the-air update to EAS whenever mobile source
+# files change on main.  No APK rebuild needed — users get the new code
+# the next time they open the app.
+#
+# Prerequisites (one-time setup):
+#   1. Go to expo.dev → Account Settings → Access Tokens → Create token
+#   2. Add the token to this repo: Settings → Secrets → EXPO_TOKEN
+#
+# When you DO need a full APK rebuild instead:
+#   - You added a new native package (react-native-*, expo plugin)
+#   - You changed mobile/android/** or mobile/ios/**
+#   - You changed app.json plugins array
+#   Run:  cd mobile && npm run build:preview
+
+on:
+  push:
+    branches: [main]
+    paths:
+      # JS / TS source — safe for OTA
+      - 'mobile/app/**'
+      - 'mobile/lib/**'
+      - 'mobile/assets/**'
+      - 'mobile/components/**'
+      # Exclude native directories — those need a full APK build
+      - '!mobile/android/**'
+      - '!mobile/ios/**'
+
+concurrency:
+  group: eas-update
+  cancel-in-progress: true   # drop queued updates if a newer push arrives
+
+jobs:
+  publish:
+    name: Publish OTA update
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: mobile
+
+      - name: Install EAS CLI
+        run: npm install -g eas-cli
+
+      - name: Publish preview update
+        run: |
+          eas update \
+            --channel preview \
+            --message "deploy: $(git log -1 --pretty=%s)" \
+            --non-interactive
+        working-directory: mobile
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
