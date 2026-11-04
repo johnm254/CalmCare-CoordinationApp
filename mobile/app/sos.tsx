@@ -110,13 +110,14 @@ export default function SOSScreen() {
   }, [session])
 
   useEffect(() => {
-    Animated.timing(borderAnim, {
+    const borderAnim_ = Animated.timing(borderAnim, {
       toValue: 0,
       duration: TOTAL_SECONDS * 1000,
       useNativeDriver: false,
-    }).start()
+    })
+    borderAnim_.start()
 
-    Animated.loop(
+    const pulseLoop = Animated.loop(
       Animated.sequence([
         Animated.parallel([
           Animated.timing(pulseScale, {
@@ -146,7 +147,8 @@ export default function SOSScreen() {
           }),
         ]),
       ]),
-    ).start()
+    )
+    pulseLoop.start()
 
     const interval = setInterval(() => {
       setSeconds((s) => {
@@ -166,7 +168,11 @@ export default function SOSScreen() {
       })
     }, 1000)
 
-    return () => clearInterval(interval)
+    return () => {
+      clearInterval(interval)
+      borderAnim_.stop()
+      pulseLoop.stop()
+    }
   }, [])
 
   // T+2 and T+4 escalation timers — only run after a successful push send.

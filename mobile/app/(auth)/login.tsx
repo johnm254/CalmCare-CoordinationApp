@@ -52,12 +52,15 @@ export default function LoginScreen() {
         }),
       ])
 
-    springRing(ring1, 150).start()
-    springRing(ring2, 310).start()
-    springRing(ring3, 460).start()
+    const anim1 = springRing(ring1, 150)
+    const anim2 = springRing(ring2, 310)
+    const anim3 = springRing(ring3, 460)
+    anim1.start()
+    anim2.start()
+    anim3.start()
 
     // Core dot bounces
-    Animated.sequence([
+    const coreAnim = Animated.sequence([
       Animated.delay(380),
       Animated.spring(coreS, {
         toValue: 1,
@@ -65,10 +68,11 @@ export default function LoginScreen() {
         friction: 7,
         useNativeDriver: true,
       }),
-    ]).start()
+    ])
+    coreAnim.start()
 
     // Title slides up
-    Animated.sequence([
+    const titleAnim = Animated.sequence([
       Animated.delay(620),
       Animated.parallel([
         Animated.spring(titleY, {
@@ -83,10 +87,11 @@ export default function LoginScreen() {
           useNativeDriver: true,
         }),
       ]),
-    ]).start()
+    ])
+    titleAnim.start()
 
     // Form card slides up
-    Animated.sequence([
+    const cardAnim = Animated.sequence([
       Animated.delay(800),
       Animated.parallel([
         Animated.spring(cardY, {
@@ -101,10 +106,11 @@ export default function LoginScreen() {
           useNativeDriver: true,
         }),
       ]),
-    ]).start()
+    ])
+    cardAnim.start()
 
     // Subtle outer ring pulse loop
-    Animated.loop(
+    const ringPulseLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(ringPulse, {
           toValue: 1.06,
@@ -117,7 +123,18 @@ export default function LoginScreen() {
           useNativeDriver: true,
         }),
       ]),
-    ).start()
+    )
+    ringPulseLoop.start()
+
+    return () => {
+      anim1.stop()
+      anim2.stop()
+      anim3.stop()
+      coreAnim.stop()
+      titleAnim.stop()
+      cardAnim.stop()
+      ringPulseLoop.stop()
+    }
   }, [])
 
   async function handleSignIn() {

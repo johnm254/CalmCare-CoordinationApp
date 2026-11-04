@@ -146,12 +146,14 @@ function SosFab() {
   const bottom = TAB_BOTTOM + TAB_HEIGHT + insets.bottom + 14
 
   useEffect(() => {
-    Animated.loop(
+    const anim = Animated.loop(
       Animated.sequence([
         Animated.timing(pulse, { toValue: 1.26, duration: 950, useNativeDriver: true }),
         Animated.timing(pulse, { toValue: 1,    duration: 950, useNativeDriver: true }),
       ]),
-    ).start()
+    )
+    anim.start()
+    return () => anim.stop()
   }, [])
 
   return (

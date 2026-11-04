@@ -952,12 +952,14 @@ function EpiStrapSheet({
 
   useEffect(() => {
     if (phase === "scanning") {
-      Animated.loop(
+      const anim = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, { toValue: 1, duration: 700, useNativeDriver: true }),
           Animated.timing(pulseAnim, { toValue: 0.2, duration: 700, useNativeDriver: true }),
         ]),
-      ).start()
+      )
+      anim.start()
+      return () => anim.stop()
     } else {
       pulseAnim.stopAnimation()
       pulseAnim.setValue(0)
