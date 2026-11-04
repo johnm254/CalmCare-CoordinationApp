@@ -47,7 +47,7 @@ import {
 
 import { I18nProvider } from "../lib/i18n-context"
 
-import { connectToStrap, isStrapConnected, sendStrapCommand, STRAP_CMD } from "../lib/ble-strap"
+import type { StrapEvent } from "../lib/ble-strap"
 
 // ── Auth context ──────────────────────────────────────────────────────────────
 
@@ -923,7 +923,7 @@ export default function RootLayout() {
 
   // ── Strap event handler (patient role only) ───────────────────────────────
 
-  function handleStrapEvent(event: import("../lib/ble-strap").StrapEvent) {
+  function handleStrapEvent(event: StrapEvent) {
     if (profile?.role !== "patient") return
     switch (event) {
       case "SOS_BUTTON":

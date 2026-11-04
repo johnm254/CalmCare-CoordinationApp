@@ -59,6 +59,14 @@
           "locationAlwaysAndWhenInUsePermission": "Mojo needs your location to include it in SOS alerts.",
           "locationWhenInUsePermission": "Mojo needs your location to include it in SOS alerts."
         }
+      ],
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": false,
+          "modes": [],
+          "bluetoothAlwaysPermission": "Allow Mojo to connect to Bluetooth devices"
+        }
       ]
     ]
   }
