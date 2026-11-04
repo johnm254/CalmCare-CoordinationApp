@@ -798,86 +798,117 @@ export default function RootLayout() {
   // ── Auth + boot effects ───────────────────────────────────────────────────
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session)
+    supabase.auth.getSession()
+      .then(async ({ data: { session } }) => {
+        try {
+          setSession(session)
 
-      if (session?.user) {
-        const p = await getProfile(session.user.id)
+          if (session?.user) {
+            const p = await getProfile(session.user.id).catch((err) => {
+              console.error("Failed to get profile:", err)
+              return null
+            })
 
-        setProfile(p)
+            setProfile(p)
 
-        getExpoPushToken().then((token) => {
-          if (token && session.user)
-            registerPushToken(session.user.id, token).catch(() => {})
-        })
-      }
-
-      setInitialized(true)
-    })
+            getExpoPushToken()
+              .then((token) => {
+                if (token && session.user)
+                  registerPushToken(session.user.id, token).catch(() => {})
+              })
+              .catch(() => {})
+          }
+        } catch (error) {
+          console.error("Auth initialization error:", error)
+        } finally {
+          setInitialized(true)
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to get session:", error)
+        setInitialized(true)
+      })
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setSession(session)
+      try {
+        setSession(session)
 
-      if (session?.user) {
-        const p = await getProfile(session.user.id)
+        if (session?.user) {
+          const p = await getProfile(session.user.id).catch((err) => {
+            console.error("Failed to get profile:", err)
+            return null
+          })
 
-        setProfile(p)
+          setProfile(p)
 
-        getExpoPushToken().then((token) => {
-          if (token && session?.user)
-            registerPushToken(session.user.id, token).catch(() => {})
-        })
-      } else {
-        setProfile(null)
+          getExpoPushToken()
+            .then((token) => {
+              if (token && session?.user)
+                registerPushToken(session.user.id, token).catch(() => {})
+            })
+            .catch(() => {})
+        } else {
+          setProfile(null)
+        }
+
+        if (event === "SIGNED_IN") router.replace("/(tabs)")
+
+        if (event === "SIGNED_OUT") router.replace("/(auth)/login")
+      } catch (error) {
+        console.error("Auth state change error:", error)
       }
-
-      if (event === "SIGNED_IN") router.replace("/(tabs)")
-
-      if (event === "SIGNED_OUT") router.replace("/(auth)/login")
     })
 
     // Foreground notification banner — fires when app is open and a push arrives
     const notifReceiveSub = Notifications.addNotificationReceivedListener((notification) => {
-      const content = notification.request.content
-      const data = content.data as Record<string, string | undefined>
-      const type = data?.type === "sos_alert" ? "sos" : "info"
-      showToast(content.title ?? "Mojo", content.body ?? "", type)
+      try {
+        const content = notification.request.content
+        const data = content.data as Record<string, string | undefined>
+        const type = data?.type === "sos_alert" ? "sos" : "info"
+        showToast(content.title ?? "Mojo", content.body ?? "", type)
+      } catch (error) {
+        console.error("Notification received error:", error)
+      }
     })
 
     const notifTapSub = Notifications.addNotificationResponseReceivedListener(
       (response) => {
-        const data = response.notification.request.content
-          .data as Record<string, string | undefined>
+        try {
+          const data = response.notification.request.content
+            .data as Record<string, string | undefined>
 
-        if (data?.type === "sos_alert" && data.sos_id) {
-          const params = new URLSearchParams({
-            sosId: data.sos_id,
+          if (data?.type === "sos_alert" && data.sos_id) {
+            const params = new URLSearchParams({
+              sosId: data.sos_id,
 
-            ...(data.alert_id ? { alertId: data.alert_id } : {}),
+              ...(data.alert_id ? { alertId: data.alert_id } : {}),
 
-            ...(data.patient_name ? { patientName: data.patient_name } : {}),
+              ...(data.patient_name ? { patientName: data.patient_name } : {}),
 
-            ...(data.location_lat ? { lat: data.location_lat } : {}),
+              ...(data.location_lat ? { lat: data.location_lat } : {}),
 
-            ...(data.location_lon ? { lon: data.location_lon } : {}),
-          })
+              ...(data.location_lon ? { lon: data.location_lon } : {}),
+            })
 
-          router.push(`/sos-alert?${params.toString()}`)
+            router.push(`/sos-alert?${params.toString()}`)
+          }
+        } catch (error) {
+          console.error("Notification tap error:", error)
         }
       },
     )
 
-    initializeDB().catch(console.error)
+    initializeDB().catch((error) => console.error("DB init error:", error))
 
-    registerNotificationCategories().catch(console.error)
+    registerNotificationCategories().catch((error) => console.error("Notif categories error:", error))
 
-    requestNotificationPermission().catch(console.error)
+    requestNotificationPermission().catch((error) => console.error("Notif permission error:", error))
 
-    Location.requestForegroundPermissionsAsync().catch(() => {})
+    Location.requestForegroundPermissionsAsync().catch((error) => console.error("Location permission error:", error))
 
-    checkForOTAUpdate()
+    checkForOTAUpdate().catch((error) => console.error("OTA check error:", error))
 
     // Dismiss splash after 1.8s (animations complete by then)
 

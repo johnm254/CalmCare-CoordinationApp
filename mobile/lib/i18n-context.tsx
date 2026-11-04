@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react"
+import { createContext, useContext, useState, useEffect, ReactNode } from "react"
 
 import AsyncStorage from "@react-native-async-storage/async-storage"
 
@@ -18,7 +18,7 @@ const I18nContext = createContext<I18nContextType>({
   t: (key) => key as string,
 })
 
-export function I18nProvider({ children }: { children: React.ReactNode }) {
+export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("en")
 
   useEffect(() => {
