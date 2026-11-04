@@ -755,6 +755,11 @@ export default function RootLayout() {
 
   async function checkForOTAUpdate() {
     try {
+      // Temporarily disable OTA checks to debug crashes
+      // TODO: Re-enable after confirming app stability
+      console.log("[OTA] Checks disabled for debugging")
+      return
+
       if (__DEV__) return
 
       const update = await Updates.checkForUpdateAsync()

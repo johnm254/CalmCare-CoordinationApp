@@ -38,7 +38,8 @@
     "updates": {
       "enabled": true,
       "url": "https://u.expo.dev/7ddbc7b4-3018-4724-93eb-ae479d9bbf64",
-      "fallbackToCacheTimeout": 0
+      "fallbackToCacheTimeout": 30000,
+      "checkOnLaunch": "wifi-only"
     },
     "extra": {
       "router": {
