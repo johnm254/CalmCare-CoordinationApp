@@ -36,7 +36,7 @@ export default function SeizureChart({ data }: Props) {
         />
         <YAxis
           allowDecimals={false}
-          tick={{ fill: '#8C9AAB', fontSize: 11 }}
+          tick={{ fill: '#5B6B7F', fontSize: 11 }}
           axisLine={false}
           tickLine={false}
         />

@@ -19,7 +19,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
   if (profile?.role !== 'admin') redirect('/admin/login');
 
   return (
-    <div className="flex h-screen bg-[#070E1B] text-white overflow-hidden">
+    <div className="flex h-screen bg-[#F6F9FC] overflow-hidden">
       <InactivityLogout redirectTo="/admin/login" />
       <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { createClient } from '../../../../lib/supabase-server';
 import { logAccess } from '../../../../lib/audit';
 import PreferredHospital from './PreferredHospital';
+import PatientTabNav from './PatientTabNav';
 
 function EventTypeBadge({ type }: { type: string }) {
   if (type === 'seizure')
@@ -34,13 +35,6 @@ function SeverityDot({ severity }: { severity: string }) {
   );
 }
 
-const TABS = [
-  { label: 'Overview', href: '' },
-  { label: 'Schedules', href: 'schedules' },
-  { label: 'Alert Rules', href: 'alert-rules' },
-  { label: 'Adherence', href: 'adherence' },
-  { label: 'Follow-ups', href: 'follow-ups' },
-] as const;
 
 export default async function PatientDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -162,20 +156,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
       </div>
 
       {/* Tab row */}
-      <nav aria-label="Patient sections" className="flex items-center gap-1 border-b border-[#E6ECF2] mb-8 overflow-x-auto">
-        {TABS.map((tab) => {
-          const href = tab.href ? `${baseHref}/${tab.href}` : baseHref;
-          return (
-            <Link
-              key={tab.label}
-              href={href}
-              className="px-4 py-3 text-sm font-medium text-[#5B6B7F] hover:text-[#0F1B2D] transition-colors border-b-2 border-transparent hover:border-[#EEF3F9] whitespace-nowrap"
-            >
-              {tab.label}
-            </Link>
-          );
-        })}
-      </nav>
+      <PatientTabNav patientId={params.id} />
 
       {/* Pre-visit brief */}
       <div className="bg-[#FFFFFF] border border-[#14B8A6]/25 rounded-2xl p-6 mb-6">

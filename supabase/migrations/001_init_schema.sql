@@ -24,7 +24,7 @@ CREATE TABLE profiles (
 
 -- Conditions: Patient conditions and triggers
 CREATE TABLE conditions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   type TEXT NOT NULL,
   notes TEXT,
@@ -36,7 +36,7 @@ CREATE TABLE conditions (
 
 -- Medications: Patient medication plan (versioned)
 CREATE TABLE medications (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   dose TEXT NOT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE medications (
 
 -- Medication Logs: "Taken" check-ins (append-only)
 CREATE TABLE medication_logs (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   medication_id UUID NOT NULL REFERENCES medications(id) ON DELETE CASCADE,
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   taken_at TIMESTAMP NOT NULL, -- Device time (true time)
@@ -59,7 +59,7 @@ CREATE TABLE medication_logs (
 
 -- Events: Logged by patient or caregiver (append-only)
 CREATE TABLE events (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   logged_by UUID NOT NULL REFERENCES profiles(id),
   occurred_at TIMESTAMP NOT NULL,
@@ -71,7 +71,7 @@ CREATE TABLE events (
 
 -- Observations: Caregiver notes (append-only)
 CREATE TABLE observations (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   author_id UUID NOT NULL REFERENCES profiles(id),
   occurred_at TIMESTAMP NOT NULL,
@@ -81,7 +81,7 @@ CREATE TABLE observations (
 
 -- Care Circle: Trusted contacts
 CREATE TABLE care_circle (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   member_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   phone TEXT,
@@ -94,7 +94,7 @@ CREATE TABLE care_circle (
 
 -- Grants: Consent matrix (what each person may see)
 CREATE TABLE grants (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   grantee_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   category TEXT NOT NULL CHECK (category IN ('emergency_alerts', 'medication_schedule', 'appointments', 'event_summaries', 'records')),
@@ -106,7 +106,7 @@ CREATE TABLE grants (
 
 -- Clinician Links: Patient-clinician relationship
 CREATE TABLE clinician_links (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   clinician_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   verified_at TIMESTAMP,
@@ -117,7 +117,7 @@ CREATE TABLE clinician_links (
 
 -- Follow-ups: Clinical follow-up tasks
 CREATE TABLE followups (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   clinician_id UUID NOT NULL REFERENCES profiles(id),
   title TEXT NOT NULL,
@@ -130,7 +130,7 @@ CREATE TABLE followups (
 
 -- SOS Events: SOS history (append-only)
 CREATE TABLE sos_events (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   sent_at TIMESTAMP NOT NULL,
   channel TEXT NOT NULL CHECK (channel IN ('push', 'sms', 'queued')),
@@ -142,7 +142,7 @@ CREATE TABLE sos_events (
 
 -- Audit Log: Access audit (insert-only)
 CREATE TABLE audit_log (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   actor_id UUID NOT NULL REFERENCES profiles(id),
   patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   action TEXT NOT NULL,
@@ -154,7 +154,7 @@ CREATE TABLE audit_log (
 
 -- Sync State: Track client sync progress
 CREATE TABLE sync_state (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   device_id TEXT NOT NULL,
   last_sync TIMESTAMP,
   sync_token TEXT,
