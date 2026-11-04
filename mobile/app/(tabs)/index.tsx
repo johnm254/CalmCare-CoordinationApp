@@ -158,25 +158,32 @@ export default function HomeScreen() {
   ).current
 
   useEffect(() => {
-    anims.forEach((a, i) => {
+    const entranceAnims = anims.map((a, i) =>
       Animated.sequence([
         Animated.delay(i * 70 + 80),
         Animated.parallel([
           Animated.spring(a.y,  { toValue: 0, tension: 65, friction: 14, useNativeDriver: true }),
           Animated.timing(a.op, { toValue: 1, duration: 300, useNativeDriver: true }),
         ]),
-      ]).start()
-    })
+      ])
+    )
+    entranceAnims.forEach((a) => a.start())
 
-    Animated.loop(
+    const bpmLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(bpmPulse, { toValue: 1, duration: 550, useNativeDriver: true }),
         Animated.timing(bpmPulse, { toValue: 0, duration: 550, useNativeDriver: true }),
         Animated.delay(260 + (60000 / Math.max(bpm, 40) - 1100)),
       ]),
-    ).start()
+    )
+    bpmLoop.start()
 
     getWeather().then(setWeather)
+
+    return () => {
+      entranceAnims.forEach((a) => a.stop())
+      bpmLoop.stop()
+    }
   }, [])
 
   useEffect(() => {
