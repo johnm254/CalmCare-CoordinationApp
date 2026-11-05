@@ -20,7 +20,6 @@
       },
       "distribution": "internal",
       "channel": "preview",
-      "prebuildCommand": "npx expo prebuild --platform android --no-install",
       "env": {
         "EXPO_PUBLIC_SUPABASE_URL": "https://rtlhckntjrhdhbaqzxoy.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "sb_publishable_Ayy3iLaAoQcTu0Kr0tQGbg_LUEFF7O8",
