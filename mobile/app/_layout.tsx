@@ -75,7 +75,7 @@ type UpdateStatus = "idle" | "downloading" | "ready" | "applying"
 
 // ── Animated splash screen ────────────────────────────────────────────────────
 
-function SplashOverlay({ exiting }: { exiting: boolean }) {
+function SplashOverlay({ exiting, onExited }: { exiting: boolean; onExited?: () => void }) {
   const ring1 = useRef(new Animated.Value(0)).current
 
   const ring2 = useRef(new Animated.Value(0)).current
@@ -169,7 +169,9 @@ function SplashOverlay({ exiting }: { exiting: boolean }) {
         toValue: 0,
         duration: 500,
         useNativeDriver: true,
-      }).start()
+      }).start(({ finished }) => {
+        if (finished) onExited?.()
+      })
     }
     return () => exitOp.stopAnimation()
   }, [exiting])
@@ -342,8 +344,17 @@ function BiometricLock({ onUnlock }: { onUnlock: () => void }) {
 
   const btnScale = useRef(new Animated.Value(1)).current
 
+  const pulseAnim = useRef<Animated.CompositeAnimation | null>(null)
+
+  function stopAllAnims() {
+    pulseAnim.current?.stop()
+    pulseAnim.current = null
+    ringPulse.stopAnimation()
+    btnScale.stopAnimation()
+  }
+
   useEffect(() => {
-    const anim = Animated.loop(
+    pulseAnim.current = Animated.loop(
       Animated.sequence([
         Animated.timing(ringPulse, {
           toValue: 1.08,
@@ -358,16 +369,12 @@ function BiometricLock({ onUnlock }: { onUnlock: () => void }) {
         }),
       ]),
     )
-    anim.start()
+    pulseAnim.current.start()
 
     // Auto-prompt on mount
     handleUnlock()
 
-    return () => {
-      anim.stop()
-      ringPulse.stopAnimation()
-      btnScale.stopAnimation()
-    }
+    return () => stopAllAnims()
   }, [])
 
   async function handleUnlock() {
@@ -376,6 +383,7 @@ function BiometricLock({ onUnlock }: { onUnlock: () => void }) {
     const enrolled = await LocalAuthentication.isEnrolledAsync()
 
     if (!has || !enrolled) {
+      stopAllAnims()
       onUnlock()
       return
     }
@@ -386,7 +394,10 @@ function BiometricLock({ onUnlock }: { onUnlock: () => void }) {
       fallbackLabel: "Use passcode",
     })
 
-    if (result.success) onUnlock()
+    if (result.success) {
+      stopAllAnims()
+      onUnlock()
+    }
   }
 
   function onPressIn() {
@@ -915,8 +926,6 @@ export default function RootLayout() {
 
     const splashTimer = setTimeout(() => {
       setSplashExiting(true)
-
-      setTimeout(() => setSplashDone(true), 500)
     }, 1800)
 
     const appStateSub = AppState.addEventListener(
@@ -1010,8 +1019,8 @@ export default function RootLayout() {
       >
         <StatusBar style="light" backgroundColor={colors.bg} />
 
-        {/* Splash overlay — shown until 1.8s, fades out over 500ms */}
-        {!splashDone && <SplashOverlay exiting={splashExiting} />}
+        {/* Splash overlay — fades out over 500ms, unmounts only after animation finishes */}
+        {!splashDone && <SplashOverlay exiting={splashExiting} onExited={() => setSplashDone(true)} />}
 
         {/* Biometric lock — shown after 5-min background */}
         {locked && <BiometricLock onUnlock={() => setLocked(false)} />}
