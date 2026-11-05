@@ -754,14 +754,10 @@ export default function RootLayout() {
   // ── OTA check ─────────────────────────────────────────────────────────────
 
   async function checkForOTAUpdate() {
+    if (__DEV__) return
+    if (!Updates.isEnabled) return
+
     try {
-      // Temporarily disable OTA checks to debug crashes
-      // TODO: Re-enable after confirming app stability
-      console.log("[OTA] Checks disabled for debugging")
-      return
-
-      if (__DEV__) return
-
       const update = await Updates.checkForUpdateAsync()
 
       if (!update.isAvailable) return
@@ -931,7 +927,7 @@ export default function RootLayout() {
         }
 
         if (state === "active") {
-          checkForOTAUpdate()
+          checkForOTAUpdate().catch(() => {})
 
           if (bgStartRef.current !== null) {
             const elapsed = Date.now() - bgStartRef.current
