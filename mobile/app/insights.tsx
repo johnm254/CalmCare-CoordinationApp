@@ -236,12 +236,11 @@ export default function InsightsScreen() {
 
   useEffect(() => {
     if (!session?.user) return
-
-    getInsightsSummary(session.user.id).then((data) => {
-      setInsights(data)
-
-      setLoading(false)
-    })
+    let alive = true
+    getInsightsSummary(session.user.id)
+      .then((data) => { if (alive) { setInsights(data); setLoading(false) } })
+      .catch(() => { if (alive) setLoading(false) })
+    return () => { alive = false }
   }, [session])
 
   async function handleSaveVoiceNote() {

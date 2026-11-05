@@ -80,12 +80,15 @@ export default function SosAlertScreen() {
 
   useEffect(() => {
     if (!sosId) return
-    getSosDetails(sosId).then(setSosDetails)
+    let alive = true
+    getSosDetails(sosId).then((d) => { if (alive) setSosDetails(d) }).catch(() => {})
     getSosResponders(sosId).then((r) => {
+      if (!alive) return
       setResponders(r)
       if (session?.user)
         setMyResponse(r.some((x) => x.responder_id === session.user!.id))
-    })
+    }).catch(() => {})
+    return () => { alive = false }
   }, [sosId, session])
 
   // Query nearest ER facility using the patient's location from the SOS event
@@ -109,6 +112,7 @@ export default function SosAlertScreen() {
   // Realtime — update responder list as others respond
   useEffect(() => {
     if (!sosId) return
+    let alive = true
     const channel = supabase
       .channel(`sos-responses:${sosId}`)
       .on(
@@ -121,14 +125,16 @@ export default function SosAlertScreen() {
         },
         () => {
           getSosResponders(sosId).then((r) => {
+            if (!alive) return
             setResponders(r)
             if (session?.user)
               setMyResponse(r.some((x) => x.responder_id === session.user!.id))
-          })
+          }).catch(() => {})
         },
       )
       .subscribe()
     return () => {
+      alive = false
       supabase.removeChannel(channel)
     }
   }, [sosId, session])
@@ -136,13 +142,17 @@ export default function SosAlertScreen() {
   // Polling fallback — keeps responder list fresh even if Realtime is unavailable
   useEffect(() => {
     if (!sosId) return
+    let alive = true
     const intervalId = setInterval(async () => {
-      const r = await getSosResponders(sosId)
-      setResponders(r)
-      if (session?.user)
-        setMyResponse(r.some((x) => x.responder_id === session.user!.id))
+      try {
+        const r = await getSosResponders(sosId)
+        if (!alive) return
+        setResponders(r)
+        if (session?.user)
+          setMyResponse(r.some((x) => x.responder_id === session.user!.id))
+      } catch {}
     }, 5000)
-    return () => clearInterval(intervalId)
+    return () => { alive = false; clearInterval(intervalId) }
   }, [sosId, session])
 
   async function handleRespond() {

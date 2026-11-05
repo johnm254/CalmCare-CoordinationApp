@@ -989,7 +989,7 @@ function EpiStrapSheet({
         } else {
           setPhase("scanning")
         }
-      })
+      }).catch(() => setPhase("scanning"))
     } else {
       setTimeout(() => {
         setPhase("connected")
@@ -1007,7 +1007,7 @@ function EpiStrapSheet({
         setSelectedDevice(null)
         setConnectedDevice(null)
         onDisconnected()
-      })
+      }).catch(() => {})
     } else {
       setPhase("idle")
       setFoundDevices([])
@@ -1661,25 +1661,23 @@ export default function MeScreen() {
   const email = session?.user?.email ?? ""
 
   useEffect(() => {
-    Location.getForegroundPermissionsAsync().then((r) =>
-      setLocationStatus(r.status),
-    )
+    Location.getForegroundPermissionsAsync()
+      .then((r) => setLocationStatus(r.status))
+      .catch(() => {})
     supabase
       .from("feature_flags")
       .select("enabled")
       .eq("name", "ble_strap")
       .maybeSingle()
-      .then(({ data }) => {
-        if (data != null) setBleStrapEnabled(data.enabled)
-      })
+      .then(({ data }) => { if (data != null) setBleStrapEnabled(data.enabled) })
+      .catch(() => {})
     supabase
       .from("feature_flags")
       .select("enabled")
       .eq("name", "swahili_ui")
       .maybeSingle()
-      .then(({ data }) => {
-        if (data != null) setSwahiliEnabled(data.enabled)
-      })
+      .then(({ data }) => { if (data != null) setSwahiliEnabled(data.enabled) })
+      .catch(() => {})
   }, [])
 
   async function requestLocation() {

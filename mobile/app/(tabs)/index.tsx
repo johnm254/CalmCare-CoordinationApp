@@ -188,46 +188,59 @@ export default function HomeScreen() {
 
   useEffect(() => {
     if (!session?.user) return
+    let alive = true
     const uid = session.user.id
 
-    Promise.all([getMedications(uid), getCareCircle(uid)]).then(([meds, circle]) => {
-      setMedications(meds)
-      setCircleCount(circle.length)
-      setLoading(false)
-    })
+    Promise.all([getMedications(uid), getCareCircle(uid)])
+      .then(([meds, circle]) => {
+        if (!alive) return
+        setMedications(meds)
+        setCircleCount(circle.length)
+        setLoading(false)
+      })
+      .catch(() => { if (alive) setLoading(false) })
 
     supabase
       .from("events").select("occurred_at").eq("user_id", uid)
       .in("type", ["seizure", "sz", "tonic-clonic", "absence"])
       .order("occurred_at", { ascending: false }).limit(1)
       .then(({ data }) => {
+        if (!alive) return
         if (!data || !data.length) { setStreakDays(30); return }
         setStreakDays(Math.max(0, Math.floor((Date.now() - new Date(data[0].occurred_at).getTime()) / 86_400_000)))
       })
+      .catch(() => {})
 
     supabase
       .from("sos_events").select("id").eq("patient_id", uid)
       .not("status", "in", '("resolved","cancelled")').limit(1)
-      .then(({ data }) => setHasActiveAlert((data ?? []).length > 0))
+      .then(({ data }) => { if (alive) setHasActiveAlert((data ?? []).length > 0) })
+      .catch(() => {})
 
     supabase
       .from("mood_logs").select("score").eq("patient_id", uid)
       .order("logged_at", { ascending: false }).limit(1)
-      .then(({ data }) => { if (data?.[0]) setLatestMoodScore(data[0].score) })
+      .then(({ data }) => { if (alive && data?.[0]) setLatestMoodScore(data[0].score) })
+      .catch(() => {})
+
+    return () => { alive = false }
   }, [session])
 
   useEffect(() => {
+    let alive = true
     async function fetchHospital() {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync()
-        if (status !== "granted") return
+        if (!alive || status !== "granted") return
         const { coords } = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+        if (!alive) return
         const { data }   = await supabase.rpc("nearest_er_facility", { lat: coords.latitude, lon: coords.longitude })
         const row = data as { name: string; phone: string | null } | null
-        if (row?.name) setNearestHospital({ name: row.name, phone: row.phone ?? null })
-      } catch { /* fall back to KNH */ }
+        if (alive && row?.name) setNearestHospital({ name: row.name, phone: row.phone ?? null })
+      } catch {}
     }
     fetchHospital()
+    return () => { alive = false }
   }, [])
 
   async function handleTaken(med: Medication) {

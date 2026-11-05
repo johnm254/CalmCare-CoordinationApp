@@ -156,7 +156,7 @@ export default function CircleScreen() {
         if (patients.length > 0 && !activePatientId) {
           setActivePatientId(patients[0].patient_id)
         }
-      })
+      }).catch(() => {})
     }, [session, isCaregiver]),
   )
 

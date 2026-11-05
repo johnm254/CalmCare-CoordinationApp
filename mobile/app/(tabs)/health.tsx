@@ -279,11 +279,9 @@ export default function HealthScreen() {
     if (!session?.user) return
     setLoading(true)
     const uid = session.user.id
-    Promise.all([getEvents(uid, filter), getInsightsSummary(uid)]).then(([evts, ins]) => {
-      setEvents(evts)
-      setInsights(ins)
-      setLoading(false)
-    })
+    Promise.all([getEvents(uid, filter), getInsightsSummary(uid)])
+      .then(([evts, ins]) => { setEvents(evts); setInsights(ins); setLoading(false) })
+      .catch(() => setLoading(false))
   }
 
   useEffect(() => { loadData() }, [session, filter])
