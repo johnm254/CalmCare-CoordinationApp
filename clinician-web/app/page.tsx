@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import AnimatedHero from '@/components/landing/AnimatedHero';
+import AppShowcase from '@/components/landing/AppShowcase';
+import ScrollReveal from '@/components/landing/ScrollReveal';
 
 export const metadata: Metadata = {
   title: 'epimoyo — Epilepsy care, coordinated',
@@ -54,43 +57,6 @@ function Nav() {
   );
 }
 
-function Hero() {
-  return (
-    <section className="bg-[#12383A] text-white py-24 md:py-32 px-6">
-      <div className="max-w-4xl mx-auto text-center">
-        <div className="inline-flex items-center gap-2 bg-white/10 text-[#CFE0D8] text-sm font-medium px-4 py-1.5 rounded-full mb-8">
-          <span className="w-2 h-2 rounded-full bg-[#E8603C] inline-block"></span>
-          Epilepsy care, coordinated
-        </div>
-        <h1
-          style={{ fontFamily: "'Fraunces', Georgia, serif" }}
-          className="text-4xl md:text-6xl font-bold leading-tight mb-6 text-[#F5EFE3]"
-        >
-          Living with epilepsy,<br />
-          never alone.
-        </h1>
-        <p className="text-lg md:text-xl text-[#CFE0D8] max-w-2xl mx-auto mb-10 leading-relaxed">
-          epimoyo connects patients, families, and clinical teams — tracking seizures, managing medications,
-          and coordinating care in real time so nothing falls through the cracks.
-        </p>
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
-            href="#download"
-            className="w-full sm:w-auto text-center font-semibold bg-[#E8603C] text-white px-8 py-3.5 rounded-xl hover:bg-[#c94e2d] transition-colors text-base"
-          >
-            Download the app
-          </a>
-          <Link
-            href="/login"
-            className="w-full sm:w-auto text-center font-semibold border-2 border-[#CFE0D8] text-[#F5EFE3] px-8 py-3.5 rounded-xl hover:bg-white/10 transition-colors text-base"
-          >
-            Clinician portal →
-          </Link>
-        </div>
-      </div>
-    </section>
-  );
-}
 
 function StatsBar() {
   const stats = [
@@ -168,12 +134,14 @@ function PatientFeatures() {
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {patientFeatures.map((f) => (
-            <div key={f.title} className="bg-white rounded-2xl p-6 border border-[#E8E0D4] hover:shadow-md transition-shadow">
-              <div className="text-3xl mb-4">{f.icon}</div>
-              <h3 className="font-semibold text-[#0C1F20] text-lg mb-2">{f.title}</h3>
-              <p className="text-sm text-[#6B8588] leading-relaxed">{f.desc}</p>
-            </div>
+          {patientFeatures.map((f, i) => (
+            <ScrollReveal key={f.title} delay={i * 80}>
+              <div className="bg-white rounded-2xl p-6 border border-[#E8E0D4] hover:shadow-md transition-shadow h-full">
+                <div className="text-3xl mb-4">{f.icon}</div>
+                <h3 className="font-semibold text-[#0C1F20] text-lg mb-2">{f.title}</h3>
+                <p className="text-sm text-[#6B8588] leading-relaxed">{f.desc}</p>
+              </div>
+            </ScrollReveal>
           ))}
         </div>
       </div>
@@ -267,14 +235,16 @@ function ClinicianFeatures() {
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-          {clinicianFeatures.map((f) => (
-            <div key={f.title} className="bg-white rounded-2xl p-6 border border-[#D6CFC4] hover:shadow-md transition-shadow flex gap-4">
-              <div className="text-3xl shrink-0">{f.icon}</div>
-              <div>
-                <h3 className="font-semibold text-[#0C1F20] text-lg mb-1">{f.title}</h3>
-                <p className="text-sm text-[#6B8588] leading-relaxed">{f.desc}</p>
+          {clinicianFeatures.map((f, i) => (
+            <ScrollReveal key={f.title} delay={i * 80}>
+              <div className="bg-white rounded-2xl p-6 border border-[#D6CFC4] hover:shadow-md transition-shadow flex gap-4 h-full">
+                <div className="text-3xl shrink-0">{f.icon}</div>
+                <div>
+                  <h3 className="font-semibold text-[#0C1F20] text-lg mb-1">{f.title}</h3>
+                  <p className="text-sm text-[#6B8588] leading-relaxed">{f.desc}</p>
+                </div>
               </div>
-            </div>
+            </ScrollReveal>
           ))}
         </div>
         <div className="text-center">
@@ -382,8 +352,8 @@ function Footer() {
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#6B8588]">
           <span>© {new Date().getFullYear()} epimoyo. All rights reserved.</span>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-[#CFE0D8] transition-colors">Privacy policy</a>
-            <a href="#" className="hover:text-[#CFE0D8] transition-colors">Terms of service</a>
+            <Link href="/privacy" className="hover:text-[#CFE0D8] transition-colors">Privacy policy</Link>
+            <Link href="/terms" className="hover:text-[#CFE0D8] transition-colors">Terms of service</Link>
           </div>
         </div>
       </div>
@@ -396,8 +366,9 @@ export default function LandingPage() {
     <>
       <Nav />
       <main>
-        <Hero />
+        <AnimatedHero />
         <StatsBar />
+        <AppShowcase />
         <PatientFeatures />
         <AppDownload />
         <ClinicianFeatures />

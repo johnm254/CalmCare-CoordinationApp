@@ -1,6 +1,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
+import { rateLimit, getIp } from '../../../lib/rate-limit';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -16,7 +17,16 @@ const AT_BASE_URL = AT_USERNAME === 'sandbox'
   ? 'https://api.sandbox.africastalking.com/version1/messaging'
   : 'https://api.africastalking.com/version1/messaging';
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function POST(request: NextRequest) {
+  // Rate limit: 5 SOS triggers per IP per minute (prevents alert flooding)
+  const ip = getIp(request.headers);
+  const rl = rateLimit(`sos:${ip}`, { limit: 5, windowSec: 60 });
+  if (!rl.success) {
+    return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
+  }
+
   try {
     const body = await request.json();
     const { sos_id, patient_id, recipient_ids, location } = body as {
@@ -26,11 +36,25 @@ export async function POST(request: NextRequest) {
       location?: { lat: number; lon: number } | null;
     };
 
+    // Validate required fields and UUID format to prevent injection via IDs
     if (!patient_id || !Array.isArray(recipient_ids) || recipient_ids.length === 0) {
       return NextResponse.json(
         { error: 'patient_id and recipient_ids are required' },
         { status: 400 }
       );
+    }
+    if (!UUID_RE.test(patient_id)) {
+      return NextResponse.json({ error: 'Invalid patient_id' }, { status: 400 });
+    }
+    if (sos_id && !UUID_RE.test(sos_id)) {
+      return NextResponse.json({ error: 'Invalid sos_id' }, { status: 400 });
+    }
+    if (!recipient_ids.every((id) => UUID_RE.test(id))) {
+      return NextResponse.json({ error: 'Invalid recipient_ids' }, { status: 400 });
+    }
+    // Cap recipients to prevent abuse
+    if (recipient_ids.length > 20) {
+      return NextResponse.json({ error: 'Too many recipients' }, { status: 400 });
     }
 
     // Fetch patient profile
@@ -155,7 +179,7 @@ export async function POST(request: NextRequest) {
       if (!recipient.email) { failed++; continue; }
       try {
         const { error: emailError } = await resend.emails.send({
-          from: 'epimoyo SOS <onboarding@resend.dev>',
+          from: process.env.RESEND_FROM_EMAIL ?? 'epimoyo SOS <onboarding@resend.dev>',
           to: recipient.email,
           subject: `SOS Alert — ${patientName} needs help`,
           html: emailHtml,

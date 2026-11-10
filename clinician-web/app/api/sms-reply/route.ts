@@ -1,6 +1,6 @@
 // Africa's Talking inbound SMS reply webhook.
-// Configure in the AT dashboard:
-//   AT_WEBHOOK_URL = https://your-domain/api/sms-reply
+// Configure in the AT dashboard with the secret appended:
+//   AT_WEBHOOK_URL = https://your-domain/api/sms-reply?secret=AT_WEBHOOK_SECRET
 //
 // AT POSTs application/x-www-form-urlencoded with fields:
 //   from, to, text, date, id
@@ -13,7 +13,21 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+const WEBHOOK_SECRET = process.env.AT_WEBHOOK_SECRET ?? '';
+
 export async function POST(request: NextRequest) {
+  // Verify shared secret passed as query param — register the full URL with secret in AT dashboard
+  const url = new URL(request.url);
+  const incomingSecret = url.searchParams.get('secret') ?? '';
+  if (
+    !WEBHOOK_SECRET ||
+    incomingSecret.length !== WEBHOOK_SECRET.length ||
+    !timingSafeEqual(incomingSecret, WEBHOOK_SECRET)
+  ) {
+    // Return 200 so AT doesn't retry; silently discard unauthenticated requests
+    return NextResponse.json({ ok: true });
+  }
+
   try {
     const formData = await request.formData();
     const from = (formData.get('from') as string | null) ?? '';
@@ -78,4 +92,14 @@ export async function POST(request: NextRequest) {
     console.error('sms-reply webhook error:', err);
     return NextResponse.json({ ok: true });
   }
+}
+
+/** Constant-time string comparison — prevents timing attacks on secret comparison */
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
 }

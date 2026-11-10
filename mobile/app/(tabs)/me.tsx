@@ -424,7 +424,7 @@ function PinSheet({
         </View>
         <View style={pin.comingSoon}>
           <Text style={pin.comingSoonText}>
-            Biometric lock · Coming in next update
+            Biometric lock — arriving in the next update
           </Text>
         </View>
         <Text style={pin.tip}>
@@ -1033,7 +1033,7 @@ function EpiStrapSheet({
         {!flagEnabled && (
           <View style={dev.earlyBanner}>
             <Text style={dev.earlyBannerText}>
-              Early access — strap pairing not active in this build
+              Hardware release coming soon — this is a preview of the pairing flow.
             </Text>
           </View>
         )}
@@ -1749,7 +1749,7 @@ export default function MeScreen() {
     } catch {
       Alert.alert(
         "Error",
-        "Could not process request. Contact support@mojo.health",
+        "Could not process request. Contact support@epimoyo.health",
       )
     } finally {
       setDeleting(false)

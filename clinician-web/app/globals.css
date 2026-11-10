@@ -68,3 +68,42 @@ body {
   body { background: white; color: #0C1F20; }
   .no-print { display: none !important; }
 }
+
+/* ── Landing page animations ───────────────────────────────────────────── */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(-2deg); }
+  50%       { transform: translateY(-18px) rotate(-2deg); }
+}
+
+@keyframes ecg-draw {
+  from { stroke-dashoffset: 2000; }
+  to   { stroke-dashoffset: 0; }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes bpm-pulse {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%       { transform: scale(1.18); opacity: 0.75; }
+}
+
+@keyframes ring-pulse {
+  0%   { transform: scale(1);   opacity: 0.5; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(32px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-float       { animation: float 4s ease-in-out infinite; }
+.animate-ecg-draw    { animation: ecg-draw 2.4s ease-out forwards; }
+.animate-fade-up     { opacity: 0; animation: fade-up 0.7s ease-out forwards; }
+.animate-bpm-pulse   { animation: bpm-pulse 1.4s ease-in-out infinite; }
+.animate-ring-pulse  { animation: ring-pulse 1.8s ease-out infinite; }
+.animate-slide-right { animation: slide-in-right 0.6s ease-out forwards; }
