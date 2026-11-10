@@ -5,8 +5,8 @@ import './globals.css';
 const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? '';
 
 export const metadata: Metadata = {
-  title: 'epimoyo — Clinician',
-  description: 'epimoyo care-coordination platform — clinician dashboard',
+  title: 'epimoyo',
+  description: 'epimoyo — epilepsy care-coordination platform for patients, families, and clinicians.',
   icons: {
     icon: [
       { url: '/favicon.svg', type: 'image/svg+xml' },
