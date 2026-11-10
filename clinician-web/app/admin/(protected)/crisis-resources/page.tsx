@@ -39,7 +39,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`relative inline-flex w-10 h-5 rounded-full transition-colors ${checked ? 'bg-[#22C87A]' : 'bg-[#E6ECF2]'}`}
+      className={`relative inline-flex w-10 h-5 rounded-full transition-colors ${checked ? 'bg-[#1F7A72]' : 'bg-[#D6CFC4]'}`}
     >
       <span
         className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`}
@@ -66,12 +66,12 @@ function ResourceForm({
   }
 
   const inputCls =
-    'w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-2.5 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none text-sm';
-  const labelCls = 'block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-1.5';
+    'w-full bg-[#F5EFE3] border border-[#D6CFC4] rounded-xl px-4 py-2.5 text-[#0C1F20] placeholder:text-[#6B8588] focus:border-[#1F7A72] focus:outline-none text-sm';
+  const labelCls = 'block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-1.5';
 
   return (
     <tr>
-      <td colSpan={7} className="px-6 py-5 bg-[#F1F5FA] border-b border-[#E6ECF2]">
+      <td colSpan={7} className="px-6 py-5 bg-[#EDE8DF] border-b border-[#D6CFC4]">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
           <div>
             <label className={labelCls}>Country</label>
@@ -122,7 +122,7 @@ function ResourceForm({
           </div>
           <div className="flex items-center gap-3 pt-6">
             <Toggle checked={form.active} onChange={(v) => set('active', v)} />
-            <span className="text-[#5B6B7F] text-sm">Active</span>
+            <span className="text-[#3A5255] text-sm">Active</span>
           </div>
         </div>
         <div className="mb-4">
@@ -139,7 +139,7 @@ function ResourceForm({
           <button
             type="button"
             onClick={onCancel}
-            className="px-5 py-2 rounded-xl border border-[#E6ECF2] text-[#5B6B7F] text-sm font-semibold hover:bg-[#E6ECF2] transition-colors"
+            className="px-5 py-2 rounded-xl border border-[#D6CFC4] text-[#3A5255] text-sm font-semibold hover:bg-[#D6CFC4] transition-colors"
           >
             Cancel
           </button>
@@ -147,7 +147,7 @@ function ResourceForm({
             type="button"
             disabled={saving || !form.country || !form.name}
             onClick={() => onSave(form)}
-            className="px-5 py-2 rounded-xl bg-[#14B8A6] text-[#F6F9FC] text-sm font-bold hover:bg-[#00A896] transition-colors disabled:opacity-50"
+            className="px-5 py-2 rounded-xl bg-[#1F7A72] text-[#F5EFE3] text-sm font-bold hover:bg-[#12383A] transition-colors disabled:opacity-50"
           >
             {saving ? 'Saving…' : 'Save'}
           </button>
@@ -243,14 +243,14 @@ export default function CrisisResourcesPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-[#0F1B2D]">Crisis Resources</h1>
-          <p className="text-[#5B6B7F] text-sm mt-0.5">
+          <h1 className="text-2xl font-bold text-[#0C1F20]">Crisis Resources</h1>
+          <p className="text-[#3A5255] text-sm mt-0.5">
             Contacts patients can always access — shown in the app regardless of connectivity.
           </p>
         </div>
         <button
           onClick={() => { setShowAddForm(true); setEditId(null); }}
-          className="flex items-center gap-2 bg-[#14B8A6] text-[#F6F9FC] font-bold px-4 py-2.5 rounded-xl text-sm hover:bg-[#00A896] transition-colors"
+          className="flex items-center gap-2 bg-[#1F7A72] text-[#F5EFE3] font-bold px-4 py-2.5 rounded-xl text-sm hover:bg-[#12383A] transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -260,12 +260,12 @@ export default function CrisisResourcesPage() {
       </div>
 
       {error && (
-        <div className="mb-4 bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/30 text-[#F43F5E] rounded-xl px-5 py-3 text-sm">
+        <div className="mb-4 bg-[rgba(200,16,46,0.08)] border border-[#C8102E]/30 text-[#C8102E] rounded-xl px-5 py-3 text-sm">
           {error}
         </div>
       )}
 
-      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden overflow-x-auto">
+      <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl overflow-hidden overflow-x-auto">
         {/* Add form at top */}
         {showAddForm && (
           <table className="w-full">
@@ -281,9 +281,9 @@ export default function CrisisResourcesPage() {
         )}
 
         {/* Table header */}
-        <div className="grid grid-cols-[1fr_80px_1fr_120px_80px_80px_100px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
+        <div className="grid grid-cols-[1fr_80px_1fr_120px_80px_80px_100px] px-6 py-3 bg-[#F5EFE3] border-b border-[#D6CFC4]">
           {['Name', 'Lang', 'Description', 'Phone', 'URL', 'Active', ''].map((h) => (
-            <span key={h} className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider">
+            <span key={h} className="text-[#6B8588] text-xs font-semibold uppercase tracking-wider">
               {h}
             </span>
           ))}
@@ -291,16 +291,16 @@ export default function CrisisResourcesPage() {
 
         {loading ? (
           <div className="py-20 text-center">
-            <div className="inline-block w-6 h-6 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-[#5B6B7F] text-sm">Loading resources…</p>
+            <div className="inline-block w-6 h-6 border-2 border-[#1F7A72] border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-[#3A5255] text-sm">Loading resources…</p>
           </div>
         ) : countries.length === 0 ? (
           <div className="py-20 text-center">
-            <svg className="w-10 h-10 text-[#E6ECF2] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-10 h-10 text-[#D6CFC4] mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
-            <p className="text-[#5B6B7F] text-sm font-medium">No crisis resources.</p>
-            <p className="text-[#8C9AAB] text-xs mt-1">Add contacts patients can always access.</p>
+            <p className="text-[#3A5255] text-sm font-medium">No crisis resources.</p>
+            <p className="text-[#6B8588] text-xs mt-1">Add contacts patients can always access.</p>
           </div>
         ) : (
           <table className="w-full">
@@ -308,8 +308,8 @@ export default function CrisisResourcesPage() {
               {countries.map((country) => (
                 <>
                   <tr key={`group-${country}`}>
-                    <td colSpan={7} className="px-6 py-2 bg-[#F6F9FC] border-b border-[#E6ECF2]">
-                      <span className="text-[#14B8A6] text-xs font-bold uppercase tracking-widest">
+                    <td colSpan={7} className="px-6 py-2 bg-[#F5EFE3] border-b border-[#D6CFC4]">
+                      <span className="text-[#1F7A72] text-xs font-bold uppercase tracking-widest">
                         {country}
                       </span>
                     </td>
@@ -334,23 +334,23 @@ export default function CrisisResourcesPage() {
                     ) : (
                       <tr
                         key={r.id}
-                        className="border-b border-[#E6ECF2] last:border-0 hover:bg-[#F1F5FA] transition-colors"
+                        className="border-b border-[#D6CFC4] last:border-0 hover:bg-[#EDE8DF] transition-colors"
                       >
                         <td className="px-6 py-3.5">
-                          <p className="text-[#0F1B2D] text-sm font-semibold">{r.name}</p>
+                          <p className="text-[#0C1F20] text-sm font-semibold">{r.name}</p>
                         </td>
                         <td className="px-6 py-3.5">
-                          <span className="inline-flex items-center text-xs font-semibold text-[#5B6B7F] bg-[#F6F9FC] border border-[#E6ECF2] rounded-full px-2 py-0.5">
+                          <span className="inline-flex items-center text-xs font-semibold text-[#3A5255] bg-[#F5EFE3] border border-[#D6CFC4] rounded-full px-2 py-0.5">
                             {r.language.toUpperCase()}
                           </span>
                         </td>
                         <td className="px-6 py-3.5">
-                          <p className="text-[#5B6B7F] text-xs truncate max-w-[200px]">
+                          <p className="text-[#3A5255] text-xs truncate max-w-[200px]">
                             {r.description ?? '—'}
                           </p>
                         </td>
                         <td className="px-6 py-3.5">
-                          <p className="text-[#0F1B2D] text-xs font-mono">{r.phone ?? '—'}</p>
+                          <p className="text-[#0C1F20] text-xs font-mono">{r.phone ?? '—'}</p>
                         </td>
                         <td className="px-6 py-3.5">
                           {r.url ? (
@@ -358,35 +358,35 @@ export default function CrisisResourcesPage() {
                               href={r.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-[#14B8A6] text-xs underline underline-offset-2 truncate block max-w-[80px]"
+                              className="text-[#1F7A72] text-xs underline underline-offset-2 truncate block max-w-[80px]"
                             >
                               Link
                             </a>
                           ) : (
-                            <span className="text-[#8C9AAB] text-xs">—</span>
+                            <span className="text-[#6B8588] text-xs">—</span>
                           )}
                         </td>
                         <td className="px-6 py-3.5">
                           {r.active ? (
-                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#22C87A] bg-[rgba(0,217,126,0.10)] border border-[#22C87A]/20 rounded-full px-2.5 py-0.5">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#22C87A]" />
+                            <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#1F7A72] bg-[rgba(31,122,114,0.10)] border border-[#1F7A72]/20 rounded-full px-2.5 py-0.5">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#1F7A72]" />
                               On
                             </span>
                           ) : (
-                            <span className="text-xs text-[#8C9AAB]">Off</span>
+                            <span className="text-xs text-[#6B8588]">Off</span>
                           )}
                         </td>
                         <td className="px-6 py-3.5">
                           <div className="flex items-center gap-2">
                             <button
                               onClick={() => { setEditId(r.id); setShowAddForm(false); }}
-                              className="text-[#14B8A6] border border-[#E6ECF2] rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#14B8A6]/10 transition-colors"
+                              className="text-[#1F7A72] border border-[#D6CFC4] rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#1F7A72]/10 transition-colors"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => setDeleteId(r.id)}
-                              className="text-[#F43F5E] border border-[#F43F5E]/20 rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#F43F5E]/10 transition-colors"
+                              className="text-[#C8102E] border border-[#C8102E]/20 rounded-lg px-2.5 py-1 text-xs font-semibold hover:bg-[#C8102E]/10 transition-colors"
                             >
                               Delete
                             </button>
@@ -406,22 +406,22 @@ export default function CrisisResourcesPage() {
       {deleteId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDeleteId(null)} />
-          <div className="relative w-full max-w-sm bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-6 shadow-2xl">
-            <h2 className="text-[#0F1B2D] font-bold text-lg mb-2">Delete resource?</h2>
-            <p className="text-[#5B6B7F] text-sm mb-6">
+          <div className="relative w-full max-w-sm bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-6 shadow-2xl">
+            <h2 className="text-[#0C1F20] font-bold text-lg mb-2">Delete resource?</h2>
+            <p className="text-[#3A5255] text-sm mb-6">
               This will permanently remove the resource. This action cannot be undone.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setDeleteId(null)}
-                className="flex-1 py-3 rounded-xl border border-[#E6ECF2] text-[#5B6B7F] text-sm font-semibold hover:bg-[#F1F5FA] transition-colors"
+                className="flex-1 py-3 rounded-xl border border-[#D6CFC4] text-[#3A5255] text-sm font-semibold hover:bg-[#EDE8DF] transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleDelete(deleteId)}
                 disabled={deleting}
-                className="flex-1 py-3 rounded-xl bg-[#F43F5E] text-white text-sm font-bold hover:bg-red-500 transition-colors disabled:opacity-50"
+                className="flex-1 py-3 rounded-xl bg-[#C8102E] text-white text-sm font-bold hover:bg-red-500 transition-colors disabled:opacity-50"
               >
                 {deleting ? 'Deleting…' : 'Delete'}
               </button>

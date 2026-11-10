@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -24,6 +24,26 @@ function mapAuthError(message: string): string {
   return message;
 }
 
+function EpimoyoIconReversed() {
+  return (
+    <svg viewBox="0 0 48 48" width="56" height="56" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="epimoyo">
+      <path d="M36.7 11.3 A18 18 0 1 1 36.7 36.7" stroke="#F5EFE3" strokeWidth="5.5" strokeLinecap="round"/>
+      <polyline points="8,24 15,24 19,15 23,33 27,24 36,24" stroke="#F5EFE3" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="39.5" cy="37.5" r="4.5" fill="#E8603C"/>
+    </svg>
+  );
+}
+
+function EpimoyoIconDark() {
+  return (
+    <svg viewBox="0 0 48 48" width="48" height="48" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="epimoyo">
+      <path d="M36.7 11.3 A18 18 0 1 1 36.7 36.7" stroke="#12383A" strokeWidth="5.5" strokeLinecap="round"/>
+      <polyline points="8,24 15,24 19,15 23,33 27,24 36,24" stroke="#12383A" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="39.5" cy="37.5" r="4.5" fill="#E8603C"/>
+    </svg>
+  );
+}
+
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,7 +61,6 @@ export default function LoginPage() {
 
       if (authError) {
         setError(mapAuthError(authError.message));
-        // best-effort: record failed attempt for lockout tracking
         try {
           const { data: profileData } = await supabase
             .from('profiles')
@@ -59,7 +78,6 @@ export default function LoginPage() {
         return;
       }
 
-      // Check role
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
@@ -72,7 +90,6 @@ export default function LoginPage() {
         return;
       }
 
-      // Check verification status
       const { data: verification } = await supabase
         .from('clinician_verifications')
         .select('status, expires_at')
@@ -94,7 +111,6 @@ export default function LoginPage() {
         }
       }
 
-      // Check clinician lockout
       const { data: lockData } = await supabase.rpc('is_clinician_locked', { clinician_uuid: data.user.id });
       if (lockData === true) {
         await supabase.auth.signOut();
@@ -102,7 +118,6 @@ export default function LoginPage() {
         return;
       }
 
-      // Check MFA assurance level
       const { data: aalData } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
       if (aalData) {
         if (aalData.nextLevel === 'aal2' && aalData.currentLevel !== 'aal2') {
@@ -123,43 +138,36 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F6F9FC] flex">
-      {/* Left panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-[#0D9488] to-[#0891B2] flex-col items-center justify-center px-12 py-16 relative overflow-hidden">
-        <div className="relative z-10 flex flex-col items-center text-center max-w-sm w-full">
-          {/* Logo */}
-          <div className="relative mb-2">
-            <div className="w-14 h-14 rounded-full border-2 border-white opacity-20 absolute inset-0" />
-            <div className="absolute rounded-full border-2 border-white opacity-50" style={{ inset: 10 }} />
-            <div className="absolute rounded-full bg-white opacity-30" style={{ inset: 20 }} />
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-14 h-14 relative" aria-label="Mojo">
-          <rect x="4" y="4" width="88" height="88" rx="18" fill="rgba(255,255,255,0.15)"/>
-          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
-          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
-          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
-          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+    <div className="min-h-screen bg-[#F5EFE3] flex">
+      {/* Left panel — Guardian Teal */}
+      <div className="hidden lg:flex lg:w-[45%] bg-[#12383A] flex-col items-center justify-center px-12 py-16 relative overflow-hidden">
+        {/* Pulse line decoration */}
+        <svg viewBox="0 0 400 60" className="absolute bottom-0 left-0 w-full opacity-10" aria-hidden="true">
+          <polyline
+            points="0,30 60,30 90,10 110,50 130,30 180,30 210,15 230,45 250,30 310,30 340,12 360,48 380,30 400,30"
+            fill="none" stroke="#F5EFE3" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"
+          />
         </svg>
+        {/* Concentric halo rings behind icon */}
+        <div className="relative z-10 flex flex-col items-center text-center max-w-sm w-full">
+          <div className="relative mb-6">
+            <div className="absolute rounded-full border border-[#1F7A72] opacity-30" style={{ inset: -24 }} />
+            <div className="absolute rounded-full border border-[#1F7A72] opacity-20" style={{ inset: -44 }} />
+            <EpimoyoIconReversed />
           </div>
 
-          <h1 className="text-white font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>Mojo</h1>
-          <p className="text-white/80 text-sm mt-2 tracking-wide font-medium">Clinician & Nurse Portal</p>
+          <h1 className="text-[#F5EFE3] font-bold mt-4 leading-none" style={{ fontSize: '42px', fontFamily: 'Fraunces, Georgia, serif' }}>epimoyo</h1>
+          <p className="text-[#CFE0D8] text-sm mt-2 tracking-wide font-medium">Clinician & Nurse Portal</p>
+          <p className="text-[#CFE0D8]/70 text-xs mt-1 italic">Watching over every heartbeat.</p>
 
-          <div className="mt-8 w-full max-w-xs mx-auto">
-            <img
-              src="/illustrations/hero-clinician.svg"
-              alt="Clinician illustration"
-              className="w-full h-auto opacity-90"
-            />
-          </div>
-
-          <ul className="mt-8 space-y-3 text-left w-full">
+          <ul className="mt-10 space-y-3 text-left w-full">
             {[
               { label: 'HIPAA-aligned data handling' },
               { label: 'Patient-controlled consent' },
               { label: 'Real-time SOS alerts' },
             ].map((b) => (
-              <li key={b.label} className="flex items-center gap-3 text-white/70 text-sm">
-                <svg className="w-4 h-4 text-white flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+              <li key={b.label} className="flex items-center gap-3 text-[#CFE0D8]/80 text-sm">
+                <svg className="w-4 h-4 text-[#1F7A72] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
                 {b.label}
@@ -170,27 +178,21 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#F6F9FC]">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#F5EFE3]">
         {/* Mobile logo */}
         <div className="flex lg:hidden flex-col items-center mb-8">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-12 h-12" aria-label="Mojo">
-          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0D9488"/>
-          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
-          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
-          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
-          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
-        </svg>
-          <p className="text-[#0F1B2D] font-extrabold text-2xl mt-2">Mojo</p>
-          <p className="text-[#14B8A6] text-xs mt-1">Clinician & Nurse Portal</p>
+          <EpimoyoIconDark />
+          <p className="text-[#0C1F20] font-bold text-2xl mt-2" style={{ fontFamily: 'Fraunces, Georgia, serif' }}>epimoyo</p>
+          <p className="text-[#1F7A72] text-xs mt-1">Clinician & Nurse Portal</p>
         </div>
 
         <div className="w-full max-w-md">
-          <h2 className="text-[#0F1B2D] font-bold mb-1" style={{ fontSize: '28px' }}>Welcome back</h2>
-          <p className="text-[#5B6B7F] text-sm mb-8">Sign in to your patient dashboard.</p>
+          <h2 className="text-[#0C1F20] font-bold mb-1" style={{ fontSize: '28px', fontFamily: 'Fraunces, Georgia, serif' }}>Welcome back</h2>
+          <p className="text-[#3A5255] text-sm mb-8">Sign in to your patient dashboard.</p>
 
           <form onSubmit={handleSignIn} className="space-y-5" noValidate>
             <div>
-              <label htmlFor="email" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="email" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Email address
               </label>
               <input
@@ -202,17 +204,17 @@ export default function LoginPage() {
                 required
                 disabled={loading}
                 autoComplete="email"
-                className="w-full bg-[#FFFFFF] border border-[#E6ECF2] rounded-xl px-4 py-3.5 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 text-sm transition-colors disabled:opacity-50"
+                className="w-full bg-[#FFFFFF] border border-[#D6CFC4] rounded-xl px-4 py-3.5 text-[#0C1F20] placeholder:text-[#6B8588] focus:border-[#1F7A72] focus:outline-none focus:ring-2 focus:ring-[#1F7A72]/20 text-sm transition-colors disabled:opacity-50"
                 aria-label="Email address"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label htmlFor="password" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest">
+                <label htmlFor="password" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest">
                   Password
                 </label>
-                <Link href="/forgot-password" className="text-[#5B6B7F] text-xs hover:text-[#14B8A6] transition-colors font-medium">
+                <Link href="/forgot-password" className="text-[#3A5255] text-xs hover:text-[#1F7A72] transition-colors font-medium">
                   Forgot password?
                 </Link>
               </div>
@@ -225,21 +227,21 @@ export default function LoginPage() {
                 required
                 disabled={loading}
                 autoComplete="current-password"
-                className="w-full bg-[#FFFFFF] border border-[#E6ECF2] rounded-xl px-4 py-3.5 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 text-sm transition-colors disabled:opacity-50"
+                className="w-full bg-[#FFFFFF] border border-[#D6CFC4] rounded-xl px-4 py-3.5 text-[#0C1F20] placeholder:text-[#6B8588] focus:border-[#1F7A72] focus:outline-none focus:ring-2 focus:ring-[#1F7A72]/20 text-sm transition-colors disabled:opacity-50"
                 aria-label="Password"
               />
             </div>
 
             {error && (
-              <div role="alert" className="bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/40 rounded-xl px-4 py-3">
-                <p className="text-[#F43F5E] text-sm">{error}</p>
+              <div role="alert" className="bg-[rgba(200,16,46,0.08)] border border-[#C8102E]/30 rounded-xl px-4 py-3">
+                <p className="text-[#C8102E] text-sm">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#14B8A6] text-[#F6F9FC] font-bold rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
+              className="w-full bg-[#E8603C] text-[#F5EFE3] font-bold rounded-xl hover:bg-[#C8102E] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -253,10 +255,10 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-[#E6ECF2] text-center">
-            <p className="text-[#8C9AAB] text-xs">
+          <div className="mt-6 pt-6 border-t border-[#D6CFC4] text-center">
+            <p className="text-[#6B8588] text-xs">
               New clinician?{' '}
-              <Link href="/signup" className="text-[#5B6B7F] font-medium hover:text-[#14B8A6] transition-colors">
+              <Link href="/signup" className="text-[#3A5255] font-medium hover:text-[#1F7A72] transition-colors">
                 Register here
               </Link>
             </p>

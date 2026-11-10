@@ -1,4 +1,4 @@
-import { Tabs, router } from "expo-router"
+﻿import { Tabs, router } from "expo-router"
 import { TouchableOpacity, View, Text, Animated, StyleSheet } from "react-native"
 import { useRef, useEffect } from "react"
 import { Ionicons } from "@expo/vector-icons"
@@ -31,7 +31,7 @@ function TabItem({
   useEffect(() => {
     Animated.parallel([
       Animated.timing(pillWidth,   { toValue: active ? 1 : 0, duration: 220, useNativeDriver: false }),
-      Animated.timing(pillOpacity, { toValue: active ? 1 : 0, duration: 180, useNativeDriver: true }),
+      Animated.timing(pillOpacity, { toValue: active ? 1 : 0, duration: 180, useNativeDriver: false }),
     ]).start()
   }, [active])
 
@@ -247,7 +247,7 @@ export default function TabsLayout() {
             height:          TAB_HEIGHT,
             borderRadius:    33,
             borderTopWidth:  0,
-            shadowColor:     "#0F1B2D",
+            shadowColor:     "#0C1F20",
             shadowOffset:    { width: 0, height: 8 },
             shadowOpacity:   0.10,
             shadowRadius:    24,

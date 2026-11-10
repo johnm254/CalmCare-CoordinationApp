@@ -80,7 +80,7 @@ function EcgSvg({ variant = 0 }: { variant?: number }) {
   const hr = [72, 68, 81, 75][variant % 4];
 
   return (
-    <div className="overflow-x-auto rounded-xl bg-[#F6F9FC] border border-[#E6ECF2]">
+    <div className="overflow-x-auto rounded-xl bg-[#F5EFE3] border border-[#D6CFC4]">
       <svg
         width={width}
         height={height}
@@ -90,15 +90,15 @@ function EcgSvg({ variant = 0 }: { variant?: number }) {
       >
         {vLines.map((x) => (
           <line key={`v${x}`} x1={x} y1={0} x2={x} y2={height}
-            stroke="#F1F5FA" strokeWidth={x % majorStep === 0 ? 1 : 0.4} />
+            stroke="#EDE8DF" strokeWidth={x % majorStep === 0 ? 1 : 0.4} />
         ))}
         {hLines.map((y) => (
           <line key={`h${y}`} x1={0} y1={y} x2={width} y2={y}
-            stroke="#F1F5FA" strokeWidth={y % majorStep === 0 ? 1 : 0.4} />
+            stroke="#EDE8DF" strokeWidth={y % majorStep === 0 ? 1 : 0.4} />
         ))}
-        <path d={path} fill="none" stroke="#22C87A" strokeWidth={1.8}
+        <path d={path} fill="none" stroke="#1F7A72" strokeWidth={1.8}
           strokeLinecap="round" strokeLinejoin="round" />
-        <text x={8} y={12} fill="#8C9AAB" fontSize={9} fontFamily="monospace">
+        <text x={8} y={12} fill="#6B8588" fontSize={9} fontFamily="monospace">
           25mm/s · {hr} bpm · Lead II
         </text>
       </svg>
@@ -113,14 +113,14 @@ function EcgSvg({ variant = 0 }: { variant?: number }) {
 function StatusBadge({ status }: { status: RecordingStatus }) {
   if (status === 'reviewed') {
     return (
-      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[rgba(0,217,126,0.10)] text-[#22C87A] border border-[#22C87A]/20">
+      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[rgba(31,122,114,0.10)] text-[#1F7A72] border border-[#1F7A72]/20">
         <span className="w-1.5 h-1.5 rounded-full bg-current" />
         reviewed
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[rgba(244,184,96,0.10)] text-[#F4B860] border border-[#F4B860]/20">
+    <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[rgba(241,199,107,0.10)] text-[#F1C76B] border border-[#F1C76B]/20">
       <span className="w-1.5 h-1.5 rounded-full bg-current" />
       unreviewed
     </span>
@@ -141,18 +141,18 @@ function EcgCard({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden">
+    <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl overflow-hidden">
       <div className="flex items-center justify-between px-6 py-4 gap-4 flex-wrap">
         <div className="flex items-center gap-3 flex-wrap">
-          <p className="text-[#0F1B2D] font-semibold text-sm">
+          <p className="text-[#0C1F20] font-semibold text-sm">
             {recording.date} · {recording.time}
           </p>
-          <span className="text-[#8C9AAB] text-xs">Duration: {recording.duration}</span>
+          <span className="text-[#6B8588] text-xs">Duration: {recording.duration}</span>
           <StatusBadge status={recording.status} />
         </div>
         <button
           onClick={() => setExpanded((v) => !v)}
-          className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-xl bg-[#F1F5FA] border border-[#E6ECF2] text-[#5B6B7F] hover:text-[#0F1B2D] hover:border-[#8C9AAB] transition-colors flex-shrink-0"
+          className="flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-xl bg-[#EDE8DF] border border-[#D6CFC4] text-[#3A5255] hover:text-[#0C1F20] hover:border-[#6B8588] transition-colors flex-shrink-0"
         >
           {expanded ? (
             <>
@@ -173,13 +173,13 @@ function EcgCard({
       </div>
 
       {expanded && (
-        <div className="px-6 pb-6 border-t border-[#E6ECF2] pt-4">
+        <div className="px-6 pb-6 border-t border-[#D6CFC4] pt-4">
           <EcgSvg variant={MOCK_RECORDINGS.findIndex(r => r.id === recording.id)} />
           {recording.status === 'unreviewed' && (
             <div className="mt-4">
               <button
                 onClick={() => onMarkReviewed(recording.id)}
-                className="text-xs font-bold px-4 py-2 rounded-xl bg-[rgba(0,217,126,0.12)] text-[#22C87A] border border-[#22C87A]/25 hover:bg-[rgba(0,217,126,0.22)] transition-colors"
+                className="text-xs font-bold px-4 py-2 rounded-xl bg-[rgba(0,217,126,0.12)] text-[#1F7A72] border border-[#1F7A72]/25 hover:bg-[rgba(0,217,126,0.22)] transition-colors"
               >
                 Mark as reviewed
               </button>
@@ -209,7 +209,7 @@ export default function EcgPage({ params }: { params: { id: string } }) {
       <div className="mb-5">
         <Link
           href={`/dashboard/patients/${params.id}`}
-          className="inline-flex items-center gap-1.5 text-sm text-[#5B6B7F] hover:text-[#0F1B2D] transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-[#3A5255] hover:text-[#0C1F20] transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -219,9 +219,9 @@ export default function EcgPage({ params }: { params: { id: string } }) {
       </div>
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#0F1B2D]">ECG Recordings</h1>
-        <p className="text-[#5B6B7F] text-sm mt-1">
-          Review wrist ECG strips captured by the Mojo Strap.
+        <h1 className="text-2xl font-bold text-[#0C1F20]">ECG Recordings</h1>
+        <p className="text-[#3A5255] text-sm mt-1">
+          Review wrist ECG strips captured by the epimoyo Strap.
         </p>
       </div>
 

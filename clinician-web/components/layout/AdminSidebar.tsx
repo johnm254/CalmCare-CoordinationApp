@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -8,7 +8,7 @@ const NAV = [
   {
     href: '/admin',
     label: 'Overview',
-    color: 'from-[#22C87A] to-[#059669]',
+    color: 'from-[#1F7A72] to-[#12383A]',
     exact: true,
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -19,7 +19,7 @@ const NAV = [
   {
     href: '/admin/clinicians',
     label: 'Clinicians',
-    color: 'from-[#8B5CF6] to-[#6D28D9]',
+    color: 'from-[#1F7A72] to-[#12383A]',
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -29,7 +29,7 @@ const NAV = [
   {
     href: '/admin/activity',
     label: 'Activity',
-    color: 'from-[#3B82F6] to-[#1D4ED8]',
+    color: 'from-[#1F7A72] to-[#12383A]',
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -39,7 +39,7 @@ const NAV = [
   {
     href: '/admin/emergency-routing',
     label: 'Emergency Routing',
-    color: 'from-[#EF4444] to-[#B91C1C]',
+    color: 'from-[#C8102E] to-[#8B0000]',
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 17H5a2 2 0 01-2-2V5a2 2 0 012-2h11l4 4v4m-5 8h6m-3-3v6M9 12l2 2 4-4" />
@@ -49,7 +49,7 @@ const NAV = [
   {
     href: '/admin/crisis-resources',
     label: 'Crisis Resources',
-    color: 'from-[#F4B860] to-[#D97706]',
+    color: 'from-[#E8603C] to-[#C8102E]',
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -59,7 +59,7 @@ const NAV = [
   {
     href: '/admin/dpa-requests',
     label: 'DPA Requests',
-    color: 'from-[#8B5CF6] to-[#6D28D9]',
+    color: 'from-[#1F7A72] to-[#12383A]',
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -69,7 +69,7 @@ const NAV = [
   {
     href: '/admin/feature-flags',
     label: 'Feature Flags',
-    color: 'from-[#3B82F6] to-[#1D4ED8]',
+    color: 'from-[#1F7A72] to-[#12383A]',
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8 9h8M8 12h5m-5 3h3M5 4h14a1 1 0 011 1v2a1 1 0 01-.293.707L15 12l4.707 4.293A1 1 0 0120 17v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z" />
@@ -79,7 +79,7 @@ const NAV = [
   {
     href: '/admin/templates',
     label: 'Templates',
-    color: 'from-[#22C87A] to-[#059669]',
+    color: 'from-[#1F7A72] to-[#12383A]',
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -89,7 +89,7 @@ const NAV = [
   {
     href: '/admin/incident-log',
     label: 'Incident Log',
-    color: 'from-[#EF4444] to-[#B91C1C]',
+    color: 'from-[#C8102E] to-[#8B0000]',
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -99,7 +99,7 @@ const NAV = [
   {
     href: '/admin/settings',
     label: 'Settings',
-    color: 'from-[#8B5CF6] to-[#6D28D9]',
+    color: 'from-[#1F7A72] to-[#12383A]',
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -108,6 +108,16 @@ const NAV = [
   },
 ];
 
+function EpimoyoIcon() {
+  return (
+    <svg viewBox="0 0 48 48" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="epimoyo">
+      <path d="M36.7 11.3 A18 18 0 1 1 36.7 36.7" stroke="white" strokeWidth="5.5" strokeLinecap="round"/>
+      <polyline points="8,24 15,24 19,15 23,33 27,24 36,24" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="39.5" cy="37.5" r="4.5" fill="#E8603C"/>
+    </svg>
+  );
+}
+
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -115,24 +125,18 @@ export default function AdminSidebar() {
   const sidebarContent = (
     <>
       {/* Logo */}
-      <div className="px-5 pt-6 pb-5 border-b border-[#E6ECF2]">
+      <div className="px-5 pt-6 pb-5 border-b border-[#D6CFC4]">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#0D9488] to-[#0891B2] flex items-center justify-center flex-shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-5 h-5" aria-label="Mojo">
-                <rect x="4" y="4" width="88" height="88" rx="18" fill="rgba(255,255,255,0.15)"/>
-                <rect x="16" y="16" width="12" height="64" fill="white"/>
-                <rect x="68" y="16" width="12" height="64" fill="white"/>
-                <polygon points="16,16 28,16 55,52 44,52" fill="white"/>
-                <polygon points="68,16 80,16 55,52 44,52" fill="white"/>
-              </svg>
+            <div className="w-9 h-9 rounded-xl bg-[#12383A] flex items-center justify-center flex-shrink-0">
+              <EpimoyoIcon />
             </div>
             <div>
-              <p className="text-[#0F1B2D] font-bold text-base leading-none">Mojo</p>
-              <p className="text-[#8C9AAB] text-xs mt-0.5">Admin Panel</p>
+              <p className="text-[#0C1F20] font-bold text-base leading-none" style={{ fontFamily: 'Fraunces, Georgia, serif' }}>epimoyo</p>
+              <p className="text-[#6B8588] text-xs mt-0.5">Admin Panel</p>
             </div>
           </div>
-          <button onClick={() => setOpen(false)} className="md:hidden text-[#5B6B7F] p-1 rounded-lg hover:bg-[#F1F5FA]">
+          <button onClick={() => setOpen(false)} className="md:hidden text-[#3A5255] p-1 rounded-lg hover:bg-[#EDE8DF]">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -142,7 +146,7 @@ export default function AdminSidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-5 space-y-1 overflow-y-auto">
-        <p className="text-[#8C9AAB] text-[10px] font-semibold uppercase tracking-widest px-3 mb-3">Main Menu</p>
+        <p className="text-[#6B8588] text-[10px] font-semibold uppercase tracking-widest px-3 mb-3">Main Menu</p>
         {NAV.map((item) => {
           const active = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           return (
@@ -152,11 +156,11 @@ export default function AdminSidebar() {
               onClick={() => setOpen(false)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                 active
-                  ? 'bg-[#14B8A6]/10 text-[#14B8A6] border border-[#14B8A6]/20'
-                  : 'text-[#5B6B7F] hover:bg-[#F1F5FA] hover:text-[#0F1B2D]'
+                  ? 'bg-[#1F7A72]/10 text-[#1F7A72] border border-[#1F7A72]/20'
+                  : 'text-[#3A5255] hover:bg-[#EDE8DF] hover:text-[#0C1F20]'
               }`}
             >
-              <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${active ? 'bg-gradient-to-br ' + item.color + ' text-white' : 'bg-[#F1F5FA] text-[#5B6B7F]'}`}>
+              <span className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 ${active ? 'bg-gradient-to-br ' + item.color + ' text-white' : 'bg-[#EDE8DF] text-[#3A5255]'}`}>
                 {item.icon}
               </span>
               {item.label}
@@ -166,14 +170,14 @@ export default function AdminSidebar() {
       </nav>
 
       {/* System status */}
-      <div className="mx-3 mb-4 p-4 rounded-2xl bg-[#F1F5FA] border border-[#E6ECF2]">
-        <p className="text-[#8C9AAB] text-[10px] font-semibold uppercase tracking-widest mb-2">System Status</p>
+      <div className="mx-3 mb-4 p-4 rounded-2xl bg-[#EDE8DF] border border-[#D6CFC4]">
+        <p className="text-[#6B8588] text-[10px] font-semibold uppercase tracking-widest mb-2">System Status</p>
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10B981] opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#10B981]"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#1F7A72] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#1F7A72]"></span>
           </span>
-          <p className="text-[#0F1B2D] text-xs font-medium">All Systems Operational</p>
+          <p className="text-[#0C1F20] text-xs font-medium">All Systems Operational</p>
         </div>
       </div>
     </>
@@ -184,9 +188,9 @@ export default function AdminSidebar() {
       {/* Mobile hamburger button */}
       <button
         onClick={() => setOpen(true)}
-        className="md:hidden fixed top-4 left-4 z-30 w-9 h-9 flex items-center justify-center rounded-xl bg-[#FFFFFF] border border-[#E6ECF2] shadow-sm"
+        className="md:hidden fixed top-4 left-4 z-30 w-9 h-9 flex items-center justify-center rounded-xl bg-[#FFFFFF] border border-[#D6CFC4] shadow-sm"
       >
-        <svg className="w-5 h-5 text-[#5B6B7F]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-5 h-5 text-[#3A5255]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
@@ -197,12 +201,12 @@ export default function AdminSidebar() {
       )}
 
       {/* Mobile drawer */}
-      <aside className={`md:hidden fixed top-0 left-0 h-full w-64 z-50 bg-[#FFFFFF] border-r border-[#E6ECF2] flex flex-col transform transition-transform ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+      <aside className={`md:hidden fixed top-0 left-0 h-full w-64 z-50 bg-[#FFFFFF] border-r border-[#D6CFC4] flex flex-col transform transition-transform ${open ? 'translate-x-0' : '-translate-x-full'}`}>
         {sidebarContent}
       </aside>
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:flex w-56 flex-shrink-0 bg-[#FFFFFF] border-r border-[#E6ECF2] flex-col">
+      <aside className="hidden md:flex w-56 flex-shrink-0 bg-[#FFFFFF] border-r border-[#D6CFC4] flex-col">
         {sidebarContent}
       </aside>
     </>

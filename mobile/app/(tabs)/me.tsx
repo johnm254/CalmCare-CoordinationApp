@@ -911,7 +911,7 @@ const del = StyleSheet.create({
   cancelText: { fontSize: fonts.sm, color: colors.teal, fontWeight: "600" },
 })
 
-// ─── Mojo Strap modal ──────────────────────────────────────────────────────────
+// ─── epimoyo Strap modal ──────────────────────────────────────────────────────────
 
 type StrapPhase = "idle" | "scanning" | "pairing" | "connected"
 
@@ -972,8 +972,8 @@ function EpiStrapSheet({
     if (flagEnabled) {
       scanForStraps((result) => setFoundDevices((prev) => [...prev.filter((d) => d.id !== result.id), result]), 15000)
     } else {
-      setTimeout(() => setFoundDevices([{ id: "M1:A2:B3:C4:D5:01", name: "Mojo Strap", rssi: -52 }]), 900)
-      setTimeout(() => setFoundDevices([{ id: "M1:A2:B3:C4:D5:01", name: "Mojo Strap", rssi: -52 }, { id: "M1:A2:B3:C4:D5:02", name: "Mojo Strap (2)", rssi: -71 }]), 1800)
+      setTimeout(() => setFoundDevices([{ id: "M1:A2:B3:C4:D5:01", name: "epimoyo Strap", rssi: -52 }]), 900)
+      setTimeout(() => setFoundDevices([{ id: "M1:A2:B3:C4:D5:01", name: "epimoyo Strap", rssi: -52 }, { id: "M1:A2:B3:C4:D5:02", name: "epimoyo Strap (2)", rssi: -71 }]), 1800)
     }
   }
 
@@ -1025,7 +1025,7 @@ function EpiStrapSheet({
         : colors.textMuted
 
   return (
-    <Sheet visible={visible} onClose={onClose} title="Mojo Strap">
+    <Sheet visible={visible} onClose={onClose} title="epimoyo Strap">
       <View style={{ gap: spacing.lg }}>
         {!flagEnabled && (
           <View style={dev.earlyBanner}>
@@ -1043,7 +1043,7 @@ function EpiStrapSheet({
           </View>
           <View style={{ flex: 1 }}>
             <Text style={dev.deviceName}>
-              {phase === "connected" && connectedDevice ? (connectedDevice.name ?? "Unknown device") : "Mojo Strap"}
+              {phase === "connected" && connectedDevice ? (connectedDevice.name ?? "Unknown device") : "epimoyo Strap"}
             </Text>
             <View style={dev.statusRow}>
               <View style={[dev.statusDot, { backgroundColor: dotColor }]} />
@@ -1068,7 +1068,7 @@ function EpiStrapSheet({
           <>
             <View style={dev.infoCard}>
               <Text style={dev.infoText}>
-                The Mojo Strap automatically detects seizure patterns and sends a
+                The epimoyo Strap automatically detects seizure patterns and sends a
                 silent SOS if you are unresponsive. Requires Bluetooth.
               </Text>
             </View>
@@ -1923,7 +1923,7 @@ export default function MeScreen() {
             activeOpacity={0.75}
             accessibilityRole="button"
           >
-            <IconBadge bg="rgba(20,184,166,0.12)">
+            <IconBadge bg="rgba(31,122,114,0.12)">
               <View
                 style={{
                   width: 14,
@@ -2024,7 +2024,7 @@ export default function MeScreen() {
         <SectionHeader title="DEVICES" />
         <View style={s.card}>
           <SettingRow
-            iconBg="rgba(20,184,166,0.12)"
+            iconBg="rgba(31,122,114,0.12)"
             icon={
               <View
                 style={{
@@ -2036,7 +2036,7 @@ export default function MeScreen() {
                 }}
               />
             }
-            label="Mojo Strap"
+            label="epimoyo Strap"
             value={strapConnected ? "Connected" : "Not paired"}
             onPress={() => setOpenModal("strap")}
           />
@@ -2088,7 +2088,7 @@ export default function MeScreen() {
           />
           <View style={s.divider} />
           <SettingRow
-            iconBg="rgba(20,184,166,0.12)"
+            iconBg="rgba(31,122,114,0.12)"
             icon={
               <View style={{ gap: 3 }}>
                 <View

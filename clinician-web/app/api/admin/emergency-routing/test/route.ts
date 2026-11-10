@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin as supabase } from '../../../../../lib/supabase-admin';
 
 export async function POST(req: NextRequest) {
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
             test: true,
             ref: testRef,
             message:
-              'This is an automated routing test from Mojo. No emergency has occurred. Please disregard.',
+              'This is an automated routing test from epimoyo. No emergency has occurred. Please disregard.',
           }),
           signal: AbortSignal.timeout(10000),
         });

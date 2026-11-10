@@ -480,7 +480,7 @@ const styles = StyleSheet.create({
   },
   inputFocused: {
     borderColor: colors.teal,
-    backgroundColor: "rgba(20,184,166,0.05)",
+    backgroundColor: "rgba(31,122,114,0.05)",
   },
   input: { color: colors.text, fontSize: fonts.base },
 

@@ -18,12 +18,12 @@ function StrengthBar({ password }: { password: string }) {
   // 0 = empty, 1-2 = weak (red), 3 = fair (amber), 4-5 = strong (green)
   const color =
     password.length === 0
-      ? '#E6ECF2'
+      ? '#D6CFC4'
       : passing <= 2
-      ? '#F43F5E'
+      ? '#C8102E'
       : passing === 3
-      ? '#F4B860'
-      : '#22C87A';
+      ? '#F1C76B'
+      : '#1F7A72';
 
   return (
     <div className="mt-2 space-y-2">
@@ -32,14 +32,14 @@ function StrengthBar({ password }: { password: string }) {
           <div
             key={i}
             className="h-1.5 flex-1 rounded-full transition-colors duration-300"
-            style={{ backgroundColor: password.length > 0 && i <= passing ? color : '#E6ECF2' }}
+            style={{ backgroundColor: password.length > 0 && i <= passing ? color : '#D6CFC4' }}
           />
         ))}
       </div>
       {password.length > 0 && errors.length > 0 && (
         <ul className="space-y-0.5">
           {errors.map((err) => (
-            <li key={err} className="text-xs text-[#F43F5E] flex items-center gap-1.5">
+            <li key={err} className="text-xs text-[#C8102E] flex items-center gap-1.5">
               <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 12 12" fill="currentColor">
                 <path d="M6 0a6 6 0 100 12A6 6 0 006 0zm.75 8.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM5.25 4.5a.75.75 0 011.5 0v2a.75.75 0 01-1.5 0v-2z" />
               </svg>
@@ -49,7 +49,7 @@ function StrengthBar({ password }: { password: string }) {
         </ul>
       )}
       {password.length > 0 && errors.length === 0 && (
-        <p className="text-xs text-[#22C87A] flex items-center gap-1.5">
+        <p className="text-xs text-[#1F7A72] flex items-center gap-1.5">
           <svg className="w-3 h-3 flex-shrink-0" viewBox="0 0 12 12" fill="currentColor">
             <path d="M6 0a6 6 0 100 12A6 6 0 006 0zm3.03 4.47L5.28 8.22a.75.75 0 01-1.06 0L2.97 6.97a.75.75 0 111.06-1.06l.72.72 3.22-3.22a.75.75 0 011.06 1.06z" />
           </svg>
@@ -137,26 +137,26 @@ export default function SignUpPage() {
   }
 
   const inputClass =
-    'w-full bg-[#FFFFFF] border border-[#E6ECF2] rounded-xl px-4 py-3.5 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 text-sm transition-colors disabled:opacity-50';
+    'w-full bg-[#FFFFFF] border border-[#D6CFC4] rounded-xl px-4 py-3.5 text-[#0C1F20] placeholder:text-[#6B8588] focus:border-[#1F7A72] focus:outline-none focus:ring-2 focus:ring-[#1F7A72]/20 text-sm transition-colors disabled:opacity-50';
 
   return (
-    <div className="min-h-screen bg-[#F6F9FC] flex">
+    <div className="min-h-screen bg-[#F5EFE3] flex">
       {/* Left panel */}
-      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-[#0D9488] to-[#0891B2] flex-col items-center justify-center px-12 py-16 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] bg-gradient-to-br from-[#12383A] to-[#12383A] flex-col items-center justify-center px-12 py-16 relative overflow-hidden">
         <div className="relative z-10 flex flex-col items-center text-center max-w-sm w-full">
           <div className="relative mb-2">
             <div className="w-14 h-14 rounded-full border-2 border-white opacity-20 absolute inset-0" />
             <div className="absolute rounded-full border-2 border-white opacity-50" style={{ inset: 10 }} />
             <div className="absolute rounded-full bg-white opacity-30" style={{ inset: 20 }} />
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-14 h-14 relative" aria-label="Mojo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-14 h-14 relative" aria-label="epimoyo">
           <rect x="4" y="4" width="88" height="88" rx="18" fill="rgba(255,255,255,0.15)"/>
-          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
-          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
-          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
-          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+          <rect x="16" y="16" width="12" height="64" fill="#1F7A72"/>
+          <rect x="68" y="16" width="12" height="64" fill="#1F7A72"/>
+          <polygon points="16,16 28,16 55,52 44,52" fill="#1F7A72"/>
+          <polygon points="68,16 80,16 55,52 44,52" fill="#1F7A72"/>
         </svg>
           </div>
-          <h1 className="text-white font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>Mojo</h1>
+          <h1 className="text-white font-extrabold mt-3 leading-none" style={{ fontSize: '42px' }}>epimoyo</h1>
           <p className="text-white/80 text-sm mt-2 tracking-wide font-medium">Clinician & Nurse Portal</p>
 
           <div className="mt-10 w-full space-y-6">
@@ -197,28 +197,28 @@ export default function SignUpPage() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#F6F9FC] overflow-y-auto">
+      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#F5EFE3] overflow-y-auto">
         {/* Mobile logo */}
         <div className="flex lg:hidden flex-col items-center mb-8">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-12 h-12" aria-label="Mojo">
-          <rect x="4" y="4" width="88" height="88" rx="18" fill="#0D9488"/>
-          <rect x="16" y="16" width="12" height="64" fill="#14B8A6"/>
-          <rect x="68" y="16" width="12" height="64" fill="#14B8A6"/>
-          <polygon points="16,16 28,16 55,52 44,52" fill="#14B8A6"/>
-          <polygon points="68,16 80,16 55,52 44,52" fill="#14B8A6"/>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-12 h-12" aria-label="epimoyo">
+          <rect x="4" y="4" width="88" height="88" rx="18" fill="#12383A"/>
+          <rect x="16" y="16" width="12" height="64" fill="#1F7A72"/>
+          <rect x="68" y="16" width="12" height="64" fill="#1F7A72"/>
+          <polygon points="16,16 28,16 55,52 44,52" fill="#1F7A72"/>
+          <polygon points="68,16 80,16 55,52 44,52" fill="#1F7A72"/>
         </svg>
-          <p className="text-[#0F1B2D] font-extrabold text-2xl mt-2">Mojo</p>
-          <p className="text-[#14B8A6] text-xs mt-1">Clinician & Nurse Portal</p>
+          <p className="text-[#0C1F20] font-extrabold text-2xl mt-2">epimoyo</p>
+          <p className="text-[#1F7A72] text-xs mt-1">Clinician & Nurse Portal</p>
         </div>
 
         <div className="w-full max-w-md">
-          <h2 className="text-[#0F1B2D] font-bold mb-1" style={{ fontSize: '28px' }}>Create your account</h2>
-          <p className="text-[#5B6B7F] text-sm mb-8">Register as a clinician or nurse to access patient dashboards.</p>
+          <h2 className="text-[#0C1F20] font-bold mb-1" style={{ fontSize: '28px' }}>Create your account</h2>
+          <p className="text-[#3A5255] text-sm mb-8">Register as a clinician or nurse to access patient dashboards.</p>
 
           <form onSubmit={handleSignUp} className="space-y-5" noValidate>
             {/* Full name */}
             <div>
-              <label htmlFor="full-name" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="full-name" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Full name
               </label>
               <input
@@ -237,7 +237,7 @@ export default function SignUpPage() {
 
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="email" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Email address
               </label>
               <input
@@ -256,7 +256,7 @@ export default function SignUpPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="password" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Password
               </label>
               <div className="relative">
@@ -276,7 +276,7 @@ export default function SignUpPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C9AAB] hover:text-[#5B6B7F] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B8588] hover:text-[#3A5255] transition-colors"
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                   tabIndex={-1}
                 >
@@ -300,7 +300,7 @@ export default function SignUpPage() {
 
             {/* Confirm password */}
             <div>
-              <label htmlFor="confirm-password" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="confirm-password" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Confirm password
               </label>
               <div className="relative">
@@ -319,7 +319,7 @@ export default function SignUpPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8C9AAB] hover:text-[#5B6B7F] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6B8588] hover:text-[#3A5255] transition-colors"
                   aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
                   tabIndex={-1}
                 >
@@ -337,16 +337,16 @@ export default function SignUpPage() {
                 </button>
               </div>
               {confirmPassword.length > 0 && confirmPassword !== password && (
-                <p className="mt-1.5 text-xs text-[#F43F5E]">Passwords do not match</p>
+                <p className="mt-1.5 text-xs text-[#C8102E]">Passwords do not match</p>
               )}
               {confirmPassword.length > 0 && confirmPassword === password && password.length > 0 && (
-                <p className="mt-1.5 text-xs text-[#22C87A]">Passwords match</p>
+                <p className="mt-1.5 text-xs text-[#1F7A72]">Passwords match</p>
               )}
             </div>
 
             {/* Cadre */}
             <div>
-              <label htmlFor="cadre" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="cadre" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Cadre
               </label>
               <select
@@ -367,7 +367,7 @@ export default function SignUpPage() {
 
             {/* Registering body */}
             <div>
-              <label htmlFor="registering-body" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="registering-body" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Registering body
               </label>
               <select
@@ -388,7 +388,7 @@ export default function SignUpPage() {
 
             {/* Licence number */}
             <div>
-              <label htmlFor="licence-number" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="licence-number" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Licence number
               </label>
               <input
@@ -407,16 +407,16 @@ export default function SignUpPage() {
             {error && (
               <div
                 role="alert"
-                className="bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/40 rounded-xl px-4 py-3"
+                className="bg-[rgba(200,16,46,0.08)] border border-[#C8102E]/30 rounded-xl px-4 py-3"
               >
-                <p className="text-[#F43F5E] text-sm">{error}</p>
+                <p className="text-[#C8102E] text-sm">{error}</p>
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#14B8A6] text-[#F6F9FC] font-bold rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
+              className="w-full bg-[#1F7A72] text-[#F5EFE3] font-bold rounded-xl hover:bg-[#12383A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -430,9 +430,9 @@ export default function SignUpPage() {
             </button>
           </form>
 
-          <p className="text-center text-[#8C9AAB] text-xs mt-8">
+          <p className="text-center text-[#6B8588] text-xs mt-8">
             Already registered?{' '}
-            <Link href="/login" className="text-[#5B6B7F] font-medium hover:text-[#14B8A6] transition-colors">
+            <Link href="/login" className="text-[#3A5255] font-medium hover:text-[#1F7A72] transition-colors">
               Sign in
             </Link>
           </p>

@@ -130,7 +130,7 @@ export default function StrapScreen() {
 
           <Text style={styles.heading}>Strap connected!</Text>
           <Text style={styles.subheading}>
-            Your Mojo Strap is paired and ready. It will monitor for fall
+            Your epimoyo Strap is paired and ready. It will monitor for fall
             events and let you trigger an SOS with the strap button.
           </Text>
 
@@ -159,7 +159,7 @@ export default function StrapScreen() {
           <StrapIcon color={colors.teal} />
         </View>
 
-        <Text style={styles.heading}>Pair your Mojo Strap</Text>
+        <Text style={styles.heading}>Pair your epimoyo Strap</Text>
         <Text style={styles.subheading}>
           Make sure your strap is charged and nearby. It will appear in the
           list below automatically.
@@ -170,7 +170,7 @@ export default function StrapScreen() {
           {scanning ? (
             <View style={styles.scanningRow}>
               <ActivityIndicator color={colors.teal} size="small" />
-              <Text style={styles.scanningText}>Scanning for Mojo Strap...</Text>
+              <Text style={styles.scanningText}>Scanning for epimoyo Strap...</Text>
             </View>
           ) : (
             <TouchableOpacity
@@ -201,7 +201,7 @@ export default function StrapScreen() {
               <View style={styles.deviceRow}>
                 <View style={styles.deviceInfo}>
                   <Text style={styles.deviceName}>
-                    {item.name ?? "Mojo Strap"}
+                    {item.name ?? "epimoyo Strap"}
                   </Text>
                   {item.rssi !== null && (
                     <Text style={styles.deviceRssi}>

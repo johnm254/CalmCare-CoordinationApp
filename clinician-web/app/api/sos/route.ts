@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+﻿import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
                 SOS Alert
               </h1>
               <p style="margin:6px 0 0;color:#fecaca;font-size:14px;">
-                Mojo — Emergency Notification
+                epimoyo — Emergency Notification
               </p>
             </td>
           </tr>
@@ -133,7 +133,7 @@ export async function POST(request: NextRequest) {
           <tr>
             <td style="border-top:1px solid #f3f4f6;padding:24px 40px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#9ca3af;line-height:1.6;">
-                This alert was sent automatically by the Mojo app.<br />
+                This alert was sent automatically by the epimoyo app.<br />
                 You are receiving this because you are listed as an emergency contact.
               </p>
             </td>
@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
       if (!recipient.email) { failed++; continue; }
       try {
         const { error: emailError } = await resend.emails.send({
-          from: 'Mojo SOS <onboarding@resend.dev>',
+          from: 'epimoyo SOS <onboarding@resend.dev>',
           to: recipient.email,
           subject: `SOS Alert — ${patientName} needs help`,
           html: emailHtml,
@@ -222,7 +222,7 @@ export async function POST(request: NextRequest) {
           ? ` Location: https://maps.google.com/?q=${location.lat},${location.lon}`
           : '';
         const sentTime = now.toLocaleTimeString('en-KE', { hour: '2-digit', minute: '2-digit', hour12: false });
-        const smsText = `Mojo SOS: ${patientName} needs help (sent ${sentTime}). Reply 1 = yes, 2 = no.${locPart}`;
+        const smsText = `epimoyo SOS: ${patientName} needs help (sent ${sentTime}). Reply 1 = yes, 2 = no.${locPart}`;
 
         const params = new URLSearchParams({ username: AT_USERNAME, to: phoneNumbers, message: smsText });
         if (AT_SENDER_ID) params.set('from', AT_SENDER_ID);

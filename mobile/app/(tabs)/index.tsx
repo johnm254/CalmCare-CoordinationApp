@@ -1,4 +1,4 @@
-// Today screen — matches artboard "Mojo Modern App Design / Main"
+﻿// Today screen — matches artboard "Mojo Modern App Design / Main"
 // Spec: MOJO_PREMIUM_UI_UPGRADE.md §★ artboard · §8 Patient Today
 
 import { useEffect, useRef, useState } from "react"
@@ -649,7 +649,7 @@ const s = StyleSheet.create({
     padding:         spacing.xl,
     gap:             spacing.md,
     ...shadows.lg,
-    shadowColor:     "#0F1B2D",
+    shadowColor:     "#0C1F20",
     shadowOpacity:   0.18,
   },
   liveChip: { flexDirection: "row", alignItems: "center", gap: 5 },

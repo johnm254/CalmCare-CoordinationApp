@@ -70,38 +70,38 @@ export default function AdminActivityPage() {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#0F1B2D]">System activity</h1>
-        <p className="text-[#5B6B7F] text-sm mt-1">
+        <h1 className="text-2xl font-bold text-[#0C1F20]">System activity</h1>
+        <p className="text-[#3A5255] text-sm mt-1">
           Platform-wide audit trail — SOS alerts, events, and authentication logs.
         </p>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
-          <p className="text-3xl font-black text-[#0F1B2D] mb-0.5">{loading ? '—' : entries.length}</p>
-          <p className="text-[#5B6B7F] text-sm">Total entries</p>
-          <p className="text-[#8C9AAB] text-xs mt-1">Last 100 records</p>
+        <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-5">
+          <p className="text-3xl font-black text-[#0C1F20] mb-0.5">{loading ? '—' : entries.length}</p>
+          <p className="text-[#3A5255] text-sm">Total entries</p>
+          <p className="text-[#6B8588] text-xs mt-1">Last 100 records</p>
         </div>
-        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
-          <p className={`text-3xl font-black mb-0.5 ${sosCount > 0 ? 'text-[#F43F5E]' : 'text-[#0F1B2D]'}`}>{loading ? '—' : sosCount}</p>
-          <p className="text-[#5B6B7F] text-sm">SOS alerts</p>
-          <p className="text-[#8C9AAB] text-xs mt-1">In this window</p>
+        <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-5">
+          <p className={`text-3xl font-black mb-0.5 ${sosCount > 0 ? 'text-[#C8102E]' : 'text-[#0C1F20]'}`}>{loading ? '—' : sosCount}</p>
+          <p className="text-[#3A5255] text-sm">SOS alerts</p>
+          <p className="text-[#6B8588] text-xs mt-1">In this window</p>
         </div>
-        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
-          <p className="text-3xl font-black text-[#14B8A6] mb-0.5">{loading ? '—' : todayCount}</p>
-          <p className="text-[#5B6B7F] text-sm">Events today</p>
-          <p className="text-[#8C9AAB] text-xs mt-1">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
+        <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-5">
+          <p className="text-3xl font-black text-[#1F7A72] mb-0.5">{loading ? '—' : todayCount}</p>
+          <p className="text-[#3A5255] text-sm">Events today</p>
+          <p className="text-[#6B8588] text-xs mt-1">{new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</p>
         </div>
       </div>
 
       {/* Error banner */}
       {fetchError && !loading && (
-        <div className="flex items-center gap-3 bg-[rgba(244,63,94,0.08)] border border-[#F43F5E]/30 rounded-2xl px-5 py-3 mb-5">
-          <svg className="w-4 h-4 text-[#F43F5E] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="flex items-center gap-3 bg-[rgba(244,63,94,0.08)] border border-[#C8102E]/30 rounded-2xl px-5 py-3 mb-5">
+          <svg className="w-4 h-4 text-[#C8102E] flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <p className="text-[#F43F5E] text-sm">Could not load activity. The API may be unavailable or the activity table may not exist yet.</p>
+          <p className="text-[#C8102E] text-sm">Could not load activity. The API may be unavailable or the activity table may not exist yet.</p>
         </div>
       )}
 
@@ -113,8 +113,8 @@ export default function AdminActivityPage() {
             onClick={() => setFilter(f)}
             className={`text-xs font-semibold px-3.5 py-1.5 rounded-full transition-all border ${
               filter === f
-                ? 'bg-[#14B8A6] text-[#F6F9FC] border-[#14B8A6]'
-                : 'bg-transparent text-[#5B6B7F] border-[#E6ECF2] hover:border-[#14B8A6]/50 hover:text-[#0F1B2D]'
+                ? 'bg-[#1F7A72] text-[#F5EFE3] border-[#1F7A72]'
+                : 'bg-transparent text-[#3A5255] border-[#D6CFC4] hover:border-[#1F7A72]/50 hover:text-[#0C1F20]'
             }`}
           >
             {f}
@@ -123,15 +123,15 @@ export default function AdminActivityPage() {
       </div>
 
       {/* Timeline */}
-      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-6">
+      <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-6">
         {loading ? (
           <div className="py-16 text-center">
-            <div className="inline-block w-6 h-6 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-[#5B6B7F] text-sm">Loading activity…</p>
+            <div className="inline-block w-6 h-6 border-2 border-[#1F7A72] border-t-transparent rounded-full animate-spin mb-3" />
+            <p className="text-[#3A5255] text-sm">Loading activity…</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-16 text-center">
-            <p className="text-[#5B6B7F] text-sm">No activity in this category.</p>
+            <p className="text-[#3A5255] text-sm">No activity in this category.</p>
           </div>
         ) : (
           <div className="space-y-0">
@@ -140,17 +140,17 @@ export default function AdminActivityPage() {
               const isEvent = entry.kind === 'event';
               const isLogin = entry.kind === 'login' || entry.kind === 'audit';
 
-              const dotColor = isSOS ? 'bg-[#F43F5E]' : isEvent ? 'bg-[#F4B860]' : 'bg-[#14B8A6]';
+              const dotColor = isSOS ? 'bg-[#C8102E]' : isEvent ? 'bg-[#F1C76B]' : 'bg-[#1F7A72]';
               const ringColor = isSOS
                 ? 'bg-[rgba(244,63,94,0.15)]'
                 : isEvent
-                ? 'bg-[rgba(244,184,96,0.15)]'
-                : 'bg-[rgba(20,184,166,0.12)]';
+                ? 'bg-[rgba(241,199,107,0.15)]'
+                : 'bg-[rgba(31,122,114,0.12)]';
 
               return (
                 <div key={entry.id} className={`flex gap-4 pb-5 relative ${isSOS ? 'bg-[rgba(244,63,94,0.03)] -mx-6 px-6 rounded-xl' : ''}`}>
                   {i < filtered.length - 1 && (
-                    <div className="absolute left-4 top-9 bottom-0 w-px bg-[#E6ECF2]" />
+                    <div className="absolute left-4 top-9 bottom-0 w-px bg-[#D6CFC4]" />
                   )}
                   <div className="flex-shrink-0 mt-0.5">
                     <div className={`w-8 h-8 rounded-full ${ringColor} flex items-center justify-center`}>
@@ -161,30 +161,30 @@ export default function AdminActivityPage() {
                     <div className="flex items-start justify-between gap-4">
                       <div className="min-w-0">
                         {isSOS && (
-                          <span className="inline-flex items-center gap-1 bg-[#F43F5E] text-white text-xs font-bold px-2 py-0.5 rounded-full mb-1.5">
+                          <span className="inline-flex items-center gap-1 bg-[#C8102E] text-white text-xs font-bold px-2 py-0.5 rounded-full mb-1.5">
                             SOS
                           </span>
                         )}
                         {!isSOS && (
                           <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full mb-1.5 ${
                             isEvent
-                              ? 'bg-[rgba(244,184,96,0.12)] text-[#F4B860]'
-                              : 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6]'
+                              ? 'bg-[rgba(244,184,96,0.12)] text-[#F1C76B]'
+                              : 'bg-[rgba(31,122,114,0.10)] text-[#1F7A72]'
                           }`}>
                             {isLogin ? 'Login / System' : 'Event'}
                           </span>
                         )}
-                        <p className="text-[#0F1B2D] text-sm font-semibold">{entry.description}</p>
-                        <p className="text-[#5B6B7F] text-xs mt-0.5">
+                        <p className="text-[#0C1F20] text-sm font-semibold">{entry.description}</p>
+                        <p className="text-[#3A5255] text-xs mt-0.5">
                           {entry.actorName}
                           {entry.patientName && (
-                            <> · <span className="text-[#0F1B2D] font-semibold">{entry.patientName}</span></>
+                            <> · <span className="text-[#0C1F20] font-semibold">{entry.patientName}</span></>
                           )}
                         </p>
                       </div>
                       <div className="flex-shrink-0 text-right">
-                        <p className="text-[#8C9AAB] text-xs whitespace-nowrap">{timeAgo(entry.at)}</p>
-                        <p className="text-[#8C9AAB] text-xs mt-0.5 whitespace-nowrap">{formatTime(entry.at)}</p>
+                        <p className="text-[#6B8588] text-xs whitespace-nowrap">{timeAgo(entry.at)}</p>
+                        <p className="text-[#6B8588] text-xs mt-0.5 whitespace-nowrap">{formatTime(entry.at)}</p>
                       </div>
                     </div>
                   </div>

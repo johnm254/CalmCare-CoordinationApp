@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation';
+﻿import { redirect } from 'next/navigation';
 import { createClient } from '../../../lib/supabase-server';
 import AdminSidebar from '../../../components/layout/AdminSidebar';
 import AdminHeader from '../../../components/admin/AdminHeader';
@@ -19,7 +19,7 @@ export default async function AdminProtectedLayout({ children }: { children: Rea
   if (profile?.role !== 'admin') redirect('/admin/login');
 
   return (
-    <div className="flex h-screen bg-[#F6F9FC] overflow-hidden">
+    <div className="flex h-screen bg-[#F5EFE3] overflow-hidden">
       <InactivityLogout redirectTo="/admin/login" />
       <AdminSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+﻿import { useEffect, useState } from "react"
 
 import {
   View,
@@ -648,7 +648,7 @@ const styles = StyleSheet.create({
 
   caregiverBannerLabel: {
     fontSize: 12,
-    color: "#5B6B7F",
+    color: "#3A5255",
     fontWeight: "600",
   },
 
@@ -661,19 +661,19 @@ const styles = StyleSheet.create({
   patientPickerName: {
     fontSize: 14,
     fontWeight: "700",
-    color: "#0F1B2D",
+    color: "#0C1F20",
   },
 
   patientPickerChevron: {
     fontSize: 12,
-    color: "#14B8A6",
+    color: "#1F7A72",
   },
 
   pickerDropdown: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#E6ECF2",
+    borderColor: "#D6CFC4",
     marginBottom: 12,
     overflow: "hidden",
   },
@@ -681,7 +681,7 @@ const styles = StyleSheet.create({
   pickerItem: {
     padding: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#E6ECF2",
+    borderBottomColor: "#D6CFC4",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -694,11 +694,11 @@ const styles = StyleSheet.create({
   pickerItemName: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#0F1B2D",
+    color: "#0C1F20",
   },
 
   pickerItemRel: {
     fontSize: 12,
-    color: "#5B6B7F",
+    color: "#3A5255",
   },
 })

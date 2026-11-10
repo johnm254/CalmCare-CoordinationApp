@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -21,7 +21,7 @@ export default function PatientTabNav({ patientId }: { patientId: string }) {
   }
 
   return (
-    <nav aria-label="Patient sections" className="flex items-center gap-1 border-b border-[#E6ECF2] mb-8 overflow-x-auto">
+    <nav aria-label="Patient sections" className="flex items-center gap-1 border-b border-[#D6CFC4] mb-8 overflow-x-auto">
       {TABS.map((tab) => {
         const href = tab.href ? `${baseHref}/${tab.href}` : baseHref;
         const active = isActive(tab.href);
@@ -31,8 +31,8 @@ export default function PatientTabNav({ patientId }: { patientId: string }) {
             href={href}
             className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap ${
               active
-                ? 'text-[#14B8A6] border-[#14B8A6]'
-                : 'text-[#5B6B7F] hover:text-[#0F1B2D] border-transparent hover:border-[#E6ECF2]'
+                ? 'text-[#1F7A72] border-[#1F7A72]'
+                : 'text-[#3A5255] hover:text-[#0C1F20] border-transparent hover:border-[#D6CFC4]'
             }`}
           >
             {tab.label}

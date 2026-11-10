@@ -1,4 +1,4 @@
-// SOS screen — online push, offline SMS, no-signal queue.
+﻿// SOS screen — online push, offline SMS, no-signal queue.
 
 // CR-SOS-01: 5-second countdown with cancel window.
 
@@ -243,7 +243,7 @@ export default function SOSScreen() {
         minute: "2-digit",
       })
 
-      let body = `Mojo SOS: ${name} needs help (sent ${time}). Reply 1 = yes, 2 = no.`
+      let body = `epimoyo SOS: ${name} needs help (sent ${time}). Reply 1 = yes, 2 = no.`
 
       if (location) {
         body += ` Location: https://maps.google.com/?q=${location.lat},${location.lon}`

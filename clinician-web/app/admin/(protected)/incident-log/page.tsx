@@ -133,10 +133,10 @@ export default function IncidentLogPage() {
     <div className="p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#0F1B2D]">
+        <h1 className="text-2xl font-bold text-[#0C1F20]">
           Break-glass &amp; Incident Log
         </h1>
-        <p className="text-[#5B6B7F] text-sm mt-1 max-w-2xl">
+        <p className="text-[#3A5255] text-sm mt-1 max-w-2xl">
           Every emergency access event is recorded and audited. Clinicians
           cannot delete or modify this log.
         </p>
@@ -144,9 +144,9 @@ export default function IncidentLogPage() {
 
       {/* Migration banner */}
       {tableError && (
-        <div className="mb-6 flex items-start gap-3 bg-[rgba(244,184,96,0.08)] border border-[#F4B860]/30 rounded-2xl px-5 py-4">
+        <div className="mb-6 flex items-start gap-3 bg-[rgba(244,184,96,0.08)] border border-[#F1C76B]/30 rounded-2xl px-5 py-4">
           <svg
-            className="w-5 h-5 text-[#F4B860] flex-shrink-0 mt-0.5"
+            className="w-5 h-5 text-[#F1C76B] flex-shrink-0 mt-0.5"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -159,11 +159,11 @@ export default function IncidentLogPage() {
             />
           </svg>
           <div>
-            <p className="text-[#F4B860] text-sm font-semibold">
+            <p className="text-[#F1C76B] text-sm font-semibold">
               Table not set up — run migration 011
             </p>
-            <p className="text-[#5B6B7F] text-xs mt-0.5">
-              The <span className="font-mono text-[#0F1B2D]">incident_log</span>{' '}
+            <p className="text-[#3A5255] text-xs mt-0.5">
+              The <span className="font-mono text-[#0C1F20]">incident_log</span>{' '}
               table does not exist yet. Run the 011 migration to enable this
               feature.
             </p>
@@ -173,14 +173,14 @@ export default function IncidentLogPage() {
 
       {/* Table */}
       {!tableError && (
-        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden overflow-x-auto">
+        <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl overflow-hidden overflow-x-auto">
           {/* Table header */}
-          <div className="grid grid-cols-[1fr_1fr_2fr_160px_110px_120px] min-w-[700px] px-6 py-3 bg-[#F6F9FC] border-b border-[#E6ECF2]">
+          <div className="grid grid-cols-[1fr_1fr_2fr_160px_110px_120px] min-w-[700px] px-6 py-3 bg-[#F5EFE3] border-b border-[#D6CFC4]">
             {['Clinician', 'Patient', 'Reason', 'Accessed At', 'Status', ''].map(
               (h) => (
                 <span
                   key={h}
-                  className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider"
+                  className="text-[#6B8588] text-xs font-semibold uppercase tracking-wider"
                 >
                   {h}
                 </span>
@@ -190,13 +190,13 @@ export default function IncidentLogPage() {
 
           {loading ? (
             <div className="py-20 text-center">
-              <div className="inline-block w-6 h-6 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mb-3" />
-              <p className="text-[#5B6B7F] text-sm">Loading log…</p>
+              <div className="inline-block w-6 h-6 border-2 border-[#1F7A72] border-t-transparent rounded-full animate-spin mb-3" />
+              <p className="text-[#3A5255] text-sm">Loading log…</p>
             </div>
           ) : rows.length === 0 ? (
             <div className="py-20 text-center">
               <svg
-                className="w-10 h-10 text-[#E6ECF2] mx-auto mb-4"
+                className="w-10 h-10 text-[#D6CFC4] mx-auto mb-4"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -208,10 +208,10 @@ export default function IncidentLogPage() {
                   d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
                 />
               </svg>
-              <p className="text-[#5B6B7F] text-sm font-medium">
+              <p className="text-[#3A5255] text-sm font-medium">
                 No break-glass events recorded.
               </p>
-              <p className="text-[#8C9AAB] text-xs mt-1">
+              <p className="text-[#6B8588] text-xs mt-1">
                 All clear — no emergency access has been logged.
               </p>
             </div>
@@ -219,44 +219,44 @@ export default function IncidentLogPage() {
             rows.map((row) => (
               <div
                 key={row.id}
-                className="grid grid-cols-[1fr_1fr_2fr_160px_110px_120px] min-w-[700px] px-6 py-4 border-b border-[#E6ECF2] last:border-0 items-center hover:bg-[#F1F5FA] transition-colors"
+                className="grid grid-cols-[1fr_1fr_2fr_160px_110px_120px] min-w-[700px] px-6 py-4 border-b border-[#D6CFC4] last:border-0 items-center hover:bg-[#EDE8DF] transition-colors"
               >
                 {/* Clinician */}
                 <div>
-                  <p className="text-[#0F1B2D] text-sm font-semibold">
+                  <p className="text-[#0C1F20] text-sm font-semibold">
                     {row.clinician_name ?? '—'}
                   </p>
-                  <p className="text-[#8C9AAB] text-xs font-mono">
+                  <p className="text-[#6B8588] text-xs font-mono">
                     {row.clinician_id.slice(0, 8)}
                   </p>
                 </div>
 
                 {/* Patient */}
                 <div>
-                  <p className="text-[#0F1B2D] text-sm font-semibold">
+                  <p className="text-[#0C1F20] text-sm font-semibold">
                     {row.patient_name ?? '—'}
                   </p>
-                  <p className="text-[#8C9AAB] text-xs font-mono">
+                  <p className="text-[#6B8588] text-xs font-mono">
                     {row.patient_id.slice(0, 8)}
                   </p>
                 </div>
 
                 {/* Reason */}
-                <p className="text-[#5B6B7F] text-sm truncate">
-                  {row.reason ?? <span className="text-[#8C9AAB]">No reason provided</span>}
+                <p className="text-[#3A5255] text-sm truncate">
+                  {row.reason ?? <span className="text-[#6B8588]">No reason provided</span>}
                 </p>
 
                 {/* Accessed At */}
-                <p className="text-[#5B6B7F] text-xs">{fmtDate(row.accessed_at)}</p>
+                <p className="text-[#3A5255] text-xs">{fmtDate(row.accessed_at)}</p>
 
                 {/* Status badge */}
                 {row.resolved_at ? (
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold border rounded-full px-2.5 py-0.5 w-fit text-[#22C87A] bg-[rgba(0,217,126,0.10)] border-[#22C87A]/20">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold border rounded-full px-2.5 py-0.5 w-fit text-[#1F7A72] bg-[rgba(31,122,114,0.10)] border-[#1F7A72]/20">
                     <span className="w-1.5 h-1.5 rounded-full bg-current" />
                     Resolved
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold border rounded-full px-2.5 py-0.5 w-fit text-[#F4B860] bg-[rgba(244,184,96,0.10)] border-[#F4B860]/20">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold border rounded-full px-2.5 py-0.5 w-fit text-[#F1C76B] bg-[rgba(241,199,107,0.10)] border-[#F1C76B]/20">
                     <span className="w-1.5 h-1.5 rounded-full bg-current" />
                     Open
                   </span>
@@ -268,7 +268,7 @@ export default function IncidentLogPage() {
                     <button
                       onClick={() => markResolved(row.id)}
                       disabled={actionLoading === row.id}
-                      className="bg-[#22C87A] text-[#F6F9FC] rounded-lg px-3 py-1.5 text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
+                      className="bg-[#1F7A72] text-[#F5EFE3] rounded-lg px-3 py-1.5 text-xs font-bold hover:opacity-90 transition-opacity disabled:opacity-50 whitespace-nowrap"
                     >
                       {actionLoading === row.id ? '…' : 'Resolve'}
                     </button>
@@ -277,7 +277,7 @@ export default function IncidentLogPage() {
                     <button
                       onClick={() => reopenIncident(row.id)}
                       disabled={reopenLoading === row.id}
-                      className="border border-[#8C9AAB]/30 text-[#5B6B7F] rounded-lg px-3 py-1.5 text-xs font-semibold hover:bg-[#F1F5FA] transition-colors disabled:opacity-50 whitespace-nowrap"
+                      className="border border-[#6B8588]/30 text-[#3A5255] rounded-lg px-3 py-1.5 text-xs font-semibold hover:bg-[#EDE8DF] transition-colors disabled:opacity-50 whitespace-nowrap"
                     >
                       {reopenLoading === row.id ? '…' : 'Reopen'}
                     </button>

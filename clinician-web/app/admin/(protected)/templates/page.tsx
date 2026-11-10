@@ -67,10 +67,10 @@ function TemplateForm({
   }
 
   return (
-    <div className="bg-[#F1F5FA] border border-[#E6ECF2] rounded-2xl p-5 space-y-4">
+    <div className="bg-[#EDE8DF] border border-[#D6CFC4] rounded-2xl p-5 space-y-4">
       {/* Name */}
       <div>
-        <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-1.5">
+        <label className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-1.5">
           Template name
         </label>
         <input
@@ -78,55 +78,55 @@ function TemplateForm({
           value={form.name}
           onChange={(e) => set('name', e.target.value)}
           placeholder="e.g. Focal Onset Impaired Awareness"
-          className="w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6]/50 focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/15 text-sm"
+          className="w-full bg-[#F5EFE3] border border-[#D6CFC4] rounded-xl px-4 py-3 text-[#0C1F20] placeholder:text-[#6B8588] focus:border-[#1F7A72]/50 focus:outline-none focus:ring-2 focus:ring-[#1F7A72]/15 text-sm"
         />
       </div>
 
       {/* Seizure types */}
       <div>
-        <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-1.5">
-          Seizure types <span className="normal-case font-normal text-[#8C9AAB]">(comma-separated)</span>
+        <label className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-1.5">
+          Seizure types <span className="normal-case font-normal text-[#6B8588]">(comma-separated)</span>
         </label>
         <input
           type="text"
           value={form.seizure_types}
           onChange={(e) => set('seizure_types', e.target.value)}
           placeholder="e.g. Absence, Tonic-clonic, Atonic"
-          className="w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6]/50 focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/15 text-sm"
+          className="w-full bg-[#F5EFE3] border border-[#D6CFC4] rounded-xl px-4 py-3 text-[#0C1F20] placeholder:text-[#6B8588] focus:border-[#1F7A72]/50 focus:outline-none focus:ring-2 focus:ring-[#1F7A72]/15 text-sm"
         />
       </div>
 
       {/* Severity scale */}
       <div>
-        <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-1.5">
-          Severity scale <span className="normal-case font-normal text-[#8C9AAB]">(JSON or plain description)</span>
+        <label className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-1.5">
+          Severity scale <span className="normal-case font-normal text-[#6B8588]">(JSON or plain description)</span>
         </label>
         <textarea
           value={form.severity_scale}
           onChange={(e) => set('severity_scale', e.target.value)}
           placeholder={'e.g. {"1":"Mild - brief absence","2":"Moderate","3":"Severe - convulsion"}'}
           rows={3}
-          className="w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6]/50 focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/15 text-sm font-mono resize-none"
+          className="w-full bg-[#F5EFE3] border border-[#D6CFC4] rounded-xl px-4 py-3 text-[#0C1F20] placeholder:text-[#6B8588] focus:border-[#1F7A72]/50 focus:outline-none focus:ring-2 focus:ring-[#1F7A72]/15 text-sm font-mono resize-none"
         />
       </div>
 
       {/* Notes */}
       <div>
-        <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-1.5">
-          Notes <span className="normal-case font-normal text-[#8C9AAB]">(optional)</span>
+        <label className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-1.5">
+          Notes <span className="normal-case font-normal text-[#6B8588]">(optional)</span>
         </label>
         <textarea
           value={form.notes}
           onChange={(e) => set('notes', e.target.value)}
           placeholder="Additional clinical context, references, etc."
           rows={2}
-          className="w-full bg-[#F6F9FC] border border-[#E6ECF2] rounded-xl px-4 py-3 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6]/50 focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/15 text-sm resize-none"
+          className="w-full bg-[#F5EFE3] border border-[#D6CFC4] rounded-xl px-4 py-3 text-[#0C1F20] placeholder:text-[#6B8588] focus:border-[#1F7A72]/50 focus:outline-none focus:ring-2 focus:ring-[#1F7A72]/15 text-sm resize-none"
         />
       </div>
 
       {saveError && (
-        <div className="bg-[rgba(244,63,94,0.08)] border border-[#F43F5E]/30 rounded-xl px-4 py-3">
-          <p className="text-[#F43F5E] text-sm">{saveError}</p>
+        <div className="bg-[rgba(244,63,94,0.08)] border border-[#C8102E]/30 rounded-xl px-4 py-3">
+          <p className="text-[#C8102E] text-sm">{saveError}</p>
         </div>
       )}
 
@@ -134,13 +134,13 @@ function TemplateForm({
         <button
           onClick={() => onSave(form)}
           disabled={saving || !form.name.trim()}
-          className="bg-[#14B8A6] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-50"
+          className="bg-[#1F7A72] text-white text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#12383A] transition-colors disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save template'}
         </button>
         <button
           onClick={onCancel}
-          className="text-[#5B6B7F] text-sm px-5 py-2.5 rounded-xl border border-[#E6ECF2] hover:bg-[#E6ECF2] transition-colors"
+          className="text-[#3A5255] text-sm px-5 py-2.5 rounded-xl border border-[#D6CFC4] hover:bg-[#D6CFC4] transition-colors"
         >
           Cancel
         </button>
@@ -169,23 +169,23 @@ function TemplateCard({
     : [];
 
   return (
-    <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
+    <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-5">
       <div className="flex items-start justify-between gap-4 mb-3 flex-wrap">
         <div>
-          <h3 className="text-[#0F1B2D] font-semibold text-base">{template.name}</h3>
-          <p className="text-[#8C9AAB] text-xs mt-0.5">Created {fmtDate(template.created_at)}</p>
+          <h3 className="text-[#0C1F20] font-semibold text-base">{template.name}</h3>
+          <p className="text-[#6B8588] text-xs mt-0.5">Created {fmtDate(template.created_at)}</p>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={onEdit}
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgba(20,184,166,0.10)] text-[#14B8A6] border border-[#14B8A6]/20 hover:bg-[rgba(20,184,166,0.20)] transition-colors"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgba(31,122,114,0.10)] text-[#1F7A72] border border-[#1F7A72]/20 hover:bg-[rgba(20,184,166,0.20)] transition-colors"
           >
             Edit
           </button>
           <button
             onClick={onDelete}
             disabled={deleting}
-            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgba(244,63,94,0.08)] text-[#F43F5E] border border-[#F43F5E]/20 hover:bg-[rgba(244,63,94,0.15)] transition-colors disabled:opacity-50"
+            className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[rgba(244,63,94,0.08)] text-[#C8102E] border border-[#C8102E]/20 hover:bg-[rgba(244,63,94,0.15)] transition-colors disabled:opacity-50"
           >
             {deleting ? '…' : 'Delete'}
           </button>
@@ -195,12 +195,12 @@ function TemplateCard({
       {/* Seizure types */}
       {types.length > 0 && (
         <div className="mb-3">
-          <p className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-widest mb-1.5">Seizure types</p>
+          <p className="text-[#6B8588] text-xs font-semibold uppercase tracking-widest mb-1.5">Seizure types</p>
           <div className="flex flex-wrap gap-1.5">
             {types.map((t) => (
               <span
                 key={t}
-                className="text-xs px-2.5 py-0.5 rounded-full bg-[rgba(20,184,166,0.08)] text-[#5B6B7F] border border-[#E6ECF2]"
+                className="text-xs px-2.5 py-0.5 rounded-full bg-[rgba(20,184,166,0.08)] text-[#3A5255] border border-[#D6CFC4]"
               >
                 {t}
               </span>
@@ -212,8 +212,8 @@ function TemplateCard({
       {/* Severity scale */}
       {template.severity_scale && (
         <div className="mb-2">
-          <p className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-widest mb-1">Severity scale</p>
-          <p className="text-[#5B6B7F] text-xs font-mono bg-[#F6F9FC] border border-[#E6ECF2] rounded-lg px-3 py-2 whitespace-pre-wrap break-words">
+          <p className="text-[#6B8588] text-xs font-semibold uppercase tracking-widest mb-1">Severity scale</p>
+          <p className="text-[#3A5255] text-xs font-mono bg-[#F5EFE3] border border-[#D6CFC4] rounded-lg px-3 py-2 whitespace-pre-wrap break-words">
             {template.severity_scale}
           </p>
         </div>
@@ -221,7 +221,7 @@ function TemplateCard({
 
       {/* Notes */}
       {template.notes && (
-        <p className="text-[#8C9AAB] text-xs mt-2 italic">{template.notes}</p>
+        <p className="text-[#6B8588] text-xs mt-2 italic">{template.notes}</p>
       )}
     </div>
   );
@@ -318,15 +318,15 @@ export default function TemplatesPage() {
       {/* Header */}
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-[#0F1B2D]">Condition Templates</h1>
-          <p className="text-[#5B6B7F] text-sm mt-1 max-w-2xl">
+          <h1 className="text-2xl font-bold text-[#0C1F20]">Condition Templates</h1>
+          <p className="text-[#3A5255] text-sm mt-1 max-w-2xl">
             Define seizure types, severity scales, and medication categories that clinicians and patients use.
           </p>
         </div>
         {!showAddForm && (
           <button
             onClick={() => { setShowAddForm(true); setEditingId(null); setSaveError(null); }}
-            className="flex items-center gap-2 bg-[#14B8A6] text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#00A896] transition-colors flex-shrink-0"
+            className="flex items-center gap-2 bg-[#1F7A72] text-white text-sm font-bold px-4 py-2.5 rounded-xl hover:bg-[#12383A] transition-colors flex-shrink-0"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -339,7 +339,7 @@ export default function TemplatesPage() {
       {/* Add form */}
       {showAddForm && (
         <div className="mb-6">
-          <p className="text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-3">New template</p>
+          <p className="text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-3">New template</p>
           <TemplateForm
             initial={EMPTY_FORM}
             onSave={(form) => handleSave(form)}
@@ -352,32 +352,32 @@ export default function TemplatesPage() {
 
       {/* Fetch error */}
       {fetchError && !loading && (
-        <div className="flex items-start gap-3 bg-[rgba(244,184,96,0.08)] border border-[#F4B860]/25 rounded-2xl px-5 py-4 mb-6">
-          <svg className="w-5 h-5 text-[#F4B860] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="flex items-start gap-3 bg-[rgba(244,184,96,0.08)] border border-[#F1C76B]/25 rounded-2xl px-5 py-4 mb-6">
+          <svg className="w-5 h-5 text-[#F1C76B] flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <p className="text-[#F4B860] text-sm font-medium">{fetchError}</p>
+          <p className="text-[#F1C76B] text-sm font-medium">{fetchError}</p>
         </div>
       )}
 
       {/* Loading */}
       {loading && (
         <div className="py-20 text-center">
-          <div className="inline-block w-6 h-6 border-2 border-[#14B8A6] border-t-transparent rounded-full animate-spin mb-3" />
-          <p className="text-[#5B6B7F] text-sm">Loading templates…</p>
+          <div className="inline-block w-6 h-6 border-2 border-[#1F7A72] border-t-transparent rounded-full animate-spin mb-3" />
+          <p className="text-[#3A5255] text-sm">Loading templates…</p>
         </div>
       )}
 
       {/* Empty state */}
       {!loading && !fetchError && templates.length === 0 && (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="w-12 h-12 rounded-full bg-[rgba(20,184,166,0.10)] flex items-center justify-center mb-4">
-            <svg className="w-6 h-6 text-[#14B8A6]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-12 h-12 rounded-full bg-[rgba(31,122,114,0.10)] flex items-center justify-center mb-4">
+            <svg className="w-6 h-6 text-[#1F7A72]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <p className="text-[#0F1B2D] font-semibold text-base">No templates yet</p>
-          <p className="text-[#5B6B7F] text-sm mt-1">
+          <p className="text-[#0C1F20] font-semibold text-base">No templates yet</p>
+          <p className="text-[#3A5255] text-sm mt-1">
             Click "Add template" to create your first condition template.
           </p>
         </div>
@@ -389,7 +389,7 @@ export default function TemplatesPage() {
           {templates.map((t) =>
             editingId === t.id ? (
               <div key={t.id}>
-                <p className="text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-3">
+                <p className="text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-3">
                   Editing: {t.name}
                 </p>
                 <TemplateForm

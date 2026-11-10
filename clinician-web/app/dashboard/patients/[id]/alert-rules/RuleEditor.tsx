@@ -47,9 +47,9 @@ const DURATIONS: { value: number; label: string }[] = [
 ];
 
 const SEVERITIES: { value: Severity; color: string; bg: string; border: string }[] = [
-  { value: 'info', color: 'text-[#5B6B7F]', bg: 'bg-[rgba(122,170,200,0.10)]', border: 'border-[#5B6B7F]/30' },
-  { value: 'warning', color: 'text-[#F4B860]', bg: 'bg-[rgba(244,184,96,0.10)]', border: 'border-[#F4B860]/30' },
-  { value: 'critical', color: 'text-[#F43F5E]', bg: 'bg-[rgba(244,63,94,0.10)]', border: 'border-[#F43F5E]/30' },
+  { value: 'info', color: 'text-[#3A5255]', bg: 'bg-[rgba(122,170,200,0.10)]', border: 'border-[#3A5255]/30' },
+  { value: 'warning', color: 'text-[#F1C76B]', bg: 'bg-[rgba(241,199,107,0.10)]', border: 'border-[#F1C76B]/30' },
+  { value: 'critical', color: 'text-[#C8102E]', bg: 'bg-[rgba(200,16,46,0.08)]', border: 'border-[#C8102E]/30' },
 ];
 
 const PATHWAYS: Pathway[] = ['Medical', 'Mental Health'];
@@ -80,7 +80,7 @@ function SeverityBadge({ severity }: { severity: Severity }) {
 function PathwayBadge({ pathway }: { pathway: Pathway }) {
   const isMedical = pathway === 'Medical';
   return (
-    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${isMedical ? 'bg-[rgba(20,184,166,0.10)] text-[#14B8A6] border border-[#14B8A6]/20' : 'bg-[rgba(122,170,200,0.10)] text-[#5B6B7F] border border-[#5B6B7F]/20'}`}>
+    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${isMedical ? 'bg-[rgba(31,122,114,0.10)] text-[#1F7A72] border border-[#1F7A72]/20' : 'bg-[rgba(122,170,200,0.10)] text-[#3A5255] border border-[#3A5255]/20'}`}>
       {pathway}
     </span>
   );
@@ -105,7 +105,7 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
   const inputClass =
-    'bg-[#FFFFFF] border border-[#E6ECF2] rounded-xl px-3 py-2.5 text-[#0F1B2D] placeholder:text-[#8C9AAB] focus:border-[#14B8A6] focus:outline-none focus:ring-2 focus:ring-[#14B8A6]/20 text-sm transition-colors disabled:opacity-50';
+    'bg-[#FFFFFF] border border-[#D6CFC4] rounded-xl px-3 py-2.5 text-[#0C1F20] placeholder:text-[#6B8588] focus:border-[#1F7A72] focus:outline-none focus:ring-2 focus:ring-[#1F7A72]/20 text-sm transition-colors disabled:opacity-50';
 
   async function handleAddRule() {
     setSaving(true);
@@ -164,12 +164,12 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
   return (
     <div>
       {/* Rules table */}
-      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden mb-5">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E6ECF2]">
-          <h2 className="text-[#0F1B2D] font-bold text-sm">Active rules</h2>
+      <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl overflow-hidden mb-5">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#D6CFC4]">
+          <h2 className="text-[#0C1F20] font-bold text-sm">Active rules</h2>
           <button
             onClick={() => { setShowAdd(true); setSaveError(''); }}
-            className="bg-[#14B8A6] text-[#F6F9FC] font-bold rounded-xl hover:bg-[#00A896] transition-colors min-h-9 px-4 text-xs flex items-center gap-1.5"
+            className="bg-[#1F7A72] text-[#F5EFE3] font-bold rounded-xl hover:bg-[#12383A] transition-colors min-h-9 px-4 text-xs flex items-center gap-1.5"
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -180,16 +180,16 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
 
         {rules.length === 0 ? (
           <div className="py-10 text-center">
-            <p className="text-[#5B6B7F] text-sm">No alert rules configured yet.</p>
-            <p className="text-[#8C9AAB] text-xs mt-1">Click "Add rule" to create the first threshold.</p>
+            <p className="text-[#3A5255] text-sm">No alert rules configured yet.</p>
+            <p className="text-[#6B8588] text-xs mt-1">Click "Add rule" to create the first threshold.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#E6ECF2]">
+                <tr className="border-b border-[#D6CFC4]">
                   {['Metric', 'Condition', 'Duration', 'Severity', 'Pathway', 'Active'].map((h) => (
-                    <th key={h} className="text-left text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider px-5 py-3">
+                    <th key={h} className="text-left text-[#6B8588] text-xs font-semibold uppercase tracking-wider px-5 py-3">
                       {h}
                     </th>
                   ))}
@@ -200,14 +200,14 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
                   const metricInfo = METRICS.find((m) => m.value === rule.metric);
                   const durLabel = DURATIONS.find((d) => d.value === rule.duration)?.label ?? `${rule.duration}s`;
                   return (
-                    <tr key={rule.id} className="border-b border-[#E6ECF2] last:border-0 hover:bg-[#F1F5FA] transition-colors">
-                      <td className="px-5 py-3.5 text-[#0F1B2D] font-medium">
+                    <tr key={rule.id} className="border-b border-[#D6CFC4] last:border-0 hover:bg-[#EDE8DF] transition-colors">
+                      <td className="px-5 py-3.5 text-[#0C1F20] font-medium">
                         {metricInfo?.label ?? rule.metric}
                       </td>
-                      <td className="px-5 py-3.5 text-[#0F1B2D] font-mono whitespace-nowrap">
+                      <td className="px-5 py-3.5 text-[#0C1F20] font-mono whitespace-nowrap">
                         {rule.operator} {rule.threshold}{metricInfo?.unit ?? ''}
                       </td>
-                      <td className="px-5 py-3.5 text-[#5B6B7F]">{durLabel}</td>
+                      <td className="px-5 py-3.5 text-[#3A5255]">{durLabel}</td>
                       <td className="px-5 py-3.5">
                         <SeverityBadge severity={rule.severity} />
                       </td>
@@ -221,7 +221,7 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
                           disabled={togglingId === rule.id}
                           aria-label={rule.active ? 'Deactivate rule' : 'Activate rule'}
                           className={`relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full border-2 transition-colors duration-200 focus:outline-none ${
-                            rule.active ? 'bg-[#14B8A6] border-[#14B8A6]' : 'bg-[#E6ECF2] border-[#E6ECF2]'
+                            rule.active ? 'bg-[#1F7A72] border-[#1F7A72]' : 'bg-[#D6CFC4] border-[#D6CFC4]'
                           } ${togglingId === rule.id ? 'opacity-50' : ''}`}
                         >
                           <span
@@ -242,13 +242,13 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
 
       {/* Add rule form */}
       {showAdd && (
-        <div className="bg-[#FFFFFF] border border-[#14B8A6]/25 rounded-2xl p-6">
-          <h3 className="text-[#0F1B2D] font-bold text-sm mb-5">New alert rule</h3>
+        <div className="bg-[#FFFFFF] border border-[#1F7A72]/25 rounded-2xl p-6">
+          <h3 className="text-[#0C1F20] font-bold text-sm mb-5">New alert rule</h3>
 
           <div className="space-y-5">
             {/* Metric */}
             <div>
-              <label htmlFor="rule-metric" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="rule-metric" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Metric
               </label>
               <select
@@ -267,7 +267,7 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
             {/* Operator + threshold */}
             <div className="flex gap-4">
               <div className="w-28">
-                <label htmlFor="rule-operator" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+                <label htmlFor="rule-operator" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                   Operator
                 </label>
                 <select
@@ -283,7 +283,7 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
                 </select>
               </div>
               <div className="flex-1">
-                <label htmlFor="rule-threshold" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+                <label htmlFor="rule-threshold" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                   Threshold ({METRICS.find((m) => m.value === draft.metric)?.unit})
                 </label>
                 <input
@@ -299,7 +299,7 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
 
             {/* Duration */}
             <div>
-              <label htmlFor="rule-duration" className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label htmlFor="rule-duration" className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Duration before alert
               </label>
               <select
@@ -317,7 +317,7 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
 
             {/* Severity */}
             <div>
-              <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Severity
               </label>
               <div className="flex gap-2">
@@ -330,7 +330,7 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
                     className={`text-xs font-semibold px-4 py-2 rounded-full border transition-colors capitalize ${
                       draft.severity === s.value
                         ? `${s.bg} ${s.color} ${s.border}`
-                        : 'bg-[#F1F5FA] border-[#E6ECF2] text-[#8C9AAB] hover:border-[#EEF3F9]'
+                        : 'bg-[#EDE8DF] border-[#D6CFC4] text-[#6B8588] hover:border-[#E8E0D4]'
                     }`}
                   >
                     {s.value}
@@ -341,7 +341,7 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
 
             {/* Pathway */}
             <div>
-              <label className="block text-[#5B6B7F] text-xs font-semibold uppercase tracking-widest mb-2">
+              <label className="block text-[#3A5255] text-xs font-semibold uppercase tracking-widest mb-2">
                 Pathway
               </label>
               <div className="flex gap-2">
@@ -353,8 +353,8 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
                     aria-pressed={draft.pathway === p}
                     className={`text-xs font-semibold px-4 py-2 rounded-full border transition-colors ${
                       draft.pathway === p
-                        ? 'bg-[rgba(20,184,166,0.15)] border-[#14B8A6]/40 text-[#14B8A6]'
-                        : 'bg-[#F1F5FA] border-[#E6ECF2] text-[#8C9AAB] hover:border-[#EEF3F9]'
+                        ? 'bg-[rgba(31,122,114,0.15)] border-[#1F7A72]/40 text-[#1F7A72]'
+                        : 'bg-[#EDE8DF] border-[#D6CFC4] text-[#6B8588] hover:border-[#E8E0D4]'
                     }`}
                   >
                     {p}
@@ -364,14 +364,14 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
             </div>
 
             {/* Preview */}
-            <div className="bg-[rgba(20,184,166,0.05)] border border-[#14B8A6]/15 rounded-xl px-4 py-3">
-              <p className="text-[#8C9AAB] text-xs mb-0.5 font-semibold uppercase tracking-widest">Preview</p>
-              <p className="text-[#5B6B7F] text-sm">{buildPreview(draft)}</p>
+            <div className="bg-[rgba(31,122,114,0.05)] border border-[#1F7A72]/15 rounded-xl px-4 py-3">
+              <p className="text-[#6B8588] text-xs mb-0.5 font-semibold uppercase tracking-widest">Preview</p>
+              <p className="text-[#3A5255] text-sm">{buildPreview(draft)}</p>
             </div>
 
             {saveError && (
-              <div role="alert" className="bg-[rgba(244,63,94,0.10)] border border-[#F43F5E]/40 rounded-xl px-4 py-3">
-                <p className="text-[#F43F5E] text-sm">{saveError}</p>
+              <div role="alert" className="bg-[rgba(200,16,46,0.08)] border border-[#C8102E]/30 rounded-xl px-4 py-3">
+                <p className="text-[#C8102E] text-sm">{saveError}</p>
               </div>
             )}
 
@@ -380,7 +380,7 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
                 type="button"
                 onClick={handleAddRule}
                 disabled={saving}
-                className="bg-[#14B8A6] text-[#F6F9FC] font-bold rounded-xl hover:bg-[#00A896] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-10 px-6 text-sm"
+                className="bg-[#1F7A72] text-[#F5EFE3] font-bold rounded-xl hover:bg-[#12383A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-10 px-6 text-sm"
               >
                 {saving ? (
                   <span className="flex items-center gap-2">
@@ -396,7 +396,7 @@ export default function RuleEditor({ patientId, initialRules }: Props) {
                 type="button"
                 onClick={() => { setShowAdd(false); setSaveError(''); }}
                 disabled={saving}
-                className="border border-[#E6ECF2] text-[#5B6B7F] font-medium rounded-xl hover:bg-[#F1F5FA] hover:text-[#0F1B2D] transition-colors min-h-10 px-5 text-sm"
+                className="border border-[#D6CFC4] text-[#3A5255] font-medium rounded-xl hover:bg-[#EDE8DF] hover:text-[#0C1F20] transition-colors min-h-10 px-5 text-sm"
               >
                 Cancel
               </button>

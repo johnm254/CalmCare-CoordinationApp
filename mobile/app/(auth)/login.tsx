@@ -393,7 +393,7 @@ export default function LoginScreen() {
               >
                 <LinearGradient
                   colors={
-                    loading ? ["#E6ECF2", "#E6ECF2"] : ["#14B8A6", "#0D9488"]
+                    loading ? ["#D6CFC4", "#D6CFC4"] : ["#1F7A72", "#12383A"]
                   }
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 0 }}
@@ -423,7 +423,7 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F6F9FC" },
+  safe: { flex: 1, backgroundColor: "#F5EFE3" },
   flex: { flex: 1 },
   container: { flexGrow: 1 },
 
@@ -496,7 +496,7 @@ const styles = StyleSheet.create({
     padding: spacing.xxl,
     paddingBottom: 48,
     flex: 1,
-    shadowColor: "#14B8A6",
+    shadowColor: "#1F7A72",
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.12,
     shadowRadius: 20,
@@ -528,7 +528,7 @@ const styles = StyleSheet.create({
   },
   inputWrapperFocused: {
     borderColor: colors.teal,
-    backgroundColor: "rgba(20,184,166,0.05)",
+    backgroundColor: "rgba(31,122,114,0.05)",
     shadowColor: colors.teal,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.25,
@@ -544,7 +544,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: spacing.md,
     marginBottom: spacing.lg,
-    shadowColor: "#14B8A6",
+    shadowColor: "#1F7A72",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.45,
     shadowRadius: 12,

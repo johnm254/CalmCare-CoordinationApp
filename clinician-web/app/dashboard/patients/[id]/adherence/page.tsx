@@ -50,13 +50,13 @@ function buildHourlyMissed(events: DoseEvent[]): { hour: number; count: number }
 function AdherenceBar({ pct, colorClass }: { pct: number; colorClass: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex-1 bg-[#F1F5FA] rounded-full h-2 overflow-hidden">
+      <div className="flex-1 bg-[#EDE8DF] rounded-full h-2 overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${colorClass}`}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-[#0F1B2D] font-bold text-sm w-10 text-right">{pct}%</span>
+      <span className="text-[#0C1F20] font-bold text-sm w-10 text-right">{pct}%</span>
     </div>
   );
 }
@@ -88,12 +88,12 @@ function HourlyChart({ data }: { data: { hour: number; count: number }[] }) {
                   width={barWidth}
                   height={barH}
                   rx="2"
-                  fill={d.count >= 3 ? '#F43F5E' : '#F4B860'}
+                  fill={d.count >= 3 ? '#C8102E' : '#F1C76B'}
                   opacity="0.8"
                 />
               )}
               {d.count === 0 && (
-                <rect x={x} y={chartHeight - 2} width={barWidth} height={2} rx="1" fill="#E6ECF2" />
+                <rect x={x} y={chartHeight - 2} width={barWidth} height={2} rx="1" fill="#D6CFC4" />
               )}
               {/* Hour label every 4 hours */}
               {d.hour % 4 === 0 && (
@@ -102,7 +102,7 @@ function HourlyChart({ data }: { data: { hour: number; count: number }[] }) {
                   y={chartHeight + 14}
                   textAnchor="middle"
                   fontSize="9"
-                  fill="#8C9AAB"
+                  fill="#6B8588"
                 >
                   {d.hour.toString().padStart(2, '0')}h
                 </text>
@@ -174,56 +174,56 @@ export default async function AdherencePage({ params }: { params: { id: string }
     <div className="p-8">
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#0F1B2D] mb-1">Adherence</h1>
-          <p className="text-[#5B6B7F] text-sm">Last 30 days — dose-taking summary for all active medications.</p>
+          <h1 className="text-2xl font-bold text-[#0C1F20] mb-1">Adherence</h1>
+          <p className="text-[#3A5255] text-sm">Last 30 days — dose-taking summary for all active medications.</p>
         </div>
         <ExportCsvButton rows={csvRows} filename={`adherence-${params.id}.csv`} />
       </div>
 
       {/* Overall summary card */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-7">
-        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5 col-span-2 md:col-span-1">
-          <p className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider mb-1">Overall adherence</p>
+        <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-5 col-span-2 md:col-span-1">
+          <p className="text-[#6B8588] text-xs font-semibold uppercase tracking-wider mb-1">Overall adherence</p>
           <p
             className="text-4xl font-black mb-0.5"
-            style={{ color: overallPct >= 80 ? '#22C87A' : overallPct >= 60 ? '#F4B860' : '#F43F5E' }}
+            style={{ color: overallPct >= 80 ? '#1F7A72' : overallPct >= 60 ? '#F1C76B' : '#C8102E' }}
           >
             {overallPct}%
           </p>
-          <p className="text-[#8C9AAB] text-xs">last 30 days</p>
+          <p className="text-[#6B8588] text-xs">last 30 days</p>
         </div>
-        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
-          <p className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider mb-1">Doses scheduled</p>
-          <p className="text-3xl font-black text-[#0F1B2D]">{totalScheduled}</p>
+        <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-5">
+          <p className="text-[#6B8588] text-xs font-semibold uppercase tracking-wider mb-1">Doses scheduled</p>
+          <p className="text-3xl font-black text-[#0C1F20]">{totalScheduled}</p>
         </div>
-        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
-          <p className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider mb-1">Taken on time</p>
-          <p className="text-3xl font-black text-[#22C87A]">{totalTaken}</p>
+        <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-5">
+          <p className="text-[#6B8588] text-xs font-semibold uppercase tracking-wider mb-1">Taken on time</p>
+          <p className="text-3xl font-black text-[#1F7A72]">{totalTaken}</p>
         </div>
-        <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-5">
-          <p className="text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider mb-1">Missed</p>
-          <p className="text-3xl font-black text-[#F43F5E]">
+        <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-5">
+          <p className="text-[#6B8588] text-xs font-semibold uppercase tracking-wider mb-1">Missed</p>
+          <p className="text-3xl font-black text-[#C8102E]">
             {summaries.reduce((s, m) => s + m.missed, 0)}
           </p>
         </div>
       </div>
 
       {/* Per-medication table */}
-      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl overflow-hidden mb-6">
-        <div className="px-6 py-4 border-b border-[#E6ECF2]">
-          <h2 className="text-[#0F1B2D] font-bold text-sm">Per medication</h2>
+      <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl overflow-hidden mb-6">
+        <div className="px-6 py-4 border-b border-[#D6CFC4]">
+          <h2 className="text-[#0C1F20] font-bold text-sm">Per medication</h2>
         </div>
         {summaries.length === 0 ? (
           <div className="py-10 text-center">
-            <p className="text-[#5B6B7F] text-sm">No medication data for the last 30 days.</p>
+            <p className="text-[#3A5255] text-sm">No medication data for the last 30 days.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-[#E6ECF2]">
+                <tr className="border-b border-[#D6CFC4]">
                   {['Medication', 'Scheduled', 'Taken on time', 'Missed', 'Snoozed', 'Adherence'].map((h) => (
-                    <th key={h} className="text-left text-[#8C9AAB] text-xs font-semibold uppercase tracking-wider px-5 py-3">
+                    <th key={h} className="text-left text-[#6B8588] text-xs font-semibold uppercase tracking-wider px-5 py-3">
                       {h}
                     </th>
                   ))}
@@ -232,14 +232,14 @@ export default async function AdherencePage({ params }: { params: { id: string }
               <tbody>
                 {summaries.map((m) => {
                   const color =
-                    m.adherencePct >= 80 ? 'bg-[#22C87A]' : m.adherencePct >= 60 ? 'bg-[#F4B860]' : 'bg-[#F43F5E]';
+                    m.adherencePct >= 80 ? 'bg-[#1F7A72]' : m.adherencePct >= 60 ? 'bg-[#F1C76B]' : 'bg-[#C8102E]';
                   return (
-                    <tr key={m.id} className="border-b border-[#E6ECF2] last:border-0 hover:bg-[#F1F5FA] transition-colors">
-                      <td className="px-5 py-4 text-[#0F1B2D] font-semibold">{m.name}</td>
-                      <td className="px-5 py-4 text-[#5B6B7F]">{m.scheduled}</td>
-                      <td className="px-5 py-4 text-[#22C87A]">{m.takenOnTime}</td>
-                      <td className="px-5 py-4 text-[#F43F5E]">{m.missed}</td>
-                      <td className="px-5 py-4 text-[#F4B860]">{m.snoozed}</td>
+                    <tr key={m.id} className="border-b border-[#D6CFC4] last:border-0 hover:bg-[#EDE8DF] transition-colors">
+                      <td className="px-5 py-4 text-[#0C1F20] font-semibold">{m.name}</td>
+                      <td className="px-5 py-4 text-[#3A5255]">{m.scheduled}</td>
+                      <td className="px-5 py-4 text-[#1F7A72]">{m.takenOnTime}</td>
+                      <td className="px-5 py-4 text-[#C8102E]">{m.missed}</td>
+                      <td className="px-5 py-4 text-[#F1C76B]">{m.snoozed}</td>
                       <td className="px-5 py-4 min-w-[160px]">
                         <AdherenceBar pct={m.adherencePct} colorClass={color} />
                       </td>
@@ -253,16 +253,16 @@ export default async function AdherencePage({ params }: { params: { id: string }
       </div>
 
       {/* Missed dose patterns */}
-      <div className="bg-[#FFFFFF] border border-[#E6ECF2] rounded-2xl p-6">
-        <h2 className="text-[#0F1B2D] font-bold text-sm mb-1">Missed dose patterns</h2>
-        <p className="text-[#8C9AAB] text-xs mb-5">
+      <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-6">
+        <h2 className="text-[#0C1F20] font-bold text-sm mb-1">Missed dose patterns</h2>
+        <p className="text-[#6B8588] text-xs mb-5">
           Bars show how many doses were missed at each hour of the day.
           {topMissedHour.count > 0 && (
-            <> Most misses at <strong className="text-[#F4B860]">{topMissedHour.hour.toString().padStart(2, '0')}:00</strong> ({topMissedHour.count} dose{topMissedHour.count > 1 ? 's' : ''}).</>
+            <> Most misses at <strong className="text-[#F1C76B]">{topMissedHour.hour.toString().padStart(2, '0')}:00</strong> ({topMissedHour.count} dose{topMissedHour.count > 1 ? 's' : ''}).</>
           )}
         </p>
         {events.filter((e) => e.status === 'missed').length === 0 ? (
-          <p className="text-[#5B6B7F] text-sm">No missed doses in the last 30 days.</p>
+          <p className="text-[#3A5255] text-sm">No missed doses in the last 30 days.</p>
         ) : (
           <HourlyChart data={hourlyData} />
         )}

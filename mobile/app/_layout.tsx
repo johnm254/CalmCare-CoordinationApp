@@ -879,7 +879,7 @@ export default function RootLayout() {
         const content = notification.request.content
         const data = content.data as Record<string, string | undefined>
         const type = data?.type === "sos_alert" ? "sos" : "info"
-        showToast(content.title ?? "Mojo", content.body ?? "", type)
+        showToast(content.title ?? "epimoyo", content.body ?? "", type)
       } catch (error) {
         console.error("Notification received error:", error)
       }
@@ -998,7 +998,7 @@ export default function RootLayout() {
         Notifications.scheduleNotificationAsync({
           content: {
             title: "Strap battery low",
-            body: "Charge your Mojo Strap soon",
+            body: "Charge your epimoyo Strap soon",
           },
           trigger: null,
         }).catch(() => {})

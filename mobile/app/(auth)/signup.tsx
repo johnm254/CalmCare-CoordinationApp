@@ -270,7 +270,7 @@ export default function SignupScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#F6F9FC" },
+  safe: { flex: 1, backgroundColor: "#F5EFE3" },
   flex: { flex: 1 },
   container: { flexGrow: 1 },
 
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
-    borderColor: "#E6ECF2",
+    borderColor: "#D6CFC4",
     padding: 28,
     paddingBottom: 48,
     flex: 1,

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+﻿import { useState, useEffect } from "react"
 import {
   View,
   Text,
@@ -23,7 +23,7 @@ const MOOD_OPTIONS = [
   { score: 1, labelKey: "mood_score_1" as const, color: "#F43F5E", emoji: "😔" },
   { score: 2, labelKey: "mood_score_2" as const, color: "#F97316", emoji: "😟" },
   { score: 3, labelKey: "mood_score_3" as const, color: "#F4B860", emoji: "😐" },
-  { score: 4, labelKey: "mood_score_4" as const, color: "#22C87A", emoji: "🙂" },
+  { score: 4, labelKey: "mood_score_4" as const, color: "#1F7A72", emoji: "🙂" },
   { score: 5, labelKey: "mood_score_5" as const, color: "#00BFA6", emoji: "😊" },
 ]
 
@@ -367,7 +367,7 @@ const styles = StyleSheet.create({
   },
   inputFocused: {
     borderColor: colors.teal,
-    backgroundColor: "rgba(20,184,166,0.05)",
+    backgroundColor: "rgba(31,122,114,0.05)",
   },
   input: { color: colors.text, fontSize: fonts.base },
 
