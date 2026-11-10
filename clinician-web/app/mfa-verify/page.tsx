@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '../../lib/supabase-browser';
+import { track } from '../../lib/analytics';
 
 interface Factor {
   id: string;
@@ -115,6 +116,7 @@ export default function MfaVerifyPage() {
         return;
       }
 
+      track.mfaComplete();
       setStep('success');
       router.push('/dashboard');
       router.refresh();

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '../../lib/supabase-browser';
+import { track } from '../../lib/analytics';
 
 function mapAuthError(message: string): string {
   const lower = message.toLowerCase();
@@ -54,6 +55,12 @@ export default function LoginPage() {
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+
+    // Client-side validation
+    if (!email.trim()) { setError('Email address is required.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError('Enter a valid email address.'); return; }
+    if (!password) { setError('Password is required.'); return; }
+
     setLoading(true);
     try {
       const supabase = createClient();
@@ -128,6 +135,7 @@ export default function LoginPage() {
       }
 
       try { await supabase.rpc('reset_failed_login', { clinician_uuid: data.user.id }); } catch {}
+      track.login();
       router.push('/dashboard');
       router.refresh();
     } catch {

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '../../lib/supabase-browser';
 import { checkPasswordStrength } from '../../lib/password';
+import { track } from '../../lib/analytics';
 
 const CADRES = ['Doctor', 'Clinical Officer', 'Nurse'] as const;
 const REGISTERING_BODIES = [
@@ -79,6 +80,15 @@ export default function SignUpPage() {
     e.preventDefault();
     setError('');
 
+    // Client-side validation
+    if (!fullName.trim()) { setError('Full name is required.'); return; }
+    if (fullName.trim().split(' ').length < 2) { setError('Please enter your first and last name.'); return; }
+    if (!email.trim()) { setError('Email address is required.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError('Enter a valid email address.'); return; }
+    if (!cadre) { setError('Please select your professional cadre.'); return; }
+    if (!registeringBody) { setError('Please select your registering body.'); return; }
+    if (!licenceNumber.trim()) { setError('Licence / registration number is required.'); return; }
+
     const strengthResult = checkPasswordStrength(password);
     if (!strengthResult.valid) {
       setError('Password does not meet all requirements: ' + strengthResult.errors.join(', ') + '.');
@@ -128,6 +138,7 @@ export default function SignUpPage() {
         return;
       }
 
+      track.signupComplete();
       router.push('/verification-pending');
     } catch {
       setError('An unexpected error occurred. Please try again.');

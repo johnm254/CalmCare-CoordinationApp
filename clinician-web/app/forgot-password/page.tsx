@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { createClient } from '../../lib/supabase-browser';
+import { track } from '../../lib/analytics';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,10 @@ export default function ForgotPasswordPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+
+    if (!email.trim()) { setError('Email address is required.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setError('Enter a valid email address.'); return; }
+
     setLoading(true);
     try {
       const supabase = createClient();
@@ -29,6 +34,7 @@ export default function ForgotPasswordPage() {
         return;
       }
 
+      track.passwordReset();
       setSubmitted(true);
     } catch {
       setError('An unexpected error occurred. Please try again.');
