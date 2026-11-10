@@ -93,6 +93,7 @@ export default function SosAlertScreen() {
 
   // Query nearest ER facility using the patient's location from the SOS event
   useEffect(() => {
+    let alive = true
     async function fetchHospital() {
       const latNum = parseFloat(lat ?? "")
       const lonNum = parseFloat(lon ?? "")
@@ -103,10 +104,11 @@ export default function SosAlertScreen() {
           lon: lonNum,
         })
         const row = data as { name: string; phone: string | null } | null
-        if (row?.name) setNearestHospital({ name: row.name, phone: row.phone ?? null })
+        if (alive && row?.name) setNearestHospital({ name: row.name, phone: row.phone ?? null })
       } catch {}
     }
     fetchHospital()
+    return () => { alive = false }
   }, [lat, lon])
 
   // Realtime — update responder list as others respond

@@ -86,27 +86,26 @@ export default function SOSScreen() {
 
   useEffect(() => {
     if (!session?.user) return
+    let alive = true
 
-    getEmergencyContacts(session.user.id).then(setContacts)
+    getEmergencyContacts(session.user.id)
+      .then((c) => { if (alive) setContacts(c) })
+      .catch(() => {
+        // SOS can still be sent — contacts just won't be pre-populated
+      })
 
-    Location.requestForegroundPermissionsAsync().then(
-      ({ status }: { status: string }) => {
-        if (status === "granted") {
-          Location.getCurrentPositionAsync({
-            accuracy: Location.Accuracy.Balanced,
-          })
+    Location.requestForegroundPermissionsAsync()
+      .then(({ status }: { status: string }) => {
+        if (!alive || status !== "granted") return
+        return Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced })
+      })
+      .then((loc) => {
+        if (!alive || !loc) return
+        setLocation({ lat: loc.coords.latitude, lon: loc.coords.longitude })
+      })
+      .catch(() => {})
 
-            .then((loc: { coords: { latitude: number; longitude: number } }) =>
-              setLocation({
-                lat: loc.coords.latitude,
-                lon: loc.coords.longitude,
-              }),
-            )
-
-            .catch(() => {})
-        }
-      },
-    )
+    return () => { alive = false }
   }, [session])
 
   useEffect(() => {

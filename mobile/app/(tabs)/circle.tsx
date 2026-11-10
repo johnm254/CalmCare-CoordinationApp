@@ -24,7 +24,7 @@ import { useAuth } from "../_layout"
 
 import {
   getCareCircle,
-  getGrantsForMember,
+  getGrantsForAllMembers,
   setGrant,
   removeCareCircleMember,
   getLinkedPatients,
@@ -118,45 +118,60 @@ export default function CircleScreen() {
 
   const isCaregiver = profile?.role === "caregiver"
 
-  const loadCircle = useCallback(async () => {
+  const loadCircle = useCallback(async (alive: { current: boolean }) => {
     if (!session?.user) return
 
     const uid = session.user.id
 
     setLoading(true)
 
-    const circle = await getCareCircle(uid)
+    try {
+      const circle = await getCareCircle(uid)
+      if (!alive.current) return
 
-    const withGrants = await Promise.all(
-      circle.map(async (c) => ({
+      const memberIds = circle.map((c) => c.member_id)
+      const allGrants = await getGrantsForAllMembers(uid, memberIds)
+      if (!alive.current) return
+
+      const withGrants = circle.map((c) => ({
         ...c,
+        grants: allGrants[c.member_id] ?? {
+          emergency_alerts: false,
+          medication_schedule: false,
+          appointments: false,
+          event_summaries: false,
+          records: false,
+        },
+      }))
 
-        grants: await getGrantsForMember(uid, c.member_id),
-      })),
-    )
-
-    setContacts(withGrants)
-
-    if (withGrants.length > 0 && !expanded) setExpanded(withGrants[0].id)
-
-    setLoading(false)
+      setContacts(withGrants)
+      if (withGrants.length > 0 && !expanded) setExpanded(withGrants[0].id)
+    } catch {}
+    finally {
+      if (alive.current) setLoading(false)
+    }
   }, [session])
 
   useFocusEffect(
     useCallback(() => {
-      loadCircle()
+      const alive = { current: true }
+      loadCircle(alive)
+      return () => { alive.current = false }
     }, [loadCircle]),
   )
 
   useFocusEffect(
     useCallback(() => {
       if (!session?.user || !isCaregiver) return
+      let alive = true
       getLinkedPatients(session.user.id).then((patients) => {
+        if (!alive) return
         setLinkedPatients(patients)
         if (patients.length > 0 && !activePatientId) {
           setActivePatientId(patients[0].patient_id)
         }
       }).catch(() => {})
+      return () => { alive = false }
     }, [session, isCaregiver]),
   )
 
@@ -175,9 +190,20 @@ export default function CircleScreen() {
       ),
     )
 
-    await setGrant(session.user.id, contact.member_id, key, newVal)
-
-    setSaving(null)
+    try {
+      await setGrant(session.user.id, contact.member_id, key, newVal)
+    } catch {
+      // Revert optimistic update on failure
+      setContacts((prev) =>
+        prev.map((c) =>
+          c.id === contact.id
+            ? { ...c, grants: { ...c.grants, [key]: !newVal } }
+            : c,
+        ),
+      )
+    } finally {
+      setSaving(null)
+    }
   }
 
   async function handleRemove(contact: ContactWithGrants) {

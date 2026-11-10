@@ -158,6 +158,7 @@ export default function HomeScreen() {
   ).current
 
   useEffect(() => {
+    let alive = true
     const entranceAnims = anims.map((a, i) =>
       Animated.sequence([
         Animated.delay(i * 70 + 80),
@@ -178,9 +179,10 @@ export default function HomeScreen() {
     )
     bpmLoop.start()
 
-    getWeather().then(setWeather)
+    getWeather().then((w) => { if (alive) setWeather(w) }).catch(() => {})
 
     return () => {
+      alive = false
       entranceAnims.forEach((a) => a.stop())
       bpmLoop.stop()
     }
@@ -196,9 +198,9 @@ export default function HomeScreen() {
         if (!alive) return
         setMedications(meds)
         setCircleCount(circle.length)
-        setLoading(false)
       })
-      .catch(() => { if (alive) setLoading(false) })
+      .catch(() => {})
+      .finally(() => { if (alive) setLoading(false) })
 
     supabase
       .from("events").select("occurred_at").eq("user_id", uid)

@@ -4,7 +4,7 @@
 
 // CR-MED-12: works fully offline; writes go to local DB first, then outbox.
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 import {
   View,
@@ -93,14 +93,20 @@ export default function MedsScreen() {
 
   const [dbReady, setDbReady] = useState(false)
 
+  const lastFetchRef = useRef<number>(0)
+
   useEffect(() => {
     initializeDB()
       .then(() => setDbReady(true))
       .catch(console.error)
   }, [])
 
-  const loadDoses = useCallback(async () => {
+  const loadDoses = useCallback(async (force = false) => {
     if (!session?.user || !dbReady) return
+    // Skip if fetched within the last 30s (unless forced by pull-to-refresh)
+    const now = Date.now()
+    if (!force && now - lastFetchRef.current < 30_000) return
+    lastFetchRef.current = now
 
     const patientId = session.user.id
 
@@ -218,7 +224,7 @@ export default function MedsScreen() {
             refreshing={refreshing}
             onRefresh={async () => {
               setRefreshing(true)
-              await loadDoses()
+              await loadDoses(true)
               setRefreshing(false)
             }}
             tintColor={colors.teal}

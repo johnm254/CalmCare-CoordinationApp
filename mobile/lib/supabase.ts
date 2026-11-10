@@ -334,6 +334,37 @@ export async function getGrantsForMember(
   return result
 }
 
+export async function getGrantsForAllMembers(
+  patientId: string,
+  granteeIds: string[],
+): Promise<Record<string, Record<GrantKey, boolean>>> {
+  if (granteeIds.length === 0) return {}
+  const { data } = await supabase
+    .from("grants")
+    .select("grantee_id, category, revoked_at")
+    .eq("patient_id", patientId)
+    .in("grantee_id", granteeIds)
+
+  const defaults: Record<GrantKey, boolean> = {
+    emergency_alerts: false,
+    medication_schedule: false,
+    appointments: false,
+    event_summaries: false,
+    records: false,
+  }
+
+  const result: Record<string, Record<GrantKey, boolean>> = {}
+  for (const id of granteeIds) {
+    result[id] = { ...defaults }
+  }
+  for (const g of data ?? []) {
+    if (g.grantee_id in result && g.category in defaults) {
+      result[g.grantee_id][g.category as GrantKey] = g.revoked_at === null
+    }
+  }
+  return result
+}
+
 export async function setGrant(
   patientId: string,
   granteeId: string,
