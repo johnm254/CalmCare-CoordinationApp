@@ -208,7 +208,7 @@ export default function SignUpPage() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#F5EFE3] overflow-y-auto">
+      <main className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#F5EFE3] overflow-y-auto">
         {/* Mobile logo */}
         <div className="flex lg:hidden flex-col items-center mb-8">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" className="w-12 h-12" aria-label="epimoyo">
@@ -219,7 +219,7 @@ export default function SignUpPage() {
           <polygon points="68,16 80,16 55,52 44,52" fill="#1F7A72"/>
         </svg>
           <p className="text-[#0C1F20] font-extrabold text-2xl mt-2">epimoyo</p>
-          <p className="text-[#1F7A72] text-xs mt-1">Clinician & Nurse Portal</p>
+          <p className="text-[#166158] text-xs mt-1">Clinician & Nurse Portal</p>
         </div>
 
         <div className="w-full max-w-md">
@@ -427,7 +427,7 @@ export default function SignUpPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#1F7A72] text-[#F5EFE3] font-bold rounded-xl hover:bg-[#12383A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
+              className="w-full bg-[#1F7A72] text-white font-bold rounded-xl hover:bg-[#12383A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -441,14 +441,14 @@ export default function SignUpPage() {
             </button>
           </form>
 
-          <p className="text-center text-[#6B8588] text-xs mt-8">
+          <p className="text-center text-[#4A5F62] text-xs mt-8">
             Already registered?{' '}
             <Link href="/login" className="text-[#3A5255] font-medium hover:text-[#1F7A72] transition-colors">
               Sign in
             </Link>
           </p>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

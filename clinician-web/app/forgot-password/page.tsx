@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F5EFE3] flex flex-col items-center justify-center px-6 py-16">
+    <main className="min-h-screen bg-[#F5EFE3] flex flex-col items-center justify-center px-6 py-16">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(31,122,114,0.05) 0%, transparent 70%)' }}
@@ -115,7 +115,7 @@ export default function ForgotPasswordPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-[#1F7A72] text-[#F5EFE3] font-bold rounded-xl hover:bg-[#12383A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 text-sm tracking-wide"
+                  className="w-full bg-[#1F7A72] text-white font-bold rounded-xl hover:bg-[#12383A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 text-sm tracking-wide"
                 >
                   {loading ? (
                     <span className="flex items-center gap-2">
@@ -141,6 +141,6 @@ export default function ForgotPasswordPage() {
           </Link>
         </p>
       </div>
-    </div>
+    </main>
   );
 }

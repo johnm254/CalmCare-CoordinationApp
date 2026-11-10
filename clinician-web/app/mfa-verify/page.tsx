@@ -131,7 +131,7 @@ export default function MfaVerifyPage() {
     'w-full bg-[#FFFFFF] border border-[#D6CFC4] rounded-xl px-4 py-3.5 text-[#0C1F20] placeholder:text-[#6B8588] focus:border-[#1F7A72] focus:outline-none focus:ring-2 focus:ring-[#1F7A72]/20 text-sm transition-colors disabled:opacity-50 text-center tracking-widest text-lg font-mono';
 
   return (
-    <div className="min-h-screen bg-[#F5EFE3] flex flex-col items-center justify-center px-6 py-16">
+    <main className="min-h-screen bg-[#F5EFE3] flex flex-col items-center justify-center px-6 py-16">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(31,122,114,0.05) 0%, transparent 70%)' }}
@@ -147,7 +147,7 @@ export default function MfaVerifyPage() {
             <circle cx="40" cy="34" r="4.5" fill="#E8603C"/>
           </svg>
           <p className="text-[#0C1F20] font-bold text-xl mt-2" style={{ fontFamily: 'Fraunces, Georgia, serif' }}>epimoyo</p>
-          <p className="text-[#1F7A72] text-xs mt-1">Clinician & Nurse Portal</p>
+          <p className="text-[#166158] text-xs mt-1">Clinician & Nurse Portal</p>
         </div>
 
         {step === 'loading' && (
@@ -171,7 +171,7 @@ export default function MfaVerifyPage() {
             <p className="text-[#3A5255] text-sm mb-6">{initError}</p>
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-[#1F7A72] text-[#F5EFE3] font-bold rounded-xl hover:bg-[#12383A] transition-colors min-h-12 px-6 text-sm"
+              className="w-full bg-[#1F7A72] text-white font-bold rounded-xl hover:bg-[#12383A] transition-colors min-h-12 px-6 text-sm"
             >
               Try again
             </button>
@@ -230,7 +230,7 @@ export default function MfaVerifyPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-[#1F7A72] text-[#F5EFE3] font-bold rounded-xl hover:bg-[#12383A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 text-sm tracking-wide"
+                className="w-full bg-[#1F7A72] text-white font-bold rounded-xl hover:bg-[#12383A] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 text-sm tracking-wide"
               >
                 {loading ? (
                   <span className="flex items-center gap-2">
@@ -288,6 +288,6 @@ export default function MfaVerifyPage() {
           </div>
         )}
       </div>
-    </div>
+    </main>
   );
 }

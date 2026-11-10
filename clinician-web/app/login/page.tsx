@@ -186,12 +186,12 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#F5EFE3]">
+      <main className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-[#F5EFE3]">
         {/* Mobile logo */}
         <div className="flex lg:hidden flex-col items-center mb-8">
           <EpimoyoIconDark />
           <p className="text-[#0C1F20] font-bold text-2xl mt-2" style={{ fontFamily: 'Fraunces, Georgia, serif' }}>epimoyo</p>
-          <p className="text-[#1F7A72] text-xs mt-1">Clinician & Nurse Portal</p>
+          <p className="text-[#166158] text-xs mt-1">Clinician & Nurse Portal</p>
         </div>
 
         <div className="w-full max-w-md">
@@ -249,7 +249,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#E8603C] text-[#F5EFE3] font-bold rounded-xl hover:bg-[#C8102E] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
+              className="w-full bg-[#E8603C] text-[#0C1F20] font-bold rounded-xl hover:bg-[#C8102E] hover:text-[#F5EFE3] transition-colors disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center min-h-12 mt-2 text-sm tracking-wide"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -264,7 +264,7 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 pt-6 border-t border-[#D6CFC4] text-center">
-            <p className="text-[#6B8588] text-xs">
+            <p className="text-[#4A5F62] text-xs">
               New clinician?{' '}
               <Link href="/signup" className="text-[#3A5255] font-medium hover:text-[#1F7A72] transition-colors">
                 Register here
@@ -272,7 +272,7 @@ export default function LoginPage() {
             </p>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

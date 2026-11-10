@@ -60,7 +60,7 @@ export default async function VerificationPendingPage() {
   const effectiveStatus = isExpired ? 'expired' : status;
 
   return (
-    <div className="min-h-screen bg-[#F5EFE3] flex flex-col items-center justify-center px-6 py-16">
+    <main className="min-h-screen bg-[#F5EFE3] flex flex-col items-center justify-center px-6 py-16">
       <div
         className="fixed inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 30%, rgba(31,122,114,0.05) 0%, transparent 70%)' }}
@@ -146,13 +146,13 @@ export default async function VerificationPendingPage() {
           </div>
         </div>
 
-        <p className="text-center text-[#6B8588] text-xs mt-6">
+        <p className="text-center text-[#4A5F62] text-xs mt-6">
           Wrong account?{' '}
           <a href="/login" className="text-[#3A5255] hover:text-[#1F7A72] transition-colors font-medium">
             Sign in with a different email
           </a>
         </p>
       </div>
-    </div>
+    </main>
   );
 }
