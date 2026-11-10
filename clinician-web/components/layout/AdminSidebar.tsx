@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -111,9 +111,9 @@ const NAV = [
 function EpimoyoIcon() {
   return (
     <svg viewBox="0 0 48 48" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="epimoyo">
-      <path d="M36.7 11.3 A18 18 0 1 1 36.7 36.7" stroke="white" strokeWidth="5.5" strokeLinecap="round"/>
-      <polyline points="8,24 15,24 19,15 23,33 27,24 36,24" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-      <circle cx="39.5" cy="37.5" r="4.5" fill="#E8603C"/>
+      <path d="M39.6 15 A18 18 0 1 1 39.6 33" stroke="white" strokeWidth="5.5" strokeLinecap="round"/>
+      <polyline points="3,24 12,24 16,13 22,35 27,24 39.6,24" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="40" cy="34" r="4.5" fill="#E8603C"/>
     </svg>
   );
 }

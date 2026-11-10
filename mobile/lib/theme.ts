@@ -72,6 +72,15 @@ export const colors = {
   badgeStableBg: "rgba(31,122,114,0.12)",
 }
 
+export const fontFamilies = {
+  display:     "Fraunces-SemiBold",     // headlines, big numbers, wordmark
+  displayItalic: "Fraunces-Italic",     // italic display (taglines, moments of care)
+  body:        "DMSans-Regular",        // body text, labels
+  bodyMedium:  "DMSans-Medium",         // medium-weight body
+  bodyBold:    "DMSans-Bold",           // bold UI labels, button text
+  mono:        "JetBrainsMono-Regular", // BPM, ECG readings, vitals
+}
+
 export const fonts = {
   xs:   11,
   sm:   12,

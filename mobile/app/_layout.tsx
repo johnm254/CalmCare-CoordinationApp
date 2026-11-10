@@ -35,7 +35,12 @@ import {
   type Profile,
 } from "../lib/supabase"
 
-import { colors, fonts, radius, spacing } from "../lib/theme"
+import { colors, fonts, fontFamilies, radius, spacing } from "../lib/theme"
+
+import { useFonts } from "expo-font"
+import { Fraunces_600SemiBold } from "@expo-google-fonts/fraunces"
+import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from "@expo-google-fonts/dm-sans"
+import { JetBrainsMono_400Regular } from "@expo-google-fonts/jetbrains-mono"
 
 import { initializeDB } from "../db/offline"
 
@@ -250,10 +255,10 @@ function SplashOverlay({ exiting, onExited }: { exiting: boolean; onExited?: () 
           opacity: titleOp,
         }}
       >
-        <Text style={splashStyles.brand}>mojo</Text>
+        <Text style={splashStyles.brand}>epimoyo</Text>
       </Animated.View>
       <Animated.Text style={[splashStyles.tagline, { opacity: tagOp }]}>
-        Care · Connect · Protect
+        Watching over every heartbeat.
       </Animated.Text>
     </Animated.View>
   )
@@ -290,21 +295,21 @@ const splashStyles = StyleSheet.create({
     width: 120,
     height: 120,
     borderRadius: 60,
-    borderColor: "rgba(20,184,166,0.20)",
+    borderColor: "rgba(31,122,114,0.20)",
   },
 
   r2: {
     width: 84,
     height: 84,
     borderRadius: 42,
-    borderColor: "rgba(20,184,166,0.45)",
+    borderColor: "rgba(31,122,114,0.45)",
   },
 
   r3: {
     width: 54,
     height: 54,
     borderRadius: 27,
-    borderColor: "rgba(20,184,166,0.75)",
+    borderColor: "rgba(31,122,114,0.75)",
   },
 
   core: {
@@ -312,9 +317,9 @@ const splashStyles = StyleSheet.create({
     height: 22,
     borderRadius: 11,
 
-    backgroundColor: colors.teal,
+    backgroundColor: colors.coral,
 
-    shadowColor: colors.teal,
+    shadowColor: colors.coral,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.9,
     shadowRadius: 14,
@@ -323,15 +328,16 @@ const splashStyles = StyleSheet.create({
 
   brand: {
     fontSize: 42,
-    fontWeight: "800",
-    color: colors.text,
+    fontFamily: fontFamilies.display,
+    color: colors.guardian,
 
-    letterSpacing: 7,
+    letterSpacing: 2,
     marginBottom: 2,
   },
 
   tagline: {
     fontSize: fonts.sm,
+    fontFamily: fontFamilies.body,
     color: colors.textSecondary,
     letterSpacing: 1.5,
   },
@@ -482,21 +488,21 @@ const bioStyles = StyleSheet.create({
     width: 110,
     height: 110,
     borderRadius: 55,
-    borderColor: "rgba(20,184,166,0.18)",
+    borderColor: "rgba(31,122,114,0.18)",
   },
 
   r2: {
     width: 76,
     height: 76,
     borderRadius: 38,
-    borderColor: "rgba(20,184,166,0.42)",
+    borderColor: "rgba(31,122,114,0.42)",
   },
 
   r3: {
     width: 48,
     height: 48,
     borderRadius: 24,
-    borderColor: "rgba(20,184,166,0.72)",
+    borderColor: "rgba(31,122,114,0.72)",
   },
 
   core: {
@@ -523,23 +529,23 @@ const bioStyles = StyleSheet.create({
   sub: { fontSize: fonts.base, color: colors.textSecondary },
 
   btn: {
-    backgroundColor: colors.teal,
+    backgroundColor: colors.coral,
 
     paddingVertical: 16,
     paddingHorizontal: 56,
 
     borderRadius: radius.xl,
 
-    shadowColor: colors.teal,
+    shadowColor: colors.coral,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
+    shadowOpacity: 0.4,
     shadowRadius: 12,
     elevation: 8,
   },
 
   btnText: {
     color: "#fff",
-    fontWeight: "800",
+    fontFamily: fontFamilies.bodyBold,
     fontSize: fonts.md,
     letterSpacing: 0.5,
   },
@@ -548,6 +554,14 @@ const bioStyles = StyleSheet.create({
 // ── Root layout ───────────────────────────────────────────────────────────────
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    "Fraunces-SemiBold":      Fraunces_600SemiBold,
+    "DMSans-Regular":         DMSans_400Regular,
+    "DMSans-Medium":          DMSans_500Medium,
+    "DMSans-Bold":            DMSans_700Bold,
+    "JetBrainsMono-Regular":  JetBrainsMono_400Regular,
+  })
+
   const [session, setSession] = useState<Session | null>(null)
 
   const [profile, setProfile] = useState<Profile | null>(null)
@@ -978,7 +992,7 @@ export default function RootLayout() {
     if (!session) router.replace("/(auth)/login")
   }, [initialized, session])
 
-  if (!initialized) return null
+  if (!initialized || !fontsLoaded) return null
 
   // ── Strap event handler (patient role only) ───────────────────────────────
 

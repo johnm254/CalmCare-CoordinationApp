@@ -101,9 +101,9 @@ export default function MfaSetupPage() {
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
           <svg viewBox="0 0 48 48" className="w-10 h-10" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="epimoyo">
-            <path d="M36.7 11.3 A18 18 0 1 1 36.7 36.7" stroke="#12383A" strokeWidth="5.5" strokeLinecap="round"/>
-            <polyline points="8,24 15,24 19,15 23,33 27,24 36,24" stroke="#12383A" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-            <circle cx="39.5" cy="37.5" r="4.5" fill="#E8603C"/>
+            <path d="M39.6 15 A18 18 0 1 1 39.6 33" stroke="#12383A" strokeWidth="5.5" strokeLinecap="round"/>
+            <polyline points="3,24 12,24 16,13 22,35 27,24 39.6,24" stroke="#12383A" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="40" cy="34" r="4.5" fill="#E8603C"/>
           </svg>
           <p className="text-[#0C1F20] font-bold text-xl mt-2" style={{ fontFamily: 'Fraunces, Georgia, serif' }}>epimoyo</p>
           <p className="text-[#1F7A72] text-xs mt-1">Clinician & Nurse Portal</p>

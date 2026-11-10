@@ -25,18 +25,17 @@ const PULSE    = '#1F7A72';
 const CORAL    = '#E8603C';
 
 // ─── Reusable epimoyo SVG icon path group ─────────────────────────────────────
-// Drawn in a 48×48 viewBox.
-// cx/cy of the guardian arc circle = 24,24  r=18
-// Arc: M36.7 11.3 A18 18 0 1 1 36.7 36.7  (open on the right like lowercase e)
-// Heartbeat: 8,24 → 15,24 → 19,15 → 23,33 → 27,24 → 36,24
-// Dot: cx=39.5 cy=37.5 r=4.5
+// Drawn in a 48×48 viewBox. Circle center (24,24) r=18.
+// Arc: 300° ring (60° gap on the right) — M39.6 15 to 39.6 33, clockwise large-arc.
+// Heartbeat extends left past the ring and exits through the right gap at midline.
+// Dot sits at the lower terminal of the arc (the beacon / lowercase-e serif).
 function epimoyoMark(strokeColor, dotColor, strokeW = 5.5, beatW = 4) {
   return `
-  <path d="M36.7 11.3 A18 18 0 1 1 36.7 36.7"
+  <path d="M39.6 15 A18 18 0 1 1 39.6 33"
         stroke="${strokeColor}" stroke-width="${strokeW}" stroke-linecap="round" fill="none"/>
-  <polyline points="8,24 15,24 19,15 23,33 27,24 36,24"
+  <polyline points="3,24 12,24 16,13 22,35 27,24 39.6,24"
         stroke="${strokeColor}" stroke-width="${beatW}" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <circle cx="39.5" cy="37.5" r="4.5" fill="${dotColor}"/>`;
+  <circle cx="40" cy="34" r="4.5" fill="${dotColor}"/>`;
 }
 
 // ─── 1. App icon  1024×1024 ───────────────────────────────────────────────────
@@ -88,14 +87,14 @@ const splashSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${splashW}" he
   <circle cx="${splashW/2}" cy="${oy + 24*sc}" r="${14*sc + 200}" fill="none" stroke="${PULSE}" stroke-width="1.2" opacity="0.18"/>
   <circle cx="${splashW/2}" cy="${oy + 24*sc}" r="${14*sc + 325}" fill="none" stroke="${PULSE}" stroke-width="1"   opacity="0.10"/>
 
-  <!-- epimoyo guardian arc -->
-  <path d="M${pt(36.7, 11.3)} A${18*sc} ${18*sc} 0 1 1 ${pt(36.7, 36.7)}"
+  <!-- epimoyo guardian arc — 300° ring, 60° gap on right -->
+  <path d="M${pt(39.6, 15)} A${18*sc} ${18*sc} 0 1 1 ${pt(39.6, 33)}"
         stroke="${LINEN}" stroke-width="${5.5*sc}" stroke-linecap="round" fill="none"/>
-  <!-- Heartbeat crossbar -->
-  <polyline points="${pt(8,24)} ${pt(15,24)} ${pt(19,15)} ${pt(23,33)} ${pt(27,24)} ${pt(36,24)}"
+  <!-- Heartbeat crossbar — extends past left of ring, exits through right gap -->
+  <polyline points="${pt(3,24)} ${pt(12,24)} ${pt(16,13)} ${pt(22,35)} ${pt(27,24)} ${pt(39.6,24)}"
         stroke="${LINEN}" stroke-width="${4*sc}" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <!-- Coral beacon dot -->
-  <circle cx="${ox + 39.5*sc}" cy="${oy + 37.5*sc}" r="${4.5*sc}" fill="${CORAL}"/>
+  <!-- Coral beacon dot — at lower terminal of arc -->
+  <circle cx="${ox + 40*sc}" cy="${oy + 34*sc}" r="${4.5*sc}" fill="${CORAL}"/>
 
   <!-- Wordmark — editorial tracking -->
   <text x="${splashW/2}" y="${oy + 48*sc + 118}"

@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
@@ -52,11 +52,11 @@ function EpimoyoIcon({ size = 28, dark = false }: { size?: number; dark?: boolea
   return (
     <svg viewBox="0 0 48 48" width={size} height={size} fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="epimoyo">
       {/* Guardian halo — open ring (lowercase e arc) */}
-      <path d="M36.7 11.3 A18 18 0 1 1 36.7 36.7" stroke={stroke} strokeWidth="5.5" strokeLinecap="round"/>
+      <path d="M39.6 15 A18 18 0 1 1 39.6 33" stroke={stroke} strokeWidth="5.5" strokeLinecap="round"/>
       {/* Heartbeat crossbar */}
-      <polyline points="8,24 15,24 19,15 23,33 27,24 36,24" stroke={stroke} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+      <polyline points="3,24 12,24 16,13 22,35 27,24 39.6,24" stroke={stroke} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
       {/* Coral beacon dot */}
-      <circle cx="39.5" cy="37.5" r="4.5" fill="#E8603C"/>
+      <circle cx="40" cy="34" r="4.5" fill="#E8603C"/>
     </svg>
   );
 }

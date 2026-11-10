@@ -1,10 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Guardian Teal background tile -->
-  <rect width="32" height="32" rx="7" fill="#12383A"/>
-  <!-- Guardian halo arc (open ring, lowercase e shape) -->
-  <path d="M24.5 7.5 A10.5 10.5 0 1 1 24.5 24.5" stroke="#F5EFE3" stroke-width="3.2" stroke-linecap="round" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5 -5 58 58" width="32" height="32">
+  <!-- Guardian Teal background -->
+  <rect x="-5" y="-5" width="58" height="58" rx="10" fill="#12383A"/>
+  <!-- Guardian halo arc — 300° ring, 60° gap on the right -->
+  <path d="M39.6 15 A18 18 0 1 1 39.6 33" stroke="#F5EFE3" stroke-width="5.5" stroke-linecap="round" fill="none"/>
   <!-- Heartbeat crossbar -->
-  <polyline points="4.5,16 9,16 11,11 13.5,21 16,16 21,16" stroke="#F5EFE3" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <polyline points="3,24 12,24 16,13 22,35 27,24 39.6,24" stroke="#F5EFE3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   <!-- Coral beacon dot -->
-  <circle cx="26" cy="24.5" r="2.8" fill="#E8603C"/>
+  <circle cx="40" cy="34" r="4.5" fill="#E8603C"/>
 </svg>
