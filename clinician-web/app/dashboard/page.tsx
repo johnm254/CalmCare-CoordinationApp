@@ -47,6 +47,19 @@ export default async function DashboardPage() {
     .eq('status', 'open')
     .order('due_at', { ascending: true });
 
+  const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString();
+
+  const [lastWeekEventsRes, activeSosRes] = await Promise.all([
+    patientIds.length
+      ? supabase.from('events').select('patient_id').in('patient_id', patientIds).gte('occurred_at', twoWeeksAgo).lt('occurred_at', weekAgo)
+      : Promise.resolve({ data: [] }),
+    patientIds.length
+      ? supabase.from('sos_events').select('id, patient_id, created_at, profiles!sos_events_patient_id_fkey(full_name)').in('patient_id', patientIds).eq('status', 'active').limit(5)
+      : Promise.resolve({ data: [] }),
+  ]);
+  const lastWeekTotal = (lastWeekEventsRes.data ?? []).length;
+  const activeSos = (activeSosRes.data ?? []) as unknown as Array<{ id: string; patient_id: string; created_at: string; profiles: { full_name: string | null } | null }>;
+
   const eventsByPatient: Record<string, number> = {};
   (recentEvents ?? []).forEach((e: any) => {
     eventsByPatient[e.patient_id] = (eventsByPatient[e.patient_id] ?? 0) + 1;
@@ -125,7 +138,12 @@ export default async function DashboardPage() {
       valueColor: 'text-[#1F7A72]',
       iconBg: 'bg-[rgba(31,122,114,0.10)]',
       iconColor: 'text-[#1F7A72]',
-      trend: totalEvents > 0 ? '▲' : '—',
+      trend: totalEvents > lastWeekTotal
+        ? `▲ ${totalEvents - lastWeekTotal} vs last wk`
+        : totalEvents < lastWeekTotal
+        ? `▼ ${lastWeekTotal - totalEvents} vs last wk`
+        : '— same as last wk',
+      trendColor: totalEvents > lastWeekTotal ? 'text-[#C8102E]' : totalEvents < lastWeekTotal ? 'text-[#1F7A72]' : 'text-[#6B8588]',
       icon: (
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -136,6 +154,30 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-8">
+      {activeSos.length > 0 && (
+        <div className="bg-[rgba(200,16,46,0.08)] border border-[#C8102E]/30 rounded-2xl p-4 mb-6 flex items-center gap-4">
+          <div className="w-10 h-10 rounded-xl bg-[rgba(200,16,46,0.15)] flex items-center justify-center flex-shrink-0">
+            <svg className="w-5 h-5 text-[#C8102E] animate-pulse" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+          </div>
+          <div className="flex-1">
+            <p className="text-[#C8102E] font-bold text-sm">
+              {activeSos.length} active SOS alert{activeSos.length > 1 ? 's' : ''}
+            </p>
+            <p className="text-[#3A5255] text-xs mt-0.5">
+              {activeSos.map((s: any) => (s.profiles as any)?.full_name ?? 'Unknown').join(', ')}
+            </p>
+          </div>
+          <Link
+            href="/dashboard/alerts"
+            className="bg-[#C8102E] text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-[#a00d24] transition-colors flex-shrink-0"
+          >
+            Go to Alerts →
+          </Link>
+        </div>
+      )}
+
       {/* Welcome banner */}
       <div className="bg-gradient-to-r from-[#FFFFFF] to-[#E8E0D4] border border-[#D6CFC4] rounded-2xl p-6 mb-8">
         <p className="text-[#6B8588] text-xs font-medium uppercase tracking-widest mb-1">{today}</p>
@@ -160,7 +202,7 @@ export default async function DashboardPage() {
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${s.iconBg} ${s.iconColor}`}>
                 {s.icon}
               </div>
-              <span className="text-[#6B8588] text-xs">{s.trend}</span>
+              <span className={`text-xs ${(s as any).trendColor ?? 'text-[#6B8588]'}`}>{s.trend}</span>
             </div>
             <p className={`text-3xl font-black ${s.valueColor} mb-1`}>{s.value}</p>
             <p className="text-[#3A5255] text-sm">{s.label}</p>

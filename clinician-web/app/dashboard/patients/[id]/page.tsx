@@ -4,6 +4,8 @@ import { createClient } from '../../../../lib/supabase-server';
 import { logAccess } from '../../../../lib/audit';
 import PreferredHospital from './PreferredHospital';
 import PatientTabNav from './PatientTabNav';
+import SeizureChart from '../../SeizureChart';
+import ClinicalNotes from '../../../../components/ClinicalNotes';
 
 function EventTypeBadge({ type }: { type: string }) {
   if (type === 'seizure')
@@ -57,7 +59,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
   // Fetch all patient data in parallel
   const [profileRes, eventsRes, medsRes, followupsRes, prefRes] = await Promise.all([
     supabase.from('profiles').select('id, full_name, email').eq('id', params.id).single(),
-    supabase.from('events').select('*').eq('patient_id', params.id).order('occurred_at', { ascending: false }).limit(20),
+    supabase.from('events').select('*').eq('patient_id', params.id).gte('occurred_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()).order('occurred_at', { ascending: false }).limit(100),
     supabase.from('medications').select('*').eq('patient_id', params.id).eq('active', true),
     supabase
       .from('followups')
@@ -114,6 +116,15 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
     },
   ];
 
+  const thirtyDayChartData = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000);
+    const dayStr = d.toISOString().slice(0, 10);
+    const label = i % 5 === 0 ? d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
+    const count = events.filter((e: any) => (e.occurred_at ?? '').startsWith(dayStr)).length;
+    return { day: label || '·', count };
+  });
+  const hasChartData = thirtyDayChartData.some((d) => d.count > 0);
+
   const baseHref = `/dashboard/patients/${params.id}`;
 
   return (
@@ -157,6 +168,14 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
 
       {/* Tab row */}
       <PatientTabNav patientId={params.id} />
+
+      {hasChartData && (
+        <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-6 mb-6">
+          <h2 className="text-base font-bold text-[#0C1F20] mb-1">Events — last 30 days</h2>
+          <p className="text-xs text-[#6B8588] mb-4">{events.length} event{events.length !== 1 ? 's' : ''} recorded</p>
+          <SeizureChart data={thirtyDayChartData} />
+        </div>
+      )}
 
       {/* Pre-visit brief */}
       <div className="bg-[#FFFFFF] border border-[#1F7A72]/25 rounded-2xl p-6 mb-6">
@@ -357,6 +376,10 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
             })}
           </div>
         )}
+      </div>
+
+      <div className="mt-6">
+        <ClinicalNotes clinicianId={user!.id} patientId={params.id} />
       </div>
 
       {/* Bottom row: ECG link + Preferred Hospital */}

@@ -227,6 +227,12 @@ export default function FollowUpsPage() {
     setItems((prev) => prev.map((f) => f.id === id ? { ...f, status: 'completed', completed_at: new Date().toISOString() } : f));
   }
 
+  async function markInProgress(id: string) {
+    const supabase = createClient();
+    await supabase.from('followups').update({ status: 'in_progress' }).eq('id', id);
+    setItems((prev) => prev.map((f) => f.id === id ? { ...f, status: 'in_progress' } : f));
+  }
+
   const filtered = items.filter((fu) => {
     if (filter === 'All') return true;
     if (filter === 'Open') return fu.status === 'open';
@@ -321,6 +327,14 @@ export default function FollowUpsPage() {
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
                     <StatusPill status={fu.status} />
+                    {fu.status === 'open' && (
+                      <button
+                        onClick={() => markInProgress(fu.id)}
+                        className="text-[#3A5255] border border-[#D6CFC4] rounded-lg px-3 py-1.5 text-xs font-semibold hover:bg-[#EDE8DF] hover:text-[#0C1F20] transition-colors min-h-[36px] flex items-center gap-1.5"
+                      >
+                        Start
+                      </button>
+                    )}
                     {fu.status !== 'completed' && (
                       <button
                         onClick={() => markComplete(fu.id)}
