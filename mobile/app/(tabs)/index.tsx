@@ -11,13 +11,13 @@ import {
   StyleSheet,
   ActivityIndicator,
   Animated,
-  Image,
   useWindowDimensions,
   Modal,
   Linking,
   Pressable,
   StatusBar,
 } from "react-native"
+import { Image } from "expo-image"
 
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons"
 import { LinearGradient } from "expo-linear-gradient"
@@ -533,7 +533,13 @@ export default function HomeScreen() {
           {/* ── Weather ───────────────────────────────────────────────────── */}
           {weather && (
             <View style={s.card}>
-              <Image source={{ uri: iconUrl(weather.current.iconCode) }} style={{ width: 44, height: 44 }} />
+              <Image
+                source={{ uri: iconUrl(weather.current.iconCode) }}
+                style={{ width: 44, height: 44 }}
+                contentFit="contain"
+                cachePolicy="disk"
+                transition={150}
+              />
               <View style={{ flex: 1 }}>
                 <Text style={s.cardTitleText}>{weather.current.city}</Text>
                 <Text style={s.cardSubText}>{weather.current.description} · Feels {weather.current.feels_like}°C</Text>
@@ -833,3 +839,7 @@ const s = StyleSheet.create({
   sheetCancel: { alignItems: "center", paddingVertical: spacing.lg },
   sheetCancelText: { fontSize: fonts.md, color: colors.textSecondary, fontWeight: "600" },
 })
+
+export function ErrorBoundary({ error, retry }: { error: Error; retry: () => void }) {
+  return <TabErrorFallback error={error} retry={retry} />
+}

@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState, useCallback, useRef } from "react"
+import { TabErrorFallback } from "../../components/TabErrorBoundary"
 
 import {
   View,
@@ -27,6 +28,8 @@ import { colors, fonts, radius, spacing } from "../../lib/theme"
 import { useAuth } from "../_layout"
 
 import { supabase } from "../../lib/supabase"
+
+import { unsubscribeAll } from "../../lib/channel-manager"
 
 import { useTranslation } from "../../lib/i18n-context"
 
@@ -1754,8 +1757,8 @@ export default function MeScreen() {
   }
 
   async function handleSignOut() {
+    unsubscribeAll()
     await supabase.auth.signOut()
-
     router.replace("/(auth)/login")
   }
 
@@ -2594,3 +2597,7 @@ const s = StyleSheet.create({
     marginTop: spacing.xl,
   },
 })
+
+export function ErrorBoundary({ error, retry }: { error: Error; retry: () => void }) {
+  return <TabErrorFallback error={error} retry={retry} />
+}

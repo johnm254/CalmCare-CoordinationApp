@@ -144,6 +144,9 @@ export async function cancelDoseNotification(
   await Notifications.cancelScheduledNotificationAsync(notifId).catch(() => {})
 }
 
+// iOS hard limit is 64 scheduled notifications per app; stay safely below it.
+const MAX_TOTAL_SCHEDULED = 60
+
 // Call on app boot or after any schedule sync to bring notifications up to date.
 
 export async function syncNotificationsFromSchedules(
@@ -175,10 +178,16 @@ export async function syncNotificationsFromSchedules(
       .map((n) => Notifications.cancelScheduledNotificationAsync(n.identifier)),
   )
 
+  let totalScheduled = 0
+
   for (const s of schedules) {
     if (!s.active) continue
+    if (totalScheduled >= MAX_TOTAL_SCHEDULED) break
 
     for (const time of s.times) {
+      const slots = s.days_of_week.length
+      if (totalScheduled + slots > MAX_TOTAL_SCHEDULED) break
+
       await scheduleMedicationReminder({
         scheduleId: s.id,
 
@@ -188,6 +197,8 @@ export async function syncNotificationsFromSchedules(
 
         daysOfWeek: s.days_of_week,
       })
+
+      totalScheduled += slots
     }
   }
 }

@@ -18,6 +18,11 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
     detectSessionInUrl: false,
   },
+  global: {
+    // 15s timeout prevents stale connections from piling up under load
+    fetch: (url: RequestInfo | URL, options: RequestInit = {}) =>
+      fetch(url, { ...options, signal: AbortSignal.timeout(15_000) }),
+  },
 })
 
 // ─── Types ────────────────────────────────────────────────────────────────────

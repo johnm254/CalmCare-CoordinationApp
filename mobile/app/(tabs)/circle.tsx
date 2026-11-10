@@ -1,4 +1,5 @@
 ﻿import { useEffect, useState } from "react"
+import { TabErrorFallback } from "../../components/TabErrorBoundary"
 
 import {
   View,
@@ -728,3 +729,7 @@ const styles = StyleSheet.create({
     color: "#3A5255",
   },
 })
+
+export function ErrorBoundary({ error, retry }: { error: Error; retry: () => void }) {
+  return <TabErrorFallback error={error} retry={retry} />
+}

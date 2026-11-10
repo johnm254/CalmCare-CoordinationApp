@@ -23,6 +23,7 @@ import {
   getSosResponders,
   supabase,
 } from "../lib/supabase"
+import { subscribeToChannel } from "../lib/channel-manager"
 
 function timeSince(iso: string): string {
   const diffMs = Date.now() - new Date(iso).getTime()
@@ -115,17 +116,13 @@ export default function SosAlertScreen() {
   useEffect(() => {
     if (!sosId) return
     let alive = true
-    const channel = supabase
-      .channel(`sos-responses:${sosId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "sos_responses",
-          filter: `sos_event_id=eq.${sosId}`,
-        },
-        () => {
+    const cleanup = subscribeToChannel(`sos-responses:${sosId}`, [
+      {
+        event: "INSERT",
+        schema: "public",
+        table: "sos_responses",
+        filter: `sos_event_id=eq.${sosId}`,
+        callback: () => {
           getSosResponders(sosId).then((r) => {
             if (!alive) return
             setResponders(r)
@@ -133,12 +130,9 @@ export default function SosAlertScreen() {
               setMyResponse(r.some((x) => x.responder_id === session.user!.id))
           }).catch(() => {})
         },
-      )
-      .subscribe()
-    return () => {
-      alive = false
-      supabase.removeChannel(channel)
-    }
+      },
+    ])
+    return () => { alive = false; cleanup() }
   }, [sosId, session])
 
   // Polling fallback — keeps responder list fresh even if Realtime is unavailable

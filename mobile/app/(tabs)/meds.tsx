@@ -1,4 +1,4 @@
-// Meds tab — medication schedule + offline "Taken" check-in.
+﻿// Meds tab — medication schedule + offline "Taken" check-in.
 
 // CR-MED-04: one tap per dose slot; uniqueness enforced in SQLite + server.
 
@@ -701,3 +701,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 })
+
+export function ErrorBoundary({ error, retry }: { error: Error; retry: () => void }) {
+  return <TabErrorFallback error={error} retry={retry} />
+}
