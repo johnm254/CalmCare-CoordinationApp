@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const NAV = [
   {
@@ -29,6 +29,16 @@ const NAV = [
   {
     href: '/admin/activity',
     label: 'Activity',
+    color: 'from-[#1F7A72] to-[#12383A]',
+    icon: (
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/admin/analytics',
+    label: 'Analytics',
     color: 'from-[#1F7A72] to-[#12383A]',
     icon: (
       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -121,6 +131,25 @@ function EpimoyoIcon() {
 export default function AdminSidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [pendingVerCount, setPendingVerCount] = useState(0);
+  const [activeSosCount, setActiveSosCount] = useState(0);
+
+  useEffect(() => {
+    fetch('/api/admin/verifications')
+      .then((r) => r.json())
+      .then((j) => setPendingVerCount(
+        (j.verifications ?? []).filter((v: any) => v.status === 'pending').length
+      ))
+      .catch(() => {});
+
+    fetch('/api/admin/activity')
+      .then((r) => r.json())
+      .then((j) => {
+        const active = (j.sos_events ?? j.events ?? []).filter((e: any) => e.status === 'active').length;
+        setActiveSosCount(active);
+      })
+      .catch(() => {});
+  }, []);
 
   const sidebarContent = (
     <>
@@ -164,6 +193,14 @@ export default function AdminSidebar() {
                 {item.icon}
               </span>
               {item.label}
+              {item.href === '/admin/clinicians' && pendingVerCount > 0 && (
+                <span className="ml-auto text-xs font-bold px-1.5 py-0.5 rounded-full bg-[rgba(241,199,107,0.15)] text-[#F1C76B] border border-[#F1C76B]/30">
+                  {pendingVerCount}
+                </span>
+              )}
+              {item.href === '/admin' && activeSosCount > 0 && (
+                <span className="ml-auto w-2 h-2 rounded-full bg-[#C8102E] animate-pulse" />
+              )}
             </Link>
           );
         })}

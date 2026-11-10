@@ -1,5 +1,6 @@
-﻿import Link from 'next/link';
+import Link from 'next/link';
 import { createClient } from '../../../lib/supabase-server';
+import SeizureChart from '../../dashboard/SeizureChart';
 
 function StatCard({
   label,
@@ -31,6 +32,8 @@ export default async function AdminOverviewPage() {
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
+  const { data: { user } } = await supabase.auth.getUser();
+
   const [
     cliniciansRes,
     patientsRes,
@@ -39,6 +42,10 @@ export default async function AdminOverviewPage() {
     dispatchFlagRes,
     recentSosRes,
     pendingVerRes,
+    adminProfileRes,
+    newPatientsRes,
+    newCliniciansRes,
+    sosByDayRes,
   ] = await Promise.all([
     supabase.from('profiles').select('id, role').neq('role', 'patient').neq('role', 'admin'),
     supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'patient'),
@@ -60,6 +67,10 @@ export default async function AdminOverviewPage() {
       .from('clinician_verifications')
       .select('id', { count: 'exact', head: true })
       .eq('status', 'pending'),
+    supabase.from('profiles').select('full_name').eq('id', user!.id).single(),
+    supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'patient').gte('created_at', weekAgo),
+    supabase.from('profiles').select('id', { count: 'exact', head: true }).neq('role', 'patient').neq('role', 'admin').gte('created_at', weekAgo),
+    supabase.from('sos_events').select('created_at').gte('created_at', weekAgo),
   ]);
 
   const allClinicians = cliniciansRes.data ?? [];
@@ -71,6 +82,19 @@ export default async function AdminOverviewPage() {
   const sosThisWeek = sosRes.count ?? 0;
   const activeAlerts = alertsRes.count ?? 0;
   const pendingVerCount = pendingVerRes.count ?? 0;
+
+  const adminName = (adminProfileRes.data as any)?.full_name ?? 'Admin';
+  const adminFirstName = adminName.replace(/^Dr\.?\s*/i, '').split(' ')[0];
+  const newPatientsThisWeek = newPatientsRes.count ?? 0;
+  const newCliniciansThisWeek = newCliniciansRes.count ?? 0;
+
+  const sosByDayData = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(Date.now() - (6 - i) * 24 * 60 * 60 * 1000);
+    const dayStr = d.toISOString().slice(0, 10);
+    const label = d.toLocaleDateString('en-GB', { weekday: 'short' });
+    const count = (sosByDayRes.data ?? []).filter((e: any) => (e.created_at ?? '').startsWith(dayStr)).length;
+    return { day: label, count };
+  });
 
   const dispatchFlag = dispatchFlagRes.data;
   const isLive = dispatchFlag?.enabled === true;
@@ -127,7 +151,7 @@ export default async function AdminOverviewPage() {
           </svg>
           <div>
             <p className="text-[#F1C76B] text-sm font-black">
-              ⚠ Dispatch is in SANDBOX mode — no real ambulances will be called
+              &#9888; Dispatch is in SANDBOX mode — no real ambulances will be called
             </p>
             <p className="text-[#3A5255] text-xs mt-0.5">
               Enable live dispatch from{' '}
@@ -143,12 +167,12 @@ export default async function AdminOverviewPage() {
       {/* Welcome */}
       <div className="bg-gradient-to-r from-[#FFFFFF] to-[#E8E0D4] border border-[#D6CFC4] rounded-2xl p-6 mb-6">
         <p className="text-[#6B8588] text-sm mb-1">{today}</p>
-        <h1 className="text-2xl font-bold text-[#0C1F20]">System Health Overview</h1>
+        <h1 className="text-2xl font-bold text-[#0C1F20]">Welcome back, {adminFirstName}</h1>
         <p className="text-[#3A5255] text-sm mt-1">Platform-wide status at a glance.</p>
       </div>
 
       {/* Stats row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
         <StatCard
           label="Total Clinicians"
           value={allClinicians.length}
@@ -193,6 +217,20 @@ export default async function AdminOverviewPage() {
             </svg>
           }
         />
+        <StatCard
+          label="New Patients (7 days)"
+          value={newPatientsThisWeek}
+          sub={newPatientsThisWeek === 1 ? '1 new signup' : `${newPatientsThisWeek} new signups`}
+          iconBg="bg-[rgba(31,122,114,0.12)] text-[#1F7A72]"
+          icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>}
+        />
+        <StatCard
+          label="New Clinicians (7 days)"
+          value={newCliniciansThisWeek}
+          sub="Newly registered"
+          iconBg="bg-[rgba(232,96,60,0.12)] text-[#E8603C]"
+          icon={<svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>}
+        />
       </div>
 
       {/* Pending verifications banner */}
@@ -214,6 +252,17 @@ export default async function AdminOverviewPage() {
           </Link>
         </div>
       )}
+
+      {/* SOS trend chart */}
+      <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-base font-bold text-[#0C1F20]">SOS Events — last 7 days</h2>
+            <p className="text-xs text-[#6B8588] mt-0.5">{sosThisWeek} total platform-wide</p>
+          </div>
+        </div>
+        <SeizureChart data={sosByDayData} />
+      </div>
 
       {/* Recent SOS events */}
       <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl overflow-hidden overflow-x-auto">

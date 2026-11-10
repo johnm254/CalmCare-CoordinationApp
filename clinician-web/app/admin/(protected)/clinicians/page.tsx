@@ -217,6 +217,17 @@ export default function AdminCliniciansPage() {
     fetchData();
   }
 
+  async function handleSuspend(clinicianId: string, isSuspended: boolean) {
+    setActionLoading(clinicianId);
+    await fetch('/api/admin/clinicians', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: clinicianId, action: isSuspended ? 'unsuspend' : 'suspend' }),
+    });
+    setActionLoading(null);
+    fetchData();
+  }
+
   const filteredClinicians = clinicians.filter((c) => {
     const q = search.toLowerCase();
     return (c.full_name ?? '').toLowerCase().includes(q) || (c.email ?? '').toLowerCase().includes(q);
@@ -305,7 +316,7 @@ export default function AdminCliniciansPage() {
       {/* ── CLINICIANS TAB ── */}
       {tab === 'clinicians' && (
         <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl overflow-hidden overflow-x-auto">
-          <div className="grid grid-cols-[1fr_1fr_90px_90px_90px_100px] min-w-[640px] px-6 py-3 bg-[#F5EFE3] border-b border-[#D6CFC4]">
+          <div className="grid grid-cols-[1fr_1fr_90px_90px_90px_160px] min-w-[640px] px-6 py-3 bg-[#F5EFE3] border-b border-[#D6CFC4]">
             {['Clinician', 'Email', 'Patients', 'Verified', 'Joined', ''].map((h) => (
               <span key={h} className="text-[#6B8588] text-xs font-semibold uppercase tracking-wider">{h}</span>
             ))}
@@ -326,7 +337,7 @@ export default function AdminCliniciansPage() {
             const colorClass = colorClasses[i % colorClasses.length];
             return (
               <div key={c.id}
-                className={`grid grid-cols-[1fr_1fr_90px_90px_90px_100px] min-w-[640px] px-6 py-4 border-b border-[#D6CFC4] last:border-0 items-center hover:bg-[#EDE8DF] transition-colors ${c.role === 'suspended' ? 'opacity-50' : ''}`}
+                className={`grid grid-cols-[1fr_1fr_90px_90px_90px_160px] min-w-[640px] px-6 py-4 border-b border-[#D6CFC4] last:border-0 items-center hover:bg-[#EDE8DF] transition-colors ${c.role === 'suspended' ? 'opacity-50' : ''}`}
               >
                 <div className="flex items-center gap-3">
                   <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs flex-shrink-0 ${colorClass}`}>{initials}</div>
@@ -352,6 +363,17 @@ export default function AdminCliniciansPage() {
                   >
                     View
                   </Link>
+                  <button
+                    onClick={() => handleSuspend(c.id, c.role === 'suspended')}
+                    disabled={actionLoading === c.id}
+                    className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors disabled:opacity-50 ${
+                      c.role === 'suspended'
+                        ? 'text-[#1F7A72] border border-[#1F7A72]/30 hover:bg-[#1F7A72]/10'
+                        : 'text-[#C8102E] border border-[#C8102E]/20 hover:bg-[#C8102E]/10'
+                    }`}
+                  >
+                    {actionLoading === c.id ? '…' : c.role === 'suspended' ? 'Unsuspend' : 'Suspend'}
+                  </button>
                 </div>
               </div>
             );
