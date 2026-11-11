@@ -1,5 +1,6 @@
 ﻿import { useEffect, useState } from "react"
 import { TabErrorFallback } from "../../components/TabErrorBoundary"
+import { StatTile, Skeleton, Card } from "../../components"
 import {
   View,
   Text,
@@ -300,20 +301,23 @@ export default function HealthScreen() {
         contentContainerStyle={[styles.container, { paddingBottom: bottomPad }]}
         showsVerticalScrollIndicator={false}
       >
-        {/* Stat tiles */}
+        {/* Stat tiles using Phase 2 components */}
         <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <Text style={styles.statVal}>{loading ? "—" : events.length}</Text>
-            <Text style={styles.statLabel}>Events</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statVal}>{loading ? "—" : freeDays !== null ? freeDays : "—"}</Text>
-            <Text style={styles.statLabel}>Seizure-free days</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statVal}>{loading || !insights ? "—" : insights.med_checkins}</Text>
-            <Text style={styles.statLabel}>Dose check-ins</Text>
-          </View>
+          <StatTile
+            value={loading ? "—" : events.length}
+            label="Events"
+            variant="default"
+          />
+          <StatTile
+            value={loading ? "—" : freeDays !== null ? freeDays : "—"}
+            label="Seizure-free days"
+            variant="default"
+          />
+          <StatTile
+            value={loading || !insights ? "—" : insights.med_checkins}
+            label="Dose check-ins"
+            variant="default"
+          />
         </View>
 
         {/* Segmented control */}
@@ -421,7 +425,7 @@ const styles = StyleSheet.create({
   scroll:    { flex: 1 },
   container: { padding: spacing.lg },
 
-  statsRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.lg },
+  statsRow: { flexDirection: "row", gap: spacing.sm, marginBottom: spacing.lg, flex: 1 },
   statCard: {
     flex: 1, backgroundColor: colors.bgCard, borderRadius: radius.md,
     borderWidth: 1, borderColor: colors.border, padding: spacing.md, alignItems: "center",

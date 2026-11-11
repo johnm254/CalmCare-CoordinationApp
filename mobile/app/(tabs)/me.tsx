@@ -23,6 +23,7 @@ import { router } from "expo-router"
 
 import * as Location from "expo-location"
 
+import { Card, Button, Chip, ListRow } from "../../components"
 import { colors, fonts, radius, spacing } from "../../lib/theme"
 
 import { useAuth } from "../_layout"
