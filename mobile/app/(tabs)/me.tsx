@@ -207,10 +207,7 @@ const sh = StyleSheet.create({
 
 const LANGUAGES = [
   { key: "en", label: "English", native: "English" },
-
   { key: "sw", label: "Swahili", native: "Kiswahili" },
-
-  { key: "fr", label: "French", native: "Français" },
 ]
 
 function LanguageSheet({
@@ -1653,13 +1650,9 @@ export default function MeScreen() {
   const [strapConnected, setStrapConnected] = useState(false)
   const [bleStrapEnabled, setBleStrapEnabled] = useState(true)
 
-  const initials = (profile?.full_name ?? "U")
-
-    .split(" ")
-    .map((n: string) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase()
+  const rawInitials = profile?.full_name
+    ? profile.full_name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+    : null
 
   const email = session?.user?.email ?? ""
 
@@ -1765,7 +1758,6 @@ export default function MeScreen() {
   const LANG_LABEL: Record<string, string> = {
     en: "English",
     sw: "Kiswahili",
-    fr: "Français",
   }
 
   return (
@@ -1780,12 +1772,25 @@ export default function MeScreen() {
           <View style={s.profileGlow} />
           <View style={s.avatarWrap}>
             <View style={s.avatar}>
-              <Text style={s.avatarText}>{initials}</Text>
+              {rawInitials ? (
+                <Text style={s.avatarText}>{rawInitials}</Text>
+              ) : (
+                <>
+                  <View style={s.avatarPersonHead} />
+                  <View style={s.avatarPersonBody} />
+                </>
+              )}
             </View>
             <View style={s.onlineDot} />
           </View>
           <View style={s.profileInfo}>
-            <Text style={s.profileName}>{profile?.full_name ?? "—"}</Text>
+            {profile?.full_name ? (
+              <Text style={s.profileName}>{profile.full_name}</Text>
+            ) : (
+              <TouchableOpacity onPress={() => router.push("/me" as any)} activeOpacity={0.75}>
+                <Text style={[s.profileName, { color: colors.teal, fontSize: fonts.base }]}>Add your name</Text>
+              </TouchableOpacity>
+            )}
             <Text style={s.profileEmail}>{email}</Text>
             <View style={s.roleBadge}>
               <Text style={s.roleBadgeText}>
@@ -2288,6 +2293,26 @@ const s = StyleSheet.create({
 
     borderWidth: 2,
     borderColor: colors.teal,
+
+    overflow: "hidden",
+  },
+
+  avatarPersonHead: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: colors.teal,
+    position: "absolute",
+    top: 10,
+  },
+
+  avatarPersonBody: {
+    width: 32,
+    height: 18,
+    borderRadius: 16,
+    backgroundColor: colors.teal,
+    position: "absolute",
+    bottom: 6,
   },
 
   avatarText: { color: colors.teal, fontWeight: "800", fontSize: fonts.xl },

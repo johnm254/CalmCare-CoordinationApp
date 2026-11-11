@@ -70,11 +70,26 @@ export const colors = {
   // ── Compat aliases ────────────────────────────────────────────────────────
   badgeReviewBg: "rgba(200,16,46,0.10)",
   badgeStableBg: "rgba(31,122,114,0.12)",
+
+  // ── Design system tokens (Phase 2) ───────────────────────────────────────
+  surface:           "#FFFFFF",   // Cards (alias for bgCard)
+  surfaceDark:       "#15383A",   // Hero cards
+  primary:           "#1F7A70",   // Buttons, active states
+  primarySoft:       "#D6E6E1",   // Chips, icon backgrounds
+  accent:            "#E8674A",   // Steps ring, secondary data
+  danger:            "#C8102E",   // SOS, emergency (alias for emergency)
+  dangerSoft:        "#FBE4E7",   // Emergency chip bg
+  seizure:           "#B4472E",   // Seizure markers in charts (never teal)
+  warning:           "#8A5A00",   // Warning text
+  warningBg:         "#FBEFD0",   // Warning background
+  textOnDark:        "#FFFFFF",   // Text on surfaceDark
+  textOnDarkMuted:   "#B8CCC8",   // Secondary text on surfaceDark
 }
 
 export const fontFamilies = {
   display:     "Fraunces-SemiBold",     // headlines, big numbers, wordmark
   displayItalic: "Fraunces-Italic",     // italic display (taglines, moments of care)
+  // TODO: replace DMSans with PlusJakartaSans after adding to app.json + assets
   body:        "DMSans-Regular",        // body text, labels
   bodyMedium:  "DMSans-Medium",         // medium-weight body
   bodyBold:    "DMSans-Bold",           // bold UI labels, button text
@@ -109,6 +124,14 @@ export const spacing = {
   xl:   20,
   xxl:  24,
   xxxl: 32,
+  // Numeric spacing scale
+  1: 4,
+  2: 8,
+  3: 12,
+  4: 16,
+  5: 20,
+  6: 24,
+  8: 32,
 }
 
 // ── Shadow presets ────────────────────────────────────────────────────────────

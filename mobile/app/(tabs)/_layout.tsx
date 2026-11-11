@@ -55,7 +55,10 @@ function TabItem({
       </Animated.View>
 
       {!active && (
-        <Ionicons name={iconInactive} size={20} color={colors.tabInactive} style={tabItemStyles.inactiveIcon} />
+        <View style={tabItemStyles.inactiveWrap}>
+          <Ionicons name={iconInactive} size={20} color={colors.tabInactive} />
+          <Text style={tabItemStyles.inactiveLabel}>{label}</Text>
+        </View>
       )}
     </View>
   )
@@ -84,72 +87,31 @@ const tabItemStyles = StyleSheet.create({
     fontWeight:  "700",
     letterSpacing: 0.1,
   },
-  inactiveIcon: {
+  inactiveWrap: {
+    alignItems: "center",
+    gap: 2,
     position: "absolute",
   },
-})
-
-// ─── SOS header button ────────────────────────────────────────────────────────
-
-function SOSHeaderButton() {
-  const scale = useRef(new Animated.Value(1)).current
-
-  function onPressIn() {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
-    Animated.spring(scale, { toValue: 0.9, useNativeDriver: true, tension: 300, friction: 12 }).start()
-  }
-  function onPressOut() {
-    Animated.spring(scale, { toValue: 1, useNativeDriver: true, tension: 300, friction: 12 }).start()
-  }
-
-  return (
-    <Animated.View style={{ marginRight: 16, transform: [{ scale }] }}>
-      <TouchableOpacity
-        onPress={() => router.push("/sos")}
-        onPressIn={onPressIn}
-        onPressOut={onPressOut}
-        activeOpacity={1}
-        style={headerStyles.btn}
-        accessibilityLabel="SOS — tap for emergency"
-        accessibilityRole="button"
-      >
-        <Text style={headerStyles.text}>SOS</Text>
-      </TouchableOpacity>
-    </Animated.View>
-  )
-}
-
-const headerStyles = StyleSheet.create({
-  btn: {
-    backgroundColor: colors.emergency,
-    borderRadius:    radius.full,
-    paddingHorizontal: 18,
-    paddingVertical:   7,
-    minWidth:  56,
-    minHeight: 34,
-    alignItems:     "center",
-    justifyContent: "center",
-    shadowColor:   colors.emergency,
-    shadowOffset:  { width: 0, height: 0 },
-    shadowOpacity: 0.65,
-    shadowRadius:  10,
-    elevation: 8,
+  inactiveLabel: {
+    fontSize: 9,
+    fontWeight: "600",
+    color: colors.tabInactive,
+    letterSpacing: 0.1,
   },
-  text: { color: "#fff", fontWeight: "800", fontSize: 13, letterSpacing: 1.2 },
 })
 
 // ─── Floating SOS FAB ─────────────────────────────────────────────────────────
 
 function SosFab() {
   const insets = useSafeAreaInsets()
-  const pulse  = useRef(new Animated.Value(1)).current
+  const haloOpacity = useRef(new Animated.Value(0.18)).current
   const bottom = TAB_BOTTOM + TAB_HEIGHT + insets.bottom + 14
 
   useEffect(() => {
     const anim = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 1.26, duration: 950, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 1,    duration: 950, useNativeDriver: true }),
+        Animated.timing(haloOpacity, { toValue: 0.42, duration: 2000, useNativeDriver: true }),
+        Animated.timing(haloOpacity, { toValue: 0.18, duration: 2000, useNativeDriver: true }),
       ]),
     )
     anim.start()
@@ -159,33 +121,84 @@ function SosFab() {
   return (
     <Animated.View
       pointerEvents="none"
-      style={[fabStyles.ring, { bottom: bottom + 2, transform: [{ scale: pulse }] }]}
+      style={[fabStyles.ring, { bottom: bottom + 2, opacity: haloOpacity }]}
     />
   )
 }
 
+const HOLD_MS = 1500
+const HAPTIC_STEP_MS = 300
+
 function SosFabButton() {
   const insets = useSafeAreaInsets()
-  const scale  = useRef(new Animated.Value(1)).current
-  const bottom = TAB_BOTTOM + TAB_HEIGHT + insets.bottom + 14
+  const scale         = useRef(new Animated.Value(1)).current
+  const ringProgress  = useRef(new Animated.Value(0)).current
+  const hintOpacity   = useRef(new Animated.Value(0)).current
+  const bottom        = TAB_BOTTOM + TAB_HEIGHT + insets.bottom + 14
+
+  const holdTimer     = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const hapticTimer   = useRef<ReturnType<typeof setInterval> | null>(null)
+  const holdAnim      = useRef<Animated.CompositeAnimation | null>(null)
+  const hintTimer     = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  function clearTimers() {
+    if (holdTimer.current)  { clearTimeout(holdTimer.current);   holdTimer.current = null }
+    if (hapticTimer.current){ clearInterval(hapticTimer.current); hapticTimer.current = null }
+    if (holdAnim.current)   { holdAnim.current.stop();            holdAnim.current = null }
+  }
 
   function onPressIn() {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
     Animated.spring(scale, { toValue: 0.88, useNativeDriver: true, tension: 300, friction: 12 }).start()
+
+    ringProgress.setValue(0)
+    holdAnim.current = Animated.timing(ringProgress, {
+      toValue: 1,
+      duration: HOLD_MS,
+      useNativeDriver: false,
+    })
+    holdAnim.current.start()
+
+    let steps = 0
+    hapticTimer.current = setInterval(() => {
+      steps++
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+    }, HAPTIC_STEP_MS)
+
+    holdTimer.current = setTimeout(() => {
+      clearTimers()
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
+      Animated.spring(scale, { toValue: 1, useNativeDriver: true, tension: 300, friction: 12 }).start()
+      ringProgress.setValue(0)
+      router.push("/sos")
+    }, HOLD_MS)
   }
+
   function onPressOut() {
+    clearTimers()
     Animated.spring(scale, { toValue: 1, useNativeDriver: true, tension: 300, friction: 12 }).start()
+    Animated.timing(ringProgress, { toValue: 0, duration: 200, useNativeDriver: false }).start()
+  }
+
+  function onPress() {
+    if (hintTimer.current) clearTimeout(hintTimer.current)
+    hintOpacity.setValue(1)
+    hintTimer.current = setTimeout(() => {
+      Animated.timing(hintOpacity, { toValue: 0, duration: 400, useNativeDriver: true }).start()
+    }, 2000)
   }
 
   return (
     <Animated.View style={[fabStyles.wrap, { bottom, transform: [{ scale }] }]}>
+      <Animated.Text style={[fabStyles.hint, { opacity: hintOpacity }]} pointerEvents="none">
+        Hold to send SOS
+      </Animated.Text>
       <TouchableOpacity
-        onPress={() => router.push("/sos")}
+        onPress={onPress}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
         style={fabStyles.btn}
         activeOpacity={1}
-        accessibilityLabel="SOS — tap for emergency"
+        accessibilityLabel="SOS — hold to send emergency alert"
         accessibilityRole="button"
       >
         <Text style={fabStyles.text}>SOS</Text>
@@ -201,13 +214,26 @@ const fabStyles = StyleSheet.create({
     width:           76,
     height:          76,
     borderRadius:    38,
-    backgroundColor: "rgba(239,68,68,0.16)",
+    backgroundColor: "rgba(200,16,46,0.55)",
     zIndex:          99,
   },
   wrap: {
     position: "absolute",
     right:    20,
     zIndex:   100,
+    alignItems: "center",
+  },
+  hint: {
+    position:        "absolute",
+    top:             -28,
+    backgroundColor: "rgba(0,0,0,0.72)",
+    color:           "#fff",
+    fontSize:        11,
+    fontWeight:      "600",
+    paddingHorizontal: 10,
+    paddingVertical:   4,
+    borderRadius:    8,
+    overflow:        "hidden",
   },
   btn: {
     width:          56,
@@ -237,7 +263,6 @@ export default function TabsLayout() {
           headerTintColor:  colors.text,
           headerTitleStyle: { fontSize: fonts.md, fontWeight: "700", color: colors.text },
           headerShadowVisible: false,
-          headerRight: () => <SOSHeaderButton />,
           tabBarStyle: {
             backgroundColor: colors.tabBg,
             position:        "absolute",
@@ -297,12 +322,7 @@ export default function TabsLayout() {
         />
         <Tabs.Screen
           name="mood"
-          options={{
-            title: "Mood",
-            tabBarIcon: ({ focused }) => (
-              <TabItem iconActive="happy" iconInactive="happy-outline" label="Mood" active={focused} />
-            ),
-          }}
+          options={{ href: null }}
         />
         <Tabs.Screen
           name="me"

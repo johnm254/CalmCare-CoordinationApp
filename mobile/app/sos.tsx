@@ -78,9 +78,7 @@ export default function SOSScreen() {
 
   const borderAnim = useRef(new Animated.Value(1)).current
 
-  const pulseScale = useRef(new Animated.Value(1)).current
-
-  const pulseOpacity = useRef(new Animated.Value(0.6)).current
+  const haloOpacity = useRef(new Animated.Value(0.18)).current
 
   const sentRef = useRef(false)
 
@@ -118,33 +116,8 @@ export default function SOSScreen() {
 
     const pulseLoop = Animated.loop(
       Animated.sequence([
-        Animated.parallel([
-          Animated.timing(pulseScale, {
-            toValue: 1.18,
-            duration: 700,
-            useNativeDriver: true,
-          }),
-
-          Animated.timing(pulseOpacity, {
-            toValue: 0,
-            duration: 700,
-            useNativeDriver: true,
-          }),
-        ]),
-
-        Animated.parallel([
-          Animated.timing(pulseScale, {
-            toValue: 1,
-            duration: 0,
-            useNativeDriver: true,
-          }),
-
-          Animated.timing(pulseOpacity, {
-            toValue: 0.6,
-            duration: 0,
-            useNativeDriver: true,
-          }),
-        ]),
+        Animated.timing(haloOpacity, { toValue: 0.42, duration: 2000, useNativeDriver: true }),
+        Animated.timing(haloOpacity, { toValue: 0.18, duration: 2000, useNativeDriver: true }),
       ]),
     )
     pulseLoop.start()
@@ -171,6 +144,7 @@ export default function SOSScreen() {
       clearInterval(interval)
       borderAnim_.stop()
       pulseLoop.stop()
+      haloOpacity.stopAnimation()
     }
   }, [])
 
@@ -344,10 +318,7 @@ export default function SOSScreen() {
         <View style={styles.circleWrapper}>
           {isCounting && (
             <Animated.View
-              style={[
-                styles.pulseRing,
-                { transform: [{ scale: pulseScale }], opacity: pulseOpacity },
-              ]}
+              style={[styles.pulseRing, { opacity: haloOpacity }]}
             />
           )}
 
