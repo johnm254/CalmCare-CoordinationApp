@@ -1,4 +1,7 @@
-﻿import { useEffect, useState } from "react"
+﻿// Onboarding step 6 — Strap pairing with BLE discovery
+// Spec: EPIMOYO_REDESIGN.md §5.9
+
+import { useEffect, useState } from "react"
 import {
   View,
   Text,
@@ -8,7 +11,8 @@ import {
   ActivityIndicator,
 } from "react-native"
 import { router } from "expo-router"
-import { SafeAreaView } from "react-native-safe-area-context"
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
+import { Ionicons } from "@expo/vector-icons"
 import { colors, fonts, radius, spacing } from "../../lib/theme"
 import { type ScanResult } from "../../lib/ble-strap"
 
@@ -17,27 +21,6 @@ const DEMO_DEVICES: ScanResult[] = [
   { id: "demo-strap-001", name: "EpiStrap-A1B2", rssi: -58 },
   { id: "demo-strap-002", name: "EpiStrap-C3D4", rssi: -74 },
 ]
-
-// ── Step indicator ────────────────────────────────────────────────────────────
-
-function StepIndicator({ current, total }: { current: number; total: number }) {
-  return (
-    <View style={styles.stepRow}>
-      {Array.from({ length: total }).map((_, i) => (
-        <View
-          key={i}
-          style={[
-            styles.stepDot,
-            i === current && styles.stepDotActive,
-            i < current && styles.stepDotDone,
-          ]}
-        />
-      ))}
-    </View>
-  )
-}
-
-// ── Strap icon ────────────────────────────────────────────────────────────────
 
 function StrapIcon({ color }: { color: string }) {
   return (
@@ -84,13 +67,13 @@ function StrapIcon({ color }: { color: string }) {
   )
 }
 
-// ── Main screen ───────────────────────────────────────────────────────────────
-
 export default function StrapScreen() {
+  const insets = useSafeAreaInsets()
   const [scanning, setScanning] = useState(false)
   const [found, setFound] = useState<ScanResult[]>([])
   const [connecting, setConnecting] = useState<string | null>(null)
   const [connected, setConnected] = useState(false)
+  const [progress] = useState(0.75) // Step 6 of 8
 
   useEffect(() => {
     startScan()
@@ -114,206 +97,221 @@ export default function StrapScreen() {
     setConnected(true)
   }
 
-  // ── Connected success ─────────────────────────────────────────────────────
+  function handleBack() {
+    router.back()
+  }
+
+  // ── Connected success ─────────────────────────────────────────────────
 
   if (connected) {
     return (
-      <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-        <View style={styles.container}>
-          <StepIndicator current={3} total={5} />
+      <View style={s.safe}>
+        {/* Progress bar */}
+        <View style={s.progressBar}>
+          <View style={[s.progressFill, { width: `${progress * 100}%` }]} />
+        </View>
 
-          <View style={styles.successIconWrap}>
-            <View style={styles.checkCircle}>
-              <Text style={styles.checkMark}>✓</Text>
+        <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
+          <View style={s.container}>
+            <View style={s.successIconWrap}>
+              <View style={s.checkCircle}>
+                <Ionicons name="checkmark" size={44} color={colors.success} />
+              </View>
+            </View>
+
+            <Text style={s.heading}>Strap connected!</Text>
+            <Text style={s.subheading}>
+              Your epimoyo Strap is paired and ready. It will monitor for fall
+              events and let you trigger an SOS with the strap button.
+            </Text>
+
+            {/* Connection details */}
+            <View style={s.detailsBox}>
+              <View style={s.detailRow}>
+                <Ionicons name="battery-half-outline" size={16} color={colors.text} />
+                <Text style={s.detailText}>Battery: 87%</Text>
+              </View>
+              <View style={s.detailRow}>
+                <Ionicons name="signal-outline" size={16} color={colors.text} />
+                <Text style={s.detailText}>Signal: Strong (-52 dBm)</Text>
+              </View>
+            </View>
+
+            <View style={[s.actions, { paddingBottom: insets.bottom + spacing.lg }]}>
+              <TouchableOpacity
+                style={s.btnPrimary}
+                onPress={() => router.push("./caregiver")}
+                activeOpacity={0.85}
+              >
+                <Text style={s.btnPrimaryText}>Continue</Text>
+                <Ionicons name="chevron-forward" size={20} color="#fff" />
+              </TouchableOpacity>
             </View>
           </View>
-
-          <Text style={styles.heading}>Strap connected!</Text>
-          <Text style={styles.subheading}>
-            Your epimoyo Strap is paired and ready. It will monitor for fall
-            events and let you trigger an SOS with the strap button.
-          </Text>
-
-          <View style={styles.actions}>
-            <TouchableOpacity
-              style={styles.btnPrimary}
-              onPress={() => router.push("./notifications")}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.btnPrimaryText}>Continue</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SafeAreaView>
+        </SafeAreaView>
+      </View>
     )
   }
 
   // ── Scanning / device list ────────────────────────────────────────────────
 
   return (
-    <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
-      <View style={styles.container}>
-        <StepIndicator current={3} total={5} />
+    <View style={s.safe}>
+      {/* Progress bar */}
+      <View style={s.progressBar}>
+        <View style={[s.progressFill, { width: `${progress * 100}%` }]} />
+      </View>
 
-        <View style={styles.iconWrap}>
-          <StrapIcon color={colors.teal} />
-        </View>
+      {/* Header */}
+      <View style={s.header}>
+        <TouchableOpacity onPress={handleBack} style={s.backBtn}>
+          <Ionicons name="chevron-back" size={24} color={colors.text} />
+        </TouchableOpacity>
+        <Text style={s.stepLabel}>Step 6 of 8</Text>
+        <View style={{ width: 24 }} />
+      </View>
 
-        <Text style={styles.heading}>Pair your epimoyo Strap</Text>
-        <Text style={styles.subheading}>
-          Make sure your strap is charged and nearby. It will appear in the
-          list below automatically.
-        </Text>
+      <SafeAreaView style={{ flex: 1 }} edges={["bottom"]}>
+        <View style={s.container}>
+          <View style={s.iconWrap}>
+            <StrapIcon color={colors.teal} />
+          </View>
 
-        {/* Scan status */}
-        <View style={styles.scanStatus}>
-          {scanning ? (
-            <View style={styles.scanningRow}>
-              <ActivityIndicator color={colors.teal} size="small" />
-              <Text style={styles.scanningText}>Scanning for epimoyo Strap...</Text>
+          <Text style={s.heading}>Pair your epimoyo Strap</Text>
+          <Text style={s.subheading}>
+            Make sure your strap is charged and nearby. It will appear in the list below
+            automatically.
+          </Text>
+
+          {/* Scan status */}
+          <View style={s.scanStatus}>
+            {scanning ? (
+              <View style={s.scanningRow}>
+                <ActivityIndicator color={colors.teal} size="small" />
+                <Text style={s.scanningText}>Scanning for epimoyo Strap...</Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={s.btnScanAgain}
+                onPress={startScan}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="sync-outline" size={16} color={colors.text} />
+                <Text style={s.btnScanAgainText}>Scan again</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Device list */}
+          {found.length === 0 && !scanning ? (
+            <View style={s.emptyState}>
+              <Ionicons name="alert-circle-outline" size={48} color={colors.textMuted} />
+              <Text style={s.emptyText}>No straps found nearby.</Text>
+              <Text style={s.emptyHint}>
+                Make sure the strap is powered on and in pairing mode.
+              </Text>
             </View>
           ) : (
-            <TouchableOpacity
-              style={styles.btnScanAgain}
-              onPress={startScan}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.btnScanAgainText}>Scan again</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* Device list */}
-        {found.length === 0 && !scanning ? (
-          <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>No straps found nearby.</Text>
-            <Text style={styles.emptyHint}>
-              Make sure the strap is powered on and in pairing mode.
-            </Text>
-          </View>
-        ) : (
-          <FlatList
-            data={found}
-            keyExtractor={(item) => item.id}
-            style={styles.deviceList}
-            contentContainerStyle={{ gap: spacing.sm }}
-            renderItem={({ item }) => (
-              <View style={styles.deviceRow}>
-                <View style={styles.deviceInfo}>
-                  <Text style={styles.deviceName}>
-                    {item.name ?? "epimoyo Strap"}
-                  </Text>
-                  {item.rssi !== null && (
-                    <Text style={styles.deviceRssi}>
-                      Signal: {item.rssi} dBm
-                    </Text>
-                  )}
+            <FlatList
+              data={found}
+              keyExtractor={(item) => item.id}
+              style={s.deviceList}
+              contentContainerStyle={{ gap: spacing.sm }}
+              renderItem={({ item }) => (
+                <View style={s.deviceRow}>
+                  <View style={s.deviceIcon}>
+                    <StrapIcon color={colors.teal} />
+                  </View>
+                  <View style={s.deviceInfo}>
+                    <Text style={s.deviceName}>{item.name ?? "epimoyo Strap"}</Text>
+                    {item.rssi !== null && (
+                      <Text style={s.deviceRssi}>Signal: {item.rssi} dBm</Text>
+                    )}
+                  </View>
+                  <TouchableOpacity
+                    style={[
+                      s.btnConnect,
+                      connecting === item.id && s.btnConnectDisabled,
+                    ]}
+                    onPress={() => handleConnect(item.id)}
+                    activeOpacity={0.85}
+                    disabled={connecting !== null}
+                  >
+                    {connecting === item.id ? (
+                      <ActivityIndicator color="#fff" size="small" />
+                    ) : (
+                      <>
+                        <Text style={s.btnConnectText}>Connect</Text>
+                      </>
+                    )}
+                  </TouchableOpacity>
                 </View>
-                <TouchableOpacity
-                  style={[
-                    styles.btnConnect,
-                    connecting === item.id && styles.btnConnectDisabled,
-                  ]}
-                  onPress={() => handleConnect(item.id)}
-                  activeOpacity={0.85}
-                  disabled={connecting !== null}
-                >
-                  {connecting === item.id ? (
-                    <ActivityIndicator color="#fff" size="small" />
-                  ) : (
-                    <Text style={styles.btnConnectText}>Connect</Text>
-                  )}
-                </TouchableOpacity>
-              </View>
-            )}
-          />
-        )}
+              )}
+            />
+          )}
 
-        <View style={styles.actions}>
-          <TouchableOpacity
-            onPress={() => router.push("./notifications")}
-            style={styles.skipRow}
-          >
-            <Text style={styles.skipText}>Skip — I'll pair later</Text>
-          </TouchableOpacity>
+          <View style={[s.actions, { paddingBottom: insets.bottom + spacing.lg }]}>
+            <TouchableOpacity
+              onPress={() => router.push("./caregiver")}
+              style={s.skipRow}
+            >
+              <Text style={s.skipText}>Skip — I'll pair later</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   )
 }
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 
-const styles = StyleSheet.create({
+const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
 
-  container: {
-    flex: 1,
-    alignItems: "center",
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xl,
-    paddingBottom: spacing.xxxl,
+  progressBar: {
+    height: 3,
+    backgroundColor: colors.border,
+  },
+  progressFill: {
+    height: 3,
+    backgroundColor: colors.primary,
   },
 
-  centered: {
-    flex: 1,
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+  },
+  backBtn: {
+    width: 40,
+    height: 40,
     alignItems: "center",
     justifyContent: "center",
   },
-
-  // Step indicator
-  stepRow: {
-    flexDirection: "row",
-    gap: spacing.sm,
-    marginBottom: spacing.xxl,
-    alignSelf: "center",
-  },
-  stepDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.border,
-  },
-  stepDotActive: {
-    backgroundColor: colors.teal,
-    width: 20,
-    borderRadius: 4,
-  },
-  stepDotDone: {
-    backgroundColor: colors.tealMuted,
+  stepLabel: {
+    fontSize: fonts.xs,
+    fontWeight: "600",
+    color: colors.textMuted,
   },
 
-  // Icon
+  container: {
+    flex: 1,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: spacing.lg,
+    gap: spacing.lg,
+  },
+
   iconWrap: {
     width: 88,
     height: 88,
     borderRadius: radius.xxl,
-    backgroundColor: colors.tealDim,
+    backgroundColor: colors.primarySoft,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: spacing.xxl,
-    borderWidth: 1,
-    borderColor: colors.tealMuted,
-  },
-
-  // Success icon
-  successIconWrap: {
-    marginBottom: spacing.xxl,
-  },
-  checkCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: "rgba(0,217,126,0.12)",
-    borderWidth: 2,
-    borderColor: colors.success,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  checkMark: {
-    color: colors.success,
-    fontSize: 36,
-    fontWeight: "800",
+    alignSelf: "center",
   },
 
   heading: {
@@ -321,48 +319,52 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     color: colors.text,
     textAlign: "center",
-    marginBottom: spacing.md,
   },
   subheading: {
     fontSize: fonts.base,
-    color: colors.textSecondary,
+    color: colors.textMuted,
     textAlign: "center",
     lineHeight: 22,
-    marginBottom: spacing.xl,
   },
 
-  // Notice card (strap not available)
-  noticeCard: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: spacing.md,
+  // Success state
+  successIconWrap: {
+    alignSelf: "center",
+    marginVertical: spacing.lg,
+  },
+  checkCircle: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    backgroundColor: colors.primarySoft,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  detailsBox: {
     backgroundColor: colors.bgCard,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.lg,
-    width: "100%",
-    marginBottom: spacing.xxl,
+    gap: spacing.sm,
   },
-  noticeDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.textMuted,
-    marginTop: 3,
+  detailRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
   },
-  noticeText: {
-    flex: 1,
-    fontSize: fonts.base,
-    color: colors.textSecondary,
-    lineHeight: 20,
+  detailText: {
+    fontSize: fonts.sm,
+    color: colors.text,
+    fontWeight: "500",
   },
 
-  // Scan status row
+  // Scan status
   scanStatus: {
-    width: "100%",
     alignItems: "center",
-    marginBottom: spacing.lg,
     minHeight: 40,
     justifyContent: "center",
   },
@@ -373,12 +375,28 @@ const styles = StyleSheet.create({
   },
   scanningText: {
     fontSize: fonts.base,
-    color: colors.textSecondary,
+    color: colors.textMuted,
+  },
+
+  btnScanAgain: {
+    backgroundColor: colors.bgCard,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.border,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.sm,
+  },
+  btnScanAgainText: {
+    color: colors.text,
+    fontWeight: "700",
+    fontSize: fonts.sm,
   },
 
   // Device list
   deviceList: {
-    width: "100%",
     flex: 1,
   },
   deviceRow: {
@@ -391,6 +409,14 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     gap: spacing.md,
   },
+  deviceIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: colors.primarySoft,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   deviceInfo: {
     flex: 1,
   },
@@ -401,7 +427,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   deviceRssi: {
-    fontSize: fonts.sm,
+    fontSize: fonts.xs,
     color: colors.textMuted,
   },
 
@@ -410,80 +436,44 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: spacing.xxl,
+    gap: spacing.lg,
   },
   emptyText: {
     fontSize: fonts.base,
-    color: colors.textSecondary,
+    color: colors.text,
     fontWeight: "600",
-    marginBottom: spacing.sm,
   },
   emptyHint: {
     fontSize: fonts.sm,
     color: colors.textMuted,
     textAlign: "center",
     lineHeight: 18,
+    maxWidth: 280,
   },
 
   // Buttons
   btnPrimary: {
-    backgroundColor: colors.teal,
-    borderRadius: radius.xl,
+    backgroundColor: colors.primary,
+    borderRadius: radius.full,
+    paddingHorizontal: spacing.xl,
     paddingVertical: spacing.lg,
+    flexDirection: "row",
     alignItems: "center",
-    width: "100%",
-    shadowColor: colors.teal,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
+    justifyContent: "center",
+    gap: spacing.sm,
   },
   btnPrimaryText: {
     color: "#fff",
-    fontWeight: "800",
-    fontSize: fonts.md,
-    letterSpacing: 0.3,
-  },
-
-  btnSkip: {
-    backgroundColor: colors.teal,
-    borderRadius: radius.xl,
-    paddingVertical: spacing.lg,
-    alignItems: "center",
-    width: "100%",
-    shadowColor: colors.teal,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  btnSkipText: {
-    color: "#fff",
-    fontWeight: "800",
-    fontSize: fonts.md,
-    letterSpacing: 0.3,
-  },
-
-  btnScanAgain: {
-    backgroundColor: colors.bgCard,
-    borderRadius: radius.xl,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  btnScanAgainText: {
-    color: colors.text,
     fontWeight: "700",
     fontSize: fonts.base,
   },
 
   btnConnect: {
-    backgroundColor: colors.teal,
-    borderRadius: radius.lg,
+    backgroundColor: colors.primary,
+    borderRadius: radius.md,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
-    minWidth: 88,
+    minWidth: 80,
     alignItems: "center",
     justifyContent: "center",
     minHeight: 36,
@@ -494,12 +484,11 @@ const styles = StyleSheet.create({
   btnConnectText: {
     color: "#fff",
     fontWeight: "700",
-    fontSize: fonts.base,
+    fontSize: fonts.sm,
   },
 
   actions: {
-    width: "100%",
-    marginTop: "auto",
+    paddingHorizontal: 0,
     paddingTop: spacing.lg,
   },
   skipRow: {
@@ -508,7 +497,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: fonts.sm,
-    color: colors.textSecondary,
+    color: colors.textMuted,
     fontWeight: "600",
   },
 })
