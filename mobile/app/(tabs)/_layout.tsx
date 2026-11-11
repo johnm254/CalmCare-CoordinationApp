@@ -279,7 +279,7 @@ export default function TabsLayout() {
             elevation:       16,
             paddingHorizontal: 8,
           },
-          tabBarShowLabel:   false,
+          tabBarShowLabel:   true,  // Show labels on all tabs per spec
           tabBarItemStyle:   { height: TAB_HEIGHT },
         }}
       >
