@@ -21,7 +21,7 @@ export default function CaregiverScreen() {
   const [phoneFocused, setPhoneFocused] = useState(false)
 
   function handleInviteSMS() {
-    const body = `Hi ${name || "there"}, I've added you to my Care Circle on Mojo, an epilepsy care app. You'll be alerted if I need help. Download Mojo to stay connected.`
+    const body = `Hi ${name || "there"}, I've added you to my Care Circle on epimoyo, an epilepsy care app. You'll be alerted if I need help. Download epimoyo to stay connected.`
     const smsUrl = `sms:${phone}?body=${encodeURIComponent(body)}`
     Linking.openURL(smsUrl)
     router.push("./strap")

@@ -60,7 +60,7 @@ export default function NotificationsScreen() {
 
         <Text style={styles.heading}>Enable notifications</Text>
         <Text style={styles.subheading}>
-          Mojo needs notifications to remind you about medications and alert
+          epimoyo needs notifications to remind you about medications and alert
           your caregivers in emergencies.
         </Text>
 

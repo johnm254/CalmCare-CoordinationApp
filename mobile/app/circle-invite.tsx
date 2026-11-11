@@ -203,7 +203,7 @@ export default function CircleInviteScreen() {
 
           <Text style={styles.modeHint}>
             {mode === "email"
-              ? "They must already have a Mojo account. They will see alerts and updates in the app."
+              ? "They must already have an epimoyo account. They will see alerts and updates in the app."
               : "They receive SOS alerts by SMS only. They do not need the app."}
           </Text>
 

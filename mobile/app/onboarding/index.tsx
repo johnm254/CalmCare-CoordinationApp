@@ -117,7 +117,7 @@ export default function OnboardingWelcome() {
         </View>
 
         {/* Title */}
-        <Text style={styles.title}>Welcome to Mojo</Text>
+        <Text style={styles.title}>Welcome to epimoyo</Text>
         <Text style={styles.subtitle}>Your epilepsy care, in your hands.</Text>
 
         {/* Benefits */}

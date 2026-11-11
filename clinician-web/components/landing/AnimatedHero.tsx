@@ -322,12 +322,6 @@ export default function AnimatedHero() {
             >
               Download the app
             </a>
-            <Link
-              href="/login"
-              className="font-semibold border-2 border-[#CFE0D8]/50 text-[#F5EFE3] px-7 py-3.5 rounded-xl hover:bg-white/10 transition-colors text-base"
-            >
-              Clinician portal →
-            </Link>
           </div>
 
           {/* Live ECG */}

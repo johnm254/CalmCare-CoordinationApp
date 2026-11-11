@@ -263,7 +263,7 @@ function LanguageSheet({
         })}
         <Text style={opt.note}>
           More languages coming soon. Help us translate at
-          mojo.health/translate
+          epimoyo.health/translate
         </Text>
       </View>
     </Sheet>
@@ -417,7 +417,7 @@ function PinSheet({
           <View style={{ flex: 1 }}>
             <Text style={pin.infoTitle}>App lock</Text>
             <Text style={pin.infoText}>
-              Require Face ID, fingerprint, or PIN when opening Mojo. Your data
+              Require Face ID, fingerprint, or PIN when opening epimoyo. Your data
               stays private even if someone else has your phone.
             </Text>
           </View>
@@ -428,7 +428,7 @@ function PinSheet({
           </Text>
         </View>
         <Text style={pin.tip}>
-          Tip: Enable your phone's screen lock to protect Mojo immediately. Go
+          Tip: Enable your phone's screen lock to protect epimoyo immediately. Go
           to Settings → Security.
         </Text>
         <TouchableOpacity
@@ -1822,7 +1822,7 @@ export default function MeScreen() {
         {/* Safety statement */}
         <View style={s.safetyCard}>
           <Text style={s.safetyText}>
-            Mojo helps you and your care team watch trends. It does not
+            epimoyo helps you and your care team watch trends. It does not
             diagnose or treat any condition. In an emergency, press SOS or call
             emergency services.
           </Text>
@@ -2175,7 +2175,7 @@ export default function MeScreen() {
           <Text style={s.signOutText}>Sign out</Text>
         </TouchableOpacity>
 
-        <Text style={s.version}>Mojo v1.0</Text>
+        <Text style={s.version}>epimoyo v1.0</Text>
       </ScrollView>
 
       {/* Modals */}

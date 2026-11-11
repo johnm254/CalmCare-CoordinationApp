@@ -45,7 +45,7 @@ export default function ConditionsScreen() {
         >
           <Text style={styles.heading}>Tell us about your condition</Text>
           <Text style={styles.subheading}>
-            This helps Mojo personalise your tracking. You can update this later.
+            This helps epimoyo personalise your tracking. You can update this later.
           </Text>
 
           {/* Seizure type chips */}

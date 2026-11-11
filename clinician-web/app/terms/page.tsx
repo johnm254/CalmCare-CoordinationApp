@@ -66,7 +66,7 @@ export default function TermsPage() {
             <p>The Platform consists of:</p>
             <ul>
               <li>
-                <strong>Mojo mobile app</strong> — available to patients and their nominated
+                <strong>epimoyo mobile app</strong> — available to patients and their nominated
                 caregivers for seizure logging, medication reminders, SOS alerts, and optional
                 wearable integration
               </li>

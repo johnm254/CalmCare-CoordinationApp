@@ -168,7 +168,7 @@ export default function SignupScreen() {
             </View>
             <Text style={styles.heroHeading}>Create account</Text>
             <Text style={styles.tagline}>
-              Join Mojo to manage your health care
+              Join epimoyo to manage your health care
             </Text>
           </View>
 

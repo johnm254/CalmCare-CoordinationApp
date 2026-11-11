@@ -40,12 +40,6 @@ function Nav() {
         </nav>
         <div className="flex items-center gap-3">
           <Link
-            href="/login"
-            className="hidden sm:block text-sm font-semibold text-[#1F7A72] hover:text-[#12383A] transition-colors"
-          >
-            Clinician login
-          </Link>
-          <Link
             href="#download"
             className="text-sm font-semibold bg-[#E8603C] text-white px-4 py-2 rounded-lg hover:bg-[#c94e2d] transition-colors"
           >
@@ -157,31 +151,32 @@ function AppDownload() {
           style={{ fontFamily: "'Fraunces', Georgia, serif" }}
           className="text-3xl md:text-4xl font-bold text-[#F5EFE3] mb-4"
         >
-          Download epimoyo
+          Get the epimoyo app
         </h2>
         <p className="text-[#CFE0D8] mb-10 text-lg">
-          Free for patients. Available on Android and iOS.
+          Free for patients. Direct APK download — no app store required.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <a
-            href="#"
-            aria-label="Get it on Google Play"
-            className="flex items-center gap-3 bg-[#F5EFE3] text-[#0C1F20] px-6 py-3.5 rounded-xl font-semibold hover:bg-white transition-colors w-full sm:w-auto justify-center"
+            href="/epimoyo-latest.apk"
+            download
+            aria-label="Download epimoyo APK for Android"
+            className="flex items-center gap-3 bg-[#E8603C] text-white px-7 py-3.5 rounded-xl font-semibold hover:bg-[#c94e2d] transition-colors w-full sm:w-auto justify-center text-base"
           >
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
-              <path d="M3.18 23.76c.3.17.65.2.98.07l11.65-6.72-2.6-2.6L3.18 23.76zM.49 1.1A1.49 1.49 0 0 0 0 2.25v19.5c0 .47.18.9.49 1.15l.06.05 10.94-10.94v-.26L.55 1.05.49 1.1zM20.4 10.4l-2.78-1.6-2.93 2.93 2.93 2.93 2.8-1.62a1.5 1.5 0 0 0 0-2.64zM4.16.17L15.81 6.9l-2.6 2.6L4.16.17z"/>
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+              <path d="M17.523 15.341a.75.75 0 0 1-1.06 0L13 11.879V19.5a.75.75 0 0 1-1.5 0v-7.621l-3.463 3.462a.75.75 0 1 1-1.06-1.06l4.75-4.75a.75.75 0 0 1 1.06 0l4.736 4.75a.75.75 0 0 1 0 1.06z"/>
+              <path d="M5.25 6.75A2.25 2.25 0 0 1 7.5 4.5h9a2.25 2.25 0 0 1 2.25 2.25v.75H5.25v-.75z"/>
             </svg>
-            Google Play
+            Download APK (Android)
           </a>
           <a
-            href="#"
-            aria-label="Download on the App Store"
-            className="flex items-center gap-3 bg-[#F5EFE3] text-[#0C1F20] px-6 py-3.5 rounded-xl font-semibold hover:bg-white transition-colors w-full sm:w-auto justify-center"
+            href="mailto:support@epimoyo.health?subject=iOS%20Access%20Request"
+            className="flex items-center gap-3 bg-[#F5EFE3]/10 border border-[#CFE0D8]/30 text-[#CFE0D8] px-7 py-3.5 rounded-xl font-semibold hover:bg-[#F5EFE3]/20 transition-colors w-full sm:w-auto justify-center text-base"
           >
-            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
               <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
             </svg>
-            App Store
+            iOS — request access
           </a>
         </div>
         <p className="text-[#6B8588] text-sm mt-6">
@@ -248,18 +243,12 @@ function ClinicianFeatures() {
           ))}
         </div>
         <div className="text-center">
-          <Link
-            href="/signup"
-            className="inline-block font-semibold bg-[#1F7A72] text-white px-8 py-3.5 rounded-xl hover:bg-[#12383A] transition-colors text-base mr-4"
+          <a
+            href="mailto:support@epimoyo.health?subject=Clinician%20Access%20Request"
+            className="inline-block font-semibold bg-[#1F7A72] text-white px-8 py-3.5 rounded-xl hover:bg-[#12383A] transition-colors text-base"
           >
-            Create a clinician account
-          </Link>
-          <Link
-            href="/login"
-            className="inline-block font-semibold border-2 border-[#1F7A72] text-[#1F7A72] px-8 py-3.5 rounded-xl hover:bg-[#1F7A72] hover:text-white transition-colors text-base"
-          >
-            Sign in
-          </Link>
+            Request clinician access
+          </a>
         </div>
       </div>
     </section>
@@ -333,11 +322,11 @@ function Footer() {
             </p>
           </div>
           <div>
-            <h4 className="text-sm font-semibold text-[#F5EFE3] mb-4 uppercase tracking-wider">Portals</h4>
+            <h4 className="text-sm font-semibold text-[#F5EFE3] mb-4 uppercase tracking-wider">App</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/patient" className="hover:text-white transition-colors">Patient portal</Link></li>
-              <li><Link href="/login" className="hover:text-white transition-colors">Clinician login</Link></li>
-              <li><Link href="/admin/login" className="hover:text-white transition-colors">Admin login</Link></li>
+              <li><a href="#download" className="hover:text-white transition-colors">Download epimoyo</a></li>
+              <li><a href="#patients" className="hover:text-white transition-colors">For patients</a></li>
+              <li><a href="#how-it-works" className="hover:text-white transition-colors">How it works</a></li>
             </ul>
           </div>
           <div>

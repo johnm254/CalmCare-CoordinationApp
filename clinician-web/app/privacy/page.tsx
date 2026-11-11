@@ -55,7 +55,7 @@ export default function PrivacyPage() {
           <Section title="1. Who we are">
             <p>
               <strong>{COMPANY}</strong> ("epimoyo", "we", "us") is the data controller for
-              personal data processed through the epimoyo mobile application ("Mojo") and the
+              personal data processed through the epimoyo mobile application and the
               epimoyo clinician web portal. Our registered address and data protection contact are
               available at{' '}
               <a href={`mailto:${CONTACT_EMAIL}`} className="text-[#1F7A72]">{CONTACT_EMAIL}</a>.

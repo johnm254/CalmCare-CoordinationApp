@@ -4,7 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage"
 
 import { t as tFn, type Locale } from "./i18n"
 
-const STORAGE_KEY = "@mojo_locale"
+const STORAGE_KEY = "@epimoyo_locale"
 
 interface I18nContextType {
   locale: Locale

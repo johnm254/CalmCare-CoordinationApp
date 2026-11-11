@@ -454,7 +454,7 @@ async function sendDispatch(
   // Playbook Step 3 script: location first, repeated once
 
   const script =
-    `This is an automated emergency alert from Mojo. ` +
+    `This is an automated emergency alert from epimoyo. ` +
     `A person may need urgent help. ` +
     `Location: ${locationStr}. ` +
     `Name: ${patientName}. ` +
@@ -495,7 +495,7 @@ async function sendDispatch(
 
       nearest_hospital_km:   nearestHospital?.distance_km ?? null,
 
-      source: "mojo_sos",
+      source: "epimoyo_sos",
 
       script,
     },

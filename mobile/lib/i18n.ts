@@ -51,7 +51,7 @@ const en = {
   home_grid_records_sub: 'Events, notes, reports',
 
   // ── Meds screen
-  meds_disclaimer: 'Your reminders follow the schedule your clinician entered. Mojo never changes your dose.',
+  meds_disclaimer: 'Your reminders follow the schedule your clinician entered. epimoyo never changes your dose.',
   meds_adherence_title: '30-DAY ADHERENCE',
   meds_due_today: 'DUE TODAY',
   meds_taken_today: 'TAKEN TODAY',
@@ -90,7 +90,7 @@ const en = {
   sos_sent: 'SOS Sent',
   sos_escalated: 'Help is on the way',
   sos_queued_title: 'No signal',
-  sos_queued_sub: 'Your SOS has not been sent yet. Mojo will send it automatically as soon as a signal is available.',
+  sos_queued_sub: 'Your SOS has not been sent yet. epimoyo will send it automatically as soon as a signal is available.',
   sos_sms_error: 'SMS failed — alert queued for retry.',
   sos_push_alert: 'Push alert',
   sos_push_sub: 'Online path',
@@ -170,7 +170,7 @@ const en = {
 
   // ── Circle invite screen
   circle_invite_title: 'Add to your Circle',
-  circle_invite_mode_email: 'Mojo user',
+  circle_invite_mode_email: 'epimoyo user',
   circle_invite_mode_sms: 'SMS only',
   circle_invite_name_label: 'Name',
   circle_invite_email_label: 'Email',
@@ -181,7 +181,7 @@ const en = {
   circle_invite_submit_email: 'Add to Circle',
   circle_invite_submit_sms: 'Add & send SMS invite',
   circle_invite_success: 'Added to your Circle',
-  circle_invite_not_found: 'No Mojo account found for that email.',
+  circle_invite_not_found: 'No epimoyo account found for that email.',
 
   // ── Saved places screen
   saved_places_title: 'Saved Places',
@@ -220,7 +220,7 @@ const en = {
   insights_brief_title: 'Visit brief is ready',
   insights_brief_sub: 'Review it, then share with your clinician',
   insights_brief_review: 'Review',
-  insights_disclaimer: 'Mojo never diagnoses or changes your medication. Summaries are drafts built from what you and your Circle logged.',
+  insights_disclaimer: 'epimoyo never diagnoses or changes your medication. Summaries are drafts built from what you and your Circle logged.',
   insights_note_modal_title: 'Log a note',
   insights_note_modal_sub: 'Describe what happened. It will be saved as an event log.',
   insights_note_placeholder: 'e.g. Felt dizzy for about 2 minutes after lunch…',
@@ -284,7 +284,7 @@ const sw: Record<keyof typeof en, string | ((...args: any[]) => string)> = {
   home_grid_records: 'Rekodi', // review_needed
   home_grid_records_sub: 'Matukio, maelezo, ripoti', // review_needed
 
-  meds_disclaimer: 'Vikumbusho vyako vinafuata ratiba iliyowekwa na daktari wako. Mojo haibadilishi dozi yako.', // review_needed
+  meds_disclaimer: 'Vikumbusho vyako vinafuata ratiba iliyowekwa na daktari wako. epimoyo haibadilishi dozi yako.', // review_needed
   meds_adherence_title: 'UFUATAJI WA SIKU 30', // review_needed
   meds_due_today: 'INASTAHILI LEO', // review_needed
   meds_taken_today: 'IMECHUKULIWA LEO', // review_needed
@@ -321,7 +321,7 @@ const sw: Record<keyof typeof en, string | ((...args: any[]) => string)> = {
   sos_sent: 'SOS Imetumwa', // review_needed
   sos_escalated: 'Msaada unakuja', // review_needed
   sos_queued_title: 'Hakuna mtandao', // review_needed
-  sos_queued_sub: 'SOS yako bado haijatumwa. Mojo itatuma mara mtandao utakapopatikana.', // review_needed
+  sos_queued_sub: 'SOS yako bado haijatumwa. epimoyo itatuma mara mtandao utakapopatikana.', // review_needed
   sos_sms_error: 'SMS imeshindwa — tahadhari imepangwa kwa jaribio jingine.', // review_needed
   sos_push_alert: 'Arifa ya msukumo', // review_needed
   sos_push_sub: 'Njia ya mtandaoni', // review_needed
@@ -383,7 +383,7 @@ const sw: Record<keyof typeof en, string | ((...args: any[]) => string)> = {
   appts_status_cancelled: 'Imeghairiwa', // review_needed
 
   circle_invite_title: 'Ongeza kwenye Mzunguko wako', // review_needed
-  circle_invite_mode_email: 'Mtumiaji wa Mojo', // review_needed
+  circle_invite_mode_email: 'Mtumiaji wa epimoyo', // review_needed
   circle_invite_mode_sms: 'SMS peke yake', // review_needed
   circle_invite_name_label: 'Jina', // review_needed
   circle_invite_email_label: 'Barua pepe', // review_needed
@@ -394,7 +394,7 @@ const sw: Record<keyof typeof en, string | ((...args: any[]) => string)> = {
   circle_invite_submit_email: 'Ongeza kwenye Mzunguko', // review_needed
   circle_invite_submit_sms: 'Ongeza na tuma mwaliko wa SMS', // review_needed
   circle_invite_success: 'Imeongezwa kwenye Mzunguko wako', // review_needed
-  circle_invite_not_found: 'Hakuna akaunti ya Mojo iliyopatikana kwa barua pepe hiyo.', // review_needed
+  circle_invite_not_found: 'Hakuna akaunti ya epimoyo iliyopatikana kwa barua pepe hiyo.', // review_needed
 
   saved_places_title: 'Maeneo Yaliyohifadhiwa', // review_needed
   saved_places_sub: 'Maeneo yenye majina yaliyoongezwa kwa arifa yako ya SOS moja kwa moja.', // review_needed
@@ -430,7 +430,7 @@ const sw: Record<keyof typeof en, string | ((...args: any[]) => string)> = {
   insights_brief_title: 'Muhtasari wa ziara uko tayari', // review_needed
   insights_brief_sub: 'Ukaguzi, kisha ushiriki na daktari wako', // review_needed
   insights_brief_review: 'Kagua', // review_needed
-  insights_disclaimer: 'Mojo haigundui au kubadilisha dawa yako. Muhtasari ni rasimu zilizojengwa kutoka ulichorekodia wewe na Mzunguko wako.', // review_needed
+  insights_disclaimer: 'epimoyo haigundui au kubadilisha dawa yako. Muhtasari ni rasimu zilizojengwa kutoka ulichorekodia wewe na Mzunguko wako.', // review_needed
   insights_note_modal_title: 'Rekodi maelezo', // review_needed
   insights_note_modal_sub: 'Elezea kilichotokea. Itahifadhiwa kama rekodi ya tukio.', // review_needed
   insights_note_placeholder: 'mf. Nilihisi kizunguzungu kwa takriban dakika 2 baada ya chakula cha mchana…', // review_needed

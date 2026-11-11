@@ -1,8 +1,8 @@
 {
-  "name": "mojo-health",
+  "name": "epimoyo-health",
   "private": true,
   "version": "1.0.0",
-  "description": "Mojo — monorepo for clinician-web (Next.js), mobile (Expo), and supabase",
+  "description": "epimoyo — monorepo for clinician-web (Next.js), mobile (Expo), and supabase",
   "scripts": {
     "web": "cd clinician-web && npm run dev",
     "mobile": "cd mobile && npx expo start",

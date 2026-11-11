@@ -119,7 +119,7 @@ export default function ConsentScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.brandName}>mojo</Text>
+          <Text style={styles.brandName}>epimoyo</Text>
           <Text style={styles.heading}>Privacy & Consent</Text>
           <Text style={styles.subheading}>
             Please review and accept the following before continuing.
@@ -175,7 +175,7 @@ export default function ConsentScreen() {
         </TouchableOpacity>
 
         <Text style={styles.footNote}>
-          Items 1–5 and 7 are required to use Mojo. Item 6 is optional and can
+          Items 1–5 and 7 are required to use epimoyo. Item 6 is optional and can
           be changed at any time in Settings.
         </Text>
       </ScrollView>

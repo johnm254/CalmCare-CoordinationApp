@@ -63,7 +63,7 @@ export default function AdminLoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
-                placeholder="admin@mojo.app"
+                placeholder="admin@epimoyo.health"
                 disabled={loading}
                 className="w-full bg-[#FFFFFF] border border-[#D6CFC4] rounded-xl px-4 py-3 text-[#0C1F20] placeholder:text-[#6B8588] focus:border-[#1F7A72] focus:outline-none focus:ring-2 focus:ring-[#1F7A72]/20 text-sm disabled:opacity-50 transition-colors"
               />

@@ -331,7 +331,7 @@ export default function SOSScreen() {
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.topRow}>
-          <Text style={styles.mojoLabel}>MOJO</Text>
+          <Text style={styles.mojoLabel}>epimoyo</Text>
           <View style={styles.sosLabelRow}>
             <View style={[styles.redDot, { backgroundColor: circleColor }]} />
             <Text style={[styles.sosLabelText, { color: circleColor }]}>
