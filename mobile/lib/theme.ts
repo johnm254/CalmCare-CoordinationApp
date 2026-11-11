@@ -96,13 +96,13 @@ export const colors = {
 }
 
 export const fontFamilies = {
-  display:     "Fraunces-SemiBold",     // headlines, big numbers, wordmark
-  displayItalic: "Fraunces-Italic",     // italic display (taglines, moments of care)
-  // TODO: replace DMSans with PlusJakartaSans after adding to app.json + assets
-  body:        "DMSans-Regular",        // body text, labels
-  bodyMedium:  "DMSans-Medium",         // medium-weight body
-  bodyBold:    "DMSans-Bold",           // bold UI labels, button text
-  mono:        "JetBrainsMono-Regular", // BPM, ECG readings, vitals
+  display:     "Fraunces-SemiBold",       // headlines, big numbers, wordmark
+  displayItalic: "Fraunces-SemiBold",     // placeholder until italic weight added
+  body:        "PlusJakartaSans-Regular", // body text, labels (13sp minimum)
+  bodyMedium:  "PlusJakartaSans-Medium",  // medium-weight body
+  bodySemiBold: "PlusJakartaSans-SemiBold", // semi-bold labels
+  bodyBold:    "PlusJakartaSans-Bold",    // bold UI labels, button text
+  mono:        "JetBrainsMono-Regular",   // BPM, ECG readings, vitals (tabular figures)
 }
 
 export const fonts = {

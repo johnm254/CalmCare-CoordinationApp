@@ -12,7 +12,7 @@ import {
   View,
 } from "react-native"
 
-import { Stack, router } from "expo-router"
+import { Stack, router, useRootNavigationState } from "expo-router"
 
 import { StatusBar } from "expo-status-bar"
 
@@ -39,7 +39,7 @@ import { colors, fonts, fontFamilies, radius, spacing } from "../lib/theme"
 
 import { useFonts } from "expo-font"
 import { Fraunces_600SemiBold } from "@expo-google-fonts/fraunces"
-import { DMSans_400Regular, DMSans_500Medium, DMSans_700Bold } from "@expo-google-fonts/dm-sans"
+import { PlusJakartaSans_400Regular, PlusJakartaSans_500Medium, PlusJakartaSans_600SemiBold, PlusJakartaSans_700Bold } from "@expo-google-fonts/plus-jakarta-sans"
 import { JetBrainsMono_400Regular } from "@expo-google-fonts/jetbrains-mono"
 
 import { initializeDB } from "../db/offline"
@@ -556,9 +556,10 @@ const bioStyles = StyleSheet.create({
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     "Fraunces-SemiBold":      Fraunces_600SemiBold,
-    "DMSans-Regular":         DMSans_400Regular,
-    "DMSans-Medium":          DMSans_500Medium,
-    "DMSans-Bold":            DMSans_700Bold,
+    "PlusJakartaSans-Regular": PlusJakartaSans_400Regular,
+    "PlusJakartaSans-Medium":  PlusJakartaSans_500Medium,
+    "PlusJakartaSans-SemiBold": PlusJakartaSans_600SemiBold,
+    "PlusJakartaSans-Bold":    PlusJakartaSans_700Bold,
     "JetBrainsMono-Regular":  JetBrainsMono_400Regular,
   })
 
@@ -577,6 +578,12 @@ export default function RootLayout() {
   const [locked, setLocked] = useState(false)
 
   const bgStartRef = useRef<number | null>(null)
+
+  const rootNavState = useRootNavigationState()
+  const navReadyRef = useRef(false)
+  useEffect(() => {
+    if (rootNavState?.key) navReadyRef.current = true
+  }, [rootNavState?.key])
 
   // In-app notification toast
   const [inAppToast, setInAppToast] = useState<{ title: string; body: string; type: "sos" | "info" } | null>(null)
@@ -879,9 +886,9 @@ export default function RootLayout() {
           setProfile(null)
         }
 
-        if (event === "SIGNED_IN") router.replace("/(tabs)")
+        if (event === "SIGNED_IN" && navReadyRef.current) router.replace("/(tabs)")
 
-        if (event === "SIGNED_OUT") router.replace("/(auth)/login")
+        if (event === "SIGNED_OUT" && navReadyRef.current) router.replace("/(auth)/login")
       } catch (error) {
         console.error("Auth state change error:", error)
       }
@@ -987,10 +994,10 @@ export default function RootLayout() {
   }, [])
 
   useEffect(() => {
+    if (!rootNavState?.key) return
     if (!initialized) return
-
     if (!session) router.replace("/(auth)/login")
-  }, [initialized, session])
+  }, [rootNavState?.key, initialized, session])
 
   if (!initialized || !fontsLoaded) return null
 
