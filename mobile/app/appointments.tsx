@@ -17,6 +17,7 @@ import { colors, fonts, radius, spacing } from "../lib/theme"
 import { supabase } from "../lib/supabase"
 import { useAuth } from "./_layout"
 import { useTranslation } from "../lib/i18n-context"
+import { EmptyStateIllustration } from "../components/illustrations"
 
 type Appointment = {
   id: string
@@ -148,11 +149,7 @@ export default function AppointmentsScreen() {
         />
       ) : appointments.length === 0 ? (
         <View style={styles.emptyState}>
-          <View style={styles.emptyIcon}>
-            <View style={styles.emptyCalCircle} />
-            <View style={styles.emptyCalLine} />
-            <View style={[styles.emptyCalLine, { width: 28, marginTop: 4 }]} />
-          </View>
+          <EmptyStateIllustration type="appointments" width={160} height={160} />
           <Text style={styles.emptyTitle}>{t('appts_empty_title')}</Text>
           <Text style={styles.emptyDesc}>{t('appts_empty_body')}</Text>
         </View>

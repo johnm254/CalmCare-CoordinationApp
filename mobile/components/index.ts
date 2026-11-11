@@ -25,3 +25,6 @@ export type { MoodSheetProps } from "./MoodSheet"
 export type { MedicalIDSheetProps } from "./MedicalIDSheet"
 export type { CareCircleInviteSheetProps, InviteData } from "./CareCircleInviteSheet"
 export type { AddMedicationSheetProps, AddMedicationData } from "./AddMedicationSheet"
+
+// Illustrations — Phase 5 WS2
+export { WelcomeIllustration, EmptyStateIllustration, SOSSentIllustration, StrapPairingIllustration } from "./illustrations"

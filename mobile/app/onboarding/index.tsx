@@ -2,6 +2,7 @@
 import { router } from "expo-router"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { colors, fonts, radius, spacing } from "../../lib/theme"
+import { WelcomeIllustration } from "../../components/illustrations"
 
 const BENEFITS = [
   {
@@ -24,97 +25,12 @@ const BENEFITS = [
   },
 ]
 
-function SeizureIcon({ color }: { color: string }) {
-  return (
-    <View style={{ width: 28, height: 28, alignItems: "center", justifyContent: "center" }}>
-      <View style={{ width: 22, height: 4, backgroundColor: color, borderRadius: 2 }} />
-      <View
-        style={{
-          position: "absolute",
-          left: 8,
-          top: 4,
-          width: 4,
-          height: 10,
-          backgroundColor: color,
-          borderRadius: 2,
-        }}
-      />
-      <View
-        style={{
-          position: "absolute",
-          left: 14,
-          top: 10,
-          width: 4,
-          height: 14,
-          backgroundColor: color,
-          borderRadius: 2,
-        }}
-      />
-    </View>
-  )
-}
-
-function MedsIcon({ color }: { color: string }) {
-  return (
-    <View style={{ width: 28, height: 28, alignItems: "center", justifyContent: "center" }}>
-      <View style={{ width: 18, height: 9, borderRadius: 9, backgroundColor: color }} />
-      <View
-        style={{
-          width: 18,
-          height: 9,
-          borderRadius: 9,
-          backgroundColor: color,
-          opacity: 0.45,
-          marginTop: 2,
-        }}
-      />
-    </View>
-  )
-}
-
-function CircleIcon({ color }: { color: string }) {
-  return (
-    <View style={{ width: 28, height: 24 }}>
-      <View
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 2,
-          width: 15,
-          height: 15,
-          borderRadius: 7.5,
-          borderWidth: 2.5,
-          borderColor: color,
-        }}
-      />
-      <View
-        style={{
-          position: "absolute",
-          left: 10,
-          top: 2,
-          width: 15,
-          height: 15,
-          borderRadius: 7.5,
-          borderWidth: 2.5,
-          borderColor: color,
-          opacity: 0.65,
-        }}
-      />
-    </View>
-  )
-}
-
 export default function OnboardingWelcome() {
   return (
     <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
       <View style={styles.container}>
-        {/* Logo mark */}
-        <View style={styles.logoWrap}>
-          <View style={styles.ring} />
-          <View style={[styles.ring, styles.ringMid]} />
-          <View style={[styles.ring, styles.ringInner]} />
-          <View style={styles.ringCore} />
-        </View>
+        {/* Welcome illustration */}
+        <WelcomeIllustration width={200} height={200} />
 
         {/* Title */}
         <Text style={styles.title}>Welcome to epimoyo</Text>
@@ -125,9 +41,7 @@ export default function OnboardingWelcome() {
           {BENEFITS.map((b) => (
             <View key={b.id} style={styles.benefitRow}>
               <View style={styles.benefitIcon}>
-                {b.icon === "seizure" && <SeizureIcon color={colors.teal} />}
-                {b.icon === "meds" && <MedsIcon color={colors.teal} />}
-                {b.icon === "circle" && <CircleIcon color={colors.teal} />}
+                <View style={{ width: 20, height: 20, backgroundColor: colors.teal, borderRadius: 4 }} />
               </View>
               <View style={styles.benefitText}>
                 <Text style={styles.benefitLabel}>{b.label}</Text>
@@ -169,45 +83,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingHorizontal: spacing.xl,
     paddingTop: spacing.xxxl + spacing.xl,
-  },
-
-  logoWrap: {
-    width: LOGO,
-    height: LOGO,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: spacing.xxl,
-  },
-  ring: {
-    position: "absolute",
-    width: LOGO,
-    height: LOGO,
-    borderRadius: LOGO / 2,
-    borderWidth: 2,
-    borderColor: "rgba(20,184,166,0.22)",
-  },
-  ringMid: {
-    width: 66,
-    height: 66,
-    borderRadius: 33,
-    borderColor: "rgba(20,184,166,0.45)",
-  },
-  ringInner: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    borderColor: "rgba(20,184,166,0.75)",
-  },
-  ringCore: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: colors.teal,
-    shadowColor: colors.teal,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
-    shadowRadius: 10,
-    elevation: 8,
   },
 
   title: {

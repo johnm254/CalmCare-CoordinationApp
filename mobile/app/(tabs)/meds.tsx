@@ -23,7 +23,7 @@ import { useFocusEffect } from "expo-router"
 
 import { Ionicons } from "@expo/vector-icons"
 
-import { Card, Button, EmptyState, Skeleton } from "../../components"
+import { Card, Button, EmptyState, Skeleton, EmptyStateIllustration } from "../../components"
 import { colors, fonts, radius, spacing, shadows } from "../../lib/theme"
 
 import { useAuth } from "../_layout"
@@ -329,7 +329,7 @@ export default function MedsScreen() {
 
         {doses.length === 0 && (
           <View style={styles.empty}>
-            <PillIcon color={colors.textMuted} />
+            <EmptyStateIllustration type="medications" width={160} height={160} />
             <Text style={styles.emptyTitle}>{t("meds_empty_title")}</Text>
             <Text style={styles.emptyBody}>{t("meds_empty_body")}</Text>
           </View>
