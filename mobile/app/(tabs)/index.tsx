@@ -148,7 +148,7 @@ export default function HomeScreen() {
   const [loggingEvent,     setLoggingEvent]     = useState<string | null>(null)
   const [nearestHospital,  setNearestHospital]  = useState<{ name: string; phone: string | null } | null>(null)
   const [latestMoodScore,  setLatestMoodScore]  = useState<number | null>(null)
-  const [bpm,              setBpm]              = useState(72)
+  const [bpm,              setBpm]              = useState<number | null>(null)
 
   const bpmPulse   = useRef(new Animated.Value(0)).current
 
@@ -174,7 +174,7 @@ export default function HomeScreen() {
       Animated.sequence([
         Animated.timing(bpmPulse, { toValue: 1, duration: 800, useNativeDriver: true }),
         Animated.timing(bpmPulse, { toValue: 0.6, duration: 800, useNativeDriver: true }),
-        Animated.delay(Math.max(0, 60000 / Math.max(bpm, 40) - 1600)),
+        Animated.delay(Math.max(0, 60000 / Math.max(bpm ?? 60, 40) - 1600)),
       ]),
     )
     bpmLoop.start()
@@ -272,7 +272,7 @@ export default function HomeScreen() {
 
   // ── Derived ──────────────────────────────────────────────────────────────
   const hour        = new Date().getHours()
-  const swahiliGreeting = hour < 12 ? "Habari za asubuhi" : hour < 18 ? "Habari za mchana" : "Habari za jioni"
+  const greeting    = hour < 12 ? t("home_greeting_morning") : hour < 18 ? t("home_greeting_afternoon") : t("home_greeting_evening")
   const firstName   = profile?.full_name?.split(" ")[0] ?? ""
   const rawInitials = profile?.full_name
     ? profile.full_name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
@@ -317,7 +317,7 @@ export default function HomeScreen() {
               )}
               <View>
                 <Text style={s.greeting}>
-                  {firstName ? `${swahiliGreeting}, ${firstName}` : swahiliGreeting}
+                  {firstName ? `${greeting}, ${firstName}` : greeting}
                 </Text>
                 {!profile?.full_name && (
                   <TouchableOpacity onPress={() => router.push("/me" as any)} activeOpacity={0.75}>
@@ -367,7 +367,7 @@ export default function HomeScreen() {
                       },
                     ]}
                   >
-                    {bpm}
+                    {bpm ?? "—"}
                   </Animated.Text>
                   <View style={s.bpmUnit}>
                     <Text style={s.bpmUnitText}>bpm</Text>
