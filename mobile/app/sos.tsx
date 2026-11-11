@@ -475,22 +475,49 @@ export default function SOSScreen() {
 
         {/* Actions */}
         {isCounting && (
-          <TouchableOpacity style={styles.sendNowBtn} onPress={handleSendNow} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={styles.sendNowBtn}
+            onPress={handleSendNow}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={t("sos_send_now")}
+            accessibilityHint="Send SOS alert immediately to your care circle"
+          >
             <Text style={styles.sendNowBtnText}>{t("sos_send_now")}</Text>
           </TouchableOpacity>
         )}
         {isSent && (
-          <TouchableOpacity style={styles.falseAlarmBtn} onPress={handleFalseAlarm} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={styles.falseAlarmBtn}
+            onPress={handleFalseAlarm}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={t("sos_false_alarm")}
+            accessibilityHint="Indicate that you are okay and cancel the SOS alert"
+          >
             <Text style={styles.falseAlarmBtnText}>{t("sos_false_alarm")}</Text>
           </TouchableOpacity>
         )}
         {(isEscalated || isQueued || isCancelled) && (
-          <TouchableOpacity style={styles.doneBtn} onPress={() => router.back()} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={styles.doneBtn}
+            onPress={() => router.back()}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={t("sos_done")}
+          >
             <Text style={styles.doneBtnText}>{t("sos_done")}</Text>
           </TouchableOpacity>
         )}
         {isCounting && (
-          <TouchableOpacity style={styles.cancelBtn} onPress={() => router.back()} activeOpacity={0.85}>
+          <TouchableOpacity
+            style={styles.cancelBtn}
+            onPress={() => router.back()}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            accessibilityHint="Return to home screen"
+          >
             <Text style={styles.cancelBtnText}>{t("sos_cancel")}</Text>
           </TouchableOpacity>
         )}

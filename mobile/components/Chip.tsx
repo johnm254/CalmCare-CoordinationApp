@@ -42,6 +42,9 @@ export function Chip({
       onPress={onPress}
       disabled={!onPress}
       activeOpacity={0.7}
+      accessibilityRole={onPress ? "button" : "none"}
+      accessibilityLabel={label}
+      accessibilityState={{ selected }}
     >
       <Text
         style={[

@@ -24,6 +24,9 @@ export function ListRow({
       style={s.row}
       onPress={onPress}
       activeOpacity={0.7}
+      accessibilityRole={onPress ? "button" : "none"}
+      accessibilityLabel={title}
+      accessibilityHint={subtitle}
     >
       {icon && <Ionicons name={icon as any} size={24} color={colors.text} />}
       <View style={s.content}>
