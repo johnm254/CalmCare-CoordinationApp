@@ -406,7 +406,7 @@ async function sendDispatch(
 
   const sosEvent = alert.sos_events?.[0]
 
-  let location: { lat: number lon: number } | null = null
+  let location: { lat: number; lon: number } | null = null
 
   if (sosEvent?.location) {
     try {
