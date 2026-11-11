@@ -141,7 +141,7 @@ export default function OnboardingWelcome() {
           {/* Get started */}
           <TouchableOpacity
             style={styles.btnPrimary}
-            onPress={() => router.push("./conditions")}
+            onPress={() => router.push("./consent")}
             activeOpacity={0.85}
           >
             <Text style={styles.btnPrimaryText}>Get started</Text>
