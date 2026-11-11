@@ -681,7 +681,7 @@ const s = StyleSheet.create({
   legend:      { gap: 5, marginTop: 6 },
   legendRow:   { flexDirection: "row", alignItems: "center", gap: 6 },
   legendDot:   { width: 6, height: 6, borderRadius: 3 },
-  legendLabel: { fontSize: 11, color: "rgba(255,255,255,0.60)", fontWeight: "500" },
+  legendLabel: { fontSize: fonts.xs, color: "rgba(255,255,255,0.60)", fontWeight: "500" },
 
   // Dose strip
   doseStrip: {
@@ -743,7 +743,7 @@ const s = StyleSheet.create({
     alignItems: "center", justifyContent: "center",
     ...shadows.sm,
   },
-  quickLabel: { fontSize: 11, fontWeight: "600", color: colors.textSecondary },
+  quickLabel: { fontSize: fonts.xs, fontWeight: "600", color: colors.textSecondary },
 
   // Generic card
   card: {

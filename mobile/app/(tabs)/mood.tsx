@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     marginBottom: spacing.xs,
   },
   moodEmoji: { fontSize: 26 },
-  moodLabel: { fontSize: 10, fontWeight: "600", textAlign: "center" },
+  moodLabel: { fontSize: fonts.xs, fontWeight: "600", textAlign: "center" },
 
   inputWrapper: {
     backgroundColor: colors.inputBg,

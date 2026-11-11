@@ -674,7 +674,7 @@ const styles = StyleSheet.create({
   },
 
   caregiverBannerLabel: {
-    fontSize: 12,
+    fontSize: fonts.xs,
     color: "#3A5255",
     fontWeight: "600",
   },
@@ -686,13 +686,13 @@ const styles = StyleSheet.create({
   },
 
   patientPickerName: {
-    fontSize: 14,
+    fontSize: fonts.sm,
     fontWeight: "700",
     color: "#0C1F20",
   },
 
   patientPickerChevron: {
-    fontSize: 12,
+    fontSize: fonts.xs,
     color: "#1F7A72",
   },
 
@@ -725,7 +725,7 @@ const styles = StyleSheet.create({
   },
 
   pickerItemRel: {
-    fontSize: 12,
+    fontSize: fonts.xs,
     color: "#3A5255",
   },
 })

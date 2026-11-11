@@ -83,7 +83,7 @@ const tabItemStyles = StyleSheet.create({
   },
   pillLabel: {
     color:       "#FFFFFF",
-    fontSize:    11,
+    fontSize:    fonts.xs,
     fontWeight:  "700",
     letterSpacing: 0.1,
   },
@@ -93,7 +93,7 @@ const tabItemStyles = StyleSheet.create({
     position: "absolute",
   },
   inactiveLabel: {
-    fontSize: 9,
+    fontSize: fonts.xxs,
     fontWeight: "600",
     color: colors.tabInactive,
     letterSpacing: 0.1,
@@ -228,7 +228,7 @@ const fabStyles = StyleSheet.create({
     top:             -28,
     backgroundColor: "rgba(0,0,0,0.72)",
     color:           "#fff",
-    fontSize:        11,
+    fontSize:        fonts.xxs,
     fontWeight:      "600",
     paddingHorizontal: 10,
     paddingVertical:   4,

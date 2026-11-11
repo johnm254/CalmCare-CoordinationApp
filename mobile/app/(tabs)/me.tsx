@@ -2160,7 +2160,7 @@ export default function MeScreen() {
             iconBg="rgba(59,130,246,0.10)"
             icon={
               <Text
-                style={{ fontSize: 12, color: colors.blue, fontWeight: "800" }}
+                style={{ fontSize: fonts.xs, color: colors.blue, fontWeight: "800" }}
               >
                 Aa
               </Text>

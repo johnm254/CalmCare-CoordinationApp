@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   statVal:   { fontSize: fonts.xl, fontWeight: "800", color: colors.text },
-  statLabel: { fontSize: 10, color: colors.textMuted, textAlign: "center", marginTop: 2 },
+  statLabel: { fontSize: fonts.xs, color: colors.textMuted, textAlign: "center", marginTop: 2 },
 
   segmentWrap: {
     flexDirection: "row", backgroundColor: colors.bgCard, borderRadius: radius.full,
