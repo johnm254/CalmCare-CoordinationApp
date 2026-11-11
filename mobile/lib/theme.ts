@@ -260,3 +260,13 @@ export const colorsDark = {
   textOnDark:        "#FFFFFF",
   textOnDarkMuted:   "#B8CCC8",
 }
+
+// ── Theme helper (Phase 5 WS5) ──────────────────────────────────────────────
+// Get color set based on whether dark mode is active
+export function getColors(isDark: boolean) {
+  return isDark ? colorsDark : colors
+}
+
+// Type-safe color access
+export type ColorKey = keyof typeof colors
+export type ThemeColors = typeof colors

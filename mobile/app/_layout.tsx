@@ -52,6 +52,8 @@ import {
 
 import { I18nProvider } from "../lib/i18n-context"
 
+import { ThemeProvider } from "../lib/theme-context"
+
 import type { StrapEvent } from "../lib/ble-strap"
 
 // ── Auth context ──────────────────────────────────────────────────────────────
@@ -1035,9 +1037,10 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <I18nProvider>
-      <AuthContext.Provider
-        value={{ session, profile, isLoading: !initialized }}
-      >
+        <ThemeProvider>
+          <AuthContext.Provider
+            value={{ session, profile, isLoading: !initialized }}
+          >
         <StatusBar style="light" backgroundColor={colors.bg} />
 
         {/* Splash overlay — fades out over 500ms, unmounts only after animation finishes */}
@@ -1215,6 +1218,7 @@ export default function RootLayout() {
           </Animated.View>
         )}
       </AuthContext.Provider>
+        </ThemeProvider>
       </I18nProvider>
     </SafeAreaProvider>
   )
