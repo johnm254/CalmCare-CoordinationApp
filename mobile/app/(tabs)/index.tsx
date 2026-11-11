@@ -461,7 +461,7 @@ export default function HomeScreen() {
             {/* Seizure now tile */}
             <TouchableOpacity
               style={[s.tileCard, s.seizureNowTile]}
-              onPress={() => router.push("/sos")}
+              onPress={() => router.push("/seizure-timer")}
               activeOpacity={0.84}
             >
               <View style={s.seizureIcon}>
