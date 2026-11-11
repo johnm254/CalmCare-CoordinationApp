@@ -1057,8 +1057,8 @@ function EpiStrapSheet({
           </View>
           {phase === "connected" && (
             <View style={{ alignItems: "flex-end", gap: 2 }}>
-              <Text style={dev.mockStat}>87% batt</Text>
-              <Text style={dev.mockStat}>72 bpm</Text>
+              <Text style={dev.mockStat}>87% batt (demo)</Text>
+              <Text style={dev.mockStat}>72 bpm (demo)</Text>
             </View>
           )}
         </View>
@@ -1152,7 +1152,7 @@ function EpiStrapSheet({
             <View style={dev.statsRow}>
               <View style={dev.statCard}>
                 <Text style={dev.statVal}>87%</Text>
-                <Text style={dev.statLabel}>Battery</Text>
+                <Text style={dev.statLabel}>Battery (demo)</Text>
               </View>
               <View style={dev.statCard}>
                 <Text style={dev.statVal}>72</Text>

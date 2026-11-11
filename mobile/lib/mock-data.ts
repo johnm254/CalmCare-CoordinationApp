@@ -1,3 +1,9 @@
+/**
+ * @deprecated This file contains legacy mock data and is no longer used.
+ * All data should come from real Supabase queries via lib/supabase.ts.
+ * This file is kept for reference only and can be deleted.
+ */
+
 export const MOCK_USER = {
   id: "user-001",
   full_name: "Elina Mwangi",
