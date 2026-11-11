@@ -17,10 +17,10 @@ import {
 } from "react-native"
 import { router, useLocalSearchParams } from "expo-router"
 import { Ionicons } from "@expo/vector-icons"
-import * as Haptics from "expo-haptics"
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { colors, fonts, radius, spacing } from "../lib/theme"
 import { useAuth } from "./_layout"
+import { useHaptics } from "../lib/use-haptics"
 import { Card, Button, Chip } from "../components"
 import { supabase } from "../lib/supabase"
 
@@ -55,6 +55,7 @@ interface SeizureDetail {
 export default function SeizureTimerScreen() {
   const { session } = useAuth()
   const insets = useSafeAreaInsets()
+  const haptics = useHaptics()
   const [timerState, setTimerState] = useState<TimerState>("running")
   const [elapsed, setElapsed] = useState(0)
   const [tipIndex, setTipIndex] = useState(0)
@@ -82,7 +83,7 @@ export default function SeizureTimerScreen() {
         // At 5 minutes, show alert
         if (next === 300 && !fiveMinAlertShown) {
           setFiveMinAlertShown(true)
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+          haptics.strong()
           Alert.alert(
             "This seizure has lasted 5 minutes",
             "Call emergency services now.",
@@ -150,12 +151,16 @@ export default function SeizureTimerScreen() {
 
       if (error) throw error
 
+      // Success haptic (spec §5.4)
+      haptics.success()
+
       setTimerState("saved")
       setTimeout(() => {
         router.back()
       }, 2000)
     } catch (err) {
       console.error("Failed to save seizure:", err)
+      haptics.error()
       Alert.alert("Error", "Could not save seizure. Please try again.")
     } finally {
       setSaving(false)

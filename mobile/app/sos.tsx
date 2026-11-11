@@ -35,6 +35,8 @@ import { useAuth } from "./_layout"
 
 import { useTranslation } from "../lib/i18n-context"
 
+import { useHaptics } from "../lib/use-haptics"
+
 import {
   getEmergencyContacts,
   sendSos,
@@ -55,6 +57,7 @@ type SosState = "counting" | "sending" | "sent" | "escalated" | "queued" | "canc
 export default function SOSScreen() {
   const { session, profile } = useAuth()
   const { t } = useTranslation()
+  const haptics = useHaptics()
 
   const [seconds, setSeconds] = useState(TOTAL_SECONDS)
 
@@ -156,12 +159,15 @@ export default function SOSScreen() {
     // At T+4 show "Paramedics have been called"
     const t4 = setTimeout(() => {
       setSosState("escalated")
+
+      // Strong haptic on escalation (spec §5.4)
+      haptics.strong()
     }, 4 * 60 * 1000)
 
     return () => {
       clearTimeout(t4)
     }
-  }, [sosState, channel, sentAt])
+  }, [sosState, channel, sentAt, haptics])
 
   async function doSend() {
     if (!session?.user) return
@@ -196,6 +202,9 @@ export default function SOSScreen() {
       setChannel("push")
 
       setSosState("sent")
+
+      // Strong haptic on SOS send (spec §5.4)
+      haptics.strong()
 
       return
     }
@@ -276,6 +285,10 @@ export default function SOSScreen() {
           .eq("patient_id", session.user.id)
       } catch {}
     }
+
+    // Warning haptic on cancel (spec §5.4)
+    haptics.warning()
+
     setSosState("cancelled")
   }
 

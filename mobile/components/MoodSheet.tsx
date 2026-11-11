@@ -2,6 +2,7 @@ import { View, Text, ScrollView, TouchableOpacity, Modal, StyleSheet } from "rea
 import { useState, useEffect } from "react"
 import { colors, fonts, fontFamilies, radius, spacing, shadows } from "../lib/theme"
 import { Ionicons } from "@expo/vector-icons"
+import { useHaptics } from "../lib/use-haptics"
 import { Card } from "./Card"
 
 export interface MoodSheetProps {
@@ -26,6 +27,7 @@ export function MoodSheet({
   loading = false,
 }: MoodSheetProps) {
   const [selected, setSelected] = useState<number | null>(null)
+  const haptics = useHaptics()
 
   return (
     <Modal
@@ -62,6 +64,7 @@ export function MoodSheet({
                     selected === opt.score && s.moodBtnSelected,
                   ]}
                   onPress={() => {
+                    haptics.medium()
                     setSelected(opt.score)
                     onSelect(opt.score as 1 | 2 | 3 | 4 | 5)
                   }}
@@ -93,6 +96,7 @@ export function MoodSheet({
                 <TouchableOpacity
                   style={s.crisisBtn}
                   onPress={() => {
+                    haptics.strong()
                     // Implement calling
                     onClose()
                   }}
