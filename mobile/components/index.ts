@@ -1,4 +1,4 @@
-// Design system component library — Phase 2
+// Design system component library — Phase 2 & Phase 4
 
 export { Card } from "./Card"
 export { Button } from "./Button"
@@ -9,6 +9,7 @@ export { StatTile } from "./StatTile"
 export { Skeleton } from "./Skeleton"
 export { EmptyState } from "./EmptyState"
 export { MoodSheet } from "./MoodSheet"
+export { MedicalIDSheet } from "./MedicalIDSheet"
 
 export type { CardProps } from "./Card"
 export type { ButtonProps } from "./Button"
@@ -19,3 +20,4 @@ export type { StatTileProps } from "./StatTile"
 export type { SkeletonProps } from "./Skeleton"
 export type { EmptyStateProps } from "./EmptyState"
 export type { MoodSheetProps } from "./MoodSheet"
+export type { MedicalIDSheetProps } from "./MedicalIDSheet"
