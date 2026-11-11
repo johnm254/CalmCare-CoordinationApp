@@ -26,6 +26,7 @@ import { router } from "expo-router"
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { TabErrorFallback } from "../../components/TabErrorBoundary"
+import { Card, Skeleton, EmptyState } from "../../components"
 import { colors, fonts, radius, spacing, shadows } from "../../lib/theme"
 import { TAB_BOTTOM, TAB_HEIGHT } from "./_layout"
 import { useAuth } from "../_layout"
@@ -473,53 +474,63 @@ export default function HomeScreen() {
           </Animated.View>
 
           {/* ── Care circle card ─────────────────────────────────────────── */}
-          <Animated.View style={[s.card, slot(5)]}>
-            <View style={[s.cardIconWrap, { backgroundColor: colors.tealMuted }]}>
-              <Ionicons name="people" size={20} color={colors.teal} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <View style={s.cardTitleRow}>
-                <View style={s.liveDotGreen} />
-                <Text style={s.cardTitleText}>Care circle active</Text>
+          <Animated.View style={slot(5)}>
+            <Card variant="default">
+              <View style={s.cardContent}>
+                <View style={[s.cardIconWrap, { backgroundColor: colors.primarySoft }]}>
+                  <Ionicons name="people" size={20} color={colors.primary} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <View style={s.cardTitleRow}>
+                    {circleCount > 0 && <View style={s.liveDotGreen} />}
+                    <Text style={s.cardTitleText}>
+                      {circleCount > 0 ? "Care circle active" : "Set up your care circle"}
+                    </Text>
+                  </View>
+                  <Text style={s.cardSubText}>
+                    {circleCount > 0
+                      ? `${circleCount} member${circleCount > 1 ? "s" : ""} watching over you`
+                      : "Invite someone you trust to receive SOS alerts"}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.primary} />
               </View>
-              <Text style={s.cardSubText}>
-                {circleCount > 0
-                  ? `${circleCount} member${circleCount > 1 ? "s" : ""} watching over you`
-                  : "Add someone to your care circle"}
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={18} color={colors.teal} />
+            </Card>
           </Animated.View>
 
           {/* ── Emergency strip ───────────────────────────────────────────── */}
-          <Animated.View style={[s.emergencyCard, slot(6)]}>
-            <View style={s.emergencyHeader}>
-              <View style={[s.cardIconWrap, { backgroundColor: colors.emergencyDim }]}>
-                <Ionicons name="medkit" size={18} color={colors.emergency} />
+          <Animated.View style={slot(6)}>
+            <Card variant="default">
+              <View style={s.emergencyContent}>
+                <View style={s.emergencyHeader}>
+                  <View style={[s.cardIconWrap, { backgroundColor: colors.dangerSoft }]}>
+                    <Ionicons name="medkit" size={18} color={colors.danger} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[s.cardTitleText, { color: colors.danger }]}>Emergency</Text>
+                    <Text style={s.cardSubText} numberOfLines={1}>
+                      {nearestHospital?.name ?? "Kenyatta National Hospital"}
+                    </Text>
+                  </View>
+                </View>
+                <View style={s.emergencyBtns}>
+                  {[
+                    { label: "999", route: "tel:999" },
+                    { label: "112", route: "tel:112" },
+                    { label: "Hospital", route: nearestHospital?.phone ? `tel:${nearestHospital.phone}` : "tel:+254202726300" },
+                  ].map((b, i) => (
+                    <TouchableOpacity
+                      key={b.label}
+                      style={[s.emergencyBtn, i > 0 && { borderLeftWidth: 1, borderLeftColor: colors.danger + "22" }]}
+                      onPress={() => Linking.openURL(b.route)}
+                      activeOpacity={0.8}
+                    >
+                      <Text style={s.emergencyBtnText}>{b.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[s.cardTitleText, { color: colors.emergency }]}>Emergency</Text>
-                <Text style={s.cardSubText} numberOfLines={1}>
-                  {nearestHospital?.name ?? "Kenyatta National Hospital"}
-                </Text>
-              </View>
-            </View>
-            <View style={s.emergencyBtns}>
-              {[
-                { label: "999", route: "tel:999" },
-                { label: "112", route: "tel:112" },
-                { label: "Hospital", route: nearestHospital?.phone ? `tel:${nearestHospital.phone}` : "tel:+254202726300" },
-              ].map((b, i) => (
-                <TouchableOpacity
-                  key={b.label}
-                  style={[s.emergencyBtn, i > 0 && { borderLeftWidth: 1, borderLeftColor: colors.emergency + "22" }]}
-                  onPress={() => Linking.openURL(b.route)}
-                  activeOpacity={0.8}
-                >
-                  <Text style={s.emergencyBtnText}>{b.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            </Card>
           </Animated.View>
 
           {/* ── Weather ───────────────────────────────────────────────────── */}
@@ -762,7 +773,9 @@ const s = StyleSheet.create({
     alignItems: "center", justifyContent: "center", flexShrink: 0,
   },
   cardTitleRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 3 },
-  liveDotGreen: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.success },
+  cardContent: { flexDirection: "row", alignItems: "center", gap: spacing.md },
+  emergencyContent: { gap: spacing.md },
+  liveDotGreen: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: colors.primary },
   cardTitleText: { fontSize: fonts.base, fontWeight: "700", color: colors.text },
   cardSubText:   { fontSize: fonts.sm, color: colors.textSecondary, lineHeight: 18 },
 
