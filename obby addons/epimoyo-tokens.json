@@ -1,0 +1,41 @@
+{
+  "colors": {
+    "deep": {
+      "name": "Guardian Teal",
+      "hex": "#12383A"
+    },
+    "teal": {
+      "name": "Pulse Teal",
+      "hex": "#1F7A72"
+    },
+    "sage": {
+      "name": "Sage Mist",
+      "hex": "#CFE0D8"
+    },
+    "linen": {
+      "name": "Linen",
+      "hex": "#F5EFE3"
+    },
+    "coral": {
+      "name": "Moyo Coral",
+      "hex": "#E8603C"
+    },
+    "honey": {
+      "name": "Honey",
+      "hex": "#F1C76B"
+    },
+    "ink": {
+      "name": "Night Ink",
+      "hex": "#0C1F20"
+    },
+    "sos": {
+      "name": "SOS Red",
+      "hex": "#C8102E"
+    }
+  },
+  "fonts": {
+    "display": "Fraunces",
+    "ui": "DM Sans",
+    "mono": "JetBrains Mono"
+  }
+}

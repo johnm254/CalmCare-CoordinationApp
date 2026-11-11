@@ -1,4 +1,4 @@
-package com.mojo.app
+package com.epimoyo.app
 
 import android.os.Build
 import android.os.Bundle

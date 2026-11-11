@@ -26,7 +26,7 @@ import { router } from "expo-router"
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 
 import { TabErrorFallback } from "../../components/TabErrorBoundary"
-import { Card, Skeleton, EmptyState } from "../../components"
+import { Card, Skeleton, EmptyState, MoodSheet } from "../../components"
 import { colors, fonts, radius, spacing, shadows } from "../../lib/theme"
 import { TAB_BOTTOM, TAB_HEIGHT } from "./_layout"
 import { useAuth } from "../_layout"
@@ -150,6 +150,7 @@ export default function HomeScreen() {
   const [nearestHospital,  setNearestHospital]  = useState<{ name: string; phone: string | null } | null>(null)
   const [latestMoodScore,  setLatestMoodScore]  = useState<number | null>(null)
   const [bpm,              setBpm]              = useState<number | null>(null)
+  const [moodSheetVisible, setMoodSheetVisible] = useState(false)
 
   const bpmPulse   = useRef(new Animated.Value(0)).current
 
@@ -271,6 +272,21 @@ export default function HomeScreen() {
     }
   }
 
+  async function handleMoodSelect(score: 1 | 2 | 3 | 4 | 5) {
+    if (!session?.user) return
+    try {
+      await supabase.from("mood_logs").insert({
+        patient_id: session.user.id,
+        score,
+        logged_at: new Date().toISOString(),
+      })
+      setLatestMoodScore(score)
+      setMoodSheetVisible(false)
+    } catch (error) {
+      console.error("Failed to log mood:", error)
+    }
+  }
+
   // ── Derived ──────────────────────────────────────────────────────────────
   const hour        = new Date().getHours()
   const greeting    = hour < 12 ? t("home_greeting_morning") : hour < 18 ? t("home_greeting_afternoon") : t("home_greeting_evening")
@@ -288,7 +304,7 @@ export default function HomeScreen() {
 
   const QUICK_ACTIONS: QuickAction[] = [
     { icon: "bandage-outline",  label: "Symptom",  color: "#FF6B4A", bg: "#FFF3EE", onPress: () => setLogModalVisible(true) },
-    { icon: "happy-outline",    label: "Mood",     color: colors.iris,  bg: colors.irisDim, route: "/mood" },
+    { icon: "happy-outline",    label: "Mood",     color: colors.iris,  bg: colors.irisDim, onPress: () => setMoodSheetVisible(true) },
     { icon: "pulse-outline",    label: "ECG",      color: "#F5B700", bg: "#FFF8E1", route: "/health" },
     { icon: "location-outline", label: "Hospital", color: colors.teal,  bg: colors.successDim,
       onPress: () => Linking.openURL(nearestHospital?.phone ? `tel:${nearestHospital.phone}` : "tel:+254202726300") },
@@ -610,6 +626,13 @@ export default function HomeScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* ── Mood sheet ────────────────────────────────────────────────────── */}
+      <MoodSheet
+        visible={moodSheetVisible}
+        onClose={() => setMoodSheetVisible(false)}
+        onSelect={handleMoodSelect}
+      />
     </View>
   )
 }

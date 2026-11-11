@@ -24,6 +24,7 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false)
   const [emailFocused, setEmailFocused] = useState(false)
   const [passFocused, setPassFocused] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   // Entrance animations
   const ring1 = useRef(new Animated.Value(0)).current
@@ -375,11 +376,20 @@ export default function LoginScreen() {
                 placeholderTextColor={colors.textMuted}
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 editable={!loading}
                 onFocus={() => setPassFocused(true)}
                 onBlur={() => setPassFocused(false)}
               />
+              <TouchableOpacity
+                onPress={() => setShowPassword((v) => !v)}
+                style={{ paddingHorizontal: 8 }}
+                activeOpacity={0.7}
+              >
+                <Text style={{ fontSize: 13, color: colors.teal, fontWeight: "600" }}>
+                  {showPassword ? "Hide" : "Show"}
+                </Text>
+              </TouchableOpacity>
             </View>
 
             {/* Sign in button */}

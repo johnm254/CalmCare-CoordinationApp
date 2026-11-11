@@ -109,9 +109,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.mojo.app'
+    namespace 'com.epimoyo.app'
     defaultConfig {
-        applicationId 'com.mojo.app'
+        applicationId 'com.epimoyo.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

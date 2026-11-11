@@ -19,9 +19,13 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     detectSessionInUrl: false,
   },
   global: {
-    // 15s timeout prevents stale connections from piling up under load
-    fetch: (url: RequestInfo | URL, options: RequestInit = {}) =>
-      fetch(url, { ...options, signal: AbortSignal.timeout(15_000) }),
+    // 15s timeout — AbortSignal.timeout() not available in Hermes; use AbortController
+    fetch: (url: RequestInfo | URL, options: RequestInit = {}) => {
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), 15_000)
+      return fetch(url, { ...options, signal: controller.signal })
+        .finally(() => clearTimeout(timer))
+    },
   },
 })
 

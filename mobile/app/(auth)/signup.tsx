@@ -119,6 +119,7 @@ export default function SignupScreen() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [role, setRole] = useState<Role>("patient")
+  const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function handleCreate() {
@@ -237,9 +238,16 @@ export default function SignupScreen() {
                 placeholderTextColor={colors.textMuted}
                 value={password}
                 onChangeText={setPassword}
-                secureTextEntry
+                secureTextEntry={!showPassword}
                 editable={!loading}
               />
+              <TouchableOpacity
+                onPress={() => setShowPassword((v) => !v)}
+                style={styles.eyeBtn}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.eyeText}>{showPassword ? "Hide" : "Show"}</Text>
+              </TouchableOpacity>
             </View>
 
             <TouchableOpacity
@@ -391,4 +399,7 @@ const styles = StyleSheet.create({
   },
   linkText: { fontSize: fonts.base, color: colors.textSecondary },
   linkTeal: { color: colors.teal, fontWeight: "600" },
+
+  eyeBtn: { paddingHorizontal: spacing.sm, paddingVertical: spacing.md },
+  eyeText: { fontSize: fonts.sm, color: colors.teal, fontWeight: "600" },
 })
