@@ -32,7 +32,7 @@ const en = {
   home_last_synced_mins: (n: number) => `Last synced: ${n} min ago`,
   home_active_alert: 'Active alert — tap to view',
   home_hero_fallback: 'Your care, your control',
-  home_banner_sub: (name: string) => name ? `Keep going, ${name}.` : "Keep going, you're doing great.",
+  home_banner_sub: (name: string) => name ? `${name}.` : "",
   home_weather_feels: (temp: number) => `Feels ${temp}°`,
   home_weather_humidity: (h: number) => `${h}% humidity`,
   home_weather_wind: (w: number) => `${w} km/h wind`,
@@ -266,7 +266,7 @@ const sw: Record<keyof typeof en, string | ((...args: any[]) => string)> = {
   home_last_synced_mins: (n: number) => `Ilisawazishwa: dakika ${n} zilizopita`, // review_needed
   home_active_alert: 'Tahadhari inayoendelea — gusa kuona', // review_needed
   home_hero_fallback: 'Matibabu yako, udhibiti wako', // review_needed
-  home_banner_sub: (name: string) => name ? `Endelea, ${name}.` : 'Endelea, unafanya vizuri.', // review_needed
+  home_banner_sub: (name: string) => name ? `${name}.` : '', // review_needed
   home_weather_feels: (temp: number) => `Inahisi ${temp}°`, // review_needed
   home_weather_humidity: (h: number) => `${h}% unyevunyevu`, // review_needed
   home_weather_wind: (w: number) => `${w} km/h upepo`, // review_needed

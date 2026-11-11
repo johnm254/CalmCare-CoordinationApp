@@ -25,6 +25,7 @@ import * as Haptics from "expo-haptics"
 import { router } from "expo-router"
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 
+import { TabErrorFallback } from "../../components/TabErrorBoundary"
 import { colors, fonts, radius, spacing, shadows } from "../../lib/theme"
 import { TAB_BOTTOM, TAB_HEIGHT } from "./_layout"
 import { useAuth } from "../_layout"
@@ -149,7 +150,6 @@ export default function HomeScreen() {
   const [latestMoodScore,  setLatestMoodScore]  = useState<number | null>(null)
   const [bpm,              setBpm]              = useState(72)
 
-  const sosScale   = useRef(new Animated.Value(1)).current
   const bpmPulse   = useRef(new Animated.Value(0)).current
 
   // 7 staggered entrance slots
@@ -172,9 +172,9 @@ export default function HomeScreen() {
 
     const bpmLoop = Animated.loop(
       Animated.sequence([
-        Animated.timing(bpmPulse, { toValue: 1, duration: 550, useNativeDriver: true }),
-        Animated.timing(bpmPulse, { toValue: 0, duration: 550, useNativeDriver: true }),
-        Animated.delay(260 + (60000 / Math.max(bpm, 40) - 1100)),
+        Animated.timing(bpmPulse, { toValue: 1, duration: 800, useNativeDriver: true }),
+        Animated.timing(bpmPulse, { toValue: 0.6, duration: 800, useNativeDriver: true }),
+        Animated.delay(Math.max(0, 60000 / Math.max(bpm, 40) - 1600)),
       ]),
     )
     bpmLoop.start()
@@ -271,10 +271,12 @@ export default function HomeScreen() {
   }
 
   // ── Derived ──────────────────────────────────────────────────────────────
-  const hour       = new Date().getHours()
+  const hour        = new Date().getHours()
   const swahiliGreeting = hour < 12 ? "Habari za asubuhi" : hour < 18 ? "Habari za mchana" : "Habari za jioni"
-  const firstName  = profile?.full_name?.split(" ")[0] ?? ""
-  const initials   = (profile?.full_name ?? "U").split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+  const firstName   = profile?.full_name?.split(" ")[0] ?? ""
+  const rawInitials = profile?.full_name
+    ? profile.full_name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+    : null
   const today      = new Date().toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" })
   const nextMed    = medications[0]
   const showCrisis = latestMoodScore !== null && latestMoodScore <= 2
@@ -291,15 +293,6 @@ export default function HomeScreen() {
       onPress: () => Linking.openURL(nearestHospital?.phone ? `tel:${nearestHospital.phone}` : "tel:+254202726300") },
   ]
 
-  // ── SOS press handlers ───────────────────────────────────────────────────
-  function onSosPressIn() {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy)
-    Animated.spring(sosScale, { toValue: 0.96, useNativeDriver: true, tension: 240, friction: 12 }).start()
-  }
-  function onSosPressOut() {
-    Animated.spring(sosScale, { toValue: 1, useNativeDriver: true, tension: 240, friction: 12 }).start()
-  }
-
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <StatusBar barStyle="dark-content" backgroundColor={colors.bg} />
@@ -312,28 +305,28 @@ export default function HomeScreen() {
           {/* ── Header ─────────────────────────────────────────────────── */}
           <Animated.View style={[s.header, slot(0)]}>
             <View style={s.headerLeft}>
-              <LinearGradient colors={[colors.teal, colors.iris]} style={s.avatar}>
-                <Text style={s.avatarText}>{initials}</Text>
-              </LinearGradient>
+              {rawInitials ? (
+                <LinearGradient colors={[colors.teal, colors.iris]} style={s.avatar}>
+                  <Text style={s.avatarText}>{rawInitials}</Text>
+                </LinearGradient>
+              ) : (
+                <View style={[s.avatar, s.avatarPlaceholder]}>
+                  <View style={s.avatarPersonBody} />
+                  <View style={s.avatarPersonHead} />
+                </View>
+              )}
               <View>
-                <Text style={s.greeting}>{swahiliGreeting},</Text>
-                <Text style={s.heroName}>{firstName || "there"}</Text>
+                <Text style={s.greeting}>
+                  {firstName ? `${swahiliGreeting}, ${firstName}` : swahiliGreeting}
+                </Text>
+                {!profile?.full_name && (
+                  <TouchableOpacity onPress={() => router.push("/me" as any)} activeOpacity={0.75}>
+                    <Text style={s.addNameLink}>Add your name</Text>
+                  </TouchableOpacity>
+                )}
                 <Text style={s.dateLabel}>{today}</Text>
               </View>
             </View>
-            <Animated.View style={{ transform: [{ scale: sosScale }] }}>
-              <TouchableOpacity
-                style={s.sosPill}
-                onPress={() => router.push("/sos")}
-                onPressIn={onSosPressIn}
-                onPressOut={onSosPressOut}
-                activeOpacity={1}
-                accessibilityRole="button"
-                accessibilityLabel="SOS emergency"
-              >
-                <Text style={s.sosPillText}>SOS</Text>
-              </TouchableOpacity>
-            </Animated.View>
           </Animated.View>
 
           {/* ── Active alert banner ──────────────────────────────────────── */}
@@ -370,8 +363,7 @@ export default function HomeScreen() {
                     style={[
                       s.bpmValue,
                       {
-                        opacity: bpmPulse.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.75, 1, 0.75] }),
-                        transform: [{ scale: bpmPulse.interpolate({ inputRange: [0, 0.5, 1], outputRange: [0.97, 1, 0.97] }) }],
+                        opacity: bpmPulse.interpolate({ inputRange: [0.6, 1], outputRange: [0.80, 1] }),
                       },
                     ]}
                   >
@@ -624,22 +616,26 @@ const s = StyleSheet.create({
     alignItems: "center", justifyContent: "center",
     ...shadows.md,
   },
-  avatarText: { color: "#fff", fontWeight: "800", fontSize: fonts.md },
-  greeting:   { fontSize: fonts.sm, color: colors.textSecondary, fontWeight: "500" },
-  heroName:   { fontSize: fonts.xl, fontWeight: "800", color: colors.text, lineHeight: 26 },
-  dateLabel:  { fontSize: fonts.xs, color: colors.textMuted, marginTop: 1 },
-  sosPill: {
-    backgroundColor: colors.emergency,
-    borderRadius:    radius.full,
-    paddingHorizontal: 20,
-    paddingVertical:   9,
-    ...shadows.sm,
-    shadowColor:    colors.emergency,
-    shadowOpacity:  0.45,
-    shadowRadius:   10,
-    elevation:      8,
+  avatarPlaceholder: {
+    backgroundColor: colors.tealMuted,
+    overflow: "hidden",
   },
-  sosPillText: { color: "#fff", fontWeight: "900", fontSize: 13, letterSpacing: 1.2 },
+  avatarPersonHead: {
+    width: 16, height: 16, borderRadius: 8,
+    backgroundColor: colors.teal,
+    position: "absolute",
+    top: 8,
+  },
+  avatarPersonBody: {
+    width: 24, height: 14, borderRadius: 12,
+    backgroundColor: colors.teal,
+    position: "absolute",
+    bottom: 6,
+  },
+  avatarText:  { color: "#fff", fontWeight: "800", fontSize: fonts.md },
+  greeting:    { fontSize: fonts.md, color: colors.text, fontWeight: "700" },
+  addNameLink: { fontSize: fonts.sm, color: colors.teal, fontWeight: "600", marginTop: 1, textDecorationLine: "underline" },
+  dateLabel:   { fontSize: fonts.xs, color: colors.textMuted, marginTop: 1 },
 
   // Alert banner
   alertBanner: {
