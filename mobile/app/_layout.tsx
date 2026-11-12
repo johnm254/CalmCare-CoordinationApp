@@ -4,6 +4,7 @@ import {
   Animated,
   AppState,
   AppStateStatus,
+  ActivityIndicator,
   Easing,
   Platform,
   StyleSheet,
@@ -837,8 +838,17 @@ export default function RootLayout() {
   // ── Auth + boot effects ───────────────────────────────────────────────────
 
   useEffect(() => {
+    let startupTimedOut = false
+    const startupTimer = setTimeout(() => {
+      startupTimedOut = true
+      console.error("Auth initialization timed out; continuing without a session")
+      setOnboardingComplete(false)
+      setInitialized(true)
+    }, 8_000)
+
     supabase.auth.getSession()
       .then(async ({ data: { session } }) => {
+        if (startupTimedOut) return
         try {
           setSession(session)
           const completed = await AsyncStorage.getItem(ONBOARDING_COMPLETE_KEY)
@@ -862,11 +872,13 @@ export default function RootLayout() {
         } catch (error) {
           console.error("Auth initialization error:", error)
         } finally {
+          clearTimeout(startupTimer)
           setInitialized(true)
         }
       })
       .catch((error) => {
         console.error("Failed to get session:", error)
+        clearTimeout(startupTimer)
         setOnboardingComplete(false)
         setInitialized(true)
       })
@@ -990,6 +1002,8 @@ export default function RootLayout() {
     return () => {
       subscription.unsubscribe()
 
+      clearTimeout(startupTimer)
+
       appStateSub.remove()
 
       notifReceiveSub.remove()
@@ -1016,8 +1030,6 @@ export default function RootLayout() {
     if (!rootNavState?.key || !initialized || !session || onboardingComplete === null) return
     router.replace(onboardingComplete ? "/(tabs)" : "/onboarding")
   }, [rootNavState?.key, initialized, session, onboardingComplete])
-
-  if (!initialized || !fontsLoaded) return null
 
   // ── Strap event handler (patient role only) ───────────────────────────────
 
@@ -1100,6 +1112,13 @@ export default function RootLayout() {
             options={{ presentation: "fullScreenModal" }}
           />
         </Stack>
+
+        {(!initialized || !fontsLoaded) && (
+          <View style={styles.startupOverlay}>
+            <ActivityIndicator size="large" color={colors.coral} />
+            <Text style={styles.startupText}>Loading epimoyo…</Text>
+          </View>
+        )}
 
         {/* ── Applying full-screen overlay ─────────────────────────────── */}
         {updateStatus === "applying" && (
@@ -1296,6 +1315,21 @@ function StepLabel({
 // ── Styles ────────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
+  startupOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.bg,
+    zIndex: 20,
+  },
+
+  startupText: {
+    color: colors.text,
+    fontFamily: fontFamilies.bodyMedium,
+    fontSize: fonts.sm,
+    marginTop: spacing.md,
+  },
+
   // In-app notification toast
 
   toastBanner: {
