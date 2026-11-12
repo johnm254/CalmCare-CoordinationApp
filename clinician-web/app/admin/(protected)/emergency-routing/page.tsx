@@ -8,19 +8,19 @@ type Provider = {
   region: string;
   name: string;
   priority: number;
-  adapter_type: 'phone_call' | 'api' | 'call_centre';
+  type: 'phone' | 'api' | 'call_centre';
   phone: string | null;
-  api_endpoint: string | null;
+  api_config_ref: string | null;
   active: boolean;
-  sandbox_mode: boolean;
+  mode: 'sandbox' | 'live';
 };
 
 type ProviderForm = {
   region: string;
   name: string;
-  adapter_type: 'phone_call' | 'api' | 'call_centre';
+  type: 'phone' | 'api' | 'call_centre';
   phone: string;
-  api_endpoint: string;
+  api_config_ref: string;
   priority: string;
   active: boolean;
 };
@@ -28,21 +28,21 @@ type ProviderForm = {
 const EMPTY_PROVIDER_FORM: ProviderForm = {
   region: '',
   name: '',
-  adapter_type: 'phone_call',
+  type: 'phone',
   phone: '',
-  api_endpoint: '',
+  api_config_ref: '',
   priority: '1',
   active: true,
 };
 
 const ADAPTER_LABELS: Record<string, string> = {
-  phone_call: 'Phone call',
+  phone: 'Phone call',
   api: 'API',
   call_centre: 'Call centre',
 };
 
 const ADAPTER_STYLES: Record<string, string> = {
-  phone_call: 'text-[#1F7A72] bg-[rgba(31,122,114,0.10)] border-[#1F7A72]/20',
+  phone: 'text-[#1F7A72] bg-[rgba(31,122,114,0.10)] border-[#1F7A72]/20',
   api: 'text-[#1F7A72] bg-[rgba(31,122,114,0.10)] border-[#1F7A72]/20',
   call_centre: 'text-[#F1C76B] bg-[rgba(241,199,107,0.10)] border-[#F1C76B]/20',
 };
@@ -84,22 +84,26 @@ export default function EmergencyRoutingPage() {
 
   const fetchProviders = useCallback(async () => {
     setLoading(true);
-    const { data } = await supabase
+    const { data, error: fetchError } = await supabase
       .from('emergency_providers')
-      .select('id, region, name, priority, adapter_type, phone, api_endpoint, active, sandbox_mode')
+      .select('id, region, name, priority, type, phone, api_config_ref, active, mode')
       .order('priority');
     setProviders(data ?? []);
+    if (fetchError) setError(`Could not load providers: ${fetchError.message}`);
     setLoading(false);
   }, []);
 
   const fetchFlag = useCallback(async () => {
     setFlagLoading(true);
-    const { data } = await supabase
+    const { data, error: fetchError } = await supabase
       .from('feature_flags')
       .select('enabled')
       .eq('key', 'live_dispatch')
       .single();
     setLiveDispatch(data?.enabled ?? false);
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      setError(`Could not load dispatch settings: ${fetchError.message}`);
+    }
     setFlagLoading(false);
   }, []);
 
@@ -120,27 +124,35 @@ export default function EmergencyRoutingPage() {
       .select('id')
       .eq('key', 'live_dispatch')
       .single();
+    let saveError;
     if (existing) {
-      await supabase.from('feature_flags').update({ enabled: newValue }).eq('key', 'live_dispatch');
+      ({ error: saveError } = await supabase.from('feature_flags').update({ enabled: newValue }).eq('key', 'live_dispatch'));
     } else {
-      await supabase.from('feature_flags').insert({ key: 'live_dispatch', enabled: newValue });
+      ({ error: saveError } = await supabase.from('feature_flags').insert({ key: 'live_dispatch', enabled: newValue }));
+    }
+    if (saveError) {
+      setError(`Could not update live dispatch: ${saveError.message}`);
+      setFlagSaving(false);
+      return;
     }
     setLiveDispatch(newValue);
     setFlagSaving(false);
   }
 
   async function handleAddProvider() {
+    const validationError = validateProviderForm(addForm);
+    if (validationError) { setError(validationError); return; }
     setSaving(true);
     setError(null);
     const { error: err } = await supabase.from('emergency_providers').insert({
       region: addForm.region,
       name: addForm.name,
-      adapter_type: addForm.adapter_type,
+      type: addForm.type,
       phone: addForm.phone || null,
-      api_endpoint: addForm.api_endpoint || null,
+      api_config_ref: addForm.api_config_ref || null,
       priority: parseInt(addForm.priority, 10) || 1,
       active: addForm.active,
-      sandbox_mode: !liveDispatch,
+      mode: liveDispatch ? 'live' : 'sandbox',
     });
     setSaving(false);
     if (err) { setError(err.message); return; }
@@ -150,6 +162,8 @@ export default function EmergencyRoutingPage() {
   }
 
   async function handleEditProvider(id: string) {
+    const validationError = validateProviderForm(editForm);
+    if (validationError) { setError(validationError); return; }
     setSaving(true);
     setError(null);
     const { error: err } = await supabase
@@ -157,9 +171,9 @@ export default function EmergencyRoutingPage() {
       .update({
         region: editForm.region,
         name: editForm.name,
-        adapter_type: editForm.adapter_type,
+        type: editForm.type,
         phone: editForm.phone || null,
-        api_endpoint: editForm.api_endpoint || null,
+        api_config_ref: editForm.api_config_ref || null,
         priority: parseInt(editForm.priority, 10) || 1,
         active: editForm.active,
       })
@@ -172,10 +186,19 @@ export default function EmergencyRoutingPage() {
 
   async function handleDelete(id: string) {
     setDeleting(true);
-    await supabase.from('emergency_providers').delete().eq('id', id);
+    const { error: deleteError } = await supabase.from('emergency_providers').delete().eq('id', id);
     setDeleting(false);
+    if (deleteError) { setError(`Could not delete provider: ${deleteError.message}`); return; }
     setDeleteId(null);
     fetchProviders();
+  }
+
+  function validateProviderForm(form: ProviderForm) {
+    if (!form.region.trim() || !form.name.trim()) return 'Region and provider name are required.';
+    const priority = Number(form.priority);
+    if (!Number.isInteger(priority) || priority < 1) return 'Priority must be a whole number greater than zero.';
+    if (form.type === 'phone' && !form.phone.trim()) return 'Phone is required for phone-call providers.';
+    return null;
   }
 
   async function handleTestCall(id: string) {
@@ -200,9 +223,9 @@ export default function EmergencyRoutingPage() {
     setEditForm({
       region: p.region,
       name: p.name,
-      adapter_type: p.adapter_type,
+      type: p.type,
       phone: p.phone ?? '',
-      api_endpoint: p.api_endpoint ?? '',
+      api_config_ref: p.api_config_ref ?? '',
       priority: String(p.priority),
       active: p.active,
     });
@@ -241,8 +264,8 @@ export default function EmergencyRoutingPage() {
           </div>
           <div>
             <label className={labelCls}>Adapter type</label>
-            <select className={inputCls} value={form.adapter_type} onChange={(e) => set('adapter_type', e.target.value as ProviderForm['adapter_type'])}>
-              <option value="phone_call">Phone call</option>
+            <select className={inputCls} value={form.type} onChange={(e) => set('type', e.target.value as ProviderForm['type'])}>
+              <option value="phone">Phone call</option>
               <option value="api">API</option>
               <option value="call_centre">Call centre</option>
             </select>
@@ -253,7 +276,7 @@ export default function EmergencyRoutingPage() {
           </div>
           <div>
             <label className={labelCls}>API endpoint (optional)</label>
-            <input className={inputCls} placeholder="https://api.provider.co/dispatch" value={form.api_endpoint} onChange={(e) => set('api_endpoint', e.target.value)} />
+            <input className={inputCls} placeholder="Environment variable name (optional)" value={form.api_config_ref} onChange={(e) => set('api_config_ref', e.target.value)} />
           </div>
           <div>
             <label className={labelCls}>Priority (lower = first)</label>
@@ -421,8 +444,8 @@ export default function EmergencyRoutingPage() {
                 <div className="grid grid-cols-[1fr_1fr_120px_70px_80px_80px_140px] min-w-[700px] px-6 py-4 border-b border-[#D6CFC4] last:border-0 items-center hover:bg-[#EDE8DF] transition-colors">
                   <p className="text-[#0C1F20] text-sm font-semibold">{p.region}</p>
                   <p className="text-[#3A5255] text-sm">{p.name}</p>
-                  <span className={`inline-flex items-center text-xs font-semibold border rounded-full px-2.5 py-0.5 w-fit ${ADAPTER_STYLES[p.adapter_type] ?? ''}`}>
-                    {ADAPTER_LABELS[p.adapter_type] ?? p.adapter_type}
+                  <span className={`inline-flex items-center text-xs font-semibold border rounded-full px-2.5 py-0.5 w-fit ${ADAPTER_STYLES[p.type] ?? ''}`}>
+                    {ADAPTER_LABELS[p.type] ?? p.type}
                   </span>
                   <p className="text-[#0C1F20] text-sm font-mono">{p.priority}</p>
                   <div>
@@ -435,7 +458,7 @@ export default function EmergencyRoutingPage() {
                     )}
                   </div>
                   <div>
-                    {p.sandbox_mode ? (
+                    {p.mode === 'sandbox' ? (
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#F1C76B] bg-[rgba(241,199,107,0.10)] border border-[#F1C76B]/20 rounded-full px-2.5 py-0.5">
                         Sandbox
                       </span>

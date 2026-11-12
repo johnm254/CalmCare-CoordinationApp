@@ -64,7 +64,9 @@ export default function PatientPortalPage() {
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-xl">
               <a
-                href="#"
+                href="/epimoyo-latest.apk"
+                download="epimoyo-latest.apk"
+                aria-label="Download the epimoyo Android APK"
                 className="flex items-center gap-4 bg-[#0C1F20] text-[#F5EFE3] rounded-2xl px-6 py-4 hover:bg-[#12383A] transition-colors"
               >
                 <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true">
@@ -76,7 +78,7 @@ export default function PatientPortalPage() {
                 </div>
               </a>
               <a
-                href="#"
+                href="mailto:support@epimoyo.health?subject=iOS%20Access%20Request"
                 className="flex items-center gap-4 bg-[#0C1F20] text-[#F5EFE3] rounded-2xl px-6 py-4 hover:bg-[#12383A] transition-colors"
               >
                 <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true">
