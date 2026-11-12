@@ -10,14 +10,14 @@ export async function middleware(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) { return request.cookies.get(name)?.value; },
-        set(name: string, value: string, options: Record<string, unknown>) {
-          request.cookies.set({ name, value, ...options } as any);
-          response.cookies.set({ name, value, ...options } as any);
+        getAll() {
+          return request.cookies.getAll().map(({ name, value }) => ({ name, value }));
         },
-        remove(name: string, options: Record<string, unknown>) {
-          request.cookies.set({ name, value: '', ...options } as any);
-          response.cookies.set({ name, value: '', ...options } as any);
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+            response.cookies.set(name, value, options);
+          });
         },
       },
     }
@@ -103,8 +103,8 @@ export async function middleware(request: NextRequest) {
   if (pathname === '/login' || pathname === '/admin/login') {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
       .eq('id', session.user.id)
+      .select('role')
       .single();
 
     const dest = (profile?.role === 'admin' || profile?.role === 'org_admin')
