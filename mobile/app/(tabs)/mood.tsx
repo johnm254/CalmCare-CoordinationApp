@@ -136,7 +136,8 @@ export default function MoodScreen() {
           {/* Heading */}
           <Text style={styles.heading}>{t("mood_heading")}</Text>
           <Text style={styles.headingSubtitle}>
-            Your mood is private — only you can see it.
+            Your mood is visible to you and your linked clinician. Caregivers
+            cannot see it unless you allow it.
           </Text>
 
           {/* Mood selector */}

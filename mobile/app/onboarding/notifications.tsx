@@ -1,7 +1,9 @@
 import { View, Text, TouchableOpacity, StyleSheet, Linking } from "react-native"
 import { router } from "expo-router"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { colors, fonts, radius, spacing } from "../../lib/theme"
+import { ONBOARDING_COMPLETE_KEY } from "../_layout"
 
 function BellIcon({ color }: { color: string }) {
   return (
@@ -45,9 +47,14 @@ function BellIcon({ color }: { color: string }) {
 }
 
 export default function NotificationsScreen() {
+  async function finishOnboarding() {
+    await AsyncStorage.setItem(ONBOARDING_COMPLETE_KEY, "true")
+    router.replace("/(tabs)")
+  }
+
   async function handleEnable() {
     await Linking.openSettings()
-    router.replace("/(tabs)")
+    await finishOnboarding()
   }
 
   return (
@@ -88,7 +95,7 @@ export default function NotificationsScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => router.replace("/(tabs)")}
+            onPress={finishOnboarding}
             style={styles.skipRow}
           >
             <Text style={styles.skipText}>Not now</Text>

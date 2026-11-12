@@ -970,12 +970,8 @@ function EpiStrapSheet({
   function startScan() {
     setPhase("scanning")
     setFoundDevices([])
-    if (flagEnabled) {
-      scanForStraps((result) => setFoundDevices((prev) => [...prev.filter((d) => d.id !== result.id), result]), 15000)
-    } else {
-      setTimeout(() => setFoundDevices([{ id: "M1:A2:B3:C4:D5:01", name: "epimoyo Strap", rssi: -52 }]), 900)
-      setTimeout(() => setFoundDevices([{ id: "M1:A2:B3:C4:D5:01", name: "epimoyo Strap", rssi: -52 }, { id: "M1:A2:B3:C4:D5:02", name: "epimoyo Strap (2)", rssi: -71 }]), 1800)
-    }
+    if (!flagEnabled) return
+    scanForStraps((result) => setFoundDevices((prev) => [...prev.filter((d) => d.id !== result.id), result]))
   }
 
   function selectDevice(device: ScanResult) {
@@ -991,12 +987,6 @@ function EpiStrapSheet({
           setPhase("scanning")
         }
       }).catch(() => setPhase("scanning"))
-    } else {
-      setTimeout(() => {
-        setPhase("connected")
-        setConnectedDevice(device)
-        onConnected()
-      }, 2200)
     }
   }
 
@@ -1026,7 +1016,7 @@ function EpiStrapSheet({
         : colors.textMuted
 
   return (
-    <Sheet visible={visible} onClose={onClose} title="epimoyo Strap">
+    <Sheet visible={visible} onClose={onClose} title="epimoyo strap">
       <View style={{ gap: spacing.lg }}>
         {!flagEnabled && (
           <View style={dev.earlyBanner}>
@@ -1044,7 +1034,7 @@ function EpiStrapSheet({
           </View>
           <View style={{ flex: 1 }}>
             <Text style={dev.deviceName}>
-              {phase === "connected" && connectedDevice ? (connectedDevice.name ?? "Unknown device") : "epimoyo Strap"}
+              {phase === "connected" && connectedDevice ? (connectedDevice.name ?? "Unknown device") : "epimoyo strap"}
             </Text>
             <View style={dev.statusRow}>
               <View style={[dev.statusDot, { backgroundColor: dotColor }]} />
@@ -1058,8 +1048,7 @@ function EpiStrapSheet({
           </View>
           {phase === "connected" && (
             <View style={{ alignItems: "flex-end", gap: 2 }}>
-              <Text style={dev.mockStat}>87% batt (demo)</Text>
-              <Text style={dev.mockStat}>72 bpm (demo)</Text>
+              <Text style={dev.mockStat}>Live connection</Text>
             </View>
           )}
         </View>
@@ -1069,7 +1058,7 @@ function EpiStrapSheet({
           <>
             <View style={dev.infoCard}>
               <Text style={dev.infoText}>
-                The epimoyo Strap automatically detects seizure patterns and sends a
+                The epimoyo strap automatically detects seizure patterns and sends a
                 silent SOS if you are unresponsive. Requires Bluetooth.
               </Text>
             </View>
@@ -1152,12 +1141,12 @@ function EpiStrapSheet({
           <>
             <View style={dev.statsRow}>
               <View style={dev.statCard}>
-                <Text style={dev.statVal}>87%</Text>
-                <Text style={dev.statLabel}>Battery (demo)</Text>
+                <Text style={dev.statVal}>—</Text>
+                <Text style={dev.statLabel}>Battery unavailable</Text>
               </View>
               <View style={dev.statCard}>
-                <Text style={dev.statVal}>72</Text>
-                <Text style={dev.statLabel}>BPM</Text>
+                <Text style={dev.statVal}>—</Text>
+                <Text style={dev.statLabel}>Heart rate unavailable</Text>
               </View>
               <View style={dev.statCard}>
                 <Text style={[dev.statVal, { color: colors.success }]}>On</Text>
@@ -1876,10 +1865,10 @@ export default function MeScreen() {
           <View style={s.privacyRow}>
             <View style={s.privacyDot} />
             <View style={{ flex: 1 }}>
-              <Text style={s.rowLabel}>Mood data is private by default</Text>
+              <Text style={s.rowLabel}>Mood privacy</Text>
               <Text style={s.privacyBody}>
-                Only you and your linked doctor can see your mood logs. Caregivers
-                cannot access mood data unless you explicitly grant permission.
+                Your mood is visible to you and your linked clinician. Caregivers
+                cannot see it unless you allow it.
               </Text>
             </View>
           </View>
@@ -2045,7 +2034,7 @@ export default function MeScreen() {
                 }}
               />
             }
-            label="epimoyo Strap"
+            label="epimoyo strap"
             value={strapConnected ? "Connected" : "Not paired"}
             onPress={() => setOpenModal("strap")}
           />

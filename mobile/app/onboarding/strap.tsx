@@ -14,13 +14,13 @@ import { router } from "expo-router"
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context"
 import { Ionicons } from "@expo/vector-icons"
 import { colors, fonts, radius, spacing } from "../../lib/theme"
-import { type ScanResult } from "../../lib/ble-strap"
-
-// Demo devices shown after simulated scan
-const DEMO_DEVICES: ScanResult[] = [
-  { id: "demo-strap-001", name: "EpiStrap-A1B2", rssi: -58 },
-  { id: "demo-strap-002", name: "EpiStrap-C3D4", rssi: -74 },
-]
+import {
+  connectToStrap,
+  getStrapBatteryLevel,
+  scanForStraps,
+  stopScan,
+  type ScanResult,
+} from "../../lib/ble-strap"
 
 function StrapIcon({ color }: { color: string }) {
   return (
@@ -73,28 +73,52 @@ export default function StrapScreen() {
   const [found, setFound] = useState<ScanResult[]>([])
   const [connecting, setConnecting] = useState<string | null>(null)
   const [connected, setConnected] = useState(false)
+  const [battery, setBattery] = useState<number | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [progress] = useState(0.75) // Step 6 of 8
 
   useEffect(() => {
     startScan()
+    return () => stopScan()
   }, [])
 
-  function startScan() {
+  async function startScan() {
     setFound([])
+    setError(null)
     setScanning(true)
-    // Simulate a 2-second BLE discovery then surface demo devices
-    setTimeout(() => {
-      setFound(DEMO_DEVICES)
+    try {
+      await scanForStraps((result) => {
+        setFound((previous) => [
+          ...previous.filter((device) => device.id !== result.id),
+          result,
+        ])
+      })
+    } catch (scanError) {
+      console.error("Strap scan failed:", scanError)
+      setError("We could not scan for straps. Check Bluetooth and try again.")
+    } finally {
       setScanning(false)
-    }, 2000)
+    }
   }
 
   async function handleConnect(deviceId: string) {
     setConnecting(deviceId)
-    // Simulate 1.5-second pairing handshake
-    await new Promise((resolve) => setTimeout(resolve, 1500))
-    setConnecting(null)
-    setConnected(true)
+    setError(null)
+    try {
+      const didConnect = await connectToStrap(deviceId, () => {})
+      if (!didConnect) {
+        setError("This strap could not be connected. Keep it nearby and try again.")
+        return
+      }
+
+      setBattery(await getStrapBatteryLevel())
+      setConnected(true)
+    } catch (connectError) {
+      console.error("Strap connection failed:", connectError)
+      setError("This strap could not be connected. Keep it nearby and try again.")
+    } finally {
+      setConnecting(null)
+    }
   }
 
   function handleBack() {
@@ -121,7 +145,7 @@ export default function StrapScreen() {
 
             <Text style={s.heading}>Strap connected!</Text>
             <Text style={s.subheading}>
-              Your epimoyo Strap is paired and ready. It will monitor for fall
+              Your epimoyo strap is paired and ready. It will monitor for fall
               events and let you trigger an SOS with the strap button.
             </Text>
 
@@ -129,11 +153,13 @@ export default function StrapScreen() {
             <View style={s.detailsBox}>
               <View style={s.detailRow}>
                 <Ionicons name="battery-half-outline" size={16} color={colors.text} />
-                <Text style={s.detailText}>Battery: 87%</Text>
+                <Text style={s.detailText}>
+                  {battery === null ? "Battery level unavailable" : `Battery: ${battery}%`}
+                </Text>
               </View>
               <View style={s.detailRow}>
-                <Ionicons name="signal-outline" size={16} color={colors.text} />
-                <Text style={s.detailText}>Signal: Strong (-52 dBm)</Text>
+                <Ionicons name="wifi-outline" size={16} color={colors.text} />
+                <Text style={s.detailText}>Connection verified</Text>
               </View>
             </View>
 
@@ -177,7 +203,7 @@ export default function StrapScreen() {
             <StrapIcon color={colors.teal} />
           </View>
 
-          <Text style={s.heading}>Pair your epimoyo Strap</Text>
+          <Text style={s.heading}>Pair your epimoyo strap</Text>
           <Text style={s.subheading}>
             Make sure your strap is charged and nearby. It will appear in the list below
             automatically.
@@ -188,7 +214,7 @@ export default function StrapScreen() {
             {scanning ? (
               <View style={s.scanningRow}>
                 <ActivityIndicator color={colors.teal} size="small" />
-                <Text style={s.scanningText}>Scanning for epimoyo Strap...</Text>
+                <Text style={s.scanningText}>Scanning for epimoyo strap...</Text>
               </View>
             ) : (
               <TouchableOpacity
@@ -201,6 +227,7 @@ export default function StrapScreen() {
               </TouchableOpacity>
             )}
           </View>
+          {error ? <Text style={s.errorText}>{error}</Text> : null}
 
           {/* Device list */}
           {found.length === 0 && !scanning ? (
@@ -223,7 +250,7 @@ export default function StrapScreen() {
                     <StrapIcon color={colors.teal} />
                   </View>
                   <View style={s.deviceInfo}>
-                    <Text style={s.deviceName}>{item.name ?? "epimoyo Strap"}</Text>
+                    <Text style={s.deviceName}>{item.name ?? "epimoyo strap"}</Text>
                     {item.rssi !== null && (
                       <Text style={s.deviceRssi}>Signal: {item.rssi} dBm</Text>
                     )}
@@ -449,6 +476,12 @@ const s = StyleSheet.create({
     textAlign: "center",
     lineHeight: 18,
     maxWidth: 280,
+  },
+  errorText: {
+    color: colors.danger,
+    fontSize: fonts.sm,
+    lineHeight: 18,
+    textAlign: "center",
   },
 
   // Buttons

@@ -133,6 +133,7 @@ export default function CaregiverScreen() {
                 {"Skip — I'll add caregivers later"}
               </Text>
             </TouchableOpacity>
+            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>

@@ -13,7 +13,13 @@ export async function middleware(request: NextRequest) {
         getAll() {
           return request.cookies.getAll().map(({ name, value }) => ({ name, value }));
         },
-        setAll(cookiesToSet) {
+        setAll(
+          cookiesToSet: Array<{
+            name: string;
+            value: string;
+            options?: Parameters<typeof response.cookies.set>[2];
+          }>
+        ) {
           cookiesToSet.forEach(({ name, value, options }) => {
             request.cookies.set(name, value);
             response.cookies.set(name, value, options);
@@ -103,8 +109,8 @@ export async function middleware(request: NextRequest) {
   if (pathname === '/login' || pathname === '/admin/login') {
     const { data: profile } = await supabase
       .from('profiles')
-      .eq('id', session.user.id)
       .select('role')
+      .eq('id', session.user.id)
       .single();
 
     const dest = (profile?.role === 'admin' || profile?.role === 'org_admin')

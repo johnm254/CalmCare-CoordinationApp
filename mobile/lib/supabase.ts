@@ -801,6 +801,9 @@ export async function getInsightsSummary(patientId: string) {
             } logged this week.`
         : "No events logged this week.",
 
-    suggestion: missedDoses > 0 ? "Set an earlier reminder" : "Keep it up",
+    suggestion:
+      missedDoses > 0
+        ? "Review your reminder timing"
+        : "No follow-up action is needed from this summary.",
   }
 }

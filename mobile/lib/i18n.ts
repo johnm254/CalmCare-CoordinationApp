@@ -74,7 +74,7 @@ const en = {
   mood_log_btn: 'Log mood',
   mood_logged_title: 'Mood logged',
   mood_log_again: 'Log again',
-  mood_privacy: 'Mood data is private by default — only you and your doctor can see it. Caregivers cannot access mood logs.',
+  mood_privacy: 'Your mood is visible to you and your linked clinician. Caregivers cannot see it unless you allow it.',
   mood_history_label: 'Last 7 days',
   mood_history_empty: 'No mood logs yet. Start tracking today.',
   mood_crisis_title: 'Feeling very low?',
@@ -306,7 +306,7 @@ const sw: Record<keyof typeof en, string | ((...args: any[]) => string)> = {
   mood_log_btn: 'Rekodi hisia', // review_needed
   mood_logged_title: 'Hisia zimerekodiwa', // review_needed
   mood_log_again: 'Rekodi tena', // review_needed
-  mood_privacy: 'Data ya hisia ni ya siri — wewe na daktari wako peke yenu wanaweza kuona. Walezi hawawezi kufikia rekodi za hisia.', // review_needed
+  mood_privacy: 'Mhemko wako unaonekana kwako na daktari wako aliyeunganishwa. Walezi hawawezi kuuona isipokuwa uruhusu.', // review_needed
   mood_history_label: 'Siku 7 zilizopita', // review_needed
   mood_history_empty: 'Hakuna rekodi za hisia bado. Anza kufuatilia leo.', // review_needed
   mood_crisis_title: 'Unajisikia vibaya sana?', // review_needed

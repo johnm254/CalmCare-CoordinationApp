@@ -240,7 +240,7 @@ function MoodCheckin({ userId, onSaved }: { userId: string; onSaved: () => void 
         })}
       </View>
       <Text style={moodS.disclaimer}>
-        Mood data is private by default. Your clinician cannot see it unless you choose to share.
+        Your mood is visible to you and your linked clinician. Caregivers cannot see it unless you allow it.
       </Text>
     </View>
   )

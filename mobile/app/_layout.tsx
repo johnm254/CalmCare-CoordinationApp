@@ -27,6 +27,7 @@ import * as Location from "expo-location"
 import * as LocalAuthentication from "expo-local-authentication"
 
 import type { Session } from "@supabase/supabase-js"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 import {
   supabase,
@@ -65,6 +66,8 @@ interface AuthContextType {
 
   isLoading: boolean
 }
+
+export const ONBOARDING_COMPLETE_KEY = "epimoyo:onboarding-complete"
 
 export const AuthContext = createContext<AuthContextType>({
   session: null,
@@ -570,6 +573,7 @@ export default function RootLayout() {
   const [profile, setProfile] = useState<Profile | null>(null)
 
   const [initialized, setInitialized] = useState(false)
+  const [onboardingComplete, setOnboardingComplete] = useState<boolean | null>(null)
 
   // Splash + biometric
 
@@ -837,6 +841,8 @@ export default function RootLayout() {
       .then(async ({ data: { session } }) => {
         try {
           setSession(session)
+          const completed = await AsyncStorage.getItem(ONBOARDING_COMPLETE_KEY)
+          setOnboardingComplete(completed === "true")
 
           if (session?.user) {
             const p = await getProfile(session.user.id).catch((err) => {
@@ -861,6 +867,7 @@ export default function RootLayout() {
       })
       .catch((error) => {
         console.error("Failed to get session:", error)
+        setOnboardingComplete(false)
         setInitialized(true)
       })
 
@@ -869,6 +876,12 @@ export default function RootLayout() {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       try {
         setSession(session)
+        if (!session) {
+          setOnboardingComplete(null)
+        } else {
+          const completed = await AsyncStorage.getItem(ONBOARDING_COMPLETE_KEY)
+          setOnboardingComplete(completed === "true")
+        }
 
         if (session?.user) {
           const p = await getProfile(session.user.id).catch((err) => {
@@ -887,8 +900,6 @@ export default function RootLayout() {
         } else {
           setProfile(null)
         }
-
-        if (event === "SIGNED_IN" && navReadyRef.current) router.replace("/(tabs)")
 
         if (event === "SIGNED_OUT" && navReadyRef.current) router.replace("/(auth)/login")
       } catch (error) {
@@ -999,7 +1010,12 @@ export default function RootLayout() {
     if (!rootNavState?.key) return
     if (!initialized) return
     if (!session) router.replace("/(auth)/login")
-  }, [rootNavState?.key, initialized, session])
+  }, [rootNavState?.key, initialized, session, onboardingComplete])
+
+  useEffect(() => {
+    if (!rootNavState?.key || !initialized || !session || onboardingComplete === null) return
+    router.replace(onboardingComplete ? "/(tabs)" : "/onboarding")
+  }, [rootNavState?.key, initialized, session, onboardingComplete])
 
   if (!initialized || !fontsLoaded) return null
 
@@ -1021,7 +1037,7 @@ export default function RootLayout() {
         Notifications.scheduleNotificationAsync({
           content: {
             title: "Strap battery low",
-            body: "Charge your epimoyo Strap soon",
+            body: "Charge your epimoyo strap soon",
           },
           trigger: null,
         }).catch(() => {})

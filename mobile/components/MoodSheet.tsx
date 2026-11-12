@@ -80,7 +80,7 @@ export function MoodSheet({
             {/* Privacy statement */}
             <Card variant="default" style={s.privacyCard}>
               <Text style={s.privacyText}>
-                Mood data is private by default — only you and your clinician can see it. Caregivers cannot access mood logs.
+                Your mood is visible to you and your linked clinician. Caregivers cannot see it unless you allow it.
               </Text>
             </Card>
 

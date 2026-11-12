@@ -321,10 +321,6 @@ export default function TabsLayout() {
           }}
         />
         <Tabs.Screen
-          name="mood"
-          options={{ href: null }}
-        />
-        <Tabs.Screen
           name="me"
           options={{
             title: "Me",
