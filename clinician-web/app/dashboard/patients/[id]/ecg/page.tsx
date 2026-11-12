@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useParams } from 'next/navigation';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -195,7 +196,8 @@ function EcgCard({
 // Page
 // ---------------------------------------------------------------------------
 
-export default function EcgPage({ params }: { params: { id: string } }) {
+export default function EcgPage() {
+  const { id } = useParams<{ id: string }>();
   const [recordings, setRecordings] = useState<EcgRecording[]>(MOCK_RECORDINGS);
 
   function markReviewed(id: string) {
@@ -208,7 +210,7 @@ export default function EcgPage({ params }: { params: { id: string } }) {
     <div className="p-8">
       <div className="mb-5">
         <Link
-          href={`/dashboard/patients/${params.id}`}
+          href={`/dashboard/patients/${id}`}
           className="inline-flex items-center gap-1.5 text-sm text-[#3A5255] hover:text-[#0C1F20] transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

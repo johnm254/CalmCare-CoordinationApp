@@ -2,7 +2,7 @@ import { createClient } from '../../../../lib/supabase-server';
 import SeizureChart from '../../../dashboard/SeizureChart';
 
 export default async function AdminAnalyticsPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 

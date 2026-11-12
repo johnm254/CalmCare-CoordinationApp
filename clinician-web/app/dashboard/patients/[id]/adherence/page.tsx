@@ -115,21 +115,22 @@ function HourlyChart({ data }: { data: { hour: number; count: number }[] }) {
   );
 }
 
-export default async function AdherencePage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+export default async function AdherencePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   const { data: link } = await supabase
     .from('clinician_links')
     .select('id')
     .eq('clinician_id', user!.id)
-    .eq('patient_id', params.id)
+    .eq('patient_id', id)
     .not('verified_at', 'is', null)
     .single();
 
   if (!link) notFound();
 
-  await logAccess(supabase, params.id, 'viewed_adherence', 'dose_events');
+  await logAccess(supabase, id, 'viewed_adherence', 'dose_events');
 
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -137,12 +138,12 @@ export default async function AdherencePage({ params }: { params: { id: string }
     supabase
       .from('medications')
       .select('id, name')
-      .eq('patient_id', params.id)
+      .eq('patient_id', id)
       .eq('active', true),
     supabase
       .from('dose_events')
       .select('id, medication_id, status, scheduled_for, taken_at')
-      .eq('patient_id', params.id)
+      .eq('patient_id', id)
       .gte('scheduled_for', thirtyDaysAgo),
   ]);
 
@@ -177,7 +178,7 @@ export default async function AdherencePage({ params }: { params: { id: string }
           <h1 className="text-2xl font-bold text-[#0C1F20] mb-1">Adherence</h1>
           <p className="text-[#3A5255] text-sm">Last 30 days — dose-taking summary for all active medications.</p>
         </div>
-        <ExportCsvButton rows={csvRows} filename={`adherence-${params.id}.csv`} />
+        <ExportCsvButton rows={csvRows} filename={`adherence-${id}.csv`} />
       </div>
 
       {/* Overall summary card */}

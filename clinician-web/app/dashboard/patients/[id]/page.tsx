@@ -38,8 +38,9 @@ function SeverityDot({ severity }: { severity: string }) {
 }
 
 
-export default async function PatientDetailPage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+export default async function PatientDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   // Verify clinician link
@@ -47,24 +48,24 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
     .from('clinician_links')
     .select('id, verified_at')
     .eq('clinician_id', user!.id)
-    .eq('patient_id', params.id)
+    .eq('patient_id', id)
     .not('verified_at', 'is', null)
     .single();
 
   if (!link) notFound();
 
   // Audit log
-  await logAccess(supabase, params.id, 'viewed_patient', 'profiles', params.id);
+  await logAccess(supabase, id, 'viewed_patient', 'profiles', id);
 
   // Fetch all patient data in parallel
   const [profileRes, eventsRes, medsRes, followupsRes, prefRes] = await Promise.all([
-    supabase.from('profiles').select('id, full_name, email').eq('id', params.id).single(),
-    supabase.from('events').select('*').eq('patient_id', params.id).gte('occurred_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()).order('occurred_at', { ascending: false }).limit(100),
-    supabase.from('medications').select('*').eq('patient_id', params.id).eq('active', true),
+    supabase.from('profiles').select('id, full_name, email').eq('id', id).single(),
+    supabase.from('events').select('*').eq('patient_id', id).gte('occurred_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()).order('occurred_at', { ascending: false }).limit(100),
+    supabase.from('medications').select('*').eq('patient_id', id).eq('active', true),
     supabase
       .from('followups')
       .select('*')
-      .eq('patient_id', params.id)
+      .eq('patient_id', id)
       .eq('clinician_id', user!.id)
       .neq('status', 'completed')
       .order('due_at', { ascending: true }),
@@ -72,7 +73,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
       .from('clinician_patient_preferences')
       .select('preferred_hospital_name')
       .eq('clinician_id', user!.id)
-      .eq('patient_id', params.id)
+      .eq('patient_id', id)
       .maybeSingle(),
   ]);
 
@@ -125,7 +126,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
   });
   const hasChartData = thirtyDayChartData.some((d) => d.count > 0);
 
-  const baseHref = `/dashboard/patients/${params.id}`;
+  const baseHref = `/dashboard/patients/${id}`;
 
   return (
     <div className="p-8">
@@ -167,7 +168,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
       </div>
 
       {/* Tab row */}
-      <PatientTabNav patientId={params.id} />
+      <PatientTabNav patientId={id} />
 
       {hasChartData && (
         <div className="bg-[#FFFFFF] border border-[#D6CFC4] rounded-2xl p-6 mb-6">
@@ -379,7 +380,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
       </div>
 
       <div className="mt-6">
-        <ClinicalNotes clinicianId={user!.id} patientId={params.id} />
+        <ClinicalNotes clinicianId={user!.id} patientId={id} />
       </div>
 
       {/* Bottom row: ECG link + Preferred Hospital */}
@@ -409,7 +410,7 @@ export default async function PatientDetailPage({ params }: { params: { id: stri
         {/* Preferred Hospital */}
         <PreferredHospital
           clinicianId={user!.id}
-          patientId={params.id}
+          patientId={id}
           initialName={preferredHospitalName}
         />
       </div>

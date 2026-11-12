@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // Authenticate the caller — userId comes from the session, not the body
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

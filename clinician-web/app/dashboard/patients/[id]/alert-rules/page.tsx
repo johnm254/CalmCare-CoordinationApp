@@ -3,26 +3,27 @@ import { createClient } from '../../../../../lib/supabase-server';
 import { logAccess } from '../../../../../lib/audit';
 import RuleEditor from './RuleEditor';
 
-export default async function AlertRulesPage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+export default async function AlertRulesPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   const { data: link } = await supabase
     .from('clinician_links')
     .select('id')
     .eq('clinician_id', user!.id)
-    .eq('patient_id', params.id)
+    .eq('patient_id', id)
     .not('verified_at', 'is', null)
     .single();
 
   if (!link) notFound();
 
-  await logAccess(supabase, params.id, 'viewed_alert_rules', 'alert_rules');
+  await logAccess(supabase, id, 'viewed_alert_rules', 'alert_rules');
 
   const { data: rules } = await supabase
     .from('alert_rules')
     .select('*')
-    .eq('patient_id', params.id)
+    .eq('patient_id', id)
     .order('created_at', { ascending: false });
 
   return (
@@ -45,7 +46,7 @@ export default async function AlertRulesPage({ params }: { params: { id: string 
         </p>
       </div>
 
-      <RuleEditor patientId={params.id} initialRules={rules ?? []} />
+      <RuleEditor patientId={id} initialRules={rules ?? []} />
     </div>
   );
 }

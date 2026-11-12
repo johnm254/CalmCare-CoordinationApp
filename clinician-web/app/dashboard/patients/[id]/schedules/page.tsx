@@ -3,8 +3,9 @@ import { createClient } from '../../../../../lib/supabase-server';
 import { logAccess } from '../../../../../lib/audit';
 import ScheduleEditor from './ScheduleEditor';
 
-export default async function SchedulesPage({ params }: { params: { id: string } }) {
-  const supabase = createClient();
+export default async function SchedulesPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   // Verify clinician link
@@ -12,20 +13,20 @@ export default async function SchedulesPage({ params }: { params: { id: string }
     .from('clinician_links')
     .select('id')
     .eq('clinician_id', user!.id)
-    .eq('patient_id', params.id)
+    .eq('patient_id', id)
     .not('verified_at', 'is', null)
     .single();
 
   if (!link) notFound();
 
   // Audit log
-  await logAccess(supabase, params.id, 'viewed_schedules', 'medication_schedules');
+  await logAccess(supabase, id, 'viewed_schedules', 'medication_schedules');
 
   // Fetch medications with their schedules
   const { data: medications } = await supabase
     .from('medications')
     .select('id, name, dose, form, strength, active')
-    .eq('patient_id', params.id)
+    .eq('patient_id', id)
     .eq('active', true)
     .order('name');
 
@@ -85,7 +86,7 @@ export default async function SchedulesPage({ params }: { params: { id: string }
               key={med.id}
               medication={med}
               initialSchedule={schedulesMap[med.id] ?? null}
-              patientId={params.id}
+              patientId={id}
             />
           ))}
         </div>

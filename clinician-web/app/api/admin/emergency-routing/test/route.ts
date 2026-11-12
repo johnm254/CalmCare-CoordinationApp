@@ -1,10 +1,28 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { supabaseAdmin as supabase } from '../../../../../lib/supabase-admin';
 
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   try {
+    const cookieStore = await cookies();
+    const authClient = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: { get: (name: string) => cookieStore.get(name)?.value } }
+    );
+    const { data: { user } } = await authClient.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    // Load the active emergency provider
+    const { data: profile } = await authClient
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+    if (profile?.role !== 'admin' && profile?.role !== 'org_admin') {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
     const { data: provider, error: provErr } = await supabase
       .from('emergency_providers')
       .select('id, name, mode, type, phone, endpoint_url, api_key_env')
@@ -23,8 +41,6 @@ export async function POST(req: NextRequest) {
     const isSandbox = provider.mode === 'sandbox';
     const now = new Date();
     const testRef = `TEST-${now.getTime().toString(36).toUpperCase()}`;
-
-    // Record the test dispatch attempt regardless of mode
     const { error: insertErr } = await supabase
       .from('paramedic_dispatches')
       .insert({
@@ -54,7 +70,7 @@ export async function POST(req: NextRequest) {
     if (insertErr) {
       console.error('[emergency-routing/test]', insertErr);
       return NextResponse.json(
-        { success: false, message: `DB write failed: ${insertErr.message}` },
+        { success: false, message: 'DB write failed.' },
         { status: 500 }
       );
     }
@@ -69,15 +85,25 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Live mode: attempt a real call to the provider endpoint
-    let callResult: { ok: boolean; status: number; body: string } | null = null;
+    let callResult: { ok: boolean; status: number } | null = null;
     if (provider.endpoint_url) {
+      const endpoint = new URL(provider.endpoint_url);
+      const allowedHosts = (process.env.EMERGENCY_PROVIDER_ALLOWED_HOSTS ?? '')
+        .split(',')
+        .map((host) => host.trim().toLowerCase())
+        .filter(Boolean);
+      if (endpoint.protocol !== 'https:' || !allowedHosts.includes(endpoint.hostname.toLowerCase())) {
+        return NextResponse.json(
+          { success: false, message: 'Provider endpoint is not on the configured HTTPS allowlist.' },
+          { status: 503 }
+        );
+      }
+
       try {
         const apiKey = provider.api_key_env
           ? process.env[provider.api_key_env]
           : undefined;
-
-        const resp = await fetch(provider.endpoint_url, {
+        const resp = await fetch(endpoint, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -91,13 +117,10 @@ export async function POST(req: NextRequest) {
           }),
           signal: AbortSignal.timeout(10000),
         });
-        callResult = {
-          ok: resp.ok,
-          status: resp.status,
-          body: await resp.text().catch(() => ''),
-        };
+        callResult = { ok: resp.ok, status: resp.status };
       } catch (fetchErr) {
-        callResult = { ok: false, status: 0, body: String(fetchErr) };
+        console.error('[emergency-routing/test] provider request failed', fetchErr);
+        callResult = { ok: false, status: 0 };
       }
     }
 
@@ -115,6 +138,6 @@ export async function POST(req: NextRequest) {
     });
   } catch (err) {
     console.error('[emergency-routing/test]', err);
-    return NextResponse.json({ success: false, message: String(err) }, { status: 500 });
+    return NextResponse.json({ success: false, message: 'Internal server error.' }, { status: 500 });
   }
 }

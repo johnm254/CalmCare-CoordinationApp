@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '../../../../../lib/supabase-browser';
 
@@ -156,7 +157,8 @@ function AddFollowupForm({
 // Page
 // ---------------------------------------------------------------------------
 
-export default function PatientFollowupsPage({ params }: { params: { id: string } }) {
+export default function PatientFollowupsPage() {
+  const { id } = useParams<{ id: string }>();
   const supabase = createClient();
   const [followups, setFollowups] = useState<Followup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -168,11 +170,11 @@ export default function PatientFollowupsPage({ params }: { params: { id: string 
     const { data } = await supabase
       .from('followups')
       .select('id, title, description, status, due_at, created_at')
-      .eq('patient_id', params.id)
+      .eq('patient_id', id)
       .order('due_at', { ascending: true });
     setFollowups((data ?? []) as Followup[]);
     setLoading(false);
-  }, [params.id]);
+  }, [id]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -196,7 +198,7 @@ export default function PatientFollowupsPage({ params }: { params: { id: string 
       {/* Back */}
       <div className="mb-5">
         <Link
-          href={`/dashboard/patients/${params.id}`}
+          href={`/dashboard/patients/${id}`}
           className="inline-flex items-center gap-1.5 text-sm text-[#3A5255] hover:text-[#0C1F20] transition-colors"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -228,7 +230,7 @@ export default function PatientFollowupsPage({ params }: { params: { id: string 
       {/* Add form */}
       {showAdd && (
         <AddFollowupForm
-          patientId={params.id}
+          patientId={id}
           onCreated={() => { setShowAdd(false); load(); }}
           onCancel={() => setShowAdd(false)}
         />

@@ -27,7 +27,7 @@ type FeedItem = {
 };
 
 export default async function ActivityPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   // Get linked patient IDs

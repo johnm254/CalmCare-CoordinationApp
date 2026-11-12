@@ -1,4 +1,6 @@
 ﻿import { NextRequest, NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
 import { Resend } from 'resend';
 import { rateLimit, getIp } from '../../../lib/rate-limit';
@@ -28,6 +30,17 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { cookies: { get: (name: string) => cookieStore.get(name)?.value } }
+    );
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json();
     const { sos_id, patient_id, recipient_ids, location } = body as {
       sos_id?: string;
@@ -55,6 +68,26 @@ export async function POST(request: NextRequest) {
     // Cap recipients to prevent abuse
     if (recipient_ids.length > 20) {
       return NextResponse.json({ error: 'Too many recipients' }, { status: 400 });
+    }
+
+    const { data: patientRelationship } = await supabaseAdmin
+      .from('care_circle')
+      .select('member_id, contact_status, is_emergency')
+      .eq('patient_id', patient_id)
+      .eq('member_id', user.id)
+      .eq('contact_status', 'accepted')
+      .eq('is_emergency', true)
+      .maybeSingle();
+    const { data: patientGrant } = await supabaseAdmin
+      .from('grants')
+      .select('id')
+      .eq('patient_id', patient_id)
+      .eq('grantee_id', user.id)
+      .eq('category', 'emergency_alerts')
+      .is('revoked_at', null)
+      .maybeSingle();
+    if (user.id !== patient_id && !patientRelationship && !patientGrant) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     // Fetch patient profile
@@ -87,6 +120,19 @@ export async function POST(request: NextRequest) {
     }
 
     const recipients = recipientProfiles ?? [];
+    const { data: authorizedRecipients } = await supabaseAdmin
+      .from('care_circle')
+      .select('member_id')
+      .eq('patient_id', patient_id)
+      .eq('contact_status', 'accepted')
+      .in('member_id', recipient_ids);
+    const authorizedRecipientIds = new Set(
+      (authorizedRecipients ?? []).map(({ member_id }) => member_id).filter(Boolean)
+    );
+    if (authorizedRecipientIds.size !== recipient_ids.length) {
+      return NextResponse.json({ error: 'Recipients are not authorized for this patient' }, { status: 403 });
+    }
+    const authorizedRecipientsList = recipients.filter(({ id }) => authorizedRecipientIds.has(id));
     const now = new Date();
     const timeString = now.toLocaleString('en-US', {
       weekday: 'long',
@@ -172,10 +218,9 @@ export async function POST(request: NextRequest) {
 
     let sent = 0;
     let failed = 0;
-    const sentTo: string[] = [];
 
     // ── Email alerts ──────────────────────────────────────────────────────────
-    for (const recipient of recipients) {
+    for (const recipient of authorizedRecipientsList) {
       if (!recipient.email) { failed++; continue; }
       try {
         const { error: emailError } = await resend.emails.send({
@@ -184,7 +229,7 @@ export async function POST(request: NextRequest) {
           subject: `SOS Alert — ${patientName} needs help`,
           html: emailHtml,
         });
-        if (emailError) { failed++; } else { sent++; sentTo.push(recipient.email); }
+        if (emailError) { failed++; } else { sent++; }
       } catch { failed++; }
     }
 
@@ -236,7 +281,7 @@ export async function POST(request: NextRequest) {
     const smsSandbox = AT_USERNAME === 'sandbox';
 
     if (AT_API_KEY) {
-      const phoneNumbers = (recipients as Array<{ phone?: string | null }>)
+      const phoneNumbers = (authorizedRecipientsList as Array<{ phone?: string | null }>)
         .map((r) => r.phone)
         .filter((p): p is string => Boolean(p))
         .join(',');
@@ -268,7 +313,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ sent, failed, recipients: sentTo, sms: { sent: smsSent, failed: smsFailed, sandbox: smsSandbox } });
+    return NextResponse.json({ sent, failed, sms: { sent: smsSent, failed: smsFailed, sandbox: smsSandbox } });
   } catch (err) {
     console.error('SOS route error:', err);
     return NextResponse.json(

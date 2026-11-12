@@ -5,7 +5,7 @@ import AdminHeader from '../../../components/admin/AdminHeader';
 import InactivityLogout from '../../../components/InactivityLogout';
 
 export default async function AdminProtectedLayout({ children }: { children: React.ReactNode }) {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) redirect('/admin/login');

@@ -3,8 +3,8 @@ import { createClient as createAdminClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-function adminGuard() {
-  const cookieStore = cookies();
+async function adminGuard() {
+  const cookieStore = await cookies();
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -19,7 +19,7 @@ function adminClient() {
   );
 }
 
-async function requireAdmin(supabase: ReturnType<typeof adminGuard>) {
+async function requireAdmin(supabase: Awaited<ReturnType<typeof adminGuard>>) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
@@ -29,7 +29,7 @@ async function requireAdmin(supabase: ReturnType<typeof adminGuard>) {
 
 // GET — list pending (and recent) clinician_verifications
 export async function GET() {
-  const supabase = adminGuard();
+  const supabase = await adminGuard();
   const user = await requireAdmin(supabase);
   if (!user) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
@@ -55,7 +55,7 @@ export async function GET() {
 // PATCH — approve or reject a verification
 // Body: { id: string; action: 'approve' | 'reject'; notes?: string }
 export async function PATCH(req: NextRequest) {
-  const supabase = adminGuard();
+  const supabase = await adminGuard();
   const adminUser = await requireAdmin(supabase);
   if (!adminUser) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 

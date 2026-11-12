@@ -28,7 +28,7 @@ function StatCard({
 }
 
 export default async function AdminOverviewPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
