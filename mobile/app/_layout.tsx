@@ -560,7 +560,7 @@ const bioStyles = StyleSheet.create({
 // ── Root layout ───────────────────────────────────────────────────────────────
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
+  useFonts({
     "Fraunces-SemiBold":      Fraunces_600SemiBold,
     "PlusJakartaSans-Regular": PlusJakartaSans_400Regular,
     "PlusJakartaSans-Medium":  PlusJakartaSans_500Medium,
@@ -973,6 +973,9 @@ export default function RootLayout() {
     const splashTimer = setTimeout(() => {
       setSplashExiting(true)
     }, 1800)
+    const splashFallbackTimer = setTimeout(() => {
+      setSplashDone(true)
+    }, 3_000)
 
     const appStateSub = AppState.addEventListener(
       "change",
@@ -1011,6 +1014,7 @@ export default function RootLayout() {
       notifTapSub.remove()
 
       clearTimeout(splashTimer)
+      clearTimeout(splashFallbackTimer)
 
       if (autoApplyTimer.current) clearTimeout(autoApplyTimer.current)
 
@@ -1113,7 +1117,7 @@ export default function RootLayout() {
           />
         </Stack>
 
-        {(!initialized || !fontsLoaded) && (
+        {!initialized && (
           <View style={styles.startupOverlay}>
             <ActivityIndicator size="large" color={colors.coral} />
             <Text style={styles.startupText}>Loading epimoyo…</Text>
