@@ -37,6 +37,8 @@ function Nav() {
           <a href="#patients" className="hover:text-[#1F7A72] transition-colors">For Patients</a>
           <a href="#clinicians" className="hover:text-[#1F7A72] transition-colors">For Clinicians</a>
           <a href="#how-it-works" className="hover:text-[#1F7A72] transition-colors">How it works</a>
+          <a href="#safety" className="hover:text-[#1F7A72] transition-colors">Safety</a>
+          <a href="#faq" className="hover:text-[#1F7A72] transition-colors">FAQ</a>
         </nav>
         <div className="flex items-center gap-3">
           <Link
@@ -310,6 +312,99 @@ function HowItWorks() {
   );
 }
 
+function SafetyAndSupport() {
+  const items = [
+    {
+      icon: '🔒',
+      title: 'Private by design',
+      desc: 'Your care data is shared only with the people and clinicians you authorize. You can review and change access at any time.',
+    },
+    {
+      icon: '🆘',
+      title: 'Built for urgent moments',
+      desc: 'SOS alerts help notify your care circle with the information they need. epimoyo does not replace emergency services.',
+    },
+    {
+      icon: '👩‍⚕️',
+      title: 'Designed with care teams',
+      desc: 'Clinicians get structured seizure, medication, and follow-up information instead of scattered messages and paper notes.',
+    },
+  ];
+
+  return (
+    <section id="safety" className="py-20 px-6 bg-white">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-12">
+          <span className="text-sm font-semibold text-[#1F7A72] uppercase tracking-widest">Care you can trust</span>
+          <h2
+            style={{ fontFamily: "'Fraunces', Georgia, serif" }}
+            className="text-3xl md:text-4xl font-bold text-[#0C1F20] mt-3"
+          >
+            Safety, clarity, and support at every step
+          </h2>
+          <p className="text-[#3A5255] mt-4 max-w-2xl mx-auto">
+            epimoyo helps people coordinate epilepsy care. It is not a diagnosis tool or a substitute for emergency medical services.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {items.map((item) => (
+            <div key={item.title} className="rounded-2xl border border-[#D6CFC4] bg-[#F5EFE3] p-6">
+              <div className="text-3xl mb-4">{item.icon}</div>
+              <h3 className="font-semibold text-[#0C1F20] text-lg mb-2">{item.title}</h3>
+              <p className="text-sm text-[#6B8588] leading-relaxed">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 rounded-2xl bg-[#12383A] px-6 py-7 text-center">
+          <p className="text-[#CFE0D8] mb-4">Need help getting started or have a question about access?</p>
+          <a
+            href="mailto:support@epimoyo.health?subject=epimoyo%20support"
+            className="inline-block rounded-xl bg-[#E8603C] px-6 py-3 font-semibold text-white hover:bg-[#c94e2d] transition-colors"
+          >
+            Contact support
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FAQ() {
+  const questions = [
+    ['Is epimoyo free for patients?', 'Yes. Patients can download the Android APK directly from this website and create an account in the app.'],
+    ['Can my family or clinician see my data?', 'Only when you invite them or accept a care-link request. Access is controlled through your care circle and can be reviewed.'],
+    ['Does epimoyo replace emergency services?', 'No. Call your local emergency number for an emergency. epimoyo helps notify your chosen care contacts and organize information.'],
+    ['How do I get clinician access?', 'Use the clinician access request button or ask your care team to invite you through the clinician portal.'],
+  ];
+
+  return (
+    <section id="faq" className="py-20 px-6 bg-[#F5EFE3]">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-12">
+          <span className="text-sm font-semibold text-[#1F7A72] uppercase tracking-widest">Questions</span>
+          <h2
+            style={{ fontFamily: "'Fraunces', Georgia, serif" }}
+            className="text-3xl md:text-4xl font-bold text-[#0C1F20] mt-3"
+          >
+            Frequently asked questions
+          </h2>
+        </div>
+        <div className="space-y-4">
+          {questions.map(([question, answer]) => (
+            <details key={question} className="group rounded-2xl border border-[#D6CFC4] bg-white p-5">
+              <summary className="cursor-pointer list-none pr-8 font-semibold text-[#0C1F20] relative">
+                {question}
+                <span className="absolute right-0 text-[#1F7A72] group-open:rotate-45 transition-transform" aria-hidden="true">+</span>
+              </summary>
+              <p className="text-sm text-[#6B8588] leading-relaxed mt-3">{answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Footer() {
   return (
     <footer className="bg-[#0C1F20] text-[#CFE0D8] py-14 px-6">
@@ -327,6 +422,8 @@ function Footer() {
               <li><a href="#download" className="hover:text-white transition-colors">Download epimoyo</a></li>
               <li><a href="#patients" className="hover:text-white transition-colors">For patients</a></li>
               <li><a href="#how-it-works" className="hover:text-white transition-colors">How it works</a></li>
+              <li><a href="#safety" className="hover:text-white transition-colors">Safety and support</a></li>
+              <li><a href="#faq" className="hover:text-white transition-colors">FAQ</a></li>
             </ul>
           </div>
           <div>
@@ -362,6 +459,8 @@ export default function LandingPage() {
         <AppDownload />
         <ClinicianFeatures />
         <HowItWorks />
+        <SafetyAndSupport />
+        <FAQ />
       </main>
       <Footer />
     </>
